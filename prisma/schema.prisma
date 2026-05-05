@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Organization {
+  id            String        @id @default(cuid())
+  clerkOrgId    String        @unique
+  name          String
+  plan          Plan          @default(FREE)
+  createdAt     DateTime      @default(now())
+  calls         CallLog[]
+  sessions      Session[]
+  agents        Agent[]
+  knowledgeDocs KnowledgeDoc[]
+}
+
+model Agent {
+  id          String     @id @default(cuid())
+  clerkUserId String     @unique
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id])
+  role        AgentRole  @default(AGENT)
+  isAvailable Boolean    @default(false)
+  sessions    Session[]
+  createdAt   DateTime   @default(now())
+}
+
+model Session {
+  id           String        @id @default(cuid())
+  orgId        String
+  org          Organization  @relation(fields: [orgId], references: [id])
+  channel      Channel
+  language     String        @default("auto")
+  status       SessionStatus
+  customerId   String?
+  agentId      String?
+  agent        Agent?        @relation(fields: [agentId], references: [id])
+  messages     Message[]
+  summary      String?
+  sentiment    Float?
+  resolvedByAI Boolean       @default(false)
+  startedAt    DateTime      @default(now())
+  endedAt      DateTime?
+  createdAt    DateTime      @default(now())
+  callLog      CallLog?
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   Session     @relation(fields: [sessionId], references: [id])
+  role      MessageRole
+  content   String
+  audioUrl  String?
+  createdAt DateTime    @default(now())
+}
+
+model KnowledgeDoc {
+  id         String       @id @default(cuid())
+  orgId      String
+  org        Organization @relation(fields: [orgId], references: [id])
+  title      String
+  content    String
+  pineconeId String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model CallLog {
+  id           String   @id @default(cuid())
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id])
+  sessionId    String   @unique
+  session      Session  @relation(fields: [sessionId], references: [id])
+  twilioCallSid String?
+  duration     Int?
+  recordingUrl String?
+  transcript   String?
+  qaScore      Float?
+  createdAt    DateTime @default(now())
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum Channel {
+  VOICE
+  CHAT
+  SMS
+  WHATSAPP
+  EMAIL
+}
+
+enum SessionStatus {
+  ACTIVE
+  WAITING
+  BOT
+  HUMAN
+  RESOLVED
+  ABANDONED
+}
+
+enum MessageRole {
+  USER
+  BOT
+  AGENT
+  SYSTEM
+}
+
+enum AgentRole {
+  AGENT
+  SUPERVISOR
+  ADMIN
+}
+
