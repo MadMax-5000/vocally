@@ -7,42 +7,51 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const BASE_SPHERES = [
   {
-    id: "arabic",
-    imageSrc: "/images/background1.png",
+    id: "abstract-1",
+    imageSrc: "/images/abstract1.png",
     title: "Arabic Support",
     description: "Natural Darija voice for your Moroccan customers.",
     audioSrc: "/audio/piano-c4.wav",
   },
   {
-    id: "french",
-    imageSrc: "/images/background2.png",
+    id: "abstract-2",
+    imageSrc: "/images/abstract2.png",
     title: "French Pro",
     description: "Smooth French voice for enterprise calls.",
     audioSrc: "/audio/piano-c4.wav",
   },
   {
-    id: "english",
-    imageSrc: "/images/background3.png",
+    id: "abstract-3",
+    imageSrc: "/images/abstract3.jpeg",
     title: "English Agent",
     description: "Crisp English voice for international clients.",
     audioSrc: "/audio/piano-c4.wav",
   },
   {
-    id: "multilingual",
-    imageSrc: "/images/background4.png",
+    id: "abstract-4",
+    imageSrc: "/images/abtract4.png",
     title: "Multilingual",
     description: "Seamlessly switches language mid-conversation.",
     audioSrc: "/audio/piano-c4.wav",
   },
+  {
+    id: "abstract-5",
+    imageSrc: "/images/abstract5.jpeg",
+    title: "Always On",
+    description: "Answers instantly — day, night, weekends.",
+    audioSrc: "/audio/piano-c4.wav",
+  },
+  {
+    id: "abstract-6",
+    imageSrc: "/images/abstract6.jpeg",
+    title: "Fast Escalation",
+    description: "Hands off to a human when needed.",
+    audioSrc: "/audio/piano-c4.wav",
+  },
 ] as const;
 
-// Duplicate array to ensure perfectly symmetric distances in the carousel loop
-const SPHERES = [
-  ...BASE_SPHERES.map((s) => ({ ...s, id: `${s.id}-1` })),
-  ...BASE_SPHERES.map((s) => ({ ...s, id: `${s.id}-2` })),
-];
-
-const COUNT = SPHERES.length; // 8
+const SPHERES = BASE_SPHERES;
+const COUNT = SPHERES.length; // 6
 
 interface SlotValues {
   x: number;
@@ -58,8 +67,10 @@ function slotValues(dist: number): SlotValues {
   const sign = Math.sign(dist);
 
   if (abs === 0) return { x: 0,          scale: 1.0,  opacity: 1.0,  blurPx: 0,  zIndex: 10, pointerEvents: "auto" };
-  if (abs === 1) return { x: sign * 248, scale: 0.70, opacity: 0.65, blurPx: 4,  zIndex: 5,  pointerEvents: "auto" };
-  if (abs === 2) return { x: sign * 455, scale: 0.48, opacity: 0.18, blurPx: 9,  zIndex: 1,  pointerEvents: "auto" };
+  // Keep the main 3 (center + immediate neighbors) crisp.
+  if (abs === 1) return { x: sign * 272, scale: 0.70, opacity: 0.65, blurPx: 0,  zIndex: 5,  pointerEvents: "auto" };
+  // Only the far edges get blurred.
+  if (abs === 2) return { x: sign * 510, scale: 0.48, opacity: 0.18, blurPx: 10, zIndex: 1,  pointerEvents: "auto" };
   return                { x: sign * 650, scale: 0.30, opacity: 0,    blurPx: 14, zIndex: 0,  pointerEvents: "none" };
 }
 
@@ -173,20 +184,20 @@ export function HeroVoiceSpheres() {
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                marginTop: -130,
-                marginLeft: -130,
+                marginTop: -117,
+                marginLeft: -117,
                 zIndex,
                 pointerEvents,
               }}
               onClick={() => !isCentered && goTo(virtualIndex)}
               className={!isCentered && opacity > 0 ? "cursor-pointer" : undefined}
             >
-              <div className="relative h-[260px] w-[260px] select-none overflow-hidden rounded-full">
+              <div className="relative h-[234px] w-[234px] select-none overflow-hidden rounded-full">
                 <Image
                   src={sphere.imageSrc}
                   alt={sphere.title}
                   fill
-                  sizes="260px"
+                  sizes="234px"
                   className="object-cover"
                   draggable={false}
                   priority={i <= 1}

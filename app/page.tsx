@@ -69,19 +69,19 @@ export default function HomePage() {
             <span className="font-display text-title-md tracking-tight">Vocally</span>
           </a>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             <SignedOut>
-              <a className="text-nav-link text-body-strong hover:text-ink" href="/dashboard">
+              <a className="btn-primary" href="/dashboard">
                 Get started
               </a>
               <SignInButton>
-                <button className="text-nav-link text-body-strong hover:text-ink" type="button">
+                <button className="btn-outline" type="button">
                   Sign in
                 </button>
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <a className="text-nav-link text-body-strong hover:text-ink" href="/dashboard">
+              <a className="btn-outline" href="/dashboard">
                 Dashboard
               </a>
               <UserButton />

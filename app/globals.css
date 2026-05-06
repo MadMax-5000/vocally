@@ -19,12 +19,42 @@
 }
 
 @layer base {
+  :root {
+    --sidebar-width: 220px;
+    --sidebar-width-icon: 48px;
+  }
+
   html,
   body {
     height: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+  }
+
+  /* Global scrollbar styling (Firefox + Chromium/Safari) */
+  * {
+    scrollbar-color: #0c0a09 #ffffff;
+    scrollbar-width: thin;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #0c0a09;
+    border-radius: 9999px;
+    border: 2px solid #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #292524;
   }
 
   body {
@@ -50,7 +80,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex h-10 items-center justify-center rounded-pill bg-primary px-5 py-2.5 text-button text-on-primary transition-colors;
+    @apply inline-flex h-9 items-center justify-center rounded-pill bg-primary px-4 py-1.5 text-button text-on-primary transition-colors;
   }
 
   .btn-primary:hover {
@@ -62,7 +92,7 @@
   }
 
   .btn-outline {
-    @apply inline-flex h-10 items-center justify-center rounded-pill border border-hairline-strong bg-transparent px-5 py-2.5 text-button text-ink transition;
+    @apply inline-flex h-9 items-center justify-center rounded-pill border border-hairline-strong bg-transparent px-4 py-1.5 text-button text-ink transition;
   }
 
   .btn-outline:hover {

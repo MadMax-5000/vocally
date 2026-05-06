@@ -161,7 +161,7 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Buttons
 
-**`button-primary`** — Terracotta pill. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (15px / 500), padding 10px × 20px, height 40px, rounded `{rounded.pill}`.
+**`button-primary`** — Terracotta pill. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (15px / 500), padding 6px × 16px, height 36px, rounded `{rounded.pill}`.
 
 **`button-primary-active`** — Press state. Background `{colors.primary-active}`.
 

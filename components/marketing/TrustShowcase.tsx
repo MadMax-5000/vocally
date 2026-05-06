@@ -250,7 +250,7 @@ export function TrustShowcase() {
             </h2>
             <a
               href="/dashboard"
-              className="mt-6 inline-flex h-10 items-center rounded-pill bg-ink px-5 text-button text-on-primary transition-colors hover:bg-body-strong"
+              className="mt-6 inline-flex h-9 items-center rounded-pill bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
             >
               Learn more
             </a>
