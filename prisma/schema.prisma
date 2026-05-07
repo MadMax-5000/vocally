@@ -21,14 +21,18 @@ model Organization {
 }
 
 model Agent {
-  id          String     @id @default(cuid())
-  clerkUserId String     @unique
-  orgId       String
-  org         Organization @relation(fields: [orgId], references: [id])
-  role        AgentRole  @default(AGENT)
-  isAvailable Boolean    @default(false)
-  sessions    Session[]
-  createdAt   DateTime   @default(now())
+  id           String     @id @default(cuid())
+  clerkUserId  String?     @unique
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id])
+  role         AgentRole  @default(AGENT)
+  isAvailable  Boolean    @default(false)
+  name         String?
+  title        String?
+  field        String?
+  instructions String?
+  sessions     Session[]
+  createdAt    DateTime   @default(now())
 }
 
 model Session {

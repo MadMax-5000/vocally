@@ -6,6 +6,13 @@ node_modules/
 .env.* 
 !.env.example
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Windows oddities
+nul
+
 # build output
 dist/
 out/

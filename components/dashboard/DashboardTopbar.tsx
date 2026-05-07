@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { MessageCircle, BookOpen, Sparkles, Bell, Gauge } from "lucide-react"
+import { MessageCircle, BookOpen, Bell } from "lucide-react"
 
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"

@@ -8,7 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <div className="flex min-h-dvh flex-1 flex-col bg-surface-card">
         <DashboardTopbar />

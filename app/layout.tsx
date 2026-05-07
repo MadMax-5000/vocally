@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 import { inter } from "./fonts";
@@ -14,6 +15,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
         <ClerkProvider>{children}</ClerkProvider>
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: {
+              borderRadius: "16px",
+              fontFamily: "var(--font-inter)",
+              fontSize: "14px",
+            },
+          }}
+        />
       </body>
     </html>
   );

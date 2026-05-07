@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-ink text-canvas hover:bg-ink/90",
-        primary: "bg-primary text-on-primary hover:bg-primary/90 active:bg-primary-active",
+        primary: "bg-primary text-white hover:bg-primary/90 active:bg-primary-active",
         outline: "border border-hairline-strong bg-transparent text-ink hover:border-secondary hover:bg-secondary/20",
         ghost: "bg-transparent text-ink hover:bg-surface-strong",
         link: "text-ink underline-offset-4 hover:underline",

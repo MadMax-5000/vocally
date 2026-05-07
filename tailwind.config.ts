@@ -78,8 +78,8 @@ const config: Config = {
       }
     }
   },
-  plugins: []
-};
+   safelist: ["text-on-primary", "text-on-secondary", "bg-on-primary", "bg-on-secondary"]
+  };
 
 export default config;
 

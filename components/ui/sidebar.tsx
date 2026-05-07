@@ -21,7 +21,7 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "220px"
+const SIDEBAR_WIDTH = "240px"
 const SIDEBAR_WIDTH_ICON = "48px"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -372,7 +372,7 @@ const SidebarGroupLabel = React.forwardRef<
       ref={ref}
       data-sidebar="group-label"
       className={cn(
-        "mb-0.5 mt-2 flex h-6 shrink-0 items-center rounded-md px-2 text-[11px] font-medium uppercase tracking-wide text-muted outline-none ring-offset-canvas transition-[margin,opacity] ease-linear focus-visible:ring-2 focus-visible:ring-ink",
+        "mb-0.5 mt-2 flex h-6 shrink-0 items-center rounded-md px-2 text-[12px] font-medium uppercase tracking-wide text-muted outline-none ring-offset-canvas transition-[margin,opacity] ease-linear focus-visible:ring-2 focus-visible:ring-ink",
         "group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none",
         className
       )}
@@ -444,7 +444,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-none text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-[14px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-none text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-[16px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink",
   {
     variants: {
       variant: {
