@@ -1,22 +1,49 @@
 import Link from "next/link";
-import { Camera, Link2, Music, Play, X, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
 type SocialLink = {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
 };
+
+const Instagram: React.FC<{ className?: string }> = ({ className }) => (
+  <Image
+    src="https://thesvg.org/icons/instagram/mono.svg"
+    alt="Instagram"
+    width={24}
+    height={24}
+    className={className}
+  />
+);
+
+const X: React.FC<{ className?: string }> = ({ className }) => (
+  <Image
+    src="https://thesvg.org/icons/x/default.svg"
+    alt="Instagram"
+    width={24}
+    height={24}
+    className={className}
+  />
+);
+
+const LinkedinIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <Image
+    src="/icons/linkedin.svg"
+    alt="Instagram"
+    width={24}
+    height={24}
+    className={className}
+  />
+);
+
 
 const socials: SocialLink[] = [
   { label: "X", href: "#", icon: X },
-  // Lucide in this repo doesn't ship official brand icons for all platforms,
-  // so we use tasteful, platform-adjacent glyphs while staying within lucide-react.
-  { label: "LinkedIn", href: "#", icon: Link2 },
-  { label: "YouTube", href: "#", icon: Play },
-  { label: "Instagram", href: "#", icon: Camera },
-  { label: "TikTok", href: "#", icon: Music }
+  { label: "LinkedIn", href: "#", icon:  LinkedinIcon},
+  { label: "Instagram", href: "#", icon: Instagram },
 ];
 
 export function MarketingFooter() {

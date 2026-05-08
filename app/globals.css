@@ -76,6 +76,14 @@
     text-rendering: optimizeLegibility;
     text-wrap: balance;
   }
+
+  ::selection {
+    background-color: rgba(255, 90, 54, 0.25);
+  }
+
+  ::-moz-selection {
+    background-color: rgba(255, 90, 54, 0.25);
+  }
 }
 
 @layer components {

@@ -92,7 +92,7 @@ export default function HomePage() {
 
       <section className="min-h-[calc(100dvh-4rem)] py-12">
         <div className={[container, "relative flex min-h-[calc(100dvh-4rem-8rem)] items-center justify-center"].join(" ")}>
-          <div className="flex max-w-[980px] flex-col items-center pb-24 text-center">
+          <div className="flex max-w-[1000px] flex-col items-center pb-24 text-center">
             <h1 className="font-display text-display-xl tracking-tighter text-balance md:text-display-mega">
               AI Agents that take care of your{" "}
               <span className="text-primary underline decoration-secondary/70 underline-offset-[0.18em]">

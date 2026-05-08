@@ -41,6 +41,7 @@
     "sonner": "^2.0.7",
     "svix": "^1.92.2",
     "tailwind-merge": "^3.5.0",
+    "thesvg": "^2.1.8",
     "zod": "^4.1.5"
   },
   "devDependencies": {
