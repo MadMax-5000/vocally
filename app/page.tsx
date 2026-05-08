@@ -10,7 +10,7 @@ import { BentoShowcase } from "@/components/marketing/BentoShowcase";
 import { TrustShowcase } from "@/components/marketing/TrustShowcase";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
-const container = "mx-auto w-full max-w-[1200px] px-6";
+const container = "mx-auto w-full max-w-[1200px] px-4";
 
 function SectionLabel({
   children
@@ -90,7 +90,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="min-h-[calc(100dvh-4rem)] py-16">
+      <section className="min-h-[calc(100dvh-4rem)] py-12">
         <div className={[container, "relative flex min-h-[calc(100dvh-4rem-8rem)] items-center justify-center"].join(" ")}>
           <div className="flex max-w-[980px] flex-col items-center pb-24 text-center">
             <h1 className="font-display text-display-xl tracking-tighter text-balance md:text-display-mega">

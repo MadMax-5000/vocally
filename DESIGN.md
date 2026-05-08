@@ -55,20 +55,20 @@ CTAs are subtle: a warm-coral pill (`{component.button-primary}`) is the primary
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
 |---|---|---|---|---|---|
-| `{typography.display-mega}` | 64px | Bold | 1.05 | -1.92px | Homepage hero h1 |
-| `{typography.display-xl}` | 48px | Bold | 1.08 | -0.96px | Subsidiary heroes |
-| `{typography.display-lg}` | 36px | Bold | 1.17 | -0.36px | Section heads |
-| `{typography.display-md}` | 32px | Bold | 1.13 | -0.32px | Sub-section heads |
-| `{typography.display-sm}` | 24px | Bold | 1.2 | 0 | Card group titles |
-| `{typography.title-md}` | 20px | 500 | 1.35 | 0 | Component titles — Inter |
-| `{typography.title-sm}` | 18px | 500 | 1.44 | 0.18px | List labels |
-| `{typography.body-md}` | 16px | 400 | 1.5 | 0.16px | Default body — Inter |
-| `{typography.body-strong}` | 16px | 500 | 1.5 | 0.16px | Emphasized body |
-| `{typography.body-sm}` | 15px | 400 | 1.47 | 0.15px | Footer body |
-| `{typography.caption}` | 14px | 400 | 1.5 | 0 | Photo captions |
+| `{typography.display-mega}` | 56px | Bold | 1.05 | -1.6px | Homepage hero h1 |
+| `{typography.display-xl}` | 40px | Bold | 1.08 | -0.8px | Subsidiary heroes |
+| `{typography.display-lg}` | 30px | Bold | 1.17 | -0.28px | Section heads |
+| `{typography.display-md}` | 26px | Bold | 1.13 | -0.22px | Sub-section heads |
+| `{typography.display-sm}` | 20px | Bold | 1.2 | 0 | Card group titles |
+| `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Inter |
+| `{typography.title-sm}` | 16px | 500 | 1.44 | 0.14px | List labels |
+| `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Inter |
+| `{typography.body-strong}` | 15px | 500 | 1.55 | 0.14px | Emphasized body |
+| `{typography.body-sm}` | 14px | 400 | 1.5 | 0.12px | Secondary body |
+| `{typography.caption}` | 13px | 400 | 1.5 | 0 | Captions / helper text |
 | `{typography.caption-uppercase}` | 12px | 600 | 1.4 | 0.96px | Section labels, badges |
-| `{typography.button}` | 15px | 500 | 1.0 | 0 | CTA pill |
-| `{typography.nav-link}` | 15px | 500 | 1.4 | 0 | Top-nav menu |
+| `{typography.button}` | 14px | 500 | 1.0 | 0 | CTA pill |
+| `{typography.nav-link}` | 14px | 500 | 1.4 | 0 | Top-nav menu |
 
 ### Principles
 - **Display weight stays Bold.** Nimbus Sans L at a bold weight is the modern signature. Never use light weights for display copy.
@@ -114,8 +114,8 @@ export default function HeroSection() {
 
 ### Spacing System
 - **Base unit:** 4px.
-- **Tokens:** `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.base}` 16px · `{spacing.md}` 20px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 96px.
-- **Section padding:** 96px.
+- **Tokens:** `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.base}` 16px · `{spacing.md}` 20px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 72px.
+- **Section padding:** 72px.
 
 ### Grid & Container
 - Max content width: ~1200px.
@@ -124,7 +124,26 @@ export default function HeroSection() {
 - Footer: 5-column at desktop.
 
 ### Whitespace Philosophy
-Generous editorial pacing — print-magazine feel. 96px between bands; cards inside bands sit close (16-24px gap).
+Editorial pacing, but product-density defaults. 72px between bands; cards inside bands sit close (12-20px gap).
+
+### Dashboard density (premium)
+In-product dashboard UI should feel **clean and premium** by being **denser** than marketing pages. The separation comes from **hairlines, alignment, and typography** — not large padding.
+
+- **Default rhythm**: keep more content above the fold.
+  - Prefer `gap-3`/`gap-4` over `gap-6`/`gap-8`
+  - Prefer `p-3`/`p-4` over `p-6`
+  - Prefer `px-3`/`px-4` over `px-5`/`px-6`
+  - Prefer `py-2`/`py-3` over `py-4`
+
+- **Practical mapping (Tailwind)**:
+  - **Page wrapper**: `gap-8` → `gap-4`; `gap-6` → `gap-3`; avoid stacking extra `py-*` if the shell already provides padding.
+  - **Cards / panels**: `p-6` → `p-4`; `p-5` → `p-4`; `p-4` → `p-3` when content is mostly rows.
+  - **Tables**: header `px-4 py-3` → `px-3 py-2`; rows `px-4 py-4` → `px-3 py-2` (or `py-3` if scanning suffers).
+  - **Forms**: `space-y-8` → `space-y-5`; field blocks `space-y-2` → `space-y-1.5` (keep label-to-input proximity tight).
+
+- **Guardrails (don’t over-tighten)**:
+  - Keep **comfortable input/button heights** and touch targets; reduce the whitespace *around* controls first.
+  - If density starts to hurt scanning (tables) or comprehension (forms), step up one notch (e.g. `py-2` → `py-3`).
 
 ## Elevation & Depth
 
@@ -161,7 +180,7 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Buttons
 
-**`button-primary`** — Terracotta pill. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (15px / 500), padding 6px × 16px, height 36px, rounded `{rounded.pill}`.
+**`button-primary`** — Terracotta pill. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (14px / 500), padding 4px × 12px, height 32px, rounded `{rounded.pill}`.
 
 **`button-primary-active`** — Press state. Background `{colors.primary-active}`.
 
@@ -171,7 +190,7 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Hero & Atmospheric
 
-**`hero-band`** — Background `{colors.canvas}`, full-width centered display headline in `{typography.display-mega}` (64px / Bold / -1.92px), subhead in `{typography.body-md}`, and two CTAs.
+**`hero-band`** — Background `{colors.canvas}`, full-width centered display headline in `{typography.display-mega}` (56px / Bold / -1.6px), subhead in `{typography.body-md}`, and two CTAs.
 
 **`audio-waveform-card`** — A waveform visualization card. Background `{colors.surface-card}`, rounded `{rounded.xl}`, padding 24px. Holds a play button + waveform glyph + voice metadata.
 
@@ -197,13 +216,71 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Forms & Tags
 
-**`text-input`** — Background `{colors.surface-card}`, text `{colors.ink}`, rounded `{rounded.md}` (8px), padding 12px × 16px, height 44px, 1px `{colors.hairline-strong}` border. On focus, border thickens to 2px ink.
+**`text-input`** — Background `{colors.surface-card}`, text `{colors.ink}`, rounded `{rounded.md}` (8px), padding 8px × 12px, height 40px, 1px `{colors.hairline-strong}` border. On focus, border thickens to 2px ink.
 
 **`badge-pill`** — Background `{colors.surface-strong}`, text `{colors.ink}`, type `{typography.caption-uppercase}`, rounded `{rounded.pill}`, padding 4px × 10px.
 
+### Pill Badges
+
+Pills used for tags like status, labels, recommendations, and feature highlights across the UI. Keep the structure **identical** across variants — only change colors.
+
+#### SUCCESS / POSITIVE
+- Palette: `bg-emerald-50` · `text-emerald-700` · `ring-emerald-100`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-[2px] text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+  Success
+</span>
+```
+
+#### BRAND / RECOMMENDED
+- Palette: `bg-primary/10` · `text-primary` · `ring-primary/20`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-[2px] text-xs font-semibold text-primary ring-1 ring-inset ring-primary/20">
+  Recommended
+</span>
+```
+
+#### WARNING / CAUTION
+- Palette: `bg-amber-50` · `text-amber-800` · `ring-amber-100`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-[2px] text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-100">
+  Warning
+</span>
+```
+
+#### ERROR / DANGER
+- Palette: `bg-rose-50` · `text-rose-700` · `ring-rose-100`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-rose-50 px-3 py-[2px] text-xs font-semibold text-rose-700 ring-1 ring-inset ring-rose-100">
+  Error
+</span>
+```
+
+#### INFO / NEUTRAL
+- Palette: `bg-slate-50` · `text-slate-700` · `ring-slate-200`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-slate-50 px-3 py-[2px] text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200">
+  Info
+</span>
+```
+
+#### PREMIUM / FEATURED
+- Palette: `bg-violet-50` · `text-violet-700` · `ring-violet-100`
+
+```tsx
+<span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-[2px] text-xs font-semibold text-violet-700 ring-1 ring-inset ring-violet-100">
+  Premium
+</span>
+```
+
 ### CTA / Footer
 
-**`cta-band`** — Pre-footer. Background `{colors.canvas}`, centered display headline in `{typography.display-lg}`, single primary pill CTA. 96px padding.
+**`cta-band`** — Pre-footer. Background `{colors.canvas}`, centered display headline in `{typography.display-lg}`, single primary pill CTA. 72px padding.
 
 **`footer`** — Closing footer. Background `{colors.canvas}`, text `{colors.body}`. 5-column link list. 64×48px padding.
 

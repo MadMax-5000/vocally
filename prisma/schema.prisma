@@ -9,11 +9,11 @@ datasource db {
 }
 
 model Organization {
-  id            String        @id @default(cuid())
-  clerkOrgId    String        @unique
+  id            String         @id @default(cuid())
+  clerkOrgId    String         @unique
   name          String
-  plan          Plan          @default(FREE)
-  createdAt     DateTime      @default(now())
+  plan          Plan           @default(FREE)
+  createdAt     DateTime       @default(now())
   calls         CallLog[]
   sessions      Session[]
   agents        Agent[]
@@ -21,18 +21,66 @@ model Organization {
 }
 
 model Agent {
-  id           String     @id @default(cuid())
-  clerkUserId  String?     @unique
-  orgId        String
-  org          Organization @relation(fields: [orgId], references: [id])
-  role         AgentRole  @default(AGENT)
-  isAvailable  Boolean    @default(false)
-  name         String?
-  title        String?
-  field        String?
-  instructions String?
-  sessions     Session[]
-  createdAt    DateTime   @default(now())
+  id    String       @id @default(cuid())
+  orgId String
+  org   Organization @relation(fields: [orgId], references: [id])
+
+  name      String
+  avatarUrl String?
+
+  agentType    AgentType       @default(RETAIL_ECOMMERCE)
+  customRole   String?
+  tone         AgentTone       @default(PROFESSIONAL)
+  customTone   String?
+  creativity   CreativityLevel @default(BALANCED)
+  instructions String?         @db.Text
+
+  description    String?     @db.Text
+  websiteUrl     String?
+  welcomeMessage String?     @db.Text
+  handoffEnabled Boolean     @default(true)
+  status         AgentStatus @default(ACTIVE)
+
+  languages     AgentLanguage[]
+  channels      AgentChannel[]
+  knowledgeDocs AgentKnowledgeDoc[]
+
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([orgId, name])
+  @@index([orgId])
+}
+
+model AgentLanguage {
+  id       String            @id @default(cuid())
+  agentId  String
+  language SupportedLanguage
+  agent    Agent             @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, language])
+}
+
+model AgentChannel {
+  id      String           @id @default(cuid())
+  agentId String
+  channel AgentChannelType
+  enabled Boolean          @default(true)
+  config  Json?
+  agent   Agent            @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, channel])
+}
+
+model AgentKnowledgeDoc {
+  id             String       @id @default(cuid())
+  agentId        String
+  knowledgeDocId String
+  agent          Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  knowledgeDoc   KnowledgeDoc @relation(fields: [knowledgeDocId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, knowledgeDocId])
 }
 
 model Session {
@@ -53,6 +101,8 @@ model Session {
   endedAt      DateTime?
   createdAt    DateTime      @default(now())
   callLog      CallLog?
+
+  @@index([orgId])
 }
 
 model Message {
@@ -63,6 +113,8 @@ model Message {
   content   String
   audioUrl  String?
   createdAt DateTime    @default(now())
+
+  @@index([sessionId])
 }
 
 model KnowledgeDoc {
@@ -72,22 +124,30 @@ model KnowledgeDoc {
   title      String
   content    String
   pineconeId String?
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+
+  sourceType String?
+  sourceUrl  String?
+  fileUrl    String?
+
+  agents    AgentKnowledgeDoc[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([orgId])
 }
 
 model CallLog {
-  id           String   @id @default(cuid())
-  orgId        String
-  org          Organization @relation(fields: [orgId], references: [id])
-  sessionId    String   @unique
-  session      Session  @relation(fields: [sessionId], references: [id])
+  id            String       @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id])
+  sessionId     String       @unique
+  session       Session      @relation(fields: [sessionId], references: [id])
   twilioCallSid String?
-  duration     Int?
-  recordingUrl String?
-  transcript   String?
-  qaScore      Float?
-  createdAt    DateTime @default(now())
+  duration      Int?
+  recordingUrl  String?
+  transcript    String?
+  qaScore       Float?
+  createdAt     DateTime     @default(now())
 }
 
 enum Plan {
@@ -121,9 +181,62 @@ enum MessageRole {
   SYSTEM
 }
 
-enum AgentRole {
-  AGENT
-  SUPERVISOR
-  ADMIN
+enum AgentStatus {
+  ACTIVE
+  PAUSED
+  DRAFT
 }
 
+enum AgentType {
+  RETAIL_ECOMMERCE
+  HEALTHCARE_MEDICAL
+  FINANCE_BANKING
+  REAL_ESTATE
+  EDUCATION_TRAINING
+  HOSPITALITY_TRAVEL
+  AUTOMOTIVE
+  PROFESSIONAL_SERVICES
+  TECHNOLOGY_SOFTWARE
+  GOVERNMENT_PUBLIC
+  FOOD_BEVERAGE
+  MANUFACTURING
+  CUSTOM
+}
+
+enum AgentTone {  
+  PROFESSIONAL
+  FRIENDLY
+  LUXURY
+  FAST_CONCISE
+  EMPATHETIC
+  ENERGETIC
+  CALM
+  CONFIDENT
+  CONVERSATIONAL
+  FORMAL
+  SUPPORTIVE
+}
+
+enum CreativityLevel {
+  STRICT
+  BALANCED
+  CREATIVE
+}
+
+enum AgentChannelType {
+  WEB_CHAT
+  WHATSAPP
+  VOICE_CALLS
+  MESSENGER
+  INSTAGRAM
+  SLACK
+  EMAIL
+  SMS
+}
+
+enum SupportedLanguage {
+  ARABIC
+  DARIJA
+  FRENCH
+  ENGLISH
+}
