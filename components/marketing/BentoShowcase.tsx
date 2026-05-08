@@ -58,7 +58,7 @@ export function BentoShowcase() {
             </h2>
             <a
               href="/dashboard"
-              className="mt-6 inline-flex h-9 items-center rounded-pill bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
+              className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
             >
               Learn more
             </a>
@@ -124,7 +124,7 @@ export function BentoShowcase() {
 
                 {/* Status pill */}
                 <div className="flex justify-start">
-                  <div className="mt-1 flex items-center gap-2 rounded-pill bg-primary px-4 py-1.5 text-on-primary">
+                  <div className="mt-1 flex items-center gap-2 rounded-md bg-primary px-4 py-1.5 text-on-primary">
                     <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="text-[14px] font-medium">Refund completed</span>
                   </div>

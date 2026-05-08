@@ -71,7 +71,7 @@ function OverlayPanel({ children }: { children: React.ReactNode }) {
 
 function StatusPill({ icon, label }: StatusPillProps) {
   return (
-    <div className="inline-flex items-center gap-2 self-start rounded-pill bg-ink/95 px-3 py-1.5 backdrop-blur-sm">
+    <div className="inline-flex items-center gap-2 self-start rounded-md bg-ink/95 px-3 py-1.5 backdrop-blur-sm">
       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/95 text-ink">
         {icon}
       </span>
@@ -250,7 +250,7 @@ export function TrustShowcase() {
             </h2>
             <a
               href="/dashboard"
-              className="mt-6 inline-flex h-9 items-center rounded-pill bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
+              className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
             >
               Learn more
             </a>

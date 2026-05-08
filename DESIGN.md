@@ -4,14 +4,14 @@ ElevenLabs reads like a quietly editorial print magazine that happens to be a vo
 
 Type pairs **Nimbus Sans L** (modern sans-serif at bold weight) for display with **Inter** for body, navigation, captions. The bold display weight is the modern signature.
 
-CTAs are subtle: a warm-coral pill (`{component.button-primary}`) is the primary, a transparent outline (`{component.button-outline}`) is the secondary. The brand trusts typography and whitespace to carry the design.
+CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the primary, a transparent outline (`{component.button-outline}`) is the secondary. The brand trusts typography and whitespace to carry the design.
 
 **Key Characteristics:**
 - Strictly light mode. Off-white canvas, warm near-black ink. No dark canvas surfaces.
-- Single primary action: brand pill at `{rounded.pill}`.
+- Single primary action: brand button at `{rounded.md}`.
 - Display runs Nimbus Sans L at bold weight — modern sans-serif hero voice.
 - Body runs Inter at 400 with subtle letter-spacing (+0.15-0.18px).
-- Soft pill geometry (`{rounded.pill}` for CTAs, `{rounded.xl}` for cards).
+- Soft geometry (`{rounded.md}` for buttons, `{rounded.xl}` for cards).
 - 96px section rhythm.
 
 ## Colors
@@ -84,7 +84,7 @@ Use these **together** for an ElevenLabs-style crisp, editorial feel. Prefer des
 
 - **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Nimbus Sans L** at bold per the hierarchy table.
 - **Body / subcopy:** `text-body` or `text-muted`, `leading-relaxed`, `text-pretty`. Keep **subtle positive** body tracking from `{typography.body-*}` — do not put `tracking-tighter` on long body paragraphs.
-- **UI / CTAs:** `tracking-wide` on short bold label text; primary actions use `{component.button-primary}` / `bg-primary` + `text-on-primary` + `rounded-pill`, or the `.btn-primary` class from global CSS.
+- **UI / CTAs:** `tracking-wide` on short bold label text; primary actions use `{component.button-primary}` / `bg-primary` + `text-on-primary` + `rounded-md`, or the `.btn-primary` class from global CSS.
 
 **Example (token-aligned hero strip):**
 
@@ -180,11 +180,11 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Buttons
 
-**`button-primary`** — Terracotta pill. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (14px / 500), padding 4px × 12px, height 32px, rounded `{rounded.pill}`.
+**`button-primary`** — Terracotta button. Background `{colors.primary}`, text `{colors.on-primary}`, type `{typography.button}` (14px / 500), padding 4px × 12px, height 32px, rounded `{rounded.md}`.
 
 **`button-primary-active`** — Press state. Background `{colors.primary-active}`.
 
-**`button-outline`** — Transparent pill with 1px ink border. Background transparent, text `{colors.ink}`, 1px `{colors.hairline-strong}` border.
+**`button-outline`** — Transparent outline button with 1px ink border. Background transparent, text `{colors.ink}`, 1px `{colors.hairline-strong}` border, rounded `{rounded.md}`.
 
 **`button-tertiary-text`** — Inline ink text link.
 
@@ -293,13 +293,13 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 - Reserve `{colors.primary}` (brand pill) for primary CTAs.
 - Use Nimbus Sans L at bold weight for every display headline. Always bold.
 - Use Inter at +0.15-0.18px tracking for body — the editorial dialect.
-- Use the pill shape for every CTA and badge.
+- Use `{rounded.md}` for CTAs and `{rounded.pill}` for badges.
 
 ### Don't
 - **Don't introduce dark mode sections, dark canvases, or inverted dark themes.**
 - Don't introduce a saturated brand action color. Ink pill is the only CTA color.
 - Don't use light weights for display copy. Display sits at bold weight — making it light shifts the brand voice away from its modern punch.
-- Don't use sharp `{rounded.none}` (0px) on CTAs. Pill geometry is the brand button.
+- Don't use sharp `{rounded.none}` (0px) on CTAs. Buttons should be `{rounded.md}`.
 - Don't drop body Inter to match Nimbus Sans L's bold weight — body stays at 400/500 for legibility.
 - Don't extract a CTA color from a third-party widget (cookie consent, OneTrust). The brand's CTA color is what appears on actual product CTAs.
 
@@ -325,7 +325,7 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 ## Iteration Guide
 
 1. Focus on a single component at a time.
-2. CTAs default to `{rounded.pill}`. Cards use `{rounded.xl}` (16px).
+2. CTAs default to `{rounded.md}`. Cards use `{rounded.xl}` (16px).
 3. Variants live as separate entries.
 4. Use `{token.refs}` everywhere — never inline hex.
 5. Hover state never documented.

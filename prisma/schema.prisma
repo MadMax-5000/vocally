@@ -40,10 +40,12 @@ model Agent {
   welcomeMessage String?     @db.Text
   handoffEnabled Boolean     @default(true)
   status         AgentStatus @default(ACTIVE)
+  visibility     AgentVisibility @default(PRIVATE)
 
   languages     AgentLanguage[]
   channels      AgentChannel[]
   knowledgeDocs AgentKnowledgeDoc[]
+  variables     AgentVariable[]
 
   sessions  Session[]
   createdAt DateTime  @default(now())
@@ -81,6 +83,20 @@ model AgentKnowledgeDoc {
   knowledgeDoc   KnowledgeDoc @relation(fields: [knowledgeDocId], references: [id], onDelete: Cascade)
 
   @@unique([agentId, knowledgeDocId])
+}
+
+model AgentVariable {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  key         String
+  value       String   @db.Text
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([agentId, key])
+  @@index([agentId])
 }
 
 model Session {
@@ -185,6 +201,11 @@ enum AgentStatus {
   ACTIVE
   PAUSED
   DRAFT
+}
+
+enum AgentVisibility {
+  PUBLIC
+  PRIVATE
 }
 
 enum AgentType {

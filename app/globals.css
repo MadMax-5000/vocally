@@ -88,7 +88,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex h-8 items-center justify-center rounded-pill bg-primary px-3 py-1 text-button text-white transition-colors;
+    @apply inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 py-1 text-button text-white transition-colors;
   }
 
   .btn-primary:hover {
@@ -100,7 +100,7 @@
   }
 
   .btn-outline {
-    @apply inline-flex h-8 items-center justify-center rounded-pill border border-hairline-strong bg-transparent px-3 py-1 text-button text-ink transition;
+    @apply inline-flex h-8 items-center justify-center rounded-md border border-hairline-strong bg-transparent px-3 py-1 text-button text-ink transition;
   }
 
   .btn-outline:hover {

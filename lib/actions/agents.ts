@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import {
   AgentChannelType,
   AgentTone,
+  AgentVisibility,
   CreativityLevel,
   SupportedLanguage,
 } from "@prisma/client";
@@ -12,6 +13,19 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
+
+const agentVariableUpsertSchema = z.object({
+  key: z
+    .string()
+    .min(1)
+    .max(40)
+    .regex(
+      /^[a-z][a-z0-9_]*$/,
+      "Key must start with a lowercase letter and use only a-z, 0-9, or _",
+    ),
+  value: z.string().min(1).max(500),
+  description: z.string().max(200).optional(),
+});
 
 const createAgentFromOnboardingSchema = z
   .object({
@@ -215,6 +229,7 @@ export async function getAIAgentById(agentId: string) {
             knowledgeDoc: { select: { id: true, title: true } },
           },
         },
+        variables: true,
       },
     });
 
@@ -226,6 +241,162 @@ export async function getAIAgentById(agentId: string) {
   } catch (err) {
     Sentry.captureException(err);
     return { success: false, error: "Failed to fetch agent" };
+  }
+}
+
+export async function updateAgentVisibility(
+  agentId: string,
+  visibility: AgentVisibility,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return { success: false as const, error: "Unauthorized" };
+    }
+
+    if (!Object.values(AgentVisibility).includes(visibility)) {
+      return { success: false as const, error: "Invalid visibility" };
+    }
+
+    const updated = await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: { visibility },
+    });
+
+    if (updated.count === 0) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to update visibility" };
+  }
+}
+
+export async function listAgentVariables(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return {
+        success: false as const,
+        error: "Unauthorized",
+        data: [] as { id: string; key: string; value: string; description: string | null }[],
+      };
+    }
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) {
+      return {
+        success: false as const,
+        error: "Agent not found",
+        data: [] as { id: string; key: string; value: string; description: string | null }[],
+      };
+    }
+
+    const rows = await prisma.agentVariable.findMany({
+      where: { agentId },
+      orderBy: { key: "asc" },
+      select: { id: true, key: true, value: true, description: true },
+    });
+
+    return { success: true as const, data: rows };
+  } catch (err) {
+    Sentry.captureException(err);
+    return {
+      success: false as const,
+      error: "Failed to list variables",
+      data: [] as { id: string; key: string; value: string; description: string | null }[],
+    };
+  }
+}
+
+export async function upsertAgentVariable(
+  agentId: string,
+  input: z.infer<typeof agentVariableUpsertSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return { success: false as const, error: "Unauthorized" };
+    }
+
+    const validated = agentVariableUpsertSchema.parse(input);
+    const key = validated.key.trim();
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const description =
+      validated.description?.trim() === ""
+        ? null
+        : validated.description?.trim() ?? null;
+
+    await prisma.agentVariable.upsert({
+      where: {
+        agentId_key: {
+          agentId,
+          key,
+        },
+      },
+      create: {
+        agentId,
+        key,
+        value: validated.value,
+        description,
+      },
+      update: {
+        value: validated.value,
+        description,
+      },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to save variable" };
+  }
+}
+
+export async function deleteAgentVariable(variableId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return { success: false as const, error: "Unauthorized" };
+    }
+
+    const row = await prisma.agentVariable.findFirst({
+      where: { id: variableId },
+      include: { agent: { select: { orgId: true, id: true } } },
+    });
+
+    if (!row || row.agent.orgId !== dbOrgId) {
+      return { success: false as const, error: "Variable not found" };
+    }
+
+    await prisma.agentVariable.delete({ where: { id: variableId } });
+
+    revalidatePath(`/dashboard/agents/${row.agent.id}`);
+    return { success: true as const };
+  } catch (err) {
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to delete variable" };
   }
 }
 
