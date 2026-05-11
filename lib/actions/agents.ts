@@ -1,18 +1,20 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import {
   AgentChannelType,
   AgentTone,
   AgentVisibility,
   CreativityLevel,
+  LlmProvider,
   SupportedLanguage,
+  VoiceProvider,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
+import { getOrgPrismaId } from "@/lib/server/organization";
 
 const agentVariableUpsertSchema = z.object({
   key: z
@@ -69,24 +71,6 @@ function isValidHttpUrl(value: string): boolean {
   } catch {
     return false;
   }
-}
-
-async function getOrgPrismaId() {
-  const session = await auth();
-  const clerkOrgId = session.orgId;
-  if (!clerkOrgId) return null;
-
-  let org = await prisma.organization.findUnique({
-    where: { clerkOrgId },
-  });
-
-  if (!org) {
-    org = await prisma.organization.create({
-      data: { clerkOrgId, name: "My Organization" },
-    });
-  }
-
-  return org.id;
 }
 
 function websiteToDb(raw: string | undefined): string | null {
@@ -223,6 +207,7 @@ export async function getAIAgentById(agentId: string) {
       where: { id: agentId, orgId: dbOrgId },
       include: {
         languages: true,
+        voices: true,
         channels: true,
         knowledgeDocs: {
           include: {
@@ -272,6 +257,211 @@ export async function updateAgentVisibility(
   } catch (err) {
     Sentry.captureException(err);
     return { success: false as const, error: "Failed to update visibility" };
+  }
+}
+
+const updateAgentLlmSettingsSchema = z.object({
+  llmProvider: z.nativeEnum(LlmProvider),
+  llmModel: z.string().min(1).max(120),
+});
+
+export async function updateAgentLlmSettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentLlmSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentLlmSettingsSchema.parse(input);
+
+    const updated = await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: {
+        llmProvider: validated.llmProvider,
+        llmModel: validated.llmModel.trim(),
+      },
+    });
+
+    if (updated.count === 0) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to update LLM settings" };
+  }
+}
+
+const updateAgentLanguageSettingsSchema = z.object({
+  defaultLanguage: z.nativeEnum(SupportedLanguage),
+  languages: z.array(z.nativeEnum(SupportedLanguage)).min(1),
+});
+
+export async function updateAgentLanguageSettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentLanguageSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentLanguageSettingsSchema.parse(input);
+
+    const languages = Array.from(
+      new Set<SupportedLanguage>([validated.defaultLanguage, ...validated.languages]),
+    );
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.agent.update({
+        where: { id: agentId },
+        data: { defaultLanguage: validated.defaultLanguage },
+      });
+
+      await tx.agentLanguage.deleteMany({
+        where: {
+          agentId,
+          language: { notIn: languages },
+        },
+      });
+
+      await tx.agentLanguage.createMany({
+        data: languages.map((language) => ({ agentId, language })),
+        skipDuplicates: true,
+      });
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to update language settings" };
+  }
+}
+
+const agentVoiceSchema = z.object({
+  provider: z.nativeEnum(VoiceProvider),
+  voiceId: z.string().min(1).max(120),
+  name: z.string().min(1).max(120),
+});
+
+const updateAgentVoiceSettingsSchema = z.object({
+  primaryVoice: agentVoiceSchema,
+  additionalVoices: z.array(agentVoiceSchema).default([]),
+});
+
+export async function updateAgentVoiceSettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentVoiceSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentVoiceSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    const desired = [
+      { ...validated.primaryVoice, isPrimary: true },
+      ...validated.additionalVoices.map((v) => ({ ...v, isPrimary: false })),
+    ];
+
+    await prisma.$transaction(async (tx) => {
+      await tx.agentVoice.deleteMany({ where: { agentId } });
+      await tx.agentVoice.createMany({
+        data: desired.map((v) => ({
+          agentId,
+          provider: v.provider,
+          voiceId: v.voiceId,
+          name: v.name,
+          isPrimary: v.isPrimary,
+        })),
+      });
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to update voice settings" };
+  }
+}
+
+const updateAgentPromptSettingsSchema = z.object({
+  welcomeMessage: z.string().max(4000).nullable().optional(),
+  instructions: z.string().max(20000).nullable().optional(),
+});
+
+export async function updateAgentPromptSettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentPromptSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentPromptSettingsSchema.parse(input);
+
+    const updated = await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: {
+        welcomeMessage:
+          validated.welcomeMessage === undefined
+            ? undefined
+            : validated.welcomeMessage?.trim() || null,
+        instructions:
+          validated.instructions === undefined
+            ? undefined
+            : validated.instructions?.trim() || null,
+      },
+    });
+
+    if (updated.count === 0) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to update prompt settings" };
   }
 }
 

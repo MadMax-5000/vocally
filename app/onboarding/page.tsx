@@ -4,7 +4,7 @@ export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-6">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink">
+        <h1 className="text-display-sm font-display tracking-tight text-ink">
           Set up your workspace
         </h1>
 
@@ -19,7 +19,7 @@ export default function OnboardingPage() {
               elements: {
                 rootBox: "w-full",
                 card: "w-full border-0 bg-surface-card p-6 rounded-xl shadow-none",
-                headerTitle: "text-display-sm font-display font-bold tracking-tight text-ink",
+                headerTitle: "text-display-sm font-display tracking-tight text-ink",
                 headerSubtitle: "text-body-md text-body",
                 formButtonPrimary: "bg-primary text-on-primary hover:bg-primary/90 active:bg-primary-active rounded-md text-button font-medium h-9",
                 formFieldInput: "border border-hairline-strong rounded-md h-11 px-3 text-body-md focus:border-ink focus:border-2 focus:outline-none",

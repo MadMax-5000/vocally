@@ -21,7 +21,7 @@ export default async function AgentsPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink">
+        <h1 className="text-display-sm font-display tracking-tight text-ink">
           Agents
         </h1>
 

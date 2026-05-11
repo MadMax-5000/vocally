@@ -51,7 +51,7 @@ export function MarketingFooter() {
     <footer className="bg-canvas text-ink">
       <div className="border-t border-hairline">
         <div className={[container, "flex flex-col gap-6 py-10 md:flex-row md:items-end md:justify-between"].join(" ")}>
-          <div className="font-display text-[clamp(32px,5vw,56px)] font-bold leading-[1.1] tracking-tighter text-ink">
+          <div className="font-display text-[clamp(32px,5vw,56px)] font-normal leading-[1.1] tracking-tighter text-ink">
             How can we help?{" "}
             <Link
               href="/dashboard"
@@ -88,7 +88,7 @@ export function MarketingFooter() {
       <div className="border-t border-hairline overflow-hidden">
         <div className={[container, "flex justify-center py-16 sm:py-24"].join(" ")}>
           <div 
-            className="select-none font-display font-bold leading-[0.75] tracking-[-0.04em] text-ink w-full text-center"
+            className="select-none font-display font-normal leading-[0.75] tracking-[-0.04em] text-ink w-full text-center"
             style={{ fontSize: "clamp(60px, 18.5vw, 290px)" }}
           >
             vocally

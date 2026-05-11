@@ -60,11 +60,11 @@ const config: Config = {
       },
       fontSize: {
         // Display tokens
-        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.6px", fontWeight: "700" }],
-        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "700" }],
-        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.28px", fontWeight: "700" }],
-        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.22px", fontWeight: "700" }],
-        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "0px", fontWeight: "700" }],
+        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.6px", fontWeight: "400" }],
+        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "400" }],
+        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.28px", fontWeight: "400" }],
+        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.22px", fontWeight: "400" }],
+        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "0px", fontWeight: "400" }],
         // Body tokens
         "title-md": ["18px", { lineHeight: "1.35", letterSpacing: "0px", fontWeight: "500" }],
         "title-sm": ["16px", { lineHeight: "1.44", letterSpacing: "0.14px", fontWeight: "500" }],

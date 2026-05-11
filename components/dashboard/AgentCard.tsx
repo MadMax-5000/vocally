@@ -38,7 +38,7 @@ export function AgentCard({ id, name, title, field, createdAt, className }: Agen
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong text-body-strong">
-          <span className="text-title-md font-display font-bold text-ink">
+          <span className="text-title-md font-display font-normal text-ink">
             {name.charAt(0).toUpperCase()}
           </span>
         </div>

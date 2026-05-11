@@ -18,7 +18,7 @@ export function ChannelsStep({ channels, onToggle, onContinue }: ChannelsStepPro
   return (
     <div className="flex flex-col gap-6 pt-[60px]">
       <header className="space-y-2">
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink text-balance">
+        <h1 className="text-display-sm font-display tracking-tight text-ink text-balance">
           Where will this agent work?
         </h1>
         <p className="max-w-xl text-body-sm leading-relaxed text-muted">

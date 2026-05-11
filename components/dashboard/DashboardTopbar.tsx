@@ -4,7 +4,6 @@ import * as React from "react"
 import Link from "next/link"
 import { MessageCircle, BookOpen, Bell } from "lucide-react"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -16,14 +15,13 @@ import { UserAvatarMenu } from "./UserAvatarMenu"
 export function DashboardTopbar() {
   return (
     <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center border-b border-hairline bg-surface-card px-3">
-      {/* Left: trigger + wordmark */}
+      {/* Left: wordmark */}
       <div className="flex items-center gap-2">
-        <SidebarTrigger />
         <Link
           href="/dashboard"
           className="flex items-center gap-1.5 transition-opacity hover:opacity-70"
         >
-          <span className="font-display text-[14px] font-bold tracking-tight text-muted">
+          <span className="font-display text-[14px] font-normal tracking-tight text-muted">
             Vocally
           </span>
         </Link>

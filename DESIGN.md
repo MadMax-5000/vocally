@@ -2,14 +2,14 @@
 
 ElevenLabs reads like a quietly editorial print magazine that happens to be a voice-AI product. The base canvas is off-white `{colors.canvas}` (#f5f5f5) holding warm near-black ink `{colors.ink}` (#0c0a09). The system operates entirely in light mode — no dark-canvas atmospheres.
 
-Type pairs **Nimbus Sans L** (modern sans-serif at bold weight) for display with **Inter** for body, navigation, captions. The bold display weight is the modern signature.
+Type pairs **Nimbus Sans L** (modern sans-serif at regular weight) for display with **Inter** for body, navigation, captions. The regular display weight keeps the modern silhouette without heavy bold punch.
 
 CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the primary, a transparent outline (`{component.button-outline}`) is the secondary. The brand trusts typography and whitespace to carry the design.
 
 **Key Characteristics:**
 - Strictly light mode. Off-white canvas, warm near-black ink. No dark canvas surfaces.
 - Single primary action: brand button at `{rounded.md}`.
-- Display runs Nimbus Sans L at bold weight — modern sans-serif hero voice.
+- Display runs Nimbus Sans L at regular weight — clean modern sans-serif hero voice.
 - Body runs Inter at 400 with subtle letter-spacing (+0.15-0.18px).
 - Soft geometry (`{rounded.md}` for buttons, `{rounded.xl}` for cards).
 - 96px section rhythm.
@@ -49,17 +49,17 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 ## Typography
 
 ### Font Family
-**Nimbus Sans L** is the display sans-serif at bold weight. **Inter** carries body, navigation, captions, and buttons. Fallback: `'Helvetica', sans-serif` for Nimbus Sans L, `sans-serif` for Inter.
+**Nimbus Sans L** is the display sans-serif at regular weight. **Inter** carries body, navigation, captions, and buttons. Fallback: `'Helvetica', sans-serif` for Nimbus Sans L, `sans-serif` for Inter.
 
 ### Hierarchy
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
 |---|---|---|---|---|---|
-| `{typography.display-mega}` | 56px | Bold | 1.05 | -1.6px | Homepage hero h1 |
-| `{typography.display-xl}` | 40px | Bold | 1.08 | -0.8px | Subsidiary heroes |
-| `{typography.display-lg}` | 30px | Bold | 1.17 | -0.28px | Section heads |
-| `{typography.display-md}` | 26px | Bold | 1.13 | -0.22px | Sub-section heads |
-| `{typography.display-sm}` | 20px | Bold | 1.2 | 0 | Card group titles |
+| `{typography.display-mega}` | 56px | Regular | 1.05 | -1.6px | Homepage hero h1 |
+| `{typography.display-xl}` | 40px | Regular | 1.08 | -0.8px | Subsidiary heroes |
+| `{typography.display-lg}` | 30px | Regular | 1.17 | -0.28px | Section heads |
+| `{typography.display-md}` | 26px | Regular | 1.13 | -0.22px | Sub-section heads |
+| `{typography.display-sm}` | 20px | Regular | 1.2 | 0 | Card group titles |
 | `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Inter |
 | `{typography.title-sm}` | 16px | 500 | 1.44 | 0.14px | List labels |
 | `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Inter |
@@ -71,18 +71,18 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 | `{typography.nav-link}` | 14px | 500 | 1.4 | 0 | Top-nav menu |
 
 ### Principles
-- **Display weight stays Bold.** Nimbus Sans L at a bold weight is the modern signature. Never use light weights for display copy.
+- **Display weight stays Regular.** Nimbus Sans L at a regular weight is the modern signature. Never use bold for display copy.
 - **Subtle letter-spacing on body.** Inter at +0.15-0.18px tracking — slightly looser than default Inter for a more editorial feel.
-- **Negative letter-spacing on display.** Nimbus Sans L pulls -0.32px to -1.92px tighter on display sizes.
+- **Negative letter-spacing on display.** Nimbus Sans L at regular weight pulls -0.32px to -1.92px tighter on display sizes.
 
 ### Note on Font Substitutes
-Nimbus Sans L is an open-source typeface (URW++). Common system substitutes: **Helvetica**, **Arial**, or **San Francisco** at bold weight. Use Inter directly for body.
+Nimbus Sans L is an open-source typeface (URW++). Common system substitutes: **Helvetica**, **Arial**, or **San Francisco** at regular weight. Use Inter directly for body.
 
 ### Utility recipes for React (Tailwind)
 
 Use these **together** for an ElevenLabs-style crisp, editorial feel. Prefer design tokens over raw `zinc-*` or arbitrary hex.
 
-- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Nimbus Sans L** at bold per the hierarchy table.
+- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Nimbus Sans L** at regular per the hierarchy table.
 - **Body / subcopy:** `text-body` or `text-muted`, `leading-relaxed`, `text-pretty`. Keep **subtle positive** body tracking from `{typography.body-*}` — do not put `tracking-tighter` on long body paragraphs.
 - **UI / CTAs:** `tracking-wide` on short bold label text; primary actions use `{component.button-primary}` / `bg-primary` + `text-on-primary` + `rounded-md`, or the `.btn-primary` class from global CSS.
 
@@ -291,16 +291,16 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 ### Do
 - Ensure the interface remains strictly light mode at all times.
 - Reserve `{colors.primary}` (brand pill) for primary CTAs.
-- Use Nimbus Sans L at bold weight for every display headline. Always bold.
+- Use Nimbus Sans L at regular weight for every display headline. Always regular weight.
 - Use Inter at +0.15-0.18px tracking for body — the editorial dialect.
 - Use `{rounded.md}` for CTAs and `{rounded.pill}` for badges.
 
 ### Don't
 - **Don't introduce dark mode sections, dark canvases, or inverted dark themes.**
 - Don't introduce a saturated brand action color. Ink pill is the only CTA color.
-- Don't use light weights for display copy. Display sits at bold weight — making it light shifts the brand voice away from its modern punch.
+- Don't use bold weights for display copy. Display sits at regular weight — the clean, modern silhouette is the brand signature.
 - Don't use sharp `{rounded.none}` (0px) on CTAs. Buttons should be `{rounded.md}`.
-- Don't drop body Inter to match Nimbus Sans L's bold weight — body stays at 400/500 for legibility.
+- Don't drop body Inter to match Nimbus Sans L's weight — body stays at 400/500 for legibility.
 - Don't extract a CTA color from a third-party widget (cookie consent, OneTrust). The brand's CTA color is what appears on actual product CTAs.
 
 ## Responsive Behavior
@@ -329,7 +329,7 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 3. Variants live as separate entries.
 4. Use `{token.refs}` everywhere — never inline hex.
 5. Hover state never documented.
-6. Nimbus Sans L bold for display, Inter 400/500 for body.
+6. Nimbus Sans L regular for display, Inter 400/500 for body.
 7. Keep decoration minimal and non-distracting.
 
 ## Known Gaps

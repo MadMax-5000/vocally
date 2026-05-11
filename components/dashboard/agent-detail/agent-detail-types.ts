@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 export const agentDetailInclude = {
   languages: true,
   channels: true,
+  voices: true,
   knowledgeDocs: {
     include: {
       knowledgeDoc: { select: { id: true, title: true } },

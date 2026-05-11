@@ -113,7 +113,7 @@ export function ToneStep({
   return (
     <div className="flex flex-col gap-6">
       <header className="space-y-2">
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink text-balance">
+        <h1 className="text-display-sm font-display tracking-tight text-ink text-balance">
           How should your agent sound?
         </h1>
         <p className="max-w-xl text-body-sm leading-relaxed text-muted">

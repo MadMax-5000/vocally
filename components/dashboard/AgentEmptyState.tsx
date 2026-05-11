@@ -7,7 +7,7 @@ export function AgentEmptyState() {
     <div className="flex flex-1 items-center justify-center px-6 py-32">
       <div className="flex flex-col items-center text-center">
 
-        <h2 className="mt-5 text-display-sm font-display font-bold tracking-tight text-ink text-balance">
+        <h2 className="mt-5 text-display-sm font-display tracking-tight text-ink text-balance">
           Create your first AI agent
         </h2>
 

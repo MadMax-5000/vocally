@@ -117,7 +117,7 @@ export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
         {/* Header Row: Title & Channels */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex flex-col gap-1">
-            <div className="truncate font-display text-display-sm font-bold tracking-tight text-ink">
+            <div className="truncate font-display text-display-sm tracking-tight text-ink">
               {agent.name}
             </div>
             <span className="text-body-sm text-muted">

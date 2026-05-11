@@ -1,3 +1,5 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,6 +24,44 @@
   :root {
     --sidebar-width: 220px;
     --sidebar-width-icon: 48px;
+
+    /* DESIGN.md values - override shadcn Mira defaults */
+    --background: #f5f5f5;
+    --foreground: #0c0a09;
+    --card: #ffffff;
+    --card-foreground: #0c0a09;
+    --popover: #ffffff;
+    --popover-foreground: #0c0a09;
+    --primary: #FF5A36;
+    --primary-foreground: #ffffff;
+    --secondary: #00E5FF;
+    --secondary-foreground: #0c0a09;
+    --muted: #f0efed;
+    --muted-foreground: #777169;
+    --accent: #f0efed;
+    --accent-foreground: #0c0a09;
+    --destructive: #dc2626;
+    --border: #e7e5e4;
+    --input: #d6d3d1;
+    --ring: #0c0a09;
+    --radius: 0.5rem;
+
+    /* Chart colors */
+    --chart-1: #f5f5f5;
+    --chart-2: #777169;
+    --chart-3: #4e4e4e;
+    --chart-4: #292524;
+    --chart-5: #0c0a09;
+
+    /* Sidebar colors */
+    --sidebar: #ffffff;
+    --sidebar-foreground: #0c0a09;
+    --sidebar-primary: #0c0a09;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f0efed;
+    --sidebar-accent-foreground: #0c0a09;
+    --sidebar-border: #e7e5e4;
+    --sidebar-ring: #0c0a09;
   }
 
   html,
@@ -84,6 +124,15 @@
   ::-moz-selection {
     background-color: rgba(255, 90, 54, 0.25);
   }
+
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+  }
+
+  html {
+    @apply font-sans;
+  }
 }
 
 @layer components {
@@ -107,4 +156,3 @@
     @apply border-secondary bg-secondary/20;
   }
 }
-

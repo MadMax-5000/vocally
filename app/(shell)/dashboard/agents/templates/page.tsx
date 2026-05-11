@@ -12,7 +12,7 @@ export default function AgentTemplatesPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink">
+        <h1 className="text-display-sm font-display tracking-tight text-ink">
           Templates
         </h1>
       </div>

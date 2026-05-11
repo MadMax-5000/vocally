@@ -9,15 +9,31 @@ datasource db {
 }
 
 model Organization {
-  id            String         @id @default(cuid())
-  clerkOrgId    String         @unique
-  name          String
-  plan          Plan           @default(FREE)
-  createdAt     DateTime       @default(now())
-  calls         CallLog[]
-  sessions      Session[]
-  agents        Agent[]
-  knowledgeDocs KnowledgeDoc[]
+  id               String            @id @default(cuid())
+  clerkOrgId       String            @unique
+  name             String
+  plan             Plan              @default(FREE)
+  createdAt        DateTime          @default(now())
+  calls            CallLog[]
+  sessions         Session[]
+  agents           Agent[]
+  knowledgeDocs    KnowledgeDoc[]
+  knowledgeFolders KnowledgeFolder[]
+}
+
+model KnowledgeFolder {
+  id             String            @id @default(cuid())
+  orgId          String
+  org            Organization      @relation(fields: [orgId], references: [id])
+  name           String
+  parentFolderId String?
+  parentFolder   KnowledgeFolder?  @relation("KnowledgeFolderHierarchy", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  childFolders   KnowledgeFolder[] @relation("KnowledgeFolderHierarchy")
+  knowledgeDocs  KnowledgeDoc[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([orgId])
 }
 
 model Agent {
@@ -35,17 +51,22 @@ model Agent {
   creativity   CreativityLevel @default(BALANCED)
   instructions String?         @db.Text
 
-  description    String?     @db.Text
+  description    String?         @db.Text
   websiteUrl     String?
-  welcomeMessage String?     @db.Text
-  handoffEnabled Boolean     @default(true)
-  status         AgentStatus @default(ACTIVE)
+  welcomeMessage String?         @db.Text
+  handoffEnabled Boolean         @default(true)
+  status         AgentStatus     @default(ACTIVE)
   visibility     AgentVisibility @default(PRIVATE)
+
+  defaultLanguage SupportedLanguage @default(ENGLISH)
+  llmProvider     LlmProvider       @default(ANTHROPIC)
+  llmModel        String            @default("claude-haiku-4-5")
 
   languages     AgentLanguage[]
   channels      AgentChannel[]
   knowledgeDocs AgentKnowledgeDoc[]
   variables     AgentVariable[]
+  voices        AgentVoice[]
 
   sessions  Session[]
   createdAt DateTime  @default(now())
@@ -53,6 +74,19 @@ model Agent {
 
   @@unique([orgId, name])
   @@index([orgId])
+}
+
+model AgentVoice {
+  id        String        @id @default(cuid())
+  agentId   String
+  provider  VoiceProvider
+  voiceId   String
+  name      String
+  isPrimary Boolean       @default(false)
+  agent     Agent         @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, provider, voiceId])
+  @@index([agentId])
 }
 
 model AgentLanguage {
@@ -141,15 +175,26 @@ model KnowledgeDoc {
   content    String
   pineconeId String?
 
-  sourceType String?
-  sourceUrl  String?
-  fileUrl    String?
+  sourceKind           KnowledgeSourceKind @default(TEXT)
+  sourceUrl            String?
+  fileUrl              String?
+  folderId             String?
+  folder               KnowledgeFolder?    @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  sizeBytes            Int                 @default(0)
+  createdByClerkUserId String?
 
   agents    AgentKnowledgeDoc[]
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
   @@index([orgId])
+  @@index([folderId])
+}
+
+enum KnowledgeSourceKind {
+  URL
+  FILE
+  TEXT
 }
 
 model CallLog {
@@ -224,7 +269,7 @@ enum AgentType {
   CUSTOM
 }
 
-enum AgentTone {  
+enum AgentTone {
   PROFESSIONAL
   FRIENDLY
   LUXURY
@@ -260,4 +305,14 @@ enum SupportedLanguage {
   DARIJA
   FRENCH
   ENGLISH
+}
+
+enum LlmProvider {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+}
+
+enum VoiceProvider {
+  ELEVENLABS
 }

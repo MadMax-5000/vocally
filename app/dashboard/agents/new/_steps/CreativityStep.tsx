@@ -37,7 +37,7 @@ export function CreativityStep({ creativity, onPick }: CreativityStepProps) {
   return (
     <div className="flex flex-col gap-6 pt-36">
       <header className="space-y-2">
-        <h1 className="text-display-sm font-display font-bold tracking-tight text-ink text-balance">
+        <h1 className="text-display-sm font-display tracking-tight text-ink text-balance">
           How creative should responses be?
         </h1>
         <p className="max-w-xl text-body-sm leading-relaxed text-muted">
