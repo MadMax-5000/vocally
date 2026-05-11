@@ -44,19 +44,21 @@ export function AgentVisibilityPill({
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={pending}
-      className={cn(
-        "inline-flex shrink-0 items-center text-xs rounded-full px-3 py-[2px] text-caption-uppercase font-semibold ring-1 ring-inset transition-opacity",
-        isPublic
-          ? "bg-emerald-50 text-emerald-700 ring-emerald-100 hover:bg-emerald-100/60"
-          : "bg-slate-50 text-slate-700 ring-slate-200 hover:bg-slate-100/60",
-        pending && "pointer-events-none opacity-70",
-      )}
-    >
-      {label}
-    </button>
+<button
+  type="button"
+  onClick={handleClick}
+  disabled={pending}
+  className={cn(
+    "flex h-6 items-center justify-center rounded-full px-3 text-[11px] font-medium uppercase tracking-wide leading-none whitespace-nowrap ring-1 ring-inset transition-colors",
+    isPublic
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200 hover:bg-emerald-100"
+      : "bg-zinc-50 text-zinc-700 ring-zinc-200 hover:bg-zinc-100",
+    pending && "pointer-events-none opacity-60"
+  )}
+>
+  <span className="translate-y-[-0.5px]">
+    {label}
+  </span>
+</button>
   );
 }

@@ -32,28 +32,28 @@ interface SphereConfig {
 
 /**
  * عمر — Omar
- * The Strategist · Fire & Ember
- * Ruthless crimson at the core, scorched orange edges, a solar furnace.
+ * The Strategist · Copper Earth
+ * Warm bronze core, glowing copper midtones, dark clay shadows. Untouchable.
  */
 const OMAR: SphereConfig = {
   id: 'omar', en: 'Omar', ar: 'عمر', role: 'Strategic Advisor',
-  cardBg: '#0E0200',
-  nameColor: '#FF7040',
-  subColor: 'rgba(255,100,50,0.55)',
-  ring: 'rgba(255,80,20,0.25)',
-  glow: `radial-gradient(circle at 30% 40%, #FF2200 0%, transparent 60%),
-         radial-gradient(circle at 70% 60%, #FF6600 0%, transparent 55%)`,
+  cardBg: '#080400',
+  nameColor: '#E89840',
+  subColor: 'rgba(220,150,60,0.55)',
+  ring: 'rgba(200,130,40,0.25)',
+  glow: `radial-gradient(circle at 30% 40%, #D08020 0%, transparent 60%),
+         radial-gradient(circle at 70% 60%, #E8A040 0%, transparent 55%)`,
   sphere: `
-    radial-gradient(circle at 29% 23%, rgba(255,255,210,0.65) 0%, transparent 18%),
-    radial-gradient(circle at 26% 42%, rgba(255,90,0,1)       0%, transparent 42%),
-    radial-gradient(circle at 70% 28%, rgba(220,0,30,1)       0%, transparent 44%),
-    radial-gradient(circle at 68% 70%, rgba(140,0,0,0.95)     0%, transparent 44%),
-    radial-gradient(circle at 32% 72%, rgba(255,50,0,0.85)    0%, transparent 38%),
-    radial-gradient(circle at 50% 50%, rgba(80,0,0,0.5)       0%, transparent 55%),
+    radial-gradient(circle at 29% 23%, rgba(255,230,180,0.65) 0%, transparent 18%),
+    radial-gradient(circle at 26% 42%, rgba(220,150,40,1)     0%, transparent 42%),
+    radial-gradient(circle at 70% 28%, rgba(180,100,20,0.95)  0%, transparent 44%),
+    radial-gradient(circle at 68% 70%, rgba(80,40,10,0.95)    0%, transparent 44%),
+    radial-gradient(circle at 32% 72%, rgba(200,130,30,0.85)  0%, transparent 38%),
+    radial-gradient(circle at 50% 50%, rgba(40,20,5,0.5)      0%, transparent 55%),
     radial-gradient(circle at 70% 76%, rgba(0,0,0,0.7)        0%, transparent 32%),
     conic-gradient(from 190deg at 47% 56%,
-      #5A0000, #B00000, #FF1500, #FF5500, #FF9900,
-      #FF4400, #CC0000, #700000, #5A0000)`,
+      #1A0A00, #3D1A00, #7A3500, #B86020, #E8A040,
+      #CC8020, #5A2800, #1A0A00)`,
 };
 
 /**

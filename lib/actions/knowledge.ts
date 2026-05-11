@@ -265,7 +265,7 @@ async function processFetchedPage(
       );
     }
 
-    return { success: true };
+    return { success: true, docId: doc.id };
   } catch (err) {
     Sentry.captureException(err, { extra: { url: page.url } });
     return { success: false, error: err instanceof Error ? err.message : String(err) };
@@ -279,9 +279,10 @@ async function processPagesConcurrently(
   orgId: string,
   folderId: string | null,
   clerkUserId: string | null,
-): Promise<{ imported: number; errors: number }> {
+): Promise<{ imported: number; errors: number; docIds: string[] }> {
   let imported = 0;
   let errors = 0;
+  const docIds: string[] = [];
 
   for (let i = 0; i < urls.length; i += FETCH_CONCURRENCY) {
     const batch = urls.slice(i, i + FETCH_CONCURRENCY);
@@ -291,21 +292,27 @@ async function processPagesConcurrently(
           const { fetchAndExtractText } = await import("@/lib/knowledge/fetch-url");
           const page = await fetchAndExtractText(u);
           const result = await processFetchedPage(page, orgId, folderId, clerkUserId);
-          return result.success ? ("imported" as const) : ("error" as const);
+          return result.success
+            ? ({ kind: "imported" as const, docId: result.docId })
+            : ({ kind: "error" as const });
         } catch (err) {
           Sentry.captureException(err, { extra: { url: u } });
-          return "error" as const;
+          return { kind: "error" as const };
         }
       }),
     );
 
     for (const r of results) {
-      if (r === "imported") imported++;
-      else errors++;
+      if (r.kind === "imported") {
+        imported++;
+        docIds.push(r.docId);
+      } else {
+        errors++;
+      }
     }
   }
 
-  return { imported, errors };
+  return { imported, errors, docIds };
 }
 
 export async function createKnowledgeFromUrl(input: unknown) {
@@ -353,7 +360,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
       }
 
       revalidatePath("/dashboard/knowledge");
-      return { success: true as const, pagesImported: 1 };
+      return { success: true as const, pagesImported: 1, docIds: [result.docId] };
     }
 
     if (mode === "sitemap") {
@@ -370,7 +377,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
         return { success: false as const, error: "No URLs found in sitemap" };
       }
 
-      const { imported, errors } = await processPagesConcurrently(
+      const { imported, errors, docIds } = await processPagesConcurrently(
         pageUrls,
         orgId,
         folderId,
@@ -381,6 +388,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
       return {
         success: true as const,
         pagesImported: imported,
+        docIds,
         ...(errors > 0 ? { warning: `${errors} page(s) failed to import` } : {}),
       };
     }
@@ -403,7 +411,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
         return { success: false as const, error: "No pages found on website" };
       }
 
-      const { imported, errors } = await processPagesConcurrently(
+      const { imported, errors, docIds } = await processPagesConcurrently(
         result.urls,
         orgId,
         folderId,
@@ -414,6 +422,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
       return {
         success: true as const,
         pagesImported: imported,
+        docIds,
         ...(errors > 0 ? { warning: `${errors} page(s) failed to import` } : {}),
       };
     }
@@ -494,7 +503,7 @@ export async function createKnowledgeText(input: unknown) {
     }
 
     revalidatePath("/dashboard/knowledge");
-    return { success: true as const };
+    return { success: true as const, docId: doc.id };
   } catch (err) {
     Sentry.captureException(err);
     const message = err instanceof Error ? err.message : "Could not save text document";
@@ -593,6 +602,7 @@ export async function uploadKnowledgeFiles(formData: FormData) {
     const session = await auth();
     const clerkUserId = session.userId ?? null;
 
+    const docIds: string[] = [];
     for (const file of files) {
       const buf = await file.arrayBuffer();
       const extractBuf = buf.slice(0);
@@ -623,6 +633,7 @@ export async function uploadKnowledgeFiles(formData: FormData) {
           createdByClerkUserId: clerkUserId,
         },
       });
+      docIds.push(doc.id);
 
       const up = await uploadKnowledgeObject({
         orgId,
@@ -660,7 +671,7 @@ export async function uploadKnowledgeFiles(formData: FormData) {
     }
 
     revalidatePath("/dashboard/knowledge");
-    return { success: true as const };
+    return { success: true as const, docIds };
   } catch (err) {
     Sentry.captureException(err);
     return { success: false as const, error: "Upload failed" };

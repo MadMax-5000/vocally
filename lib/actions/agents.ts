@@ -1,11 +1,13 @@
 "use server";
 
+import { clerkClient } from "@clerk/nextjs/server";
 import {
   AgentChannelType,
   AgentTone,
   AgentVisibility,
   CreativityLevel,
   LlmProvider,
+  KnowledgeSourceKind,
   SupportedLanguage,
   VoiceProvider,
 } from "@prisma/client";
@@ -15,6 +17,35 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+
+function formatCreator(clerkUserId: string | null): string {
+  if (!clerkUserId) return "—";
+  if (clerkUserId.length <= 12) return clerkUserId;
+  return `${clerkUserId.slice(0, 8)}…`;
+}
+
+async function getCreatorEmailsByClerkUserId(
+  clerkUserIds: string[],
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const ids = Array.from(new Set(clerkUserIds));
+  if (ids.length === 0) return out;
+
+  try {
+    const client = await clerkClient();
+    const usersRes = await client.users.getUserList({
+      userId: ids,
+      limit: ids.length,
+    });
+    for (const u of usersRes.data) {
+      out.set(u.id, u.primaryEmailAddress?.emailAddress ?? "—");
+    }
+  } catch (err) {
+    Sentry.captureException(err, { extra: { idsCount: ids.length } });
+  }
+
+  return out;
+}
 
 const agentVariableUpsertSchema = z.object({
   key: z
@@ -597,23 +628,186 @@ export async function getOrgKnowledgeDocs() {
       return {
         success: false as const,
         error: "Unauthorized",
-        data: [] as { id: string; title: string }[],
+        data: [] as OrgDocRow[],
       };
     }
 
     const docs = await prisma.knowledgeDoc.findMany({
       where: { orgId: dbOrgId },
       orderBy: { updatedAt: "desc" },
-      select: { id: true, title: true },
+      select: { id: true, title: true, sourceKind: true, createdByClerkUserId: true, sizeBytes: true },
     });
 
-    return { success: true as const, data: docs };
+    const creatorEmailById = await getCreatorEmailsByClerkUserId(
+      docs.map((d) => d.createdByClerkUserId).filter((id): id is string => Boolean(id)),
+    );
+
+    const data: OrgDocRow[] = docs.map((d) => ({
+      id: d.id,
+      title: d.title,
+      sourceKind: d.sourceKind,
+      sizeBytes: d.sizeBytes,
+      creatorEmail: d.createdByClerkUserId
+        ? (creatorEmailById.get(d.createdByClerkUserId) ?? d.createdByClerkUserId)
+        : "—",
+    }));
+
+    return { success: true as const, data };
   } catch (err) {
     Sentry.captureException(err);
     return {
       success: false as const,
       error: "Failed to fetch knowledge documents",
-      data: [] as { id: string; title: string }[],
+      data: [] as OrgDocRow[],
     };
+  }
+}
+
+type OrgDocRow = {
+  id: string;
+  title: string;
+  sourceKind: KnowledgeSourceKind;
+  creatorEmail: string;
+  sizeBytes: number;
+};
+
+export async function getAgentKnowledgeDocs(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return {
+        success: false as const,
+        error: "Unauthorized",
+        data: { rows: [] as AttachedAgentKnowledgeRow[] },
+      };
+    }
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) {
+      return {
+        success: false as const,
+        error: "Agent not found",
+        data: { rows: [] as AttachedAgentKnowledgeRow[] },
+      };
+    }
+
+    const attached = await prisma.agentKnowledgeDoc.findMany({
+      where: { agentId },
+      include: {
+        knowledgeDoc: {
+          select: {
+            id: true,
+            title: true,
+            sourceKind: true,
+            sizeBytes: true,
+            updatedAt: true,
+            createdByClerkUserId: true,
+          },
+        },
+      },
+    });
+
+    const creatorEmailById = await getCreatorEmailsByClerkUserId(
+      attached
+        .map((r) => r.knowledgeDoc.createdByClerkUserId)
+        .filter((id): id is string => Boolean(id)),
+    );
+
+    const rows: AttachedAgentKnowledgeRow[] = attached
+      .map((r) => r.knowledgeDoc)
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .map((d) => ({
+        id: d.id,
+        title: d.title,
+        sourceKind: d.sourceKind,
+        sizeBytes: d.sizeBytes,
+        updatedAt: d.updatedAt.toISOString(),
+        creatorEmail: d.createdByClerkUserId
+          ? (creatorEmailById.get(d.createdByClerkUserId) ??
+            formatCreator(d.createdByClerkUserId))
+          : "—",
+      }));
+
+    return { success: true as const, data: { rows } };
+  } catch (err) {
+    Sentry.captureException(err);
+    return {
+      success: false as const,
+      error: "Failed to load agent knowledge base",
+      data: { rows: [] as AttachedAgentKnowledgeRow[] },
+    };
+  }
+}
+
+type AttachedAgentKnowledgeRow = {
+  id: string;
+  title: string;
+  sourceKind: KnowledgeSourceKind;
+  creatorEmail: string;
+  updatedAt: string;
+  sizeBytes: number;
+};
+
+export async function attachKnowledgeDocToAgent(
+  agentId: string,
+  knowledgeDocId: string,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const [agent, doc] = await Promise.all([
+      prisma.agent.findFirst({
+        where: { id: agentId, orgId: dbOrgId },
+        select: { id: true },
+      }),
+      prisma.knowledgeDoc.findFirst({
+        where: { id: knowledgeDocId, orgId: dbOrgId },
+        select: { id: true },
+      }),
+    ]);
+
+    if (!agent) return { success: false as const, error: "Agent not found" };
+    if (!doc) return { success: false as const, error: "Document not found" };
+
+    await prisma.agentKnowledgeDoc.createMany({
+      data: [{ agentId, knowledgeDocId }],
+      skipDuplicates: true,
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to attach document" };
+  }
+}
+
+export async function detachKnowledgeDocFromAgent(
+  agentId: string,
+  knowledgeDocId: string,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    await prisma.agentKnowledgeDoc.deleteMany({
+      where: { agentId, knowledgeDocId },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    Sentry.captureException(err);
+    return { success: false as const, error: "Failed to detach document" };
   }
 }

@@ -118,11 +118,13 @@
   }
 
   ::selection {
-    background-color: rgba(255, 90, 54, 0.25);
+    background-color: #FF5A36;
+    color: #ffffff;
   }
 
   ::-moz-selection {
-    background-color: rgba(255, 90, 54, 0.25);
+    background-color: #FF5A36;
+    color: #ffffff;
   }
 
   .theme {
