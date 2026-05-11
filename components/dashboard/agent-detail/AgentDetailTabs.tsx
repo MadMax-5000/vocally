@@ -4,11 +4,12 @@ import { cn } from "@/lib/utils";
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
 import { AgentDetailKnowledgeTab } from "./AgentDetailKnowledgeTab";
+import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
 
 const TAB_CONFIG: { id: AgentDetailTabId; label: string }[] = [
   { id: "agent", label: "Agent" },
   { id: "workflow", label: "Workflow" },
-  { id: "branches", label: "Branches" },
+  { id: "preview", label: "Preview" },
   { id: "knowledge", label: "Knowledge Base" },
   { id: "analysis", label: "Analysis" },
   { id: "tools", label: "Tools" },
@@ -136,6 +137,8 @@ export function AgentDetailTabs({
               <AgentDetailAgentTab agent={agent} />
             ) : activeTab === "knowledge" ? (
               <AgentDetailKnowledgeTab agentId={agent.id} />
+            ) : activeTab === "preview" ? (
+              <AgentDetailPreviewTab agent={agent} />
             ) : (
               <TabPlaceholder label={activeLabel} />
             )}

@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-import * as Sentry from "@sentry/nextjs";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 
@@ -26,7 +26,6 @@ export async function insertChunks(
       `;
     }
   } catch (err) {
-    Sentry.captureException(err);
     throw new Error(`Failed to insert chunks: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
@@ -38,7 +37,6 @@ export async function deleteChunksByDocId(knowledgeDocId: string): Promise<void>
       WHERE "knowledgeDocId" = ${knowledgeDocId}
     `;
   } catch (err) {
-    Sentry.captureException(err);
     throw new Error(`Failed to delete chunks: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
@@ -48,6 +46,7 @@ export async function similaritySearch(
   orgId: string,
   topK: number = 5,
   minScore: number = 0.7,
+  docIds?: string[],
 ): Promise<SimilarityResult[]> {
   try {
     const results = await prisma.$queryRaw<SimilarityResult[]>`
@@ -64,6 +63,7 @@ export async function similaritySearch(
         kd."orgId" = ${orgId}
         AND kc.embedding IS NOT NULL
         AND 1 - (kc.embedding <=> ${JSON.stringify(queryEmbedding)}::vector) >= ${minScore}
+        ${docIds && docIds.length > 0 ? Prisma.sql`AND kc."knowledgeDocId" = ANY (${docIds}::text[])` : Prisma.empty}
       ORDER BY kc.embedding <=> ${JSON.stringify(queryEmbedding)}::vector
       LIMIT ${topK}
     `;
@@ -73,7 +73,6 @@ export async function similaritySearch(
       score: Number(r.score),
     }));
   } catch (err) {
-    Sentry.captureException(err);
     throw new Error(`Similarity search failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }

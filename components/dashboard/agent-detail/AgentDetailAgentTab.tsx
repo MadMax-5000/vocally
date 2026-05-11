@@ -8,7 +8,6 @@ import Image from "next/image";
 import { DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 import { AVATAR_DATA, AnimatedAvatar } from "@/utils/lib/avatars";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Command,
@@ -37,7 +36,6 @@ type AgentDetailAgentTabProps = {
 };
 
 const ELEVENLABS_VOICES: { voiceId: string; name: string }[] = [
-  // Use all palettes from `AVATAR_DATA` as selectable voices.
   ...AVATAR_DATA.map((a) => ({ voiceId: a.id, name: a.en })),
 ];
 
@@ -74,8 +72,6 @@ function VoiceAvatar({ voiceId, size }: { voiceId: string; size: "row" | "list" 
     direct ??
     (() => {
       if (AVATAR_DATA.length === 0) return undefined;
-      // Deterministic fallback for legacy/non-matching voice ids:
-      // hash the string into an index so different ids get different palettes.
       let hash = 0;
       for (let i = 0; i < voiceId.length; i++) {
         hash = (hash * 31 + voiceId.charCodeAt(i)) >>> 0;
@@ -204,7 +200,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         languages: nextLanguages,
       });
       if (!result.success) {
-        // keep UI optimistic for now; we’ll add toasts later
+        // keep UI optimistic for now
       }
     } finally {
       setIsSaving(false);
@@ -265,27 +261,22 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <div className="flex flex-col gap-3">
-        <section className="rounded-xl border border-hairline bg-surface-card">
-          <div className="px-3 py-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-title-sm text-ink">Voices</h2>
-                <p className="mt-0.5 text-body-sm text-muted">Select the voices you want to use for the agent.</p>
-              </div>
-              <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => setVoicesOpen(true)}>
-                {isSaving ? "Saving…" : "Change"}
-              </Button>
+      <div className="flex flex-col gap-6">
+
+        {/* ── Voices ── */}
+        <section>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-title-sm text-ink">Voices</h2>
+              <p className="mt-0.5 text-body-sm text-muted">Select the voices you want to use for the agent.</p>
             </div>
+
           </div>
-          <Separator />
-          <div className="px-3 py-2.5">
-            <Label className="text-body-sm text-muted">Primary</Label>
-            <div className="mt-2">
+          <div className="mt-3 flex flex-col gap-2">
+            <div>
+              <Label className="mb-1.5 text-body-sm text-muted">Primary</Label>
               <SelectRow
-                leftIcon={
-                  <VoiceAvatar voiceId={primaryVoiceId} size="row" />
-                }
+                leftIcon={<VoiceAvatar voiceId={primaryVoiceId} size="row" />}
                 title={primaryVoiceName}
                 rightPill={<Pill variant="primary">Primary</Pill>}
                 onClick={() => setVoicesOpen(true)}
@@ -295,7 +286,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             <button
               type="button"
               disabled
-              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted"
+              className="flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted"
             >
               <Plus className="h-4 w-4" />
               Add additional voice
@@ -303,22 +294,17 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-hairline bg-surface-card">
-          <div className="px-3 py-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-title-sm text-ink">LLM</h2>
-                <p className="mt-0.5 text-body-sm text-muted">Select which provider and model to use for the LLM.</p>
-              </div>
-              <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => setLlmOpen(true)}>
-                {isSaving ? "Saving…" : "Change"}
-              </Button>
+        {/* ── LLM ── */}
+        <section>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-title-sm text-ink">LLM</h2>
+              <p className="mt-0.5 text-body-sm text-muted">Select which provider and model to use for the LLM.</p>
             </div>
+
           </div>
-          <Separator />
-          <div className="px-3 py-2.5">
-            <Label className="text-body-sm text-muted">Model</Label>
-            <div className="mt-2">
+          <div className="mt-3 flex flex-col gap-2">
+            <div>
               <SelectRow
                 leftIcon={
                   <Image
@@ -330,8 +316,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                   />
                 }
                 title={
-                  LLM_MODELS.find((m) => m.provider === llmProvider && m.id === llmModel)?.label ??
-                  llmModel
+                  LLM_MODELS.find((m) => m.provider === llmProvider && m.id === llmModel)?.label ?? llmModel
                 }
                 onClick={() => setLlmOpen(true)}
                 disabled={isSaving}
@@ -340,24 +325,19 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-hairline bg-surface-card">
-          <div className="px-3 py-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-title-sm text-ink">Language</h2>
-                <p className="mt-0.5 text-body-sm text-muted">
-                  Choose the default and additional languages the agent will communicate in.
-                </p>
-              </div>
-              <Button type="button" variant="outline" size="sm" disabled={isSaving} onClick={() => setLanguageOpen(true)}>
-                {isSaving ? "Saving…" : "Edit"}
-              </Button>
+        {/* ── Language ── */}
+        <section>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-title-sm text-ink">Language</h2>
+              <p className="mt-0.5 text-body-sm text-muted">
+                Choose the default and additional languages the agent will communicate in.
+              </p>
             </div>
+
           </div>
-          <Separator />
-          <div className="px-3 py-2.5">
-            <Label className="text-body-sm text-muted">Default language</Label>
-            <div className="mt-2">
+          <div className="mt-3 flex flex-col gap-2">
+            <div>
               <SelectRow
                 leftIcon={languageIcon(defaultLanguage)}
                 title={languageLabel(defaultLanguage)}
@@ -370,7 +350,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
               type="button"
               onClick={() => setLanguageOpen(true)}
               disabled={isSaving}
-              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Plus className="h-4 w-4" />
               Add additional languages
@@ -378,32 +358,18 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-hairline bg-surface-card">
-          <div className="px-3 py-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-title-sm text-ink">First message</h2>
-                <p className="mt-0.5 text-body-sm text-muted">
-                  The first message the agent will say. If empty, the agent will wait for the user.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isSaving}
-                onClick={() => {
-                  setFirstMessage("");
-                  void savePrompts("", systemPrompt);
-                }}
-              >
-                Reset
-              </Button>
+        {/* ── First message ── */}
+        <section>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-title-sm text-ink">First message</h2>
+              <p className="mt-0.5 text-body-sm text-muted">
+                The first message the agent will say. If empty, the agent will wait for the user.
+              </p>
             </div>
+
           </div>
-          <Separator />
-          <div className="px-3 py-2.5">
-            <Label className="sr-only">First message</Label>
+          <div className="mt-3">
             <Textarea
               value={firstMessage}
               onChange={(e) => setFirstMessage(e.target.value)}
@@ -414,26 +380,18 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-hairline bg-surface-card">
-          <div className="px-3 py-2.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="text-title-sm text-ink">System prompt</h2>
-                <p className="mt-0.5 text-body-sm text-muted">
-                  Defines the agent’s behavior and boundaries.
-                </p>
-              </div>
-              <Button type="button" variant="outline" size="sm" disabled>
-                <span className="inline-flex items-center gap-1.5">
-                  <span>Tools</span>
-                  <ChevronRight className="h-4 w-4 text-muted" />
-                </span>
-              </Button>
+        {/* ── System prompt ── */}
+        <section className="mb-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-title-sm text-ink">System prompt</h2>
+              <p className="mt-0.5 text-body-sm text-muted">
+                Defines the agent's behavior and boundaries.
+              </p>
             </div>
+
           </div>
-          <Separator />
-          <div className="px-3 py-2.5">
-            <Label className="sr-only">System prompt</Label>
+          <div className="mt-3">
             <Textarea
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
@@ -446,9 +404,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             </p>
           </div>
         </section>
+
       </div>
 
-      {/* Voices picker */}
+      {/* ── Voices picker ── */}
       <CommandDialog
         open={voicesOpen}
         onOpenChange={setVoicesOpen}
@@ -487,7 +446,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         </Command>
       </CommandDialog>
 
-      {/* LLM picker */}
+      {/* ── LLM picker ── */}
       <CommandDialog
         open={llmOpen}
         onOpenChange={setLlmOpen}
@@ -539,7 +498,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         </Command>
       </CommandDialog>
 
-      {/* Language picker */}
+      {/* ── Language picker ── */}
       <CommandDialog
         open={languageOpen}
         onOpenChange={setLanguageOpen}

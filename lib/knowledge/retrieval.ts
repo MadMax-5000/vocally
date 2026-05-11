@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-
 import { generateEmbedding } from "@/lib/ai/embeddings";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
@@ -40,7 +38,6 @@ export async function retrieveRelevantChunks(
 
     return { chunks, totalTokenCount };
   } catch (err) {
-    Sentry.captureException(err);
     return { chunks: [], totalTokenCount: 0 };
   }
 }

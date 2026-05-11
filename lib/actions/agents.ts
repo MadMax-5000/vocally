@@ -11,7 +11,6 @@ import {
   SupportedLanguage,
   VoiceProvider,
 } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
@@ -41,7 +40,7 @@ async function getCreatorEmailsByClerkUserId(
       out.set(u.id, u.primaryEmailAddress?.emailAddress ?? "—");
     }
   } catch (err) {
-    Sentry.captureException(err, { extra: { idsCount: ids.length } });
+    console.error("Failed to fetch some user emails:", err);
   }
 
   return out;
@@ -186,7 +185,6 @@ export async function createAIAgentFromOnboarding(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     const msg =
       process.env.NODE_ENV === "development" && err instanceof Error
         ? err.message
@@ -222,7 +220,6 @@ export async function getUserAIAgents() {
 
     return { success: true, data: agents };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false, error: "Failed to fetch agents", data: [] };
   }
 }
@@ -255,7 +252,6 @@ export async function getAIAgentById(agentId: string) {
 
     return { success: true, data: agent };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false, error: "Failed to fetch agent" };
   }
 }
@@ -286,7 +282,6 @@ export async function updateAgentVisibility(
     revalidatePath(`/dashboard/agents/${agentId}`);
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to update visibility" };
   }
 }
@@ -327,7 +322,6 @@ export async function updateAgentLlmSettings(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to update LLM settings" };
   }
 }
@@ -385,7 +379,6 @@ export async function updateAgentLanguageSettings(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to update language settings" };
   }
 }
@@ -444,7 +437,6 @@ export async function updateAgentVoiceSettings(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to update voice settings" };
   }
 }
@@ -491,7 +483,6 @@ export async function updateAgentPromptSettings(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to update prompt settings" };
   }
 }
@@ -527,7 +518,6 @@ export async function listAgentVariables(agentId: string) {
 
     return { success: true as const, data: rows };
   } catch (err) {
-    Sentry.captureException(err);
     return {
       success: false as const,
       error: "Failed to list variables",
@@ -590,7 +580,6 @@ export async function upsertAgentVariable(
         error: err.issues[0]?.message ?? "Invalid input",
       };
     }
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to save variable" };
   }
 }
@@ -616,7 +605,6 @@ export async function deleteAgentVariable(variableId: string) {
     revalidatePath(`/dashboard/agents/${row.agent.id}`);
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to delete variable" };
   }
 }
@@ -654,7 +642,6 @@ export async function getOrgKnowledgeDocs() {
 
     return { success: true as const, data };
   } catch (err) {
-    Sentry.captureException(err);
     return {
       success: false as const,
       error: "Failed to fetch knowledge documents",
@@ -733,7 +720,6 @@ export async function getAgentKnowledgeDocs(agentId: string) {
 
     return { success: true as const, data: { rows } };
   } catch (err) {
-    Sentry.captureException(err);
     return {
       success: false as const,
       error: "Failed to load agent knowledge base",
@@ -781,7 +767,6 @@ export async function attachKnowledgeDocToAgent(
     revalidatePath(`/dashboard/agents/${agentId}`);
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to attach document" };
   }
 }
@@ -807,7 +792,6 @@ export async function detachKnowledgeDocFromAgent(
     revalidatePath(`/dashboard/agents/${agentId}`);
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Failed to detach document" };
   }
 }

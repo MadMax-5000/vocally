@@ -2,7 +2,6 @@
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { KnowledgeSourceKind } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -74,7 +73,7 @@ async function getCreatorEmailsByClerkUserId(
       out.set(u.id, u.primaryEmailAddress?.emailAddress ?? "—");
     }
   } catch (err) {
-    Sentry.captureException(err, { extra: { idsCount: ids.length } });
+    console.error("Failed to fetch emails for some users:", err);
   }
 
   return out;
@@ -224,7 +223,6 @@ export async function getKnowledgeDashboardData(): Promise<
       },
     };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false, error: "Failed to load knowledge base" };
   }
 }
@@ -234,7 +232,7 @@ async function processFetchedPage(
   orgId: string,
   folderId: string | null,
   clerkUserId: string | null,
-): Promise<{ success: true } | { success: false; error: string }> {
+): Promise<{ success: true; docId: string } | { success: false; error: string }> {
   try {
     const sizeBytes = Buffer.byteLength(page.content, "utf8");
 
@@ -267,7 +265,6 @@ async function processFetchedPage(
 
     return { success: true, docId: doc.id };
   } catch (err) {
-    Sentry.captureException(err, { extra: { url: page.url } });
     return { success: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
@@ -296,7 +293,6 @@ async function processPagesConcurrently(
             ? ({ kind: "imported" as const, docId: result.docId })
             : ({ kind: "error" as const });
         } catch (err) {
-          Sentry.captureException(err, { extra: { url: u } });
           return { kind: "error" as const };
         }
       }),
@@ -369,7 +365,6 @@ export async function createKnowledgeFromUrl(input: unknown) {
       try {
         pageUrls = await parseSitemap(url, parsed.data.pattern);
       } catch (err) {
-        Sentry.captureException(err);
         return { success: false as const, error: "Failed to parse sitemap" };
       }
 
@@ -403,7 +398,6 @@ export async function createKnowledgeFromUrl(input: unknown) {
           pattern: parsed.data.pattern,
         });
       } catch (err) {
-        Sentry.captureException(err);
         return { success: false as const, error: "Failed to crawl website" };
       }
 
@@ -429,7 +423,6 @@ export async function createKnowledgeFromUrl(input: unknown) {
 
     return { success: false as const, error: "Unknown mode" };
   } catch (err) {
-    Sentry.captureException(err);
     const message = err instanceof Error ? err.message : "Could not save URL document";
     return { success: false as const, error: message };
   }
@@ -505,7 +498,6 @@ export async function createKnowledgeText(input: unknown) {
     revalidatePath("/dashboard/knowledge");
     return { success: true as const, docId: doc.id };
   } catch (err) {
-    Sentry.captureException(err);
     const message = err instanceof Error ? err.message : "Could not save text document";
     return { success: false as const, error: message };
   }
@@ -542,7 +534,6 @@ export async function createKnowledgeFolder(input: unknown) {
     revalidatePath("/dashboard/knowledge");
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Could not create folder" };
   }
 }
@@ -613,9 +604,7 @@ export async function uploadKnowledgeFiles(formData: FormData) {
         extractedContent = await extractTextFromBuffer(extractBuf, file.type || "", file.name);
         extractionOk = extractedContent.trim().length > 0;
       } catch (err) {
-        Sentry.captureException(err, {
-          extra: { fileName: file.name, fileSize: file.size, orgId },
-        });
+        // file extraction failed — continue with placeholder content
       }
 
       const content = extractionOk
@@ -673,7 +662,6 @@ export async function uploadKnowledgeFiles(formData: FormData) {
     revalidatePath("/dashboard/knowledge");
     return { success: true as const, docIds };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Upload failed" };
   }
 }
@@ -701,7 +689,6 @@ export async function deleteKnowledgeDoc(docId: string) {
     revalidatePath("/dashboard/knowledge");
     return { success: true as const };
   } catch (err) {
-    Sentry.captureException(err);
     return { success: false as const, error: "Delete failed" };
   }
 }

@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
 import * as cheerio from "cheerio";
 
 const REQUEST_TIMEOUT_MS = 10_000;

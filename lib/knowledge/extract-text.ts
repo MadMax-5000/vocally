@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-
 const TXT_MIME = "text/plain";
 const PDF_MIME = "application/pdf";
 const DOCX_MIME =
@@ -61,8 +59,5 @@ export async function extractTextFromBuffer(
     return new TextDecoder().decode(buffer);
   }
 
-  Sentry.captureMessage(`Unsupported file type for extraction: ${mimeType} / ${ext}`, {
-    extra: { fileName, mimeType },
-  });
   throw new Error(`Unsupported file type: ${mimeType || ext || "unknown"}`);
 }

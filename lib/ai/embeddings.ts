@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 const EMBEDDING_MODEL = "openai/text-embedding-3-small";
 const EMBEDDING_DIMENSIONS = 1536;
@@ -33,8 +31,7 @@ async function embed(input: string | string[], dimensions: number) {
 
   if (!res.ok) {
     const body = await res.text();
-    Sentry.captureException(new Error(`OpenRouter embedding error: ${res.status} ${body}`));
-    throw new Error(`Embedding API error (${res.status})`);
+    throw new Error(`Embedding API error (${res.status}): ${body}`);
   }
 
   return res.json();

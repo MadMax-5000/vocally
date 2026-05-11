@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
 import * as cheerio from "cheerio";
 
 const MAX_SITEMAP_URLS = 1_000;
@@ -49,7 +48,6 @@ async function fetchSitemapUrls(sitemapUrl: string): Promise<string[]> {
           try {
             return await fetchSitemapUrls(subUrl);
           } catch (err) {
-            Sentry.captureException(err, { extra: { subSitemapUrl: subUrl } });
             return [] as string[];
           }
         }),

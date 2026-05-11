@@ -34,7 +34,6 @@ and CRM integrations — all delivered as a multi-tenant SaaS product.
 | TTS | Amazon Polly / Azure Cognitive Speech |
 | Email | Resend (transactional emails, agent notifications) |
 | Payments | LemonSqueezy (subscription billing, webhooks) |
-| Error Monitoring | Sentry (client + server, with session replay) |
 | Analytics | Google Analytics 4 + custom event tracking |
 
 
@@ -220,24 +219,6 @@ if (!orgId) throw new Error("Unauthorized");
 
 ---
 
-## 9. Error Handling & Monitoring (Sentry)
-
-- Sentry initialized in `instrumentation.ts` for both client and server
-- Wrap all Twilio webhook handlers and AI pipeline calls in try/catch → `Sentry.captureException`
-- Add meaningful context to Sentry events: `orgId`, `sessionId`, `channel`
-- Use Sentry's `withServerComponentTracing` for App Router server components
-- Never swallow errors silently — always log or surface them
-
-```ts
-import * as Sentry from "@sentry/nextjs";
-try {
-  // risky operation
-} catch (err) {
-  Sentry.captureException(err, { extra: { orgId, sessionId } });
-  throw err;
-}
-```
-
 ---
 
 ## 10. Email (Resend)
@@ -306,7 +287,7 @@ Never ask for full credit card numbers or passwords verbally.
 
 - Keep voice responses **short** (1-3 sentences) — long responses are terrible on the phone
 - Always include tool definitions for Claude function calling
-- Log all prompts to Sentry in debug mode (not in production)
+- Log all prompts for debugging (not in production)
 - Version prompts — add `v1`, `v2` suffix when iterating
 
 ---
@@ -327,7 +308,6 @@ export async function POST(req: Request) {
 
     return Response.json({ success: true, data: result });
   } catch (err) {
-    Sentry.captureException(err);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -411,11 +391,6 @@ LEMONSQUEEZY_API_KEY=
 LEMONSQUEEZY_WEBHOOK_SECRET=
 LEMONSQUEEZY_STORE_ID=
 
-# Sentry
-SENTRY_DSN=
-SENTRY_ORG=
-SENTRY_PROJECT
-
 # Google Analytics
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
 ```
@@ -430,7 +405,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=
 - ❌ Never store secrets in code or commit `.env` files
 - ❌ Never skip Zod validation on user inputs
 - ❌ Never create UI without reading `DESIGN.md` first
-- ❌ Never use `console.log` in production code — use Sentry or a proper logger
+- ❌ Never use `console.log` in production code — use a proper logger
 - ❌ Never ask customers for sensitive info (PINs, card numbers) via voice/text — use DTMF
 - ❌ Never hardcode language strings for Arabic/French — use i18n keys
 - ❌ Never skip error boundaries on dashboard pages
@@ -441,7 +416,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=
 
 Follow this sequence when building features. Do not skip phases.
 
-1. **Foundation** — Clerk auth, Supabase schema, Prisma setup, Sentry, basic layout per `DESIGN.md`
+1. **Foundation** — Clerk auth, Supabase schema, Prisma setup, basic layout per `DESIGN.md`
 2. **Telephony Core** — Twilio inbound webhook, TwiML response, basic IVR
 3. **Voice AI Pipeline** — Whisper ASR → Claude → Polly TTS, session storage
 4. **Chat Channel** — Web widget, Supabase Realtime, same LLM pipeline
@@ -470,7 +445,7 @@ Follow this sequence when building features. Do not skip phases.
 | Pinecone Docs | https://docs.pinecone.io |
 | LemonSqueezy Docs | https://docs.lemonsqueezy.com |
 | Resend Docs | https://resend.com/docs |
-| Sentry Next.js | https://docs.sentry.io/platforms/javascript/guides/nextjs |
+
 
 ---
 

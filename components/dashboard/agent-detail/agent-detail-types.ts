@@ -19,7 +19,7 @@ export type AgentDetailWithRelations = Prisma.AgentGetPayload<{
 export type AgentDetailTabId =
   | "agent"
   | "workflow"
-  | "branches"
+  | "preview"
   | "knowledge"
   | "analysis"
   | "tools"
