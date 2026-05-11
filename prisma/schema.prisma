@@ -184,11 +184,24 @@ model KnowledgeDoc {
   createdByClerkUserId String?
 
   agents    AgentKnowledgeDoc[]
+  chunks    KnowledgeChunk[]
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
   @@index([orgId])
   @@index([folderId])
+}
+
+model KnowledgeChunk {
+  id             String       @id @default(cuid())
+  knowledgeDocId String
+  knowledgeDoc   KnowledgeDoc @relation(fields: [knowledgeDocId], references: [id], onDelete: Cascade)
+  content        String
+  chunkIndex     Int
+  tokenCount     Int
+  createdAt      DateTime     @default(now())
+
+  @@index([knowledgeDocId])
 }
 
 enum KnowledgeSourceKind {

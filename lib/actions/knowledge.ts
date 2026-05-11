@@ -1,14 +1,18 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { KnowledgeSourceKind } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db/prisma";
+import { generateEmbeddings } from "@/lib/ai/embeddings";
+import { chunkText } from "@/lib/knowledge/chunking";
+import { extractTextFromBuffer } from "@/lib/knowledge/extract-text";
 import { getKnowledgeStorageQuotaBytes } from "@/lib/knowledge/quota";
 import { uploadKnowledgeObject } from "@/lib/knowledge/storage";
+import { insertChunks, deleteChunksByDocId } from "@/lib/knowledge/vector-store";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
@@ -34,7 +38,7 @@ export type KnowledgeRow =
       id: string;
       title: string;
       sourceKind: KnowledgeSourceKind;
-      creatorLabel: string;
+      creatorEmail: string;
       folderName: string | null;
       updatedAt: string;
       sizeBytes: number;
@@ -51,6 +55,29 @@ function formatCreator(clerkUserId: string | null): string {
   if (!clerkUserId) return "—";
   if (clerkUserId.length <= 12) return clerkUserId;
   return `${clerkUserId.slice(0, 8)}…`;
+}
+
+async function getCreatorEmailsByClerkUserId(
+  clerkUserIds: string[],
+): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const ids = Array.from(new Set(clerkUserIds));
+  if (ids.length === 0) return out;
+
+  try {
+    const client = await clerkClient();
+    const usersRes = await client.users.getUserList({
+      userId: ids,
+      limit: ids.length,
+    });
+    for (const u of usersRes.data) {
+      out.set(u.id, u.primaryEmailAddress?.emailAddress ?? "—");
+    }
+  } catch (err) {
+    Sentry.captureException(err, { extra: { idsCount: ids.length } });
+  }
+
+  return out;
 }
 
 function isValidHttpUrl(value: string): boolean {
@@ -153,6 +180,12 @@ export async function getKnowledgeDashboardData(): Promise<
       orderBy: { name: "asc" },
     });
 
+    const creatorEmailById = await getCreatorEmailsByClerkUserId(
+      docs
+        .map((d) => d.createdByClerkUserId)
+        .filter((id): id is string => Boolean(id)),
+    );
+
     const folderRows: KnowledgeRow[] = folders.map((f) => ({
       kind: "folder" as const,
       id: f.id,
@@ -166,7 +199,11 @@ export async function getKnowledgeDashboardData(): Promise<
       id: d.id,
       title: d.title,
       sourceKind: d.sourceKind,
-      creatorLabel: formatCreator(d.createdByClerkUserId),
+      creatorEmail:
+        (d.createdByClerkUserId
+          ? (creatorEmailById.get(d.createdByClerkUserId) ??
+            formatCreator(d.createdByClerkUserId))
+          : "—"),
       folderName: d.folder?.name ?? null,
       updatedAt: d.updatedAt.toISOString(),
       sizeBytes: d.sizeBytes,
@@ -190,6 +227,85 @@ export async function getKnowledgeDashboardData(): Promise<
     Sentry.captureException(err);
     return { success: false, error: "Failed to load knowledge base" };
   }
+}
+
+async function processFetchedPage(
+  page: { url: string; title: string; content: string },
+  orgId: string,
+  folderId: string | null,
+  clerkUserId: string | null,
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const sizeBytes = Buffer.byteLength(page.content, "utf8");
+
+    const doc = await prisma.knowledgeDoc.create({
+      data: {
+        orgId,
+        title: page.title,
+        content: page.content,
+        sourceKind: KnowledgeSourceKind.URL,
+        sourceUrl: page.url,
+        folderId,
+        sizeBytes,
+        createdByClerkUserId: clerkUserId,
+      },
+    });
+
+    const chunks = chunkText(page.content);
+    if (chunks.length > 0) {
+      const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
+      await insertChunks(
+        chunks.map((c, i) => ({
+          knowledgeDocId: doc.id,
+          content: c.content,
+          chunkIndex: c.chunkIndex,
+          tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
+          embedding: embeddingResults[i]?.embedding ?? [],
+        })),
+      );
+    }
+
+    return { success: true };
+  } catch (err) {
+    Sentry.captureException(err, { extra: { url: page.url } });
+    return { success: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+const FETCH_CONCURRENCY = 3;
+
+async function processPagesConcurrently(
+  urls: string[],
+  orgId: string,
+  folderId: string | null,
+  clerkUserId: string | null,
+): Promise<{ imported: number; errors: number }> {
+  let imported = 0;
+  let errors = 0;
+
+  for (let i = 0; i < urls.length; i += FETCH_CONCURRENCY) {
+    const batch = urls.slice(i, i + FETCH_CONCURRENCY);
+    const results = await Promise.all(
+      batch.map(async (u) => {
+        try {
+          const { fetchAndExtractText } = await import("@/lib/knowledge/fetch-url");
+          const page = await fetchAndExtractText(u);
+          const result = await processFetchedPage(page, orgId, folderId, clerkUserId);
+          return result.success ? ("imported" as const) : ("error" as const);
+        } catch (err) {
+          Sentry.captureException(err, { extra: { url: u } });
+          return "error" as const;
+        }
+      }),
+    );
+
+    for (const r of results) {
+      if (r === "imported") imported++;
+      else errors++;
+    }
+  }
+
+  return { imported, errors };
 }
 
 export async function createKnowledgeFromUrl(input: unknown) {
@@ -220,28 +336,93 @@ export async function createKnowledgeFromUrl(input: unknown) {
     const session = await auth();
     const clerkUserId = session.userId ?? null;
 
-    const content =
-      "[URL — ingestion pending; vector indexing will use fetched content later.]";
-    const sizeBytes = Buffer.byteLength(content, "utf8");
+    const mode = parsed.data.mode ?? "single";
 
-    await prisma.knowledgeDoc.create({
-      data: {
+    if (mode === "single") {
+      let page: { url: string; title: string; content: string };
+      try {
+        const { fetchAndExtractText } = await import("@/lib/knowledge/fetch-url");
+        page = await fetchAndExtractText(url);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to fetch URL";
+        return { success: false as const, error: message };
+      }
+      const result = await processFetchedPage(page, orgId, folderId, clerkUserId);
+      if (!result.success) {
+        return { success: false as const, error: result.error };
+      }
+
+      revalidatePath("/dashboard/knowledge");
+      return { success: true as const, pagesImported: 1 };
+    }
+
+    if (mode === "sitemap") {
+      const { parseSitemap } = await import("@/lib/knowledge/parse-sitemap");
+      let pageUrls: string[];
+      try {
+        pageUrls = await parseSitemap(url, parsed.data.pattern);
+      } catch (err) {
+        Sentry.captureException(err);
+        return { success: false as const, error: "Failed to parse sitemap" };
+      }
+
+      if (pageUrls.length === 0) {
+        return { success: false as const, error: "No URLs found in sitemap" };
+      }
+
+      const { imported, errors } = await processPagesConcurrently(
+        pageUrls,
         orgId,
-        title: parsed.data.title.trim(),
-        content,
-        sourceKind: KnowledgeSourceKind.URL,
-        sourceUrl: url,
         folderId,
-        sizeBytes,
-        createdByClerkUserId: clerkUserId,
-      },
-    });
+        clerkUserId,
+      );
 
-    revalidatePath("/dashboard/knowledge");
-    return { success: true as const };
+      revalidatePath("/dashboard/knowledge");
+      return {
+        success: true as const,
+        pagesImported: imported,
+        ...(errors > 0 ? { warning: `${errors} page(s) failed to import` } : {}),
+      };
+    }
+
+    if (mode === "website") {
+      const { crawlWebsite } = await import("@/lib/knowledge/crawl-website");
+      let result: Awaited<ReturnType<typeof crawlWebsite>>;
+      try {
+        result = await crawlWebsite(url, {
+          maxDepth: parsed.data.crawlDepth ?? 2,
+          maxUrls: parsed.data.maxUrls ?? 1000,
+          pattern: parsed.data.pattern,
+        });
+      } catch (err) {
+        Sentry.captureException(err);
+        return { success: false as const, error: "Failed to crawl website" };
+      }
+
+      if (result.urls.length === 0) {
+        return { success: false as const, error: "No pages found on website" };
+      }
+
+      const { imported, errors } = await processPagesConcurrently(
+        result.urls,
+        orgId,
+        folderId,
+        clerkUserId,
+      );
+
+      revalidatePath("/dashboard/knowledge");
+      return {
+        success: true as const,
+        pagesImported: imported,
+        ...(errors > 0 ? { warning: `${errors} page(s) failed to import` } : {}),
+      };
+    }
+
+    return { success: false as const, error: "Unknown mode" };
   } catch (err) {
     Sentry.captureException(err);
-    return { success: false as const, error: "Could not save URL document" };
+    const message = err instanceof Error ? err.message : "Could not save URL document";
+    return { success: false as const, error: message };
   }
 }
 
@@ -286,7 +467,7 @@ export async function createKnowledgeText(input: unknown) {
     const session = await auth();
     const clerkUserId = session.userId ?? null;
 
-    await prisma.knowledgeDoc.create({
+    const doc = await prisma.knowledgeDoc.create({
       data: {
         orgId,
         title: parsed.data.title.trim(),
@@ -298,11 +479,26 @@ export async function createKnowledgeText(input: unknown) {
       },
     });
 
+    const chunks = chunkText(content);
+    if (chunks.length > 0) {
+      const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
+      await insertChunks(
+        chunks.map((c, i) => ({
+          knowledgeDocId: doc.id,
+          content: c.content,
+          chunkIndex: c.chunkIndex,
+          tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
+          embedding: embeddingResults[i]?.embedding ?? [],
+        })),
+      );
+    }
+
     revalidatePath("/dashboard/knowledge");
     return { success: true as const };
   } catch (err) {
     Sentry.captureException(err);
-    return { success: false as const, error: "Could not save text document" };
+    const message = err instanceof Error ? err.message : "Could not save text document";
+    return { success: false as const, error: message };
   }
 }
 
@@ -399,12 +595,28 @@ export async function uploadKnowledgeFiles(formData: FormData) {
 
     for (const file of files) {
       const buf = await file.arrayBuffer();
+      const extractBuf = buf.slice(0);
+
+      let extractedContent = "";
+      let extractionOk = false;
+      try {
+        extractedContent = await extractTextFromBuffer(extractBuf, file.type || "", file.name);
+        extractionOk = extractedContent.trim().length > 0;
+      } catch (err) {
+        Sentry.captureException(err, {
+          extra: { fileName: file.name, fileSize: file.size, orgId },
+        });
+      }
+
+      const content = extractionOk
+        ? extractedContent
+        : `[File upload — ${file.name}; text extraction failed.]`;
 
       const doc = await prisma.knowledgeDoc.create({
         data: {
           orgId,
           title: file.name,
-          content: "",
+          content,
           sourceKind: KnowledgeSourceKind.FILE,
           sizeBytes: file.size,
           folderId,
@@ -427,11 +639,24 @@ export async function uploadKnowledgeFiles(formData: FormData) {
 
       await prisma.knowledgeDoc.update({
         where: { id: doc.id },
-        data: {
-          fileUrl: up.path,
-          content: `[File upload — ${file.name}; text extraction for RAG pending.]`,
-        },
+        data: { fileUrl: up.path },
       });
+
+      if (extractionOk) {
+        const chunks = chunkText(extractedContent);
+        if (chunks.length > 0) {
+          const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
+          await insertChunks(
+            chunks.map((c, i) => ({
+              knowledgeDocId: doc.id,
+              content: c.content,
+              chunkIndex: c.chunkIndex,
+              tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
+              embedding: embeddingResults[i]?.embedding ?? [],
+            })),
+          );
+        }
+      }
     }
 
     revalidatePath("/dashboard/knowledge");
@@ -439,5 +664,33 @@ export async function uploadKnowledgeFiles(formData: FormData) {
   } catch (err) {
     Sentry.captureException(err);
     return { success: false as const, error: "Upload failed" };
+  }
+}
+
+export async function deleteKnowledgeDoc(docId: string) {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false as const, error: "Unauthorized" };
+
+    const doc = await prisma.knowledgeDoc.findFirst({
+      where: { id: docId, orgId },
+      select: { id: true, sourceKind: true, fileUrl: true },
+    });
+    if (!doc) return { success: false as const, error: "Document not found" };
+
+    await deleteChunksByDocId(doc.id);
+
+    if (doc.fileUrl) {
+      const { removeKnowledgeObject } = await import("@/lib/knowledge/storage");
+      await removeKnowledgeObject(doc.fileUrl);
+    }
+
+    await prisma.knowledgeDoc.delete({ where: { id: doc.id } });
+
+    revalidatePath("/dashboard/knowledge");
+    return { success: true as const };
+  } catch (err) {
+    Sentry.captureException(err);
+    return { success: false as const, error: "Delete failed" };
   }
 }

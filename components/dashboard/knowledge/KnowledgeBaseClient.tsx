@@ -12,9 +12,9 @@ import {
     Upload,
     FolderPlus,
     FileText,
-    Link,
     FolderOpen,
     Folder,
+    MoreHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,10 +26,12 @@ import {
     createKnowledgeFolder,
     createKnowledgeFromUrl,
     createKnowledgeText,
+    deleteKnowledgeDoc,
     uploadKnowledgeFiles,
 } from "@/lib/actions/knowledge";
 import { formatStorageBytes } from "@/lib/knowledge/format-bytes";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
     DropdownMenu,
@@ -69,7 +71,7 @@ type TypeFilter = "all" | "folder" | "URL" | "FILE" | "TEXT";
 
 function formatRowDate(iso: string): string {
     try {
-        return new Intl.DateTimeFormat(undefined, {
+        return new Intl.DateTimeFormat("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -81,19 +83,63 @@ function formatRowDate(iso: string): string {
     }
 }
 
-function sourceKindLabel(
-    row: Extract<KnowledgeRow, { kind: "document" }>,
-): string {
-    switch (row.sourceKind) {
-        case "URL":
-            return "URL";
-        case "FILE":
-            return "File";
-        case "TEXT":
-            return "Text";
-        default:
-            return row.sourceKind;
+function DocActionsSelect({
+    docId,
+    onDeleteSuccess,
+}: {
+    docId: string;
+    onDeleteSuccess: () => void;
+}) {
+    async function handleCopyId() {
+        try {
+            await navigator.clipboard.writeText(docId);
+            toast.success("Document ID copied");
+        } catch {
+            toast.error("Failed to copy");
+        }
     }
+
+    function handleShare() {
+        toast.message("Coming soon");
+    }
+
+    async function handleDelete() {
+        const res = await deleteKnowledgeDoc(docId);
+        if (res.success) {
+            toast.success("Document deleted");
+            onDeleteSuccess();
+        } else {
+            toast.error(res.error ?? "Delete failed");
+        }
+    }
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button
+                    type="button"
+                    aria-label="Document actions"
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent p-0 shadow-none hover:bg-canvas-soft focus-visible:ring-2 focus-visible:ring-ink/10"
+                >
+                    <MoreHorizontal className="h-5 w-5 text-muted" aria-hidden />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[10rem] rounded-xl border-hairline">
+                <DropdownMenuItem onClick={handleCopyId}>
+                    Copy document ID
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare}>
+                    Share document
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-semantic-error focus:text-semantic-error"
+                >
+                    Delete document
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 }
 
 /* ------------------------------------------------------------------ */
@@ -116,12 +162,15 @@ export function KnowledgeBaseClient({
     const [search, setSearch] = React.useState("");
     const [typeFilter, setTypeFilter] = React.useState<TypeFilter>("all");
     const [creatorFilter, setCreatorFilter] = React.useState<string>("all");
+    const [selectedDocIds, setSelectedDocIds] = React.useState<Set<string>>(
+        () => new Set(),
+    );
 
     const creators = React.useMemo(() => {
         const set = new Set<string>();
         for (const row of initial.rows) {
-            if (row.kind === "document" && row.creatorLabel !== "—") {
-                set.add(row.creatorLabel);
+            if (row.kind === "document" && row.creatorEmail !== "—") {
+                set.add(row.creatorEmail);
             }
         }
         return Array.from(set).sort();
@@ -147,11 +196,36 @@ export function KnowledgeBaseClient({
         }
         if (creatorFilter !== "all") {
             rows = rows.filter(
-                (r) => (r.kind === "folder" ? false : r.creatorLabel === creatorFilter),
+                (r) => (r.kind === "folder" ? false : r.creatorEmail === creatorFilter),
             );
         }
         return rows;
     }, [initial.rows, search, typeFilter, creatorFilter]);
+
+    const visibleDocIds = React.useMemo(() => {
+        return filteredRows
+            .filter((r): r is Extract<KnowledgeRow, { kind: "document" }> => r.kind === "document")
+            .map((d) => d.id);
+    }, [filteredRows]);
+
+    const allVisibleSelected =
+        visibleDocIds.length > 0 && visibleDocIds.every((id) => selectedDocIds.has(id));
+    const someVisibleSelected = visibleDocIds.some((id) => selectedDocIds.has(id));
+
+    const toggleAllVisible = React.useCallback(
+        (checked: boolean) => {
+            setSelectedDocIds((prev) => {
+                const next = new Set(prev);
+                if (checked) {
+                    for (const id of visibleDocIds) next.add(id);
+                } else {
+                    for (const id of visibleDocIds) next.delete(id);
+                }
+                return next;
+            });
+        },
+        [visibleDocIds],
+    );
 
     const refresh = React.useCallback(() => {
         startTransition(() => {
@@ -195,7 +269,7 @@ export function KnowledgeBaseClient({
                     onClick={() => setOpenUrl(true)}
                 />
                 <ActionCard
-                    icon={<Upload className="h-5 w-5 text-ink" />}
+                    icon={<FileText className="h-5 w-5 text-ink" />}
                     label="Add Files"
                     onClick={() => setOpenFiles(true)}
                 />
@@ -221,7 +295,7 @@ export function KnowledgeBaseClient({
                     placeholder="Search Knowledge Base..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="h-10 rounded-xl border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+                    className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
                 />
             </div>
 
@@ -232,7 +306,7 @@ export function KnowledgeBaseClient({
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 rounded-pill border-hairline bg-surface-card px-3 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
+                            className="h-8 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
                         >
                             + Type
                             {typeFilter !== "all" ? ` (${typeFilter})` : ""}
@@ -255,7 +329,7 @@ export function KnowledgeBaseClient({
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 rounded-pill border-hairline bg-surface-card px-3 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
+                            className="h-8 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
                         >
                             + Creator
                             {creatorFilter !== "all" ? ` (${creatorFilter})` : ""}
@@ -286,88 +360,113 @@ export function KnowledgeBaseClient({
                     </p>
                 </div>
             ) : (
-                <div className="overflow-hidden rounded-xl border border-hairline bg-surface-card">
-                    <Table>
-                        <TableHeader className="bg-surface-strong">
-                            <TableRow className="border-hairline hover:bg-transparent">
-                                <TableHead className="text-body-sm font-medium text-muted">Name</TableHead>
-                                <TableHead className="text-body-sm font-medium text-muted">Type</TableHead>
-                                <TableHead className="hidden text-body-sm font-medium text-muted sm:table-cell">
-                                    Folder
-                                </TableHead>
-                                <TableHead className="hidden text-body-sm font-medium text-muted md:table-cell">
-                                    Creator
-                                </TableHead>
-                                <TableHead className="text-right text-body-sm font-medium text-muted">
-                                    Updated
-                                </TableHead>
+                <Table>
+                <TableHeader>
+                    <TableRow className="border-b border-hairline hover:bg-transparent">
+                        <TableHead className="w-[36px] px-3 py-2">
+                            <Checkbox
+                                aria-label="Select all documents"
+                                className="data-[state=checked]:bg-ink data-[state=checked]:border-ink data-[state=checked]:text-white"
+                                checked={
+                                    allVisibleSelected
+                                        ? true
+                                        : someVisibleSelected
+                                          ? "indeterminate"
+                                          : false
+                                }
+                                onCheckedChange={(v) =>
+                                    toggleAllVisible(Boolean(v === true))
+                                }
+                            />
+                        </TableHead>
+                        <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
+                            Name
+                        </TableHead>
+                        <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
+                            Created by
+                        </TableHead>
+                        <TableHead className="px-3 py-2 text-right text-body-sm font-medium text-muted">
+                            Last updated
+                        </TableHead>
+                        <TableHead className="w-[44px] px-3 py-2" />
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredRows.map((row) =>
+                        row.kind === "folder" ? (
+                            <TableRow
+                                key={`f-${row.id}`}
+                                className="border-b border-hairline last:border-0 hover:bg-transparent"
+                            >
+                                <TableCell className="px-3 py-2" />
+                                <TableCell className="px-3 py-2">
+                                    <div className="flex items-center gap-2">
+                                        <FolderOpen className="h-5 w-5 text-ink" aria-hidden />
+                                        <span className="text-body-sm font-medium text-ink">{row.name}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="px-3 py-2 text-body-sm text-muted">
+                                    —
+                                </TableCell>
+                                <TableCell className="px-3 py-2 text-right text-caption text-muted">
+                                    {formatRowDate(row.updatedAt)}
+                                </TableCell>
+                                <TableCell className="px-3 py-2" />
                             </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredRows.map((row) =>
-                                row.kind === "folder" ? (
-                                    <TableRow
-                                        key={`f-${row.id}`}
-                                        className="border-hairline-soft last:border-0"
-                                    >
-                                        <TableCell className="py-2">
-                                            <div className="flex items-center gap-2">
-                                                <FolderOpen className="h-4 w-4 text-muted" aria-hidden />
-                                                <span className="text-body-sm font-medium text-ink">{row.name}</span>
+                        ) : (
+                            <TableRow
+                                key={`d-${row.id}`}
+                                className="border-b border-hairline last:border-0 hover:bg-transparent"
+                            >
+                                <TableCell className="px-3 py-2">
+                                    <Checkbox
+                                        aria-label={`Select ${row.title}`}
+                                        className="data-[state=checked]:bg-ink data-[state=checked]:border-ink data-[state=checked]:text-white"
+                                        checked={selectedDocIds.has(row.id)}
+                                        onCheckedChange={(v) => {
+                                            const isChecked = v === true;
+                                            setSelectedDocIds((prev) => {
+                                                const next = new Set(prev);
+                                                if (isChecked) next.add(row.id);
+                                                else next.delete(row.id);
+                                                return next;
+                                            });
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell className="px-3 py-2">
+                                    <div className="flex items-center gap-2">
+                                        {row.sourceKind === "URL" ? (
+                                            <Globe className="h-5 w-5 text-ink" aria-hidden />
+                                        ) : row.sourceKind === "FILE" ? (
+                                            <FileText className="h-5 w-5 text-ink" aria-hidden />
+                                        ) : (
+                                            <Type className="h-5 w-5 text-ink" aria-hidden />
+                                        )}
+                                        <div className="min-w-0">
+                                            <div className="truncate text-body-sm font-medium text-muted">
+                                                {row.title}
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="py-2">
-                                            <span className="inline-flex items-center rounded-xs bg-surface-strong px-2 py-0.5 font-normal text-caption text-body">
-                                                Folder
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className="hidden py-2 text-body-sm text-muted sm:table-cell">
-                                            —
-                                        </TableCell>
-                                        <TableCell className="hidden py-2 text-body-sm text-muted md:table-cell">
-                                            —
-                                        </TableCell>
-                                        <TableCell className="py-2 text-right text-caption text-muted">
-                                            {formatRowDate(row.updatedAt)}
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    <TableRow
-                                        key={`d-${row.id}`}
-                                        className="border-hairline-soft last:border-0"
-                                    >
-                                        <TableCell className="py-2">
-                                            <div className="flex items-center gap-2">
-                                                {row.sourceKind === "URL" ? (
-                                                    <Link className="h-4 w-4 text-muted" aria-hidden />
-                                                ) : row.sourceKind === "FILE" ? (
-                                                    <FileText className="h-4 w-4 text-muted" aria-hidden />
-                                                ) : (
-                                                    <Type className="h-4 w-4 text-muted" aria-hidden />
-                                                )}
-                                                <span className="text-body-sm font-medium text-ink">{row.title}</span>
+                                            <div className="text-caption text-muted">
+                                                {formatStorageBytes(row.sizeBytes)}
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="py-2">
-                                            <span className="inline-flex items-center rounded-xs bg-surface-strong px-2 py-0.5 font-normal text-caption text-body">
-                                                {sourceKindLabel(row)}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className="hidden py-2 text-body-sm text-muted sm:table-cell">
-                                            {row.folderName ?? "—"}
-                                        </TableCell>
-                                        <TableCell className="hidden py-2 text-body-sm text-muted md:table-cell">
-                                            {row.creatorLabel}
-                                        </TableCell>
-                                        <TableCell className="py-2 text-right text-caption text-muted">
-                                            {formatRowDate(row.updatedAt)}
-                                        </TableCell>
-                                    </TableRow>
-                                ),
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="px-3 py-2 text-body-sm text-muted">
+                                    {row.creatorEmail}
+                                </TableCell>
+                                <TableCell className="px-3 py-2 text-right text-caption text-muted">
+                                    {formatRowDate(row.updatedAt)}
+                                </TableCell>
+                                <TableCell className="px-3 py-2 text-right">
+                                    <DocActionsSelect docId={row.id} onDeleteSuccess={refresh} />
+                                </TableCell>
+                            </TableRow>
+                        ),
+                    )}
+                </TableBody>
+            </Table>
             )}
 
             {/* Dialogs */}
@@ -548,6 +647,15 @@ function UrlDialog({
                 toast.error(res.error);
                 return;
             }
+            const pages = res.pagesImported;
+            if (pages && pages > 1) {
+                toast.success(`Imported ${pages} pages`);
+                if ("warning" in res && res.warning) {
+                    toast.warning(res.warning);
+                }
+            } else {
+                toast.success("URL imported successfully");
+            }
             onOpenChange(false);
             onSuccess();
         } finally {
@@ -558,6 +666,8 @@ function UrlDialog({
     const segmentIds = React.useMemo(() => ["single", "sitemap", "website"] as const, []);
 
     const submitLabel = tab === "single" ? "Add URL" : tab === "sitemap" ? "Import Sitemap" : "Crawl Website";
+
+    const busyLabel = busy ? (tab === "single" ? "Fetching…" : "Importing pages…") : submitLabel;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -722,7 +832,8 @@ function UrlDialog({
                                 disabled={busy || !url}
                                 className={kbModalPrimaryClass}
                             >
-                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : submitLabel}
+                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {busyLabel}
                             </Button>
                         </div>
                     </div>
@@ -833,10 +944,14 @@ function FilesDialog({
                             or{" "}
                             <span className="font-medium text-ink underline underline-offset-2">browse</span> from your computer
                         </p>
+                        <p className="mt-2 text-caption text-muted-soft">
+                            Supported formats: PDF, DOCX, TXT
+                        </p>
                         <input
                             ref={inputRef}
                             type="file"
                             multiple
+                            accept=".pdf,.docx,.txt"
                             className="hidden"
                             onChange={(e) => {
                                 const list = e.target.files;
