@@ -779,23 +779,9 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
                             onClick={() => handleRowClick(s.id)}
                           >
                             <TableCell className="py-1.5 pl-0 pr-3">
-                              <div className="flex min-w-0 items-center gap-2">
-                                <div
-                                  className={cn(
-                                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold",
-                                    s.agentName
-                                      ? hashColor(s.agentName)
-                                      : "bg-surface-strong text-muted",
-                                  )}
-                                >
-                                  {s.agentName
-                                    ? agentInitials(s.agentName)
-                                    : "—"}
-                                </div>
-                                <span className="truncate text-body-sm font-medium text-ink">
-                                  {displayAgent}
-                                </span>
-                              </div>
+                              <span className="truncate text-body-sm font-medium text-ink">
+                                {displayAgent}
+                              </span>
                             </TableCell>
 
                             <TableCell className="max-w-[260px] px-3 py-1.5">
