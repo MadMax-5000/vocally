@@ -19,6 +19,7 @@ model Organization {
   agents           Agent[]
   knowledgeDocs    KnowledgeDoc[]
   knowledgeFolders KnowledgeFolder[]
+  whatsappNumbers   WhatsappPhoneNumber[]
 }
 
 model KnowledgeFolder {
@@ -60,7 +61,7 @@ model Agent {
 
   defaultLanguage SupportedLanguage @default(ENGLISH)
   llmProvider     LlmProvider       @default(ANTHROPIC)
-  llmModel        String            @default("claude-haiku-4-5")
+  llmModel        String            @default("anthropic/claude-3-5-haiku")
 
   languages     AgentLanguage[]
   channels      AgentChannel[]
@@ -69,8 +70,9 @@ model Agent {
   voices        AgentVoice[]
 
   sessions  Session[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  whatsappNumbers WhatsappPhoneNumber[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
 
   @@unique([orgId, name])
   @@index([orgId])
@@ -326,6 +328,22 @@ enum LlmProvider {
   OPENAI
   ANTHROPIC
   GOOGLE
+}
+
+model WhatsappPhoneNumber {
+  id            String   @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  twilioNumber String  @unique
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([twilioNumber])
 }
 
 enum VoiceProvider {
