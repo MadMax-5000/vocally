@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { MessageCircle, BookOpen, Bell } from "lucide-react"
+import { MessageCircle, Bell } from "lucide-react"
+import { KnowledgeIcon } from "@/components/ui/icons"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -53,7 +54,7 @@ export function DashboardTopbar() {
               className="text-muted hover:text-ink"
             >
               <Link href="/docs">
-                <BookOpen className="h-4 w-4" />
+                <KnowledgeIcon className="h-4 w-4" />
               </Link>
             </Button>
           </TooltipTrigger>

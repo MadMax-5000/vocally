@@ -1,6 +1,7 @@
 "use client";
 
-import { BookOpen, Plug } from "lucide-react";
+import { Plug } from "lucide-react";
+import { KnowledgeIcon } from "@/components/ui/icons";
 
 import { SelectableCard } from "@/components/onboarding/SelectableCard";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ export function KnowledgeStep({
 
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-muted" aria-hidden />
+          <KnowledgeIcon className="h-5 w-5 text-muted" aria-hidden />
           <h2 className="text-title-sm font-medium text-ink">Knowledge documents</h2>
         </div>
         {docs.length === 0 ? (
@@ -65,7 +66,7 @@ export function KnowledgeStep({
               <SelectableCard
                 key={doc.id}
                 title={doc.title}
-                icon={BookOpen}
+                icon={KnowledgeIcon}
                 selected={selectedIds.includes(doc.id)}
                 onClick={() => onToggle(doc.id)}
               />

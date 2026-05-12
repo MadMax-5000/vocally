@@ -19,7 +19,7 @@ export default async function AgentsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl flex flex-col gap-3">
+    <div className="mx-auto max-w-6xl flex flex-col gap-3 px-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-display-sm font-display tracking-tight text-ink">
           Agents
@@ -41,18 +41,23 @@ export default async function AgentsPage() {
       </div>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
         <Input
           placeholder="Search agents..."
-          className="h-10 rounded-lg border-hairline pl-9"
+          className="h-9 rounded-lg border-hairline pl-8 pr-16 text-sm"
         />
+        <div className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
+          <kbd className="rounded border border-hairline bg-surface-strong px-1.5 py-0.5 font-sans text-[11px] leading-none text-muted">
+            ⌘K
+          </kbd>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="xs" className="h-7 px-3">
+      <div className="flex items-center gap-1.5">
+        <Button variant="outline" size="xs" className="h-6 px-2 text-xs">
           + Creator
         </Button>
-        <Button variant="outline" size="xs" className="h-7 px-3">
+        <Button variant="outline" size="xs" className="h-6 px-2 text-xs">
           + Archived
         </Button>
       </div>

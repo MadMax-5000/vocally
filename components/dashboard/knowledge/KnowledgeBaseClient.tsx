@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-    BookOpen,
     Library,
     Globe,
     Loader2,
@@ -30,6 +29,7 @@ import {
     uploadKnowledgeFiles,
 } from "@/lib/actions/knowledge";
 import { formatStorageBytes } from "@/lib/knowledge/format-bytes";
+import { KnowledgeIcon } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -244,7 +244,7 @@ export function KnowledgeBaseClient({
                     <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
                         Knowledge Base
                     </h1>
-                    <BookOpen className="h-4 w-4 text-muted" aria-hidden />
+                    <KnowledgeIcon className="h-4 w-4 text-muted" aria-hidden />
                 </div>
                 <div
                     className="inline-flex items-center gap-2 rounded-pill border border-hairline bg-surface-card px-3 py-1 text-caption text-body"

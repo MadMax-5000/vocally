@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function AgentEmptyState() {

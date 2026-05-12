@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
-  BookOpen,
   FileText,
   Globe,
   Library,
@@ -39,6 +38,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { formatStorageBytes } from "@/lib/knowledge/format-bytes";
+import { KnowledgeIcon } from "@/components/ui/icons";
 import {
   createKnowledgeFromUrl,
   createKnowledgeText,
@@ -775,7 +775,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
           <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
             Agent Knowledge Base
           </h1>
-          <BookOpen className="h-4 w-4 text-muted" aria-hidden />
+          <KnowledgeIcon className="h-4 w-4 text-muted" aria-hidden />
         </div>
 
         <div className="flex items-center gap-2">

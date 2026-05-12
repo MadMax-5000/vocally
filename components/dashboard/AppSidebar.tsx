@@ -8,14 +8,12 @@ import {
   Inbox,
   Radio,
   Users,
-  Bot,
-  Share2,
-  BookOpen,
   BarChart3,
   Plug,
   CreditCard,
   Settings,
 } from "lucide-react"
+import { AgentIcon, KnowledgeIcon, ChannelsIcon } from "@/components/ui/icons"
 
 import {
   Sidebar,
@@ -39,9 +37,9 @@ const operationsItems = [
 ]
 
 const configurationItems = [
-  { title: "Agents", url: "/dashboard/agents", icon: Bot },
-  { title: "Channels", url: "/dashboard/channels", icon: Share2 },
-  { title: "Knowledge base", url: "/dashboard/knowledge", icon: BookOpen },
+  { title: "Agents", url: "/dashboard/agents", icon: AgentIcon },
+  { title: "Channels", url: "/dashboard/channels", icon: ChannelsIcon },
+  { title: "Knowledge base", url: "/dashboard/knowledge", icon: KnowledgeIcon },
 ]
 
 const manageItems = [

@@ -104,38 +104,36 @@ function AgentTableRow({ agent, index }: AgentTableRowProps) {
       onClick={() => router.push(`/dashboard/agents/${agent.id}`)}
     >
       {/* Name */}
-      <TableCell className="py-3.5 pl-0">
+      <TableCell className="py-1 pl-0">
         <span className="text-body-sm font-medium text-ink">
           {agent.name}
         </span>
       </TableCell>
 
       {/* Created at */}
-      <TableCell className="py-3.5">
+      <TableCell className="py-1">
         <span className="text-body-sm text-muted">
           {formatCreatedAt(agent.createdAt)}
         </span>
       </TableCell>
 
       {/* Status */}
-      <TableCell className="py-3.5">
-        <span className="inline-flex items-center gap-1.5 text-body-sm text-ink">
-          <span
-            className={`h-2 w-2 rounded-full ${
-              agent.status === "ACTIVE"
-                ? "bg-semantic-success"
-                : agent.status === "PAUSED"
-                  ? "bg-amber-400"
-                  : "bg-muted-soft"
-            }`}
-            aria-hidden
-          />
+      <TableCell className="py-1">
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-[2px] text-xs font-semibold ring-1 ring-inset ${
+            agent.status === "ACTIVE"
+              ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
+              : agent.status === "PAUSED"
+                ? "bg-amber-50 text-amber-800 ring-amber-100"
+                : "bg-slate-50 text-slate-700 ring-slate-200"
+          }`}
+        >
           {agent.status.charAt(0) + agent.status.slice(1).toLowerCase()}
         </span>
       </TableCell>
 
       {/* Channels */}
-      <TableCell className="py-3.5">
+      <TableCell className="py-1">
         {enabledChannels.length > 0 ? (
           <div className="flex -space-x-1.5">
             {enabledChannels.map((channel, i) => (
@@ -161,7 +159,7 @@ function AgentTableRow({ agent, index }: AgentTableRowProps) {
       </TableCell>
 
       {/* Actions */}
-      <TableCell className="py-3.5">
+      <TableCell className="py-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

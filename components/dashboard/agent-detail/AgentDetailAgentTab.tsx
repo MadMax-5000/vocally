@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { LlmProvider, SupportedLanguage, VoiceProvider } from "@prisma/client";
+import { LlmProvider, SupportedLanguage } from "@prisma/client";
 import { Check, ChevronRight, Plus } from "lucide-react";
 import Image from "next/image";
 
@@ -35,10 +35,6 @@ type AgentDetailAgentTabProps = {
   agent: AgentDetailWithRelations;
 };
 
-const ELEVENLABS_VOICES: { voiceId: string; name: string }[] = [
-  ...AVATAR_DATA.map((a) => ({ voiceId: a.id, name: a.en })),
-];
-
 const LANGUAGE_OPTIONS: { value: SupportedLanguage; label: string }[] = [
   { value: SupportedLanguage.ENGLISH, label: "English" },
   { value: SupportedLanguage.FRENCH, label: "French" },
@@ -54,13 +50,13 @@ function Pill({
 }) {
   if (variant === "primary") {
     return (
-      <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-[2px] text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/20">
+      <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-[2px] text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/20">
         {children}
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center rounded-full bg-surface-strong px-2.5 py-[2px] text-[11px] font-semibold text-ink ring-1 ring-inset ring-hairline-strong">
+    <span className="inline-flex items-center rounded-md bg-surface-strong px-2.5 py-[2px] text-[11px] font-semibold text-ink ring-1 ring-inset ring-hairline-strong">
       {children}
     </span>
   );
@@ -101,10 +97,10 @@ function SelectRow({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center justify-between gap-3 rounded-lg border border-hairline bg-surface-card px-3 py-2 text-left transition-colors hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center justify-between gap-3 rounded-md border border-hairline bg-surface-card px-3 py-2 text-left transition-colors hover:bg-canvas-soft disabled:cursor-not-allowed disabled:opacity-60"
     >
       <div className="flex min-w-0 items-center gap-2.5">
-        {leftIcon ?? <div className="h-7 w-7 shrink-0 rounded-full bg-surface-strong" />}
+        {leftIcon ?? <div className="h-7 w-7 shrink-0 rounded-md bg-surface-strong" />}
         <div className="min-w-0">
           <div className="truncate text-[13px] font-medium text-ink">{title}</div>
         </div>
@@ -150,14 +146,17 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   const [selectedLanguages, setSelectedLanguages] =
     useState<SupportedLanguage[]>(initialLanguages.length > 0 ? initialLanguages : [defaultLanguage]);
 
-  const voices = agent.voices ?? [];
-  const primaryVoice = useMemo(
-    () => voices.find((v) => v.isPrimary) ?? voices[0],
-    [voices]
-  );
-  const [primaryVoiceId, setPrimaryVoiceId] = useState<string>(
-    primaryVoice?.voiceId ?? ELEVENLABS_VOICES[0]?.voiceId ?? AVATAR_DATA[0]?.id ?? "1"
-  );
+  const voices = useMemo(() => agent.voices ?? [], [agent.voices]);
+
+  const [primaryVoiceId, setPrimaryVoiceId] = useState<string>("");
+
+  useEffect(() => {
+    const def = voices.find((v) => v.isPrimary) ?? voices[0];
+    setPrimaryVoiceId((prev) => {
+      if (prev && voices.some((v) => v.voiceId === prev)) return prev;
+      return def?.voiceId ?? "";
+    });
+  }, [agent.id, voices]);
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);
   const [llmModel, setLlmModel] = useState<string>(agent.llmModel ?? "claude-haiku-4-5");
@@ -189,8 +188,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   const primaryVoiceName =
     voices.find((v) => v.voiceId === primaryVoiceId)?.name ??
-    ELEVENLABS_VOICES.find((v) => v.voiceId === primaryVoiceId)?.name ??
-    "Select voice";
+    (primaryVoiceId ? primaryVoiceId : "Select voice");
 
   async function saveLanguage(nextDefault: SupportedLanguage, nextLanguages: SupportedLanguage[]) {
     setIsSaving(true);
@@ -225,14 +223,13 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   async function saveVoice(nextVoiceId: string) {
     setIsSaving(true);
     try {
-      const selected =
-        ELEVENLABS_VOICES.find((v) => v.voiceId === nextVoiceId) ??
-        ({ voiceId: nextVoiceId, name: nextVoiceId } as const);
+      const dbVoice = voices.find((v) => v.voiceId === nextVoiceId);
+      if (!dbVoice) return;
       const result = await updateAgentVoiceSettings(agent.id, {
         primaryVoice: {
-          provider: VoiceProvider.ELEVENLABS,
-          voiceId: selected.voiceId,
-          name: selected.name,
+          provider: dbVoice.provider,
+          voiceId: nextVoiceId,
+          name: dbVoice.name,
         },
         additionalVoices: [],
       });
@@ -261,6 +258,15 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
+      <div className="mb-6 border-b border-hairline pb-5">
+        <p className="text-caption uppercase tracking-wider text-muted">
+          AI agent
+        </p>
+        <h2 className="mt-1 font-display text-display-sm font-normal tracking-tight text-ink">
+          {agent.name}
+        </h2>
+      </div>
+
       <div className="flex flex-col gap-6">
 
         {/* ── Voices ── */}
@@ -276,7 +282,13 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             <div>
               <Label className="mb-1.5 text-body-sm text-muted">Primary</Label>
               <SelectRow
-                leftIcon={<VoiceAvatar voiceId={primaryVoiceId} size="row" />}
+                leftIcon={
+                  primaryVoiceId ? (
+                    <VoiceAvatar voiceId={primaryVoiceId} size="row" />
+                  ) : (
+                    <div className="h-7 w-7 shrink-0 rounded-md bg-surface-strong" />
+                  )
+                }
                 title={primaryVoiceName}
                 rightPill={<Pill variant="primary">Primary</Pill>}
                 onClick={() => setVoicesOpen(true)}
@@ -286,7 +298,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             <button
               type="button"
               disabled
-              className="flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted"
+              className="flex w-full items-center gap-2 rounded-md border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted"
             >
               <Plus className="h-4 w-4" />
               Add additional voice
@@ -350,7 +362,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
               type="button"
               onClick={() => setLanguageOpen(true)}
               disabled={isSaving}
-              className="flex w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-md border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Plus className="h-4 w-4" />
               Add additional languages
@@ -412,19 +424,21 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         open={voicesOpen}
         onOpenChange={setVoicesOpen}
         title="Voices"
-        description="Select the ElevenLabs voice you want to use."
+        description="Pick a voice already linked to this agent."
       >
         <Command>
           <CommandInput placeholder="Search voices…" />
           <CommandList>
-            <CommandEmpty>No voices found.</CommandEmpty>
-            <CommandGroup heading="ElevenLabs">
-              {ELEVENLABS_VOICES.map((v) => {
+            <CommandEmpty>
+              No voices configured for this agent yet.
+            </CommandEmpty>
+            <CommandGroup heading="Agent voices">
+              {voices.map((v) => {
                 const active = v.voiceId === primaryVoiceId;
                 return (
                   <CommandItem
-                    key={v.voiceId}
-                    value={v.name}
+                    key={v.id}
+                    value={`${v.name} ${v.voiceId}`}
                     onSelect={async () => {
                       setPrimaryVoiceId(v.voiceId);
                       setVoicesOpen(false);
