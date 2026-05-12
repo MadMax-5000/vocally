@@ -26,7 +26,7 @@ export function useChart() {
   return context;
 }
 
-const ChartContainer = React.forwardRef<
+export const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     config: ChartConfig;
@@ -41,7 +41,7 @@ const ChartContainer = React.forwardRef<
       <div
         data-chart={chartId}
         ref={ref}
-        className={cn("flex aspect-video justify-center text-xs", className)}
+        className={cn("aspect-video text-xs", className)}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
@@ -93,6 +93,7 @@ export type ChartTooltipContentProps = {
   indicator?: "line" | "dot" | "dashed";
   nameKey?: string;
   labelKey?: string;
+  valueFormatter?: (value: number) => string;
 };
 
 export const ChartTooltipContent = React.forwardRef<
@@ -110,6 +111,7 @@ export const ChartTooltipContent = React.forwardRef<
       label,
       nameKey,
       labelKey,
+      valueFormatter,
     },
     ref
   ) => {
@@ -158,11 +160,13 @@ export const ChartTooltipContent = React.forwardRef<
                   <span className="text-muted">
                     {itemConfig?.label ?? String(item.name ?? "")}
                   </span>
-                  {item.value != null && (
+                    {item.value != null && (
                     <span className="font-semibold tabular-nums text-ink">
-                      {typeof item.value === "number"
-                        ? `${item.value.toFixed(2)}%`
-                        : String(item.value)}
+                      {typeof item.value === "number" && valueFormatter
+                        ? valueFormatter(item.value)
+                        : typeof item.value === "number"
+                          ? `${item.value.toFixed(2)}%`
+                          : String(item.value)}
                     </span>
                   )}
                 </div>

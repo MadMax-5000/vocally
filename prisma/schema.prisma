@@ -221,6 +221,8 @@ model CallLog {
   recordingUrl  String?
   transcript    String?
   qaScore       Float?
+  cost          Float        @default(0)
+  llmCost       Float        @default(0)
   createdAt     DateTime     @default(now())
 }
 

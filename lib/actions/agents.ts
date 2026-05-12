@@ -209,6 +209,7 @@ export async function getUserAIAgents() {
         agentType: true,
         tone: true,
         customRole: true,
+        status: true,
         channels: {
           where: { enabled: true },
           select: { channel: true },
@@ -793,5 +794,115 @@ export async function detachKnowledgeDocFromAgent(
     return { success: true as const };
   } catch (err) {
     return { success: false as const, error: "Failed to detach document" };
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Agent Actions — Archive / Duplicate / Delete                       */
+/* ------------------------------------------------------------------ */
+
+export async function archiveAgent(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { status: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    const newStatus = agent.status === "PAUSED" ? "ACTIVE" : "PAUSED";
+
+    await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: { status: newStatus },
+    });
+
+    revalidatePath("/dashboard/agents");
+    return { success: true as const, status: newStatus };
+  } catch (err) {
+    return { success: false as const, error: "Failed to update agent" };
+  }
+}
+
+export async function duplicateAgent(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const original = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: { languages: true, channels: true, voices: true, variables: true },
+    });
+    if (!original) return { success: false as const, error: "Agent not found" };
+
+    const copy = await prisma.agent.create({
+      data: {
+        orgId: dbOrgId,
+        name: `${original.name} (Copy)`,
+        avatarUrl: original.avatarUrl,
+        agentType: original.agentType,
+        customRole: original.customRole,
+        tone: original.tone,
+        customTone: original.customTone,
+        creativity: original.creativity,
+        instructions: original.instructions,
+        description: original.description,
+        websiteUrl: original.websiteUrl,
+        welcomeMessage: original.welcomeMessage,
+        handoffEnabled: original.handoffEnabled,
+        status: "DRAFT",
+        visibility: original.visibility,
+        defaultLanguage: original.defaultLanguage,
+        llmProvider: original.llmProvider,
+        llmModel: original.llmModel,
+        languages: {
+          create: original.languages.map((l) => ({ language: l.language })),
+        },
+        channels: {
+          create: original.channels.map((c) => ({ channel: c.channel })),
+        },
+        voices: {
+          create: original.voices.map((v) => ({
+            provider: v.provider,
+            voiceId: v.voiceId,
+            name: v.name,
+            isPrimary: v.isPrimary,
+          })),
+        },
+        variables: {
+          create: original.variables.map((v) => ({
+            key: v.key,
+            value: v.value,
+          })),
+        },
+      },
+    });
+
+    revalidatePath("/dashboard/agents");
+    return { success: true as const, data: { id: copy.id } };
+  } catch (err) {
+    return { success: false as const, error: "Failed to duplicate agent" };
+  }
+}
+
+export async function deleteAgent(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    await prisma.agent.delete({ where: { id: agentId } });
+
+    revalidatePath("/dashboard/agents");
+    return { success: true as const };
+  } catch (err) {
+    return { success: false as const, error: "Failed to delete agent" };
   }
 }

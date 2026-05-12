@@ -33,7 +33,7 @@ import {
 import { OrgSwitcher } from "./OrgSwitcher"
 
 const operationsItems = [
-  { title: "Command center", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Home", url: "/dashboard", icon: LayoutDashboard },
   { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
   { title: "Live monitor", url: "/dashboard/live", icon: Radio },
 ]

@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Plus, Search } from "lucide-react";
 import { getUserAIAgents } from "@/lib/actions/agents";
 import { AgentEmptyState } from "@/components/dashboard/AgentEmptyState";
-import { AgentStackedCard } from "@/components/dashboard/AgentStackedCard";
+import { AgentTable } from "@/components/dashboard/AgentStackedCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -19,7 +19,7 @@ export default async function AgentsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="mx-auto max-w-6xl flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-display-sm font-display tracking-tight text-ink">
           Agents
@@ -57,11 +57,7 @@ export default async function AgentsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 justify-items-center gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {result.data.map((agent: any, index: number) => (
-          <AgentStackedCard key={agent.id} agent={agent} index={index} />
-        ))}
-      </div>
+      <AgentTable agents={result.data} />
     </div>
   );
 }
