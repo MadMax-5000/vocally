@@ -14,15 +14,32 @@ export type UseChatOptions = {
   agentId: string;
   sessionId?: string | null;
   initialMessages?: ChatMessage[];
+  onAudioReady?: (base64: string) => void;
 };
 
-export function useChat({ agentId, sessionId: initialSessionId, initialMessages }: UseChatOptions) {
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+export function useChat({ agentId, sessionId: initialSessionId, initialMessages, onAudioReady }: UseChatOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
+
+  const isVoiceSupported = typeof navigator !== "undefined" &&
+    !!navigator.mediaDevices?.getUserMedia;
 
   useEffect(() => {
     if (!sessionId) return;
@@ -129,11 +146,91 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages 
     [agentId, isLoading],
   );
 
+  const sendVoiceMessage = useCallback(
+    async (audioBlob: Blob) => {
+      if (isProcessingVoice) return;
+
+      setIsProcessingVoice(true);
+      setError(null);
+
+      const tempId = `voice-temp-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          role: "USER",
+          content: "🎤 Recording...",
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+
+      try {
+        const base64 = await blobToBase64(audioBlob);
+        const format = audioBlob.type || "audio/webm";
+
+        const res = await fetch("/api/voice/process", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            agentId,
+            sessionId: sessionIdRef.current,
+            audio: base64,
+            format,
+          }),
+        });
+
+        const json = await res.json();
+        if (!json.success) {
+          throw new Error(json.error ?? "Voice processing failed");
+        }
+
+        const d = json.data;
+
+        if (d.sessionId && !sessionIdRef.current) {
+          setSessionId(d.sessionId);
+        }
+
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((m) => m.id !== tempId);
+          const updated = [
+            ...withoutTemp,
+            {
+              id: d.messages.user.id,
+              role: "USER" as const,
+              content: d.transcript,
+              createdAt: d.messages.user.createdAt,
+            },
+            {
+              id: d.messages.bot.id,
+              role: "BOT" as const,
+              content: d.botContent,
+              createdAt: d.messages.bot.createdAt,
+            },
+          ];
+          return updated;
+        });
+
+        if (d.audioBase64 && onAudioReady) {
+          onAudioReady(d.audioBase64);
+        }
+      } catch (err) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setError(err instanceof Error ? err.message : "Voice processing failed");
+      } finally {
+        setIsProcessingVoice(false);
+      }
+    },
+    [agentId, isProcessingVoice, onAudioReady],
+  );
+
   return {
     messages,
     sessionId,
     isLoading,
+    isProcessingVoice,
+    isVoiceSupported,
     error,
     sendMessage,
+    sendVoiceMessage,
   };
 }

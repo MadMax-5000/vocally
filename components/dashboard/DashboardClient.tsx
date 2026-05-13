@@ -32,7 +32,7 @@ import {
 
 // ─── Chart config ─────────────────────────────────────────────────────────────
 
-const CHART_COLOR = "#2563eb";
+const CHART_COLOR = "#FF5A36";
 
 const chartConfig = {
   count:        { label: "Number of calls",  color: CHART_COLOR },
@@ -583,7 +583,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
           title="Average CSAT Rating"
           value={hasQaData ? (stats.averageQaScore?.toFixed(1) ?? "—") : "---"}
           series={qaScoreSeries}
-          color="#f59e0b"
+          color="#3b82f6"
           noData={!hasQaData}
           chartHeight={170}
           tooltipValueFormatter={(v: number) => v.toFixed(2)}
@@ -600,7 +600,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
               : "—"
           }
           series={responseTimeSeries}
-          color={CHART_COLOR}
+          color="#b91c1c"
           yTickFormatter={(v) => formatDurationCompact(v)}
           tooltipValueFormatter={(v: number) => formatDuration(v)}
           showLinearScale
@@ -615,7 +615,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
               : "—"
           }
           series={totalDurationSeries}
-          color={CHART_COLOR}
+          color="#7c3aed"
           yTickFormatter={(v) => formatDurationCompact(v)}
           tooltipValueFormatter={(v: number) => formatDuration(v)}
           showLinearScale

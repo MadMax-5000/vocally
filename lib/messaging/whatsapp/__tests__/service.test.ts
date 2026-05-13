@@ -140,7 +140,7 @@ describe("WhatsApp Service", () => {
       org: { name: "Test Org" },
       instructions: null,
       creativity: "BALANCED",
-      llmModel: "gpt-4.1-mini",
+      llmModel: "openai/gpt-4.1-mini",
       knowledgeDocs: [],
     } as any);
     vi.mocked(processMessage).mockResolvedValue({

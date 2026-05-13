@@ -29,9 +29,7 @@ and CRM integrations — all delivered as a multi-tenant SaaS product.
 | ORM | Prisma (schema-first, Supabase connection string) |
 | Vector DB | Pinecone (knowledge base / FAQ embeddings) |
 | Telephony | Twilio (Voice, SMS, WhatsApp, Media Streams) |
-| ASR | OpenAI Whisper API (primary) |
-| LLM | Anthropic Claude (claude-haiku-4-5) as primary; OpenAI gpt-5.4-mini as fallback |
-| TTS | Amazon Polly / Azure Cognitive Speech |
+| AI (LLM, Embeddings) | OpenRouter (single API key, 300+ models: OpenAI, Anthropic, Google, etc.) |
 | Email | Resend (transactional emails, agent notifications) |
 | Payments | LemonSqueezy (subscription billing, webhooks) |
 | Analytics | Google Analytics 4 + custom event tracking |
@@ -143,12 +141,12 @@ enum AgentRole { AGENT SUPERVISOR ADMIN }
 ### 6.1 Voice AI Pipeline (Inbound Calls)
 - Twilio webhook hits `/api/webhooks/twilio/voice`
 - Stream audio via Twilio Media Streams WebSocket → OpenAI Whisper (streaming ASR)
-- Feed transcript chunks into Claude with org-specific system prompt
-- Claude response → Amazon Polly/Azure TTS → audio back to caller
+- Feed transcript chunks into LLM (via OpenRouter) with org-specific system prompt
+- LLM response → Amazon Polly/Azure TTS → audio back to caller
 - Support **barge-in**: caller can interrupt prompts naturally
 - Use DTMF (keypad) for sensitive data (PINs, card numbers) — never ask for these in voice
 - Keep latency < 800ms round-trip; use streaming APIs everywhere possible
-- Detect language automatically via Whisper; switch Claude system prompt language accordingly
+- Detect language automatically via Whisper; switch LLM system prompt language accordingly
 - Always provide fallback: if confidence is low or user says "human" / "agent", escalate
 
 ### 6.2 Chat & Messaging (Text Channels)
@@ -158,10 +156,10 @@ enum AgentRole { AGENT SUPERVISOR ADMIN }
 - Support rich responses: buttons, quick replies, structured menus
 - Omnichannel context: if customer switches from chat to call, bot has full history
 
-### 6.3 AI Orchestration (Claude)
-- All LLM calls go through `lib/ai/claude.ts` — never call the API directly in components
+### 6.3 AI Orchestration (OpenRouter)
+- All LLM calls go through `lib/ai/llm.ts` — never call the API directly in components
 - System prompts live in `lib/ai/prompts/` — one file per use case
-- Use Claude tool/function calling for: appointment booking, CRM lookups, order status, ticket creation
+- Use tool/function calling for: appointment booking, CRM lookups, order status, ticket creation
 - After each session: auto-generate summary + update session record
 - Sentiment scoring on every message; trigger escalation if sentiment < -0.6
 
@@ -181,7 +179,7 @@ enum AgentRole { AGENT SUPERVISOR ADMIN }
 ### 6.6 Analytics & QA
 - KPI cards: total sessions, bot resolution rate, avg handle time, CSAT
 - Sentiment trend charts per day/week/month
-- 100% call QA: every session scored automatically by Claude
+- 100% call QA: every session scored automatically by the LLM
 - Filter/search all transcripts; flag sessions for supervisor review
 - Export reports as CSV
 
@@ -263,7 +261,7 @@ These are **hard requirements** — never skip them:
 - **French**: second official language — all UI text must support French
 - **English**: international customers
 - Whisper auto-detects language per session — store detected language on `Session.language`
-- Claude system prompts must instruct: "Respond in the same language the customer is using"
+- LLM system prompts must instruct: "Respond in the same language the customer is using"
 - For Darija (Moroccan Arabic dialect): implement graceful fallback — if confidence is low, offer human escalation
 - UI: support RTL layout for Arabic — use `dir="rtl"` and Tailwind's RTL utilities where needed
 
@@ -286,7 +284,7 @@ Never ask for full credit card numbers or passwords verbally.
 ```
 
 - Keep voice responses **short** (1-3 sentences) — long responses are terrible on the phone
-- Always include tool definitions for Claude function calling
+- Always include tool definitions for function calling
 - Log all prompts for debugging (not in production)
 - Version prompts — add `v1`, `v2` suffix when iterating
 
@@ -368,9 +366,8 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 TWILIO_WEBHOOK_SECRET=
 
-# AI
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
+# AI (OpenRouter — single key for all LLM + embedding models)
+OPENROUTER_API_KEY=
 
 # TTS
 AWS_ACCESS_KEY_ID=
@@ -401,7 +398,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=
 
 - ❌ Never use `any` TypeScript type — use proper types or `unknown`
 - ❌ Never query the DB without scoping to `orgId`
-- ❌ Never call Anthropic/OpenAI APIs directly in React components — use server-side API routes
+- ❌ Never call LLM APIs directly in React components — use server-side API routes (OpenRouter via `lib/ai/llm.ts`)
 - ❌ Never store secrets in code or commit `.env` files
 - ❌ Never skip Zod validation on user inputs
 - ❌ Never create UI without reading `DESIGN.md` first
@@ -418,7 +415,7 @@ Follow this sequence when building features. Do not skip phases.
 
 1. **Foundation** — Clerk auth, Supabase schema, Prisma setup, basic layout per `DESIGN.md`
 2. **Telephony Core** — Twilio inbound webhook, TwiML response, basic IVR
-3. **Voice AI Pipeline** — Whisper ASR → Claude → Polly TTS, session storage
+3. **Voice AI Pipeline** — Whisper ASR → OpenRouter LLM → TTS, session storage
 4. **Chat Channel** — Web widget, Supabase Realtime, same LLM pipeline
 5. **SMS/WhatsApp** — Twilio messaging webhooks, unified message handling
 6. **Knowledge Base** — Document upload, Pinecone indexing, RAG in prompts
@@ -441,7 +438,7 @@ Follow this sequence when building features. Do not skip phases.
 | Prisma Docs | https://www.prisma.io/docs |
 | Twilio Voice | https://www.twilio.com/docs/voice |
 | Twilio Media Streams | https://www.twilio.com/docs/voice/media-streams |
-| Anthropic API | https://docs.anthropic.com |
+| OpenRouter Docs | https://openrouter.ai/docs |
 | Pinecone Docs | https://docs.pinecone.io |
 | LemonSqueezy Docs | https://docs.lemonsqueezy.com |
 | Resend Docs | https://resend.com/docs |

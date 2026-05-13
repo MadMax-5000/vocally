@@ -60,6 +60,8 @@ const STATUS_CFG: Record<string, { label: string; pill: string }> = {
   WAITING: { label: "Waiting", pill: "bg-amber-50 text-amber-800 ring-amber-100" },
   BOT: { label: "Bot", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
   HUMAN: { label: "Human", pill: "bg-violet-50 text-violet-700 ring-violet-100" },
+  ESCALATED: { label: "Escalated", pill: "bg-red-50 text-red-700 ring-red-300" },
+  CLAIMED: { label: "Claimed", pill: "bg-blue-50 text-blue-700 ring-blue-300" },
   RESOLVED: { label: "Resolved", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
   ABANDONED: { label: "Abandoned", pill: "bg-rose-50 text-rose-700 ring-rose-100" },
 };
@@ -444,6 +446,18 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
           (s.agentName ?? "").toLowerCase().includes(q),
       );
     }
+
+    list.sort((a, b) => {
+      const priority: Record<string, number> = {
+        ESCALATED: 0,
+        CLAIMED: 1,
+      };
+      const pa = priority[a.status] ?? 2;
+      const pb = priority[b.status] ?? 2;
+      if (pa !== pb) return pa - pb;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+
     return list;
   }, [
     sessions,

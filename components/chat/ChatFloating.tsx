@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
+import { useMicrophone } from "@/hooks/useMicrophone";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 
 type ChatFloatingProps = {
   agentId: string;
@@ -11,6 +14,13 @@ type ChatFloatingProps = {
   initialSessionId?: string;
 };
 
+function formatDuration(ms: number): string {
+  const secs = Math.floor(ms / 1000);
+  const mins = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${mins}:${s.toString().padStart(2, "0")}`;
+}
+
 export function ChatFloating({
   agentId,
   agentName = "AI Assistant",
@@ -19,11 +29,26 @@ export function ChatFloating({
   initialSessionId,
 }: ChatFloatingProps) {
   const [open, setOpen] = useState(false);
-  const { messages, isLoading, error, sendMessage } = useChat({
-    agentId,
-    sessionId: initialSessionId,
-    initialMessages,
-  });
+  const { isPlaying, play } = useAudioPlayer();
+
+  const handleAudioReady = useCallback(
+    (base64: string) => {
+      play(base64);
+    },
+    [play],
+  );
+
+  const { messages, isLoading, isProcessingVoice, isVoiceSupported, error, sendMessage, sendVoiceMessage } =
+    useChat({
+      agentId,
+      sessionId: initialSessionId,
+      initialMessages,
+      onAudioReady: handleAudioReady,
+    });
+
+  const { stream, isMicEnabled, requestMic, releaseMic } = useMicrophone();
+  const { isRecording, audioBlob, durationMs, startRecording, stopRecording, clear } =
+    useAudioRecorder(isMicEnabled ? stream : null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,12 +63,35 @@ export function ChatFloating({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const input = inputRef.current;
-    if (!input || !input.value.trim() || isLoading) return;
+    if (!input || !input.value.trim() || isLoading || isProcessingVoice) return;
     sendMessage(input.value);
     input.value = "";
   };
 
+  const handleMicToggle = async () => {
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+
+    if (audioBlob) {
+      clear();
+    }
+
+    if (!isMicEnabled) {
+      await requestMic();
+    }
+
+    setTimeout(() => startRecording(), 100);
+  };
+
+  useEffect(() => {
+    if (!audioBlob || isRecording) return;
+    sendVoiceMessage(audioBlob);
+  }, [audioBlob, isRecording, sendVoiceMessage]);
+
   const hasMessages = messages.length > 0;
+  const isBusy = isLoading || isProcessingVoice;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -59,7 +107,7 @@ export function ChatFloating({
                   {agentName}
                 </span>
                 <span className="text-caption text-muted">
-                  {isLoading ? "Typing..." : "Online"}
+                  {isBusy ? "Processing..." : "Online"}
                 </span>
               </div>
             </div>
@@ -128,15 +176,56 @@ export function ChatFloating({
               ref={inputRef}
               type="text"
               placeholder="Type your message..."
-              disabled={isLoading}
+              disabled={isBusy || isRecording}
               className="flex-1 h-9 rounded-md border border-hairline bg-canvas px-3 text-sm text-ink placeholder:text-muted-soft outline-none focus:border-primary transition-colors disabled:opacity-50"
             />
+
+            {isVoiceSupported && (
+              <button
+                type="button"
+                onClick={handleMicToggle}
+                disabled={isBusy}
+                title={isRecording ? "Stop recording" : "Start voice input"}
+                className={`shrink-0 w-9 h-9 flex items-center justify-center rounded-md border transition-colors ${
+                  isRecording
+                    ? "bg-error text-white border-error"
+                    : "border-hairline text-muted hover:text-ink hover:bg-surface-strong"
+                } disabled:opacity-50`}
+              >
+                {isRecording ? (
+                  <span className="text-xs font-medium tabular-nums">
+                    {formatDuration(durationMs)}
+                  </span>
+                ) : isPlaying ? (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M3 2h3v12H3V2zm7 0h3v12h-3V2z" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M8 1a2 2 0 0 0-2 2v4a2 2 0 1 0 4 0V3a2 2 0 0 0-2-2z" />
+                    <path d="M4 7a4 4 0 1 0 8 0" />
+                    <path d="M8 11v3" />
+                    <path d="M6 14h4" />
+                  </svg>
+                )}
+              </button>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isBusy}
               className="btn-primary shrink-0 disabled:opacity-50"
             >
-              {isLoading ? (
+              {isBusy ? (
                 <span className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce" />
                   <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:0.1s]" />

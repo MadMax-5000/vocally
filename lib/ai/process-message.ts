@@ -3,18 +3,26 @@ import { generateEmbedding } from "@/lib/ai/embeddings";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
 import { callLLM } from "@/lib/ai/llm";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
+import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
+import { evaluateEscalation, applyEscalation } from "@/lib/ai/escalation-service";
+import type { EscalationDecision } from "@/lib/ai/escalation-service";
+import type { Channel } from "@prisma/client";
 
 export type ProcessMessageInput = {
   orgId: string;
   agentId: string;
   sessionId: string;
   message: string;
+  channel?: Channel;
 };
 
 export type ProcessMessageResult = {
   botContent: string;
   sessionId: string;
+  escalation?: EscalationDecision;
 };
+
+const AI_FALLBACK = "I'm sorry, I'm having trouble processing your request right now. Please try again later.";
 
 const TEMPERATURE_MAP: Record<string, number> = {
   STRICT: 0.1,
@@ -56,13 +64,24 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     take: 20,
   });
 
-  const systemPrompt = chatBotSystemPromptV1({
-    agentName: agent.name,
-    orgName: agent.org.name,
-    instructions: agent.instructions,
-    knowledgeContext,
-    language: "the same language the customer is using",
-  });
+  const promptLanguage = "the same language the customer is using";
+
+  const systemPrompt =
+    input.channel === "VOICE"
+      ? voiceBotSystemPromptV1({
+          agentName: agent.name,
+          orgName: agent.org.name,
+          instructions: agent.instructions,
+          knowledgeContext,
+          language: promptLanguage,
+        })
+      : chatBotSystemPromptV1({
+          agentName: agent.name,
+          orgName: agent.org.name,
+          instructions: agent.instructions,
+          knowledgeContext,
+          language: promptLanguage,
+        });
 
   const llmMessages = history
     .filter((m) => m.role === "USER" || m.role === "BOT")
@@ -74,6 +93,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const temperature = TEMPERATURE_MAP[agent.creativity] ?? 0.7;
 
   let botContent: string;
+  let llmFailed = false;
   try {
     const result = await callLLM({
       model: agent.llmModel,
@@ -84,8 +104,33 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     });
     botContent = result.content;
   } catch {
-    botContent = "I'm sorry, I'm having trouble processing your request right now. Please try again later.";
+    botContent = AI_FALLBACK;
+    llmFailed = true;
   }
 
-  return { botContent, sessionId };
+  const previousBotMessages = history
+    .filter((m) => m.role === "BOT")
+    .map((m) => ({ content: m.content }));
+
+  const escalation = evaluateEscalation({
+    userMessage: message,
+    botContent,
+    llmFailed,
+    previousBotMessages,
+    handoffEnabled: agent.handoffEnabled,
+  });
+
+  if (escalation.shouldEscalate) {
+    await applyEscalation({
+      sessionId,
+      orgId,
+      decision: escalation,
+    });
+  }
+
+  return {
+    botContent,
+    sessionId,
+    escalation: escalation.shouldEscalate ? escalation : undefined,
+  };
 }

@@ -3,11 +3,11 @@
 import * as React from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, MessageCircle, Send } from "lucide-react";
+import { Loader2, MessageCircle, Send, Handshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { ConversationDetail, InboxMessage } from "@/lib/actions/sessions";
-import { getConversationDetail, sendMessage } from "@/lib/actions/sessions";
+import { getConversationDetail, sendMessage, claimSession } from "@/lib/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,6 +37,8 @@ const STATUS_CFG: Record<string, { dot: string; label: string }> = {
   WAITING:   { dot: "bg-amber-400",   label: "Waiting" },
   BOT:       { dot: "bg-blue-400",    label: "Bot" },
   HUMAN:     { dot: "bg-violet-400",  label: "Human" },
+  ESCALATED: { dot: "bg-red-500",     label: "Escalated" },
+  CLAIMED:   { dot: "bg-blue-500",    label: "Claimed" },
   RESOLVED:  { dot: "bg-gray-300",    label: "Resolved" },
   ABANDONED: { dot: "bg-red-400",     label: "Abandoned" },
 };
@@ -310,11 +312,14 @@ export function ConversationDetailSheet({
   const [messages, setMessages] = React.useState<InboxMessage[]>([]);
   const [replyText, setReplyText] = React.useState("");
   const [sending, setSending] = React.useState(false);
+  const [claiming, setClaiming] = React.useState(false);
+  const [claimError, setClaimError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!open) {
       setDetail(null);
       setMessages([]);
+      setClaimError(null);
       return;
     }
     if (!sessionId) return;
@@ -336,6 +341,24 @@ export function ConversationDetailSheet({
     detail?.channel === "WHATSAPP";
 
   const isVoice = detail?.channel === "VOICE";
+
+  const isEscalated = detail?.status === "ESCALATED";
+  const isClaimed = detail?.status === "CLAIMED";
+
+  const canReply = isClaimed && isTextChannel;
+
+  async function handleClaim() {
+    if (!sessionId || claiming) return;
+    setClaiming(true);
+    setClaimError(null);
+    const res = await claimSession(sessionId);
+    if (res.success) {
+      setDetail((prev) => (prev ? { ...prev, status: "CLAIMED" } : prev));
+    } else {
+      setClaimError(res.error);
+    }
+    setClaiming(false);
+  }
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -444,8 +467,32 @@ export function ConversationDetailSheet({
           )}
         </div>
 
-        {/* ── Reply area (text channels only) ─────────────── */}
-        {isTextChannel && detail && (
+        {/* ── Claim button (ESCALATED sessions) ──────────── */}
+        {isEscalated && detail && (
+          <div className="shrink-0 border-t border-hairline bg-surface-card px-5 py-4">
+            {claimError && (
+              <p className="mb-2 text-body-sm text-red-600">{claimError}</p>
+            )}
+            <Button
+              type="button"
+              variant="primary"
+              size="default"
+              onClick={handleClaim}
+              disabled={claiming}
+              className="w-full rounded-xl"
+            >
+              {claiming ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Handshake className="mr-2 h-4 w-4" />
+              )}
+              Claim this conversation
+            </Button>
+          </div>
+        )}
+
+        {/* ── Reply area (CLAIMED + text channels) ───────── */}
+        {canReply && detail && (
           <div className="shrink-0 border-t border-hairline bg-surface-card px-5 py-4">
             <form onSubmit={handleSend} className="flex items-center gap-2">
               <Input

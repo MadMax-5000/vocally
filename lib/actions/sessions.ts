@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
@@ -471,6 +472,73 @@ export async function getSessionMessages(
   }
 }
 
+export async function claimSession(
+  sessionId: string,
+): Promise<
+  { success: true; data: { status: string } } | { success: false; error: string }
+> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const { userId } = await auth();
+    if (!userId) return { success: false, error: "Unauthorized" };
+
+    const result = await prisma.session.updateMany({
+      where: { id: sessionId, orgId, status: "ESCALATED" },
+      data: {
+        status: "CLAIMED",
+        claimedAt: new Date(),
+        claimedById: userId,
+      },
+    });
+
+    if (result.count === 0) {
+      const session = await prisma.session.findFirst({
+        where: { id: sessionId, orgId },
+        select: { status: true },
+      });
+      if (!session) return { success: false, error: "Session not found" };
+      return {
+        success: false,
+        error:
+          session.status === "CLAIMED"
+            ? "This conversation has already been claimed by another agent"
+            : "This conversation cannot be claimed in its current state",
+      };
+    }
+
+    await prisma.message.create({
+      data: {
+        sessionId,
+        role: "SYSTEM",
+        content: "Agent has joined the conversation.",
+      },
+    });
+
+    return { success: true, data: { status: "CLAIMED" } };
+  } catch (err) {
+    return { success: false, error: "Failed to claim session" };
+  }
+}
+
+export async function getEscalationCount(): Promise<
+  { success: true; data: number } | { success: false; error: string }
+> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: true, data: 0 };
+
+    const count = await prisma.session.count({
+      where: { orgId, status: "ESCALATED" },
+    });
+
+    return { success: true, data: count };
+  } catch {
+    return { success: true, data: 0 };
+  }
+}
+
 export async function sendMessage(
   sessionId: string,
   content: string,
@@ -483,9 +551,19 @@ export async function sendMessage(
 
     const session = await prisma.session.findFirst({
       where: { id: sessionId, orgId },
-      select: { id: true },
+      select: { id: true, status: true },
     });
     if (!session) return { success: false, error: "Session not found" };
+
+    if (session.status !== "CLAIMED") {
+      return {
+        success: false,
+        error:
+          session.status === "ESCALATED"
+            ? "Claim this conversation before replying"
+            : "Cannot reply to a conversation in this state",
+      };
+    }
 
     const message = await prisma.message.create({
       data: {

@@ -18,7 +18,8 @@ export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
 
   sections.push(
     "Be helpful, accurate, and concise. You can use markdown for formatting.",
-    "If you cannot resolve an issue, offer to transfer to a human agent.",
+    "If you cannot resolve an issue, clearly state that you cannot help and offer to transfer to a human agent.",
+    "If the customer is becoming frustrated or asks for something outside your capabilities, acknowledge their concern and offer to transfer to a human agent.",
     "Never ask for sensitive information like passwords or credit card numbers.",
   );
 

@@ -159,7 +159,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   }, [agent.id, voices]);
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);
-  const [llmModel, setLlmModel] = useState<string>(agent.llmModel ?? "claude-haiku-4-5");
+  const [llmModel, setLlmModel] = useState<string>(agent.llmModel ?? "anthropic/claude-haiku-4.5");
 
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");
   const [systemPrompt, setSystemPrompt] = useState<string>(agent.instructions ?? "");
@@ -258,15 +258,6 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <div className="mb-6 border-b border-hairline pb-5">
-        <p className="text-caption uppercase tracking-wider text-muted">
-          AI agent
-        </p>
-        <h2 className="mt-1 font-display text-display-sm font-normal tracking-tight text-ink">
-          {agent.name}
-        </h2>
-      </div>
-
       <div className="flex flex-col gap-6">
 
         {/* ── Voices ── */}

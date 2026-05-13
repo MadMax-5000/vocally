@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
-import { generateEmbedding } from "@/lib/ai/embeddings";
-import { similaritySearch } from "@/lib/knowledge/vector-store";
-import { callLLM } from "@/lib/ai/llm";
-import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
+import { processMessage } from "@/lib/ai/process-message";
 
 const chatRequestSchema = z.object({
   agentId: z.string().min(1),
@@ -28,11 +25,8 @@ export async function POST(req: NextRequest) {
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
       include: {
-        org: true,
-        channels: {
-          where: { channel: "WEB_CHAT" },
-        },
-        knowledgeDocs: true,
+        org: { select: { id: true, name: true } },
+        channels: { where: { channel: "WEB_CHAT" } },
       },
     });
 
@@ -48,7 +42,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const orgId = agent.orgId;
+    const orgId = agent.org.id;
 
     let sessionId = existingSessionId;
     if (sessionId) {
@@ -70,77 +64,18 @@ export async function POST(req: NextRequest) {
     }
 
     const userMessage = await prisma.message.create({
-      data: {
-        sessionId,
-        role: "USER",
-        content: message,
-      },
+      data: { sessionId, role: "USER", content: message },
     });
 
-    const attachedDocIds = agent.knowledgeDocs.map((akd) => akd.knowledgeDocId);
-
-    let knowledgeContext = "";
-    try {
-      const { embedding } = await generateEmbedding(message);
-      const results = await similaritySearch(embedding, orgId, 5, 0.7, attachedDocIds);
-      if (results.length > 0) {
-        knowledgeContext = results
-          .map((r) => `[${r.docTitle}] ${r.content}`)
-          .join("\n\n");
-      }
-    } catch (err) {
-      // ignore RAG errors — continue without knowledge context
-    }
-
-    const history = await prisma.message.findMany({
-      where: { sessionId },
-      orderBy: { createdAt: "asc" },
-      take: 20,
+    const { botContent } = await processMessage({
+      orgId,
+      agentId,
+      sessionId,
+      message,
     });
-
-    const systemPrompt = chatBotSystemPromptV1({
-      agentName: agent.name,
-      orgName: agent.org.name,
-      instructions: agent.instructions,
-      knowledgeContext,
-      language: "the same language the customer is using",
-    });
-
-    const llmMessages = history
-      .filter((m) => m.role === "USER" || m.role === "BOT")
-      .map((m) => ({
-        role: (m.role === "USER" ? "user" : "assistant") as "user" | "assistant",
-        content: m.content,
-      }));
-
-    const temperatureMap: Record<string, number> = {
-      STRICT: 0.1,
-      BALANCED: 0.7,
-      CREATIVE: 1.0,
-    };
-    const temperature = temperatureMap[agent.creativity] ?? 0.7;
-
-    let botContent: string;
-    try {
-      const result = await callLLM({
-        model: agent.llmModel,
-        system: systemPrompt,
-        messages: llmMessages,
-        maxTokens: 1024,
-        temperature,
-      });
-      botContent = result.content;
-    } catch (err) {
-      botContent =
-        "I'm sorry, I'm having trouble processing your request right now. Please try again later.";
-    }
 
     const botMessage = await prisma.message.create({
-      data: {
-        sessionId,
-        role: "BOT",
-        content: botContent,
-      },
+      data: { sessionId, role: "BOT", content: botContent },
     });
 
     return NextResponse.json({
