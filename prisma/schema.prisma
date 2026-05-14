@@ -13,6 +13,9 @@ model Organization {
   clerkOrgId       String            @unique
   name             String
   plan             Plan              @default(FREE)
+  /// Lemon Squeezy subscription id (stringified); used for idempotent webhook updates and portal links.
+  lemonSqueezySubscriptionId String? @unique
+  lemonSqueezyCustomerId     String?
   createdAt        DateTime          @default(now())
   calls            CallLog[]
   sessions         Session[]
@@ -20,6 +23,11 @@ model Organization {
   knowledgeDocs    KnowledgeDoc[]
   knowledgeFolders KnowledgeFolder[]
   whatsappNumbers   WhatsappPhoneNumber[]
+  twilioNumbers     TwilioPhoneNumber[]
+  smsNumbers        SmsPhoneNumber[]
+  emailAddresses    EmailAddress[]
+  appointments      Appointment[]
+  tickets           Ticket[]
 }
 
 model KnowledgeFolder {
@@ -71,6 +79,9 @@ model Agent {
 
   sessions  Session[]
   whatsappNumbers WhatsappPhoneNumber[]
+  voiceNumbers    TwilioPhoneNumber[]
+  smsNumbers      SmsPhoneNumber[]
+  emailAddresses  EmailAddress[]
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
@@ -352,6 +363,105 @@ model WhatsappPhoneNumber {
   @@index([twilioNumber])
 }
 
+model TwilioPhoneNumber {
+  id            String   @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+
+  twilioNumber  String   @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([twilioNumber])
+}
+
+model SmsPhoneNumber {
+  id            String   @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  twilioNumber  String   @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([twilioNumber])
+}
+
+model EmailAddress {
+  id            String   @id @default(cuid())
+  orgId         String
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  email         String   @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([email])
+}
+
+model Appointment {
+  id            String   @id @default(cuid())
+  orgId         String
+  organization  Organization @relation(fields: [orgId], references: [id])
+  sessionId     String?
+  customerName  String
+  customerEmail String?
+  department    String
+  date          DateTime
+  time          String
+  status        AppointmentStatus @default(CONFIRMED)
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  @@index([orgId])
+}
+
+enum AppointmentStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  orgId       String
+  organization Organization @relation(fields: [orgId], references: [id])
+  sessionId   String?
+  subject     String
+  description String
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus @default(OPEN)
+  customerEmail String?
+  createdAt   DateTime @default(now())
+
+  @@index([orgId])
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 enum VoiceProvider {
   ELEVENLABS
+  OPENROUTER
 }

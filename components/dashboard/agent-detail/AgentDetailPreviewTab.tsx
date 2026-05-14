@@ -46,7 +46,7 @@ export function AgentDetailPreviewTab({ agent }: Props) {
     [play],
   );
 
-  const { messages, isLoading, isProcessingVoice, isVoiceSupported, error, sendMessage, sendVoiceMessage } =
+  const { messages, isLoading, isProcessingVoice, isVoiceSupported, error, sendMessage, sendVoiceMessage, clearMessages } =
     useChat({
       agentId: agent.id,
       onAudioReady: handleAudioReady,
@@ -117,9 +117,7 @@ export function AgentDetailPreviewTab({ agent }: Props) {
             size="sm"
             className="h-8 rounded-md border-hairline bg-surface-card px-3 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
             disabled={!hasMessages}
-            onClick={() => {
-              inputRef.current?.focus();
-            }}
+            onClick={clearMessages}
           >
             <Eraser className="mr-1.5 h-4 w-4 text-muted" />
             Clear

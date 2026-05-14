@@ -1,4 +1,6 @@
-import type { SpeechResult } from "@/lib/voice/types";
+import type { SpeechResult, VoiceParams } from "@/lib/voice/types";
+import { LANGUAGE_VOICE_MAP } from "@/lib/voice/types";
+import { prisma } from "@/lib/db/prisma";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
@@ -85,4 +87,64 @@ export async function synthesizeSpeechLong(
     audioBase64: combined.toString("base64"),
     format: "mp3",
   };
+}
+
+const TTS_DEFAULT_MODEL = "openai/gpt-4o-mini-tts-2025-12-15";
+
+export async function resolveAgentVoice(
+  agentId: string | null,
+  language: string,
+): Promise<VoiceParams> {
+  const fallbackVoice = LANGUAGE_VOICE_MAP[language] ?? "alloy";
+  const fallback: VoiceParams = {
+    model: TTS_DEFAULT_MODEL,
+    voice: fallbackVoice,
+  };
+
+  if (!agentId) return fallback;
+
+  try {
+    const primary = await prisma.agentVoice.findFirst({
+      where: { agentId, isPrimary: true },
+      select: { provider: true, voiceId: true, name: true },
+    });
+
+    if (primary?.provider === "OPENROUTER" && primary.voiceId) {
+      return {
+        model: primary.name || TTS_DEFAULT_MODEL,
+        voice: primary.voiceId,
+      };
+    }
+
+    const variables = await prisma.agentVariable.findMany({
+      where: { agentId, key: { in: ["tts_model", "tts_voice"] } },
+    });
+
+    const modelVar = variables.find((v) => v.key === "tts_model");
+    const voiceVar = variables.find((v) => v.key === "tts_voice");
+
+    if (modelVar || voiceVar) {
+      return {
+        model: modelVar?.value ?? TTS_DEFAULT_MODEL,
+        voice: voiceVar?.value ?? fallbackVoice,
+      };
+    }
+
+    const channel = await prisma.agentChannel.findFirst({
+      where: { agentId, channel: "VOICE_CALLS", enabled: true },
+      select: { config: true },
+    });
+
+    const cfg = channel?.config as Record<string, unknown> | null;
+    if (cfg?.ttsModel || cfg?.ttsVoice) {
+      return {
+        model: String(cfg.ttsModel ?? TTS_DEFAULT_MODEL),
+        voice: String(cfg.ttsVoice ?? fallbackVoice),
+      };
+    }
+  } catch {
+    // fallback on error
+  }
+
+  return fallback;
 }

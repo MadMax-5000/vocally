@@ -522,6 +522,146 @@ export async function claimSession(
   }
 }
 
+/* ------------------------------------------------------------------ */
+/*  Summary Update                                                      */
+/* ------------------------------------------------------------------ */
+
+export async function updateSessionSummary(
+  sessionId: string,
+  summary: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const result = await prisma.session.updateMany({
+      where: { id: sessionId, orgId },
+      data: { summary },
+    });
+
+    if (result.count === 0) {
+      return { success: false, error: "Session not found" };
+    }
+
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: "Failed to update summary" };
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Per-Agent Analytics                                                 */
+/* ------------------------------------------------------------------ */
+
+export type AgentAnalytics = {
+  totalSessions: number;
+  aiResolutionRate: number;
+  averageSentiment: number | null;
+  averageDuration: number | null;
+  averageQaScore: number | null;
+  totalCost: number;
+  totalLlmCost: number;
+  sessionsByChannel: { channel: string; count: number }[];
+  dailySeries: { date: string; count: number; resolvedCount: number }[];
+};
+
+export async function getAgentAnalytics(
+  agentId: string,
+): Promise<
+  { success: true; data: AgentAnalytics } | { success: false; error: string }
+> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false, error: "Agent not found" };
+
+    const now = new Date();
+    const fourteenDaysAgo = new Date(now);
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 13);
+
+    const [totalSessions, resolvedByAI, sentimentAgg, callLogAgg, channelGroups] =
+      await Promise.all([
+        prisma.session.count({ where: { agentId } }),
+        prisma.session.count({ where: { agentId, resolvedByAI: true } }),
+        prisma.session.aggregate({
+          where: { agentId },
+          _avg: { sentiment: true },
+        }),
+        prisma.callLog.aggregate({
+          where: { session: { agentId } },
+          _avg: { duration: true, qaScore: true, cost: true, llmCost: true },
+          _sum: { cost: true, llmCost: true },
+        }),
+        prisma.session.groupBy({
+          by: ["channel"],
+          where: { agentId },
+          _count: true,
+        }),
+      ]);
+
+    const recentSessions = await prisma.session.findMany({
+      where: { agentId, createdAt: { gte: fourteenDaysAgo } },
+      select: { id: true, createdAt: true, resolvedByAI: true },
+    });
+
+    const dailyMap = new Map<
+      string,
+      { count: number; resolvedCount: number }
+    >();
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(fourteenDaysAgo);
+      d.setDate(d.getDate() + i);
+      dailyMap.set(d.toISOString().slice(0, 10), { count: 0, resolvedCount: 0 });
+    }
+
+    for (const s of recentSessions) {
+      const key = s.createdAt.toISOString().slice(0, 10);
+      const entry = dailyMap.get(key);
+      if (entry) {
+        entry.count++;
+        if (s.resolvedByAI) entry.resolvedCount++;
+      }
+    }
+
+    const dailySeries = Array.from(dailyMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, data]) => ({
+        date,
+        count: data.count,
+        resolvedCount: data.resolvedCount,
+      }));
+
+    return {
+      success: true,
+      data: {
+        totalSessions,
+        aiResolutionRate: totalSessions > 0 ? (resolvedByAI / totalSessions) * 100 : 0,
+        averageSentiment: sentimentAgg._avg.sentiment ?? null,
+        averageDuration: callLogAgg._avg.duration ?? null,
+        averageQaScore: callLogAgg._avg.qaScore ?? null,
+        totalCost: callLogAgg._sum.cost ?? 0,
+        totalLlmCost: callLogAgg._sum.llmCost ?? 0,
+        sessionsByChannel: channelGroups.map((g) => ({
+          channel: g.channel,
+          count: g._count,
+        })),
+        dailySeries,
+      },
+    };
+  } catch (err) {
+    const msg =
+      process.env.NODE_ENV === "development" && err instanceof Error
+        ? err.message
+        : "Failed to load agent analytics";
+    return { success: false, error: msg };
+  }
+}
+
 export async function getEscalationCount(): Promise<
   { success: true; data: number } | { success: false; error: string }
 > {

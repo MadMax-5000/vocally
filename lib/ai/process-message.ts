@@ -2,10 +2,15 @@ import { prisma } from "@/lib/db/prisma";
 import { generateEmbedding } from "@/lib/ai/embeddings";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
 import { callLLM } from "@/lib/ai/llm";
+import type { LLMMessage } from "@/lib/ai/llm";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import { evaluateEscalation, applyEscalation } from "@/lib/ai/escalation-service";
 import type { EscalationDecision } from "@/lib/ai/escalation-service";
+import { getAllToolDefinitions, getToolHandler } from "@/lib/ai/tools/registry";
+import type { ToolCall, ToolContext } from "@/lib/ai/tools/types";
+import { dtmfRequestStore } from "@/lib/ai/tools/handlers";
+import type { DtmfRequest } from "@/lib/ai/tools/handlers";
 import type { Channel } from "@prisma/client";
 
 export type ProcessMessageInput = {
@@ -20,6 +25,7 @@ export type ProcessMessageResult = {
   botContent: string;
   sessionId: string;
   escalation?: EscalationDecision;
+  dtmfRequest?: DtmfRequest | null;
 };
 
 const AI_FALLBACK = "I'm sorry, I'm having trouble processing your request right now. Please try again later.";
@@ -29,6 +35,42 @@ const TEMPERATURE_MAP: Record<string, number> = {
   BALANCED: 0.7,
   CREATIVE: 1.0,
 };
+
+const MAX_TOOL_ITERATIONS = 5;
+
+async function executeToolCalls(
+  toolCalls: ToolCall[],
+  ctx: ToolContext,
+): Promise<LLMMessage[]> {
+  const results: LLMMessage[] = [];
+
+  for (const tc of toolCalls) {
+    const handler = getToolHandler(tc.function.name);
+    let content: string;
+
+    if (!handler) {
+      content = JSON.stringify({ error: `Unknown tool: ${tc.function.name}` });
+    } else {
+      try {
+        const args = JSON.parse(tc.function.arguments);
+        content = await handler(args, ctx);
+      } catch (err) {
+        content = JSON.stringify({
+          error: `Tool execution failed: ${err instanceof Error ? err.message : String(err)}`,
+        });
+      }
+    }
+
+    results.push({
+      role: "tool",
+      tool_call_id: tc.id,
+      name: tc.function.name,
+      content,
+    });
+  }
+
+  return results;
+}
 
 export async function processMessage(input: ProcessMessageInput): Promise<ProcessMessageResult> {
   const { orgId, agentId, sessionId, message } = input;
@@ -66,6 +108,8 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
   const promptLanguage = "the same language the customer is using";
 
+  const toolDefinitions = getAllToolDefinitions();
+
   const systemPrompt =
     input.channel === "VOICE"
       ? voiceBotSystemPromptV1({
@@ -74,6 +118,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           instructions: agent.instructions,
           knowledgeContext,
           language: promptLanguage,
+          toolDefinitions,
         })
       : chatBotSystemPromptV1({
           agentName: agent.name,
@@ -81,28 +126,71 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           instructions: agent.instructions,
           knowledgeContext,
           language: promptLanguage,
+          toolDefinitions,
         });
 
-  const llmMessages = history
+  const llmMessages: LLMMessage[] = history
     .filter((m) => m.role === "USER" || m.role === "BOT")
     .map((m) => ({
       role: (m.role === "USER" ? "user" : "assistant") as "user" | "assistant",
       content: m.content,
     }));
 
+  llmMessages.push({ role: "user", content: message });
+
   const temperature = TEMPERATURE_MAP[agent.creativity] ?? 0.7;
 
   let botContent: string;
   let llmFailed = false;
+  const toolCtx: ToolContext = { orgId, sessionId };
+
   try {
-    const result = await callLLM({
+    const firstResult = await callLLM({
       model: agent.llmModel,
       system: systemPrompt,
       messages: llmMessages,
       maxTokens: 1024,
       temperature,
+      tools: toolDefinitions,
+      tool_choice: "auto",
     });
-    botContent = result.content;
+
+    const currentMessages: LLMMessage[] = [
+      ...llmMessages,
+      {
+        role: "assistant",
+        content: firstResult.content,
+        tool_calls: firstResult.tool_calls,
+      },
+    ];
+
+    let toolCallCount = 0;
+    let activeToolCalls = firstResult.tool_calls;
+
+    while (activeToolCalls && activeToolCalls.length > 0 && toolCallCount < MAX_TOOL_ITERATIONS) {
+      toolCallCount++;
+
+      const toolResults = await executeToolCalls(activeToolCalls, toolCtx);
+      currentMessages.push(...toolResults);
+
+      const followUp = await callLLM({
+        model: agent.llmModel,
+        system: systemPrompt,
+        messages: currentMessages,
+        maxTokens: 1024,
+        temperature,
+      });
+
+      currentMessages.push({
+        role: "assistant",
+        content: followUp.content,
+        tool_calls: followUp.tool_calls,
+      });
+
+      activeToolCalls = followUp.tool_calls;
+    }
+
+    botContent = currentMessages[currentMessages.length - 1]?.content ?? "";
   } catch {
     botContent = AI_FALLBACK;
     llmFailed = true;
@@ -128,9 +216,13 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     });
   }
 
+  const dtmfRequest = dtmfRequestStore.get(sessionId) ?? null;
+  if (dtmfRequest) dtmfRequestStore.delete(sessionId);
+
   return {
     botContent,
     sessionId,
     escalation: escalation.shouldEscalate ? escalation : undefined,
+    dtmfRequest,
   };
 }

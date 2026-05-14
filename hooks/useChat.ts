@@ -78,6 +78,12 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
     };
   }, [sessionId]);
 
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+    setSessionId(null);
+    setError(null);
+  }, []);
+
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading) return;
@@ -232,5 +238,6 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
     error,
     sendMessage,
     sendVoiceMessage,
+    clearMessages,
   };
 }

@@ -3,18 +3,13 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)"]);
-const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/privacy", "/terms", "/cookies"]);
+const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/privacy", "/terms", "/cookies", "/pricing"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const url = new URL(req.url);
+  if (isWebhookRoute(req)) return;
+  if (isPublicRoute(req)) return;
 
-  if (isWebhookRoute(req)) {
-    return;
-  }
-
-  if (!isPublicRoute(req) && !isProtectedRoute(req) && !isOnboardingRoute(req)) {
-    return;
-  }
+  if (!isProtectedRoute(req) && !isOnboardingRoute(req)) return;
 
   const session = await auth();
 

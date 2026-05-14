@@ -1,5 +1,5 @@
 import twilio from "twilio";
-import { getTwilioAccountSid, getTwilioAuthToken } from "./env";
+import { getTwilioAccountSid, getTwilioAuthToken, getTwilioSmsNumber } from "./env";
 
 let client: twilio.Twilio | null = null;
 
@@ -31,4 +31,21 @@ function getTwilioWhatsappNumber(): string {
   const num = process.env.TWILIO_WHATSAPP_NUMBER;
   if (!num) throw new Error("TWILIO_WHATSAPP_NUMBER is not configured");
   return num.startsWith("whatsapp:") ? num : `whatsapp:${num}`;
+}
+
+export async function sendSmsMessage(params: {
+  to: string;
+  body: string;
+  from?: string;
+}): Promise<{ messageSid: string }> {
+  const twilioClient = getTwilioClient();
+  const from = params.from ?? getTwilioSmsNumber();
+
+  const message = await twilioClient.messages.create({
+    from,
+    to: params.to,
+    body: params.body,
+  });
+
+  return { messageSid: message.sid };
 }

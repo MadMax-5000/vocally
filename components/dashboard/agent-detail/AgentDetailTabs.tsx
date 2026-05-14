@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
+import { AgentDetailAnalyticsTab } from "./AgentDetailAnalyticsTab";
 import { AgentDetailKnowledgeTab } from "./AgentDetailKnowledgeTab";
 import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
+import { AgentDetailWidgetTab } from "./AgentDetailWidgetTab";
 
 const TAB_CONFIG: { id: AgentDetailTabId; label: string }[] = [
   { id: "agent", label: "Agent" },
@@ -135,10 +137,14 @@ export function AgentDetailTabs({
           >
             {activeTab === "agent" ? (
               <AgentDetailAgentTab agent={agent} />
+            ) : activeTab === "analysis" ? (
+              <AgentDetailAnalyticsTab agentId={agent.id} />
             ) : activeTab === "knowledge" ? (
               <AgentDetailKnowledgeTab agentId={agent.id} />
             ) : activeTab === "preview" ? (
               <AgentDetailPreviewTab agent={agent} />
+            ) : activeTab === "widget" ? (
+              <AgentDetailWidgetTab agent={agent} />
             ) : (
               <TabPlaceholder label={activeLabel} />
             )}

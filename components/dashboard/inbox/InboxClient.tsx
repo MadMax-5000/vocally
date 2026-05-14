@@ -36,6 +36,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 import { ConversationDetailSheet } from "./ConversationDetailSheet";
 
 /* ------------------------------------------------------------------
@@ -309,8 +310,50 @@ function uniqSorted(values: string[]): string[] {
    InboxClient
    ------------------------------------------------------------------ */
 
-export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
+export function InboxClient({ sessions: initialSessions }: { sessions: InboxSession[] }) {
+  const [liveSessions, setLiveSessions] = React.useState(initialSessions);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Sync initial sessions when prop changes (navigation)
+  React.useEffect(() => {
+    setLiveSessions(initialSessions);
+  }, [initialSessions]);
+
+  // Realtime subscriptions for live inbox updates
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+  React.useEffect(() => {
+    const supabase = getSupabaseBrowser();
+    if (!supabase) return;
+
+    function scheduleRefetch() {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(async () => {
+        const { getInboxSessions } = await import("@/lib/actions/sessions");
+        const res = await getInboxSessions();
+        if (res.success) setLiveSessions(res.data);
+      }, 2000);
+    }
+
+    const channel = supabase
+      .channel("inbox-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Session" },
+        () => { scheduleRefetch(); },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "Message" },
+        () => { scheduleRefetch(); },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   const [search, setSearch] = React.useState("");
   const [dateAfter, setDateAfter] = React.useState<string | null>(null);
@@ -368,7 +411,7 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
   }
 
   const filteredSessions = React.useMemo(() => {
-    let list = sessions.filter((s) => s.agentName);
+    let list = liveSessions.filter((s) => s.agentName);
 
     if (dateAfter) {
       const start = parseLocalYMD(dateAfter);
@@ -460,7 +503,7 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
 
     return list;
   }, [
-    sessions,
+    liveSessions,
     dateAfter,
     dateBefore,
     channelFilter,
@@ -503,16 +546,16 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
   );
 
   const languageOptions = React.useMemo(() => {
-    const langs = uniqSorted(sessions.map((s) => s.language).filter(Boolean));
+    const langs = uniqSorted(liveSessions.map((s) => s.language).filter(Boolean));
     return [
       { value: null, label: "All languages" },
       ...langs.map((lang) => ({ value: lang, label: lang })),
     ];
-  }, [sessions]);
+  }, [liveSessions]);
 
   const userOptions = React.useMemo(() => {
     const ids = uniqSorted(
-      sessions
+      liveSessions
         .map((s) => s.customerId)
         .filter((id): id is string => id != null && id.length > 0),
     );
@@ -521,11 +564,11 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
       { value: USER_NONE, label: "Unidentified" },
       ...ids.map((id) => ({ value: id, label: id })),
     ];
-  }, [sessions]);
+  }, [liveSessions]);
 
   const agentOptions = React.useMemo(() => {
     const names = uniqSorted(
-      sessions
+      liveSessions
         .map((s) => s.agentName)
         .filter((n): n is string => n != null && n.length > 0),
     );
@@ -534,7 +577,7 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
       { value: AGENT_AI, label: "Unassigned" },
       ...names.map((n) => ({ value: n, label: n })),
     ];
-  }, [sessions]);
+  }, [liveSessions]);
 
   const durationOptions = React.useMemo(
     () => [
@@ -585,7 +628,7 @@ export function InboxClient({ sessions }: { sessions: InboxSession[] }) {
   );
 
   /* ── Empty state (no sessions at all) ──────────────────── */
-  if (sessions.length === 0) {
+  if (liveSessions.length === 0) {
     return (
       <TooltipProvider delayDuration={300}>
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6">

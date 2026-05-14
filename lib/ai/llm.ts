@@ -1,6 +1,11 @@
+import type { ToolCall, ToolDefinition } from "@/lib/ai/tools/types";
+
 export type LLMMessage = {
-  role: "system" | "user" | "assistant";
-  content: string;
+  role: "system" | "user" | "assistant" | "tool";
+  content: string | null;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+  name?: string;
 };
 
 export type CallLLMOptions = {
@@ -9,11 +14,14 @@ export type CallLLMOptions = {
   messages: LLMMessage[];
   maxTokens?: number;
   temperature?: number;
+  tools?: ToolDefinition[];
+  tool_choice?: "auto" | "none" | "required";
 };
 
 export type CallLLMResult = {
   content: string;
   finishReason: string | null;
+  tool_calls?: ToolCall[];
   usage: {
     promptTokens: number;
     completionTokens: number;
@@ -30,7 +38,15 @@ function getApiKey(): string {
 }
 
 export async function callLLM(options: CallLLMOptions): Promise<CallLLMResult> {
-  const { model, system, messages, maxTokens = 1024, temperature } = options;
+  const {
+    model,
+    system,
+    messages,
+    maxTokens = 1024,
+    temperature,
+    tools,
+    tool_choice,
+  } = options;
   const apiKey = getApiKey();
 
   const body: Record<string, unknown> = {
@@ -42,6 +58,10 @@ export async function callLLM(options: CallLLMOptions): Promise<CallLLMResult> {
   };
 
   if (temperature !== undefined) body.temperature = temperature;
+  if (tools !== undefined && tools.length > 0) {
+    body.tools = tools;
+    body.tool_choice = tool_choice ?? "auto";
+  }
 
   const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
     method: "POST",
@@ -65,6 +85,7 @@ export async function callLLM(options: CallLLMOptions): Promise<CallLLMResult> {
   return {
     content: choice?.message?.content ?? "",
     finishReason: choice?.finish_reason ?? null,
+    tool_calls: choice?.message?.tool_calls ?? undefined,
     usage: json.usage
       ? {
           promptTokens: json.usage.prompt_tokens ?? 0,

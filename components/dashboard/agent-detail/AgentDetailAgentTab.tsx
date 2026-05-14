@@ -155,7 +155,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
     setPrimaryVoiceId((prev) => {
       if (prev && voices.some((v) => v.voiceId === prev)) return prev;
       return def?.voiceId ?? "";
-    });
+    }); 
   }, [agent.id, voices]);
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);

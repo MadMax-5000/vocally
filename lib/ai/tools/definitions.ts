@@ -1,0 +1,153 @@
+import type { ToolDefinition } from "./types";
+
+export const CHECK_ORDER_STATUS: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "check_order_status",
+    description:
+      "Check the current status and estimated delivery of a customer order by order ID.",
+    parameters: {
+      type: "object",
+      properties: {
+        orderId: {
+          type: "string",
+          description: "The order ID to look up, e.g. ORD-12345",
+        },
+      },
+      required: ["orderId"],
+    },
+  },
+};
+
+export const BOOK_APPOINTMENT: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "book_appointment",
+    description:
+      "Book a new appointment for the customer with a specific department. Returns confirmation details.",
+    parameters: {
+      type: "object",
+      properties: {
+        date: {
+          type: "string",
+          description: "The requested date in YYYY-MM-DD format",
+        },
+        time: {
+          type: "string",
+          description: "The requested time in HH:MM format (24-hour)",
+        },
+        department: {
+          type: "string",
+          description: "The department or service type for the appointment",
+          enum: ["support", "sales", "billing", "technical", "general"],
+        },
+        customerName: {
+          type: "string",
+          description: "The customer's full name",
+        },
+        customerEmail: {
+          type: "string",
+          description: "Optional customer email for confirmation",
+        },
+        notes: {
+          type: "string",
+          description: "Optional notes or reason for the appointment",
+        },
+      },
+      required: ["date", "time", "department", "customerName"],
+    },
+  },
+};
+
+export const CREATE_TICKET: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "create_ticket",
+    description:
+      "Create a support ticket for a customer issue. Use when the issue requires follow-up or cannot be resolved immediately.",
+    parameters: {
+      type: "object",
+      properties: {
+        subject: {
+          type: "string",
+          description: "A short summary of the issue",
+        },
+        description: {
+          type: "string",
+          description: "A detailed description of the issue",
+        },
+        priority: {
+          type: "string",
+          description: "The urgency of the issue",
+          enum: ["low", "medium", "high", "urgent"],
+        },
+        customerEmail: {
+          type: "string",
+          description: "Optional customer email for follow-up",
+        },
+      },
+      required: ["subject", "description", "priority"],
+    },
+  },
+};
+
+export const LOOKUP_ACCOUNT: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "lookup_account",
+    description:
+      "Look up a customer account by account ID or email address. Returns account details like name, plan, status, and join date.",
+    parameters: {
+      type: "object",
+      properties: {
+        accountId: {
+          type: "string",
+          description: "The account ID to look up, e.g. ACC-98765",
+        },
+        email: {
+          type: "string",
+          description: "The customer email address to look up",
+        },
+      },
+    },
+  },
+};
+
+export const REQUEST_SECURE_INPUT: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "request_secure_input",
+    description:
+      "Ask the customer to enter sensitive information (account number, PIN, card digits, etc.) using their phone keypad so it is not spoken aloud. Call this tool when you need secure data, then tell the customer what to enter and to press # when done.",
+    parameters: {
+      type: "object",
+      properties: {
+        prompt: {
+          type: "string",
+          description: "What the customer should enter, e.g. 'your account number' or 'the last 4 digits of your card'",
+        },
+        maxDigits: {
+          type: "number",
+          description: "Maximum number of digits to collect (default 6)",
+        },
+        finishOnKey: {
+          type: "string",
+          description: "Key that finishes input (default '#')",
+        },
+        description: {
+          type: "string",
+          description: "Internal label for what is being collected (not spoken to customer)",
+        },
+      },
+      required: ["prompt", "description"],
+    },
+  },
+};
+
+export const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
+  CHECK_ORDER_STATUS,
+  BOOK_APPOINTMENT,
+  CREATE_TICKET,
+  LOOKUP_ACCOUNT,
+  REQUEST_SECURE_INPUT,
+];

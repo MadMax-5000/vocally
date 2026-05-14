@@ -23,6 +23,11 @@ export type VoiceConfig = {
   ttsVoice: string;
 };
 
+export type VoiceParams = {
+  model: string;
+  voice: string;
+};
+
 export const DEFAULT_VOICE_CONFIG: VoiceConfig = {
   sttModel: "openai/whisper-1",
   ttsModel: "openai/gpt-4o-mini-tts-2025-12-15",

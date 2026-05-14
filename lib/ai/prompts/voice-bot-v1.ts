@@ -1,9 +1,13 @@
+import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
+import type { ToolDefinition } from "@/lib/ai/tools/types";
+
 export type VoiceBotPromptInput = {
   agentName: string;
   orgName: string;
   instructions?: string | null;
   knowledgeContext: string;
   language: string;
+  toolDefinitions?: ToolDefinition[];
 };
 
 export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
@@ -15,6 +19,32 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
 
   if (input.instructions) {
     sections.push(`Follow these instructions: ${input.instructions}`);
+  }
+
+  const tools = input.toolDefinitions ?? getAllToolDefinitions();
+  if (tools.length > 0) {
+    const toolDescriptions = tools
+      .map((t) => {
+        const fn = t.function;
+        const params = Object.entries(fn.parameters.properties)
+          .map(([key, prop]) => {
+            const required = fn.parameters.required?.includes(key)
+              ? " (required)"
+              : " (optional)";
+            return `      - ${key}: ${prop.type}${required} — ${prop.description ?? ""}`;
+          })
+          .join("\n");
+        return `  ${fn.name}: ${fn.description}\n    Parameters:\n${params}`;
+      })
+      .join("\n\n");
+
+    sections.push(
+      "You have access to the following tools. Call them when a customer needs you to look something up or take action:",
+      "",
+      toolDescriptions,
+      "",
+      "When you need to use a tool, the system executes it and gives you the result. Use the result to answer the customer conversationally. Keep your spoken response brief.",
+    );
   }
 
   sections.push(

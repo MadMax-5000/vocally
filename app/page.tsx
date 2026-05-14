@@ -71,7 +71,7 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
             <SignedOut>
-              <a className="btn-primary" href="/dashboard">
+              <a className="btn-primary" href="/sign-up">
                 Get started
               </a>
               <SignInButton>
@@ -105,7 +105,7 @@ export default function HomePage() {
             </p>
 
             <div className="mt-8 flex w-full flex-col items-center gap-2 sm:w-auto">
-              <a className="btn-primary w-full justify-center sm:w-auto" href="/dashboard">
+              <a className="btn-primary w-full justify-center sm:w-auto" href="/sign-up">
                 Try for free
               </a>
               <div className="text-body-sm text-muted">No credit card required</div>

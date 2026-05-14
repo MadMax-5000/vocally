@@ -7,7 +7,7 @@ import { Loader2, MessageCircle, Send, Handshake } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { ConversationDetail, InboxMessage } from "@/lib/actions/sessions";
-import { getConversationDetail, sendMessage, claimSession } from "@/lib/actions/sessions";
+import { getConversationDetail, sendMessage, claimSession, updateSessionSummary } from "@/lib/actions/sessions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -314,6 +314,9 @@ export function ConversationDetailSheet({
   const [sending, setSending] = React.useState(false);
   const [claiming, setClaiming] = React.useState(false);
   const [claimError, setClaimError] = React.useState<string | null>(null);
+  const [isEditingSummary, setIsEditingSummary] = React.useState(false);
+  const [editedSummary, setEditedSummary] = React.useState("");
+  const [savingSummary, setSavingSummary] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) {
@@ -358,6 +361,29 @@ export function ConversationDetailSheet({
       setClaimError(res.error);
     }
     setClaiming(false);
+  }
+
+  async function handleSaveSummary() {
+    if (!sessionId || savingSummary) return;
+    setSavingSummary(true);
+    const res = await updateSessionSummary(sessionId, editedSummary.trim());
+    if (res.success) {
+      setDetail((prev) =>
+        prev ? { ...prev, summary: editedSummary.trim() } : prev,
+      );
+      setIsEditingSummary(false);
+    }
+    setSavingSummary(false);
+  }
+
+  function handleStartEdit() {
+    setEditedSummary(detail?.summary ?? "");
+    setIsEditingSummary(true);
+  }
+
+  function handleCancelEdit() {
+    setIsEditingSummary(false);
+    setEditedSummary("");
   }
 
   async function handleSend(e: React.FormEvent) {
@@ -463,6 +489,73 @@ export function ConversationDetailSheet({
           ) : (
             <div className="py-3">
               <ChatMessagesView messages={messages} />
+            </div>
+          )}
+
+          {/* ── Editable Summary ─────────────────────────── */}
+          {detail && (
+            <div className="border-t border-hairline px-5 py-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-caption-uppercase text-muted">Summary</h3>
+                {!isEditingSummary && detail.summary && (
+                  <button
+                    type="button"
+                    onClick={handleStartEdit}
+                    className="text-[11px] font-medium text-primary hover:underline"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              {isEditingSummary ? (
+                <div className="flex flex-col gap-2">
+                  <textarea
+                    value={editedSummary}
+                    onChange={(e) => setEditedSummary(e.target.value)}
+                    rows={4}
+                    className="w-full resize-none rounded-xl border border-hairline bg-surface-strong px-3 py-2 text-body-sm text-ink placeholder:text-muted-soft outline-none focus:border-primary transition-colors"
+                    placeholder="Edit summary…"
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      onClick={handleSaveSummary}
+                      disabled={savingSummary || !editedSummary.trim()}
+                      className="rounded-lg"
+                    >
+                      {savingSummary ? "Saving…" : "Save"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelEdit}
+                      disabled={savingSummary}
+                      className="rounded-lg"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : detail.summary ? (
+                <p className="text-body-sm text-ink leading-relaxed">
+                  {detail.summary}
+                </p>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-body-sm text-muted-soft">No summary yet</p>
+                  <button
+                    type="button"
+                    onClick={handleStartEdit}
+                    className="text-[11px] font-medium text-primary hover:underline"
+                  >
+                    Add summary
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

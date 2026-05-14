@@ -116,13 +116,14 @@ function DocRowActions({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon-sm"
           aria-label="Document actions"
-          className="flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent p-0 shadow-none hover:bg-canvas-soft focus-visible:ring-2 focus-visible:ring-ink/10"
+          className="h-8 w-8 text-muted transition-all hover:bg-surface-strong hover:text-ink"
         >
-          <MoreHorizontal className="h-5 w-5 text-muted" aria-hidden />
-        </button>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -517,7 +518,7 @@ function AddDocumentMenuContent({
   return (
     <DropdownMenuContent
       align={align}
-      className="w-[400px] overflow-hidden rounded-xl border-hairline bg-surface-card py-3 px-1.5 shadow-md"
+      className="w-[400px] overflow-hidden rounded-md border-hairline bg-surface-card py-1 px-1.5 shadow-md"
     >
       {/* Borderless search textarea */}
       <div className="px-0.5 pt-0.5 mb-1">
@@ -528,7 +529,7 @@ function AddDocumentMenuContent({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           rows={1}
-          className="min-h-0 resize-none border-0 bg-transparent p-0 text-body-sm placeholder:text-muted-soft shadow-none focus-visible:ring-0 focus-visible:border-0"
+          className="min-h-0 resize-none border-0 bg-transparent p-0 text-body-md placeholder:text-muted-soft shadow-none focus-visible:ring-0 focus-visible:border-0"
         />
       </div>
 
@@ -876,7 +877,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
         </DropdownMenu>
       </div>
 
-      <div className="rounded-xl border border-hairline bg-surface-card">
+      <div className="rounded-xl bg-surface-card">
         {busy ? (
           <div className="flex items-center justify-center py-20 text-body-sm text-muted">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -919,30 +920,31 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-hairline hover:bg-transparent">
-                <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
-                  Name
-                </TableHead>
-                <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
-                  Created by
-                </TableHead>
-                <TableHead className="px-3 py-2 text-right text-body-sm font-medium text-muted">
-                  Last updated
-                </TableHead>
-                <TableHead className="w-[44px] px-3 py-2" />
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="pl-0 text-xs font-medium uppercase tracking-wider text-muted">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-xs font-medium uppercase tracking-wider text-muted">
+                    Created by
+                  </TableHead>
+                  <TableHead className="text-right text-xs font-medium uppercase tracking-wider text-muted">
+                    Last updated
+                  </TableHead>
+                  <TableHead className="w-[44px]" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRows.map((row) => (
+              {filteredRows.map((row, index) => (
                 <TableRow
                   key={row.id}
-                  className="border-b border-hairline last:border-0 hover:bg-transparent"
+                  className="border-0 transition-colors duration-200 hover:bg-surface-strong/40"
+                  style={{ animationDelay: `${index * 45}ms` }}
                 >
-                  <TableCell className="px-3 py-2">
+                  <TableCell className="py-1 pl-0">
                     <div className="flex items-center gap-2">
                       {sourceIcon(row.sourceKind)}
                       <div className="min-w-0">
-                        <div className="truncate text-body-sm font-medium text-muted">
+                        <div className="truncate text-body-sm font-medium text-ink">
                           {row.title}
                         </div>
                         <div className="text-caption text-muted">
@@ -951,13 +953,13 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="px-3 py-2 text-body-sm text-muted">
+                  <TableCell className="py-1 text-body-sm text-muted">
                     {row.creatorEmail}
                   </TableCell>
-                  <TableCell className="px-3 py-2 text-right text-caption text-muted">
+                  <TableCell className="py-1 text-right text-caption text-muted">
                     {formatRowDate(row.updatedAt)}
                   </TableCell>
-                  <TableCell className="px-3 py-2 text-right">
+                  <TableCell className="py-1 text-right">
                     <DocRowActions
                       agentId={agentId}
                       docId={row.id}

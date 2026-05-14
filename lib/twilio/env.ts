@@ -15,3 +15,15 @@ export function getTwilioWhatsappNumber(): string {
   if (!num) throw new Error("TWILIO_WHATSAPP_NUMBER is not configured");
   return num.startsWith("whatsapp:") ? num : `whatsapp:${num}`;
 }
+
+export function getTwilioVoiceNumber(): string {
+  const num = process.env.TWILIO_VOICE_NUMBER;
+  if (!num) throw new Error("TWILIO_VOICE_NUMBER is not configured");
+  return num;
+}
+
+export function getTwilioSmsNumber(): string {
+  const num = process.env.TWILIO_SMS_NUMBER;
+  if (!num) throw new Error("TWILIO_SMS_NUMBER is not configured");
+  return num;
+}
