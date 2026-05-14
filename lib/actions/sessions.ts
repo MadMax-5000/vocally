@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import type { SessionStatus } from "@prisma/client";
 
 export type DashboardStats = {
   totalSessions: number;
@@ -725,5 +726,69 @@ export async function sendMessage(
     };
   } catch (err) {
     return { success: false, error: "Failed to send message" };
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Live Monitor                                                       */
+/* ------------------------------------------------------------------ */
+
+export type LiveSession = {
+  id: string;
+  channel: string;
+  status: string;
+  customerId: string | null;
+  language: string;
+  startedAt: Date;
+  sentiment: number | null;
+  agentName: string | null;
+  duration: number | null;
+  lastMessage: { content: string; createdAt: Date; role: string } | null;
+  messageCount: number;
+  resolvedByAI: boolean;
+};
+
+export async function getLiveSessions(): Promise<
+  { success: true; data: LiveSession[] } | { success: false; error: string }
+> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const liveStatuses: SessionStatus[] = ["ACTIVE", "WAITING", "BOT", "ESCALATED", "CLAIMED"];
+
+    const sessions = await prisma.session.findMany({
+      where: { orgId, status: { in: liveStatuses } },
+      include: {
+        agent: { select: { name: true } },
+        callLog: { select: { duration: true } },
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { content: true, createdAt: true, role: true },
+        },
+        _count: { select: { messages: true } },
+      },
+      orderBy: [{ status: "asc" }, { startedAt: "desc" }],
+    });
+
+    const data: LiveSession[] = sessions.map((s) => ({
+      id: s.id,
+      channel: s.channel,
+      status: s.status,
+      customerId: s.customerId,
+      language: s.language,
+      startedAt: s.startedAt,
+      sentiment: s.sentiment,
+      resolvedByAI: s.resolvedByAI,
+      agentName: s.agent?.name ?? null,
+      duration: s.callLog?.duration ?? null,
+      lastMessage: s.messages[0] ?? null,
+      messageCount: s._count.messages,
+    }));
+
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: "Failed to load live sessions" };
   }
 }

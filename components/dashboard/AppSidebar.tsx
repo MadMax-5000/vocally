@@ -7,13 +7,9 @@ import {
   LayoutDashboard,
   Inbox,
   Radio,
-  Users,
-  BarChart3,
-  Plug,
   CreditCard,
-  Settings,
 } from "lucide-react"
-import { AgentIcon, KnowledgeIcon, ChannelsIcon } from "@/components/ui/icons"
+import { AgentIcon, KnowledgeIcon } from "@/components/ui/icons"
 
 import {
   Sidebar,
@@ -38,18 +34,10 @@ const operationsItems = [
   { title: "Live monitor", url: "/dashboard/live", icon: Radio },
 ]
 
-const configurationItems = [
+const workspaceItems = [
   { title: "Agents", url: "/dashboard/agents", icon: AgentIcon },
-  { title: "Channels", url: "/dashboard/channels", icon: ChannelsIcon },
   { title: "Knowledge base", url: "/dashboard/knowledge", icon: KnowledgeIcon },
-]
-
-const manageItems = [
-  { title: "Team", url: "/dashboard/team", icon: Users },
-  { title: "Integrations", url: "/dashboard/integrations", icon: Plug },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
   { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ]
 
 export function AppSidebar() {
@@ -89,7 +77,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="pb-4">
+      <SidebarHeader className="items-end pb-4">
         <SidebarTrigger />
       </SidebarHeader>
       <SidebarContent>
@@ -121,10 +109,10 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Configuration</SidebarGroupLabel>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {configurationItems.map((item) => (
+              {workspaceItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
@@ -134,28 +122,6 @@ export function AppSidebar() {
                           pathname.startsWith(`${item.url}/`)
                         : pathname === item.url
                     }
-                    tooltip={item.title}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Manage</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {manageItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url}
                     tooltip={item.title}
                   >
                     <Link href={item.url}>
