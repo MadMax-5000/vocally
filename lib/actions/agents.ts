@@ -14,8 +14,26 @@ import {
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
+import {
+  agentDetailInclude,
+  type AgentDetailWithRelations,
+} from "@/components/dashboard/agent-detail/agent-detail-types";
+import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+
+export type GetAIAgentByIdErrorCode =
+  | "UNAUTHORIZED"
+  | "NOT_FOUND"
+  | "DB_ERROR";
+
+export type GetAIAgentByIdResult =
+  | { success: true; data: AgentDetailWithRelations }
+  | {
+      success: false;
+      error: string;
+      code: GetAIAgentByIdErrorCode;
+    };
 
 function formatCreator(clerkUserId: string | null): string {
   if (!clerkUserId) return "—";
@@ -133,6 +151,7 @@ export async function createAIAgentFromOnboarding(
           description: validated.description,
           websiteUrl,
           handoffEnabled: validated.handoffEnabled,
+          widgetToken: crypto.randomUUID(),
         },
       });
 
@@ -225,35 +244,51 @@ export async function getUserAIAgents() {
   }
 }
 
-export async function getAIAgentById(agentId: string) {
+export async function getAIAgentById(
+  agentId: string,
+): Promise<GetAIAgentByIdResult> {
+  if (!agentId?.trim()) {
+    return {
+      success: false,
+      error: "Agent not found",
+      code: "NOT_FOUND",
+    };
+  }
+
   try {
     const dbOrgId = await getOrgPrismaId();
     if (!dbOrgId) {
-      return { success: false, error: "Unauthorized" };
+      return {
+        success: false,
+        error: "Unauthorized",
+        code: "UNAUTHORIZED",
+      };
     }
 
     const agent = await prisma.agent.findFirst({
       where: { id: agentId, orgId: dbOrgId },
-      include: {
-        languages: true,
-        voices: true,
-        channels: true,
-        knowledgeDocs: {
-          include: {
-            knowledgeDoc: { select: { id: true, title: true } },
-          },
-        },
-        variables: true,
-      },
+      include: agentDetailInclude,
     });
 
     if (!agent) {
-      return { success: false, error: "Agent not found" };
+      return {
+        success: false,
+        error: "Agent not found",
+        code: "NOT_FOUND",
+      };
     }
 
     return { success: true, data: agent };
   } catch (err) {
-    return { success: false, error: "Failed to fetch agent" };
+    if (process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console -- dev-only diagnostics for masked 404s
+      console.error("[getAIAgentById]", agentId, err);
+    }
+    return {
+      success: false,
+      error: "Failed to fetch agent",
+      code: "DB_ERROR",
+    };
   }
 }
 
@@ -301,12 +336,16 @@ export async function updateAgentLlmSettings(
     if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
 
     const validated = updateAgentLlmSettingsSchema.parse(input);
+    const llmModel = resolveLlmModelId(validated.llmModel);
+    if (!isKnownLlmModelId(llmModel)) {
+      return { success: false as const, error: "Unknown LLM model" };
+    }
 
     const updated = await prisma.agent.updateMany({
       where: { id: agentId, orgId: dbOrgId },
       data: {
         llmProvider: validated.llmProvider,
-        llmModel: validated.llmModel.trim(),
+        llmModel,
       },
     });
 
@@ -857,11 +896,16 @@ export async function duplicateAgent(agentId: string) {
         defaultLanguage: original.defaultLanguage,
         llmProvider: original.llmProvider,
         llmModel: original.llmModel,
+        widgetToken: crypto.randomUUID(),
         languages: {
           create: original.languages.map((l) => ({ language: l.language })),
         },
         channels: {
-          create: original.channels.map((c) => ({ channel: c.channel })),
+          create: original.channels.map((c) => ({
+            channel: c.channel,
+            enabled: c.enabled,
+            config: c.config ?? undefined,
+          })),
         },
         voices: {
           create: original.voices.map((v) => ({
