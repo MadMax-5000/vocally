@@ -1,13 +1,12 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import {
-  Gauge,
-  Zap
-} from "lucide-react";
+import { Zap } from "lucide-react";
 
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { RotatingWord } from "@/components/marketing/RotatingWord";
 import { HeroVoiceSpheres } from "@/components/marketing/HeroVoiceSpheres";
 import { BentoShowcase } from "@/components/marketing/BentoShowcase";
 import { TrustShowcase } from "@/components/marketing/TrustShowcase";
+import { PricingShowcase } from "@/components/marketing/PricingShowcase";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 const container = "mx-auto w-full max-w-[1200px] px-4";
@@ -56,39 +55,26 @@ export default function HomePage() {
 
   return (
     <main className="min-h-dvh overflow-x-clip bg-canvas text-ink">
-      <header className="sticky top-0 z-50 border-b border-hairline bg-canvas/85 backdrop-blur">
-        <div className={[container, "flex h-16 items-center justify-between"].join(" ")}>
-          <a
-            href="/"
-            className="group inline-flex items-center gap-2 rounded-md px-2 py-1 transition hover:bg-surface-strong"
-            aria-label="Vocally"
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-strong">
-              <Gauge className="h-4 w-4 text-ink" aria-hidden="true" />
-            </span>
-            <span className="font-display text-title-md tracking-tight">Vocally</span>
-          </a>
-
-          <div className="flex items-center gap-3">
-            <SignedOut>
-              <a className="btn-primary" href="/sign-up">
-                Get started
-              </a>
-              <SignInButton>
-                <button className="btn-outline" type="button">
-                  Sign in
-                </button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <a className="btn-outline" href="/dashboard">
-                Dashboard
-              </a>
-              <UserButton />
-            </SignedIn>
-          </div>
+      <MarketingHeader sticky>
+        <div className="flex items-center gap-3">
+          <SignedOut>
+            <a className="btn-primary" href="/sign-up">
+              Get started
+            </a>
+            <SignInButton>
+              <button className="btn-outline" type="button">
+                Sign in
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <a className="btn-outline" href="/dashboard">
+              Dashboard
+            </a>
+            <UserButton />
+          </SignedIn>
         </div>
-      </header>
+      </MarketingHeader>
 
       <section className="min-h-[calc(100dvh-4rem)] py-12">
         <div className={[container, "relative flex min-h-[calc(100dvh-4rem-8rem)] items-center justify-center"].join(" ")}>
@@ -118,6 +104,7 @@ export default function HomePage() {
 
       <BentoShowcase />
       <TrustShowcase />
+      <PricingShowcase />
 
       <MarketingFooter />
     </main>

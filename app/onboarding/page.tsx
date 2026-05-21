@@ -1,10 +1,13 @@
 import { CreateOrganization } from "@clerk/nextjs";
 
+import { VocallyLogo } from "@/components/brand/VocallyLogo";
+
 export default function OnboardingPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-6">
       <div className="flex flex-col items-center text-center">
-        <h1 className="text-display-sm font-display tracking-tight text-ink">
+        <VocallyLogo variant="black" size="lg" href="/" priority />
+        <h1 className="mt-6 text-display-sm font-display tracking-tight text-ink">
           Set up your workspace
         </h1>
 

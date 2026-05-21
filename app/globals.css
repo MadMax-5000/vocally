@@ -127,6 +127,23 @@
     color: #ffffff;
   }
 
+  /* Readable selection when the surface is already primary (orange on orange disappears with global styles) */
+  .bg-primary ::selection,
+  .bg-primary::selection,
+  .btn-primary ::selection,
+  .btn-primary::selection {
+    background-color: var(--card);
+    color: var(--primary);
+  }
+
+  .bg-primary ::-moz-selection,
+  .bg-primary::-moz-selection,
+  .btn-primary ::-moz-selection,
+  .btn-primary::-moz-selection {
+    background-color: var(--card);
+    color: var(--primary);
+  }
+
   .theme {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);

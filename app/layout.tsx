@@ -7,7 +7,22 @@ import { inter } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vocally",
-  description: "AI-first Contact Center as a Service (CCaaS)"
+  description: "AI-first Contact Center as a Service (CCaaS)",
+  icons: {
+    icon: [{ url: "/images/favicon.ico", sizes: "any" }],
+    apple: [{ url: "/images/favicon.ico" }],
+  },
+  openGraph: {
+    title: "Vocally",
+    description: "AI-first Contact Center as a Service (CCaaS)",
+    images: [{ url: "/images/logo-primary-color.png", width: 1254, height: 1254, alt: "Vocally" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Vocally",
+    description: "AI-first Contact Center as a Service (CCaaS)",
+    images: ["/images/logo-primary-color.png"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
