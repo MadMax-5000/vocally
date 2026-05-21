@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db/prisma";
-import { generateEmbeddings } from "@/lib/ai/embeddings";
-import { chunkText } from "@/lib/knowledge/chunking";
+import { EMBEDDING_DIMENSIONS, generateEmbeddings, type EmbeddingResult } from "@/lib/ai/embeddings";
+import { chunkText, type TextChunk } from "@/lib/knowledge/chunking";
 import { extractTextFromBuffer } from "@/lib/knowledge/extract-text";
 import { getKnowledgeStorageQuotaBytes } from "@/lib/knowledge/quota";
 import { uploadKnowledgeObject } from "@/lib/knowledge/storage";
@@ -17,6 +17,38 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 const MAX_TEXT_BYTES = 2 * 1024 * 1024;
 const MAX_FILE_BYTES = 40 * 1024 * 1024;
+
+function chunkInsertRowsWithValidEmbeddings(
+  knowledgeDocId: string,
+  chunks: TextChunk[],
+  embeddingResults: EmbeddingResult[],
+): {
+  knowledgeDocId: string;
+  content: string;
+  chunkIndex: number;
+  tokenCount: number;
+  embedding: number[];
+}[] {
+  const rows: {
+    knowledgeDocId: string;
+    content: string;
+    chunkIndex: number;
+    tokenCount: number;
+    embedding: number[];
+  }[] = [];
+  for (let i = 0; i < chunks.length; i++) {
+    const emb = embeddingResults[i]?.embedding;
+    if (!emb || emb.length !== EMBEDDING_DIMENSIONS) continue;
+    rows.push({
+      knowledgeDocId,
+      content: chunks[i].content,
+      chunkIndex: chunks[i].chunkIndex,
+      tokenCount: embeddingResults[i]?.tokenCount ?? chunks[i].tokenCount,
+      embedding: emb,
+    });
+  }
+  return rows;
+}
 
 export type KnowledgeFolderOption = {
   id: string;
@@ -252,15 +284,10 @@ async function processFetchedPage(
     const chunks = chunkText(page.content);
     if (chunks.length > 0) {
       const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
-      await insertChunks(
-        chunks.map((c, i) => ({
-          knowledgeDocId: doc.id,
-          content: c.content,
-          chunkIndex: c.chunkIndex,
-          tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
-          embedding: embeddingResults[i]?.embedding ?? [],
-        })),
-      );
+      const rows = chunkInsertRowsWithValidEmbeddings(doc.id, chunks, embeddingResults);
+      if (rows.length > 0) {
+        await insertChunks(rows);
+      }
     }
 
     return { success: true, docId: doc.id };
@@ -484,15 +511,10 @@ export async function createKnowledgeText(input: unknown) {
     const chunks = chunkText(content);
     if (chunks.length > 0) {
       const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
-      await insertChunks(
-        chunks.map((c, i) => ({
-          knowledgeDocId: doc.id,
-          content: c.content,
-          chunkIndex: c.chunkIndex,
-          tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
-          embedding: embeddingResults[i]?.embedding ?? [],
-        })),
-      );
+      const rows = chunkInsertRowsWithValidEmbeddings(doc.id, chunks, embeddingResults);
+      if (rows.length > 0) {
+        await insertChunks(rows);
+      }
     }
 
     revalidatePath("/dashboard/knowledge");
@@ -646,15 +668,10 @@ export async function uploadKnowledgeFiles(formData: FormData) {
         const chunks = chunkText(extractedContent);
         if (chunks.length > 0) {
           const embeddingResults = await generateEmbeddings(chunks.map((c) => c.content));
-          await insertChunks(
-            chunks.map((c, i) => ({
-              knowledgeDocId: doc.id,
-              content: c.content,
-              chunkIndex: c.chunkIndex,
-              tokenCount: embeddingResults[i]?.tokenCount ?? c.tokenCount,
-              embedding: embeddingResults[i]?.embedding ?? [],
-            })),
-          );
+          const rows = chunkInsertRowsWithValidEmbeddings(doc.id, chunks, embeddingResults);
+          if (rows.length > 0) {
+            await insertChunks(rows);
+          }
         }
       }
     }

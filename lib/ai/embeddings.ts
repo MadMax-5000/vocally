@@ -1,6 +1,8 @@
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 const EMBEDDING_MODEL = "openai/text-embedding-3-small";
-const EMBEDDING_DIMENSIONS = 1536;
+
+/** Matches OpenRouter `text-embedding-3-small` dimensions used by pgvector columns. */
+export const EMBEDDING_DIMENSIONS = 1536;
 
 export type EmbeddingResult = {
   embedding: number[];
