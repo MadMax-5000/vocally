@@ -4,6 +4,8 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 
 export async function POST(req: Request) {
+  const payload = await req.json();
+
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
   if (webhookSecret) {
     const headersList = await headers();
@@ -15,7 +17,6 @@ export async function POST(req: Request) {
       return new Response("Missing svix headers", { status: 400 });
     }
 
-    const payload = await req.json();
     const body = JSON.stringify(payload);
 
     const wh = new Webhook(webhookSecret);
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const event: WebhookEvent = await req.json();
+  const event = payload as WebhookEvent;
   const eventType = event.type;
 
   try {
