@@ -1,5 +1,7 @@
--- Run this against your Supabase database via SQL editor or psql.
--- Prisma cannot manage vector columns natively, so we add them manually.
+-- Run against Supabase (SQL editor), psql, or:
+--   npx prisma db execute --schema prisma/schema.prisma --file prisma/migrations/001_enable_pgvector.sql
+-- For new databases, `KnowledgeChunk.embedding` is also declared in schema.prisma as Unsupported("vector(1536)")
+-- so `prisma db push` can create the column; this script remains useful for existing DBs and for the pgvector extension / index.
 
 -- 1. Enable pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;

@@ -9,25 +9,25 @@ datasource db {
 }
 
 model Organization {
-  id               String            @id @default(cuid())
-  clerkOrgId       String            @unique
-  name             String
-  plan             Plan              @default(FREE)
+  id                         String                @id @default(cuid())
+  clerkOrgId                 String                @unique
+  name                       String
+  plan                       Plan                  @default(FREE)
   /// Lemon Squeezy subscription id (stringified); used for idempotent webhook updates and portal links.
-  lemonSqueezySubscriptionId String? @unique
+  lemonSqueezySubscriptionId String?               @unique
   lemonSqueezyCustomerId     String?
-  createdAt        DateTime          @default(now())
-  calls            CallLog[]
-  sessions         Session[]
-  agents           Agent[]
-  knowledgeDocs    KnowledgeDoc[]
-  knowledgeFolders KnowledgeFolder[]
-  whatsappNumbers   WhatsappPhoneNumber[]
-  twilioNumbers     TwilioPhoneNumber[]
-  smsNumbers        SmsPhoneNumber[]
-  emailAddresses    EmailAddress[]
-  appointments      Appointment[]
-  tickets           Ticket[]
+  createdAt                  DateTime              @default(now())
+  calls                      CallLog[]
+  sessions                   Session[]
+  agents                     Agent[]
+  knowledgeDocs              KnowledgeDoc[]
+  knowledgeFolders           KnowledgeFolder[]
+  whatsappNumbers            WhatsappPhoneNumber[]
+  twilioNumbers              TwilioPhoneNumber[]
+  smsNumbers                 SmsPhoneNumber[]
+  emailAddresses             EmailAddress[]
+  appointments               Appointment[]
+  tickets                    Ticket[]
 }
 
 model KnowledgeFolder {
@@ -50,8 +50,9 @@ model Agent {
   orgId String
   org   Organization @relation(fields: [orgId], references: [id])
 
-  name      String
-  avatarUrl String?
+  name        String
+  avatarUrl   String?
+  widgetToken String? @unique
 
   agentType    AgentType       @default(RETAIL_ECOMMERCE)
   customRole   String?
@@ -77,13 +78,13 @@ model Agent {
   variables     AgentVariable[]
   voices        AgentVoice[]
 
-  sessions  Session[]
+  sessions        Session[]
   whatsappNumbers WhatsappPhoneNumber[]
   voiceNumbers    TwilioPhoneNumber[]
   smsNumbers      SmsPhoneNumber[]
   emailAddresses  EmailAddress[]
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
 
   @@unique([orgId, name])
   @@index([orgId])
@@ -147,27 +148,27 @@ model AgentVariable {
 }
 
 model Session {
-  id           String        @id @default(cuid())
-  orgId        String
-  org          Organization  @relation(fields: [orgId], references: [id])
-  channel      Channel
-  language     String        @default("auto")
-  status       SessionStatus
-  customerId   String?
-  agentId      String?
-  agent        Agent?        @relation(fields: [agentId], references: [id])
-  messages     Message[]
-  summary      String?
-  sentiment    Float?
-  resolvedByAI   Boolean       @default(false)
-  escalatedAt    DateTime?
+  id              String        @id @default(cuid())
+  orgId           String
+  org             Organization  @relation(fields: [orgId], references: [id])
+  channel         Channel
+  language        String        @default("auto")
+  status          SessionStatus
+  customerId      String?
+  agentId         String?
+  agent           Agent?        @relation(fields: [agentId], references: [id])
+  messages        Message[]
+  summary         String?
+  sentiment       Float?
+  resolvedByAI    Boolean       @default(false)
+  escalatedAt     DateTime?
   escalatedReason String?
-  claimedAt      DateTime?
-  claimedById    String?
-  startedAt      DateTime      @default(now())
-  endedAt        DateTime?
-  createdAt      DateTime      @default(now())
-  callLog        CallLog?
+  claimedAt       DateTime?
+  claimedById     String?
+  startedAt       DateTime      @default(now())
+  endedAt         DateTime?
+  createdAt       DateTime      @default(now())
+  callLog         CallLog?
 
   @@index([orgId])
 }
@@ -210,13 +211,15 @@ model KnowledgeDoc {
 }
 
 model KnowledgeChunk {
-  id             String       @id @default(cuid())
+  id             String                       @id @default(cuid())
   knowledgeDocId String
-  knowledgeDoc   KnowledgeDoc @relation(fields: [knowledgeDocId], references: [id], onDelete: Cascade)
+  knowledgeDoc   KnowledgeDoc                 @relation(fields: [knowledgeDocId], references: [id], onDelete: Cascade)
   content        String
   chunkIndex     Int
   tokenCount     Int
-  createdAt      DateTime     @default(now())
+  /// OpenAI text-embedding-3-small (1536). Read/written via raw SQL in lib/knowledge/vector-store.ts; Prisma cannot map `vector` natively.
+  embedding      Unsupported("vector(1536)")?
+  createdAt      DateTime                     @default(now())
 
   @@index([knowledgeDocId])
 }
@@ -348,71 +351,80 @@ enum LlmProvider {
 }
 
 model WhatsappPhoneNumber {
-  id            String   @id @default(cuid())
-  orgId         String
-  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  agentId       String?
-  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  id      String       @id @default(cuid())
+  orgId   String
+  org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId String?
+  agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
-  twilioNumber String  @unique
-  isActive      Boolean @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  twilioNumber String   @unique
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([orgId])
   @@index([twilioNumber])
 }
 
 model TwilioPhoneNumber {
-  id            String   @id @default(cuid())
-  orgId         String
-  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  agentId       String?
-  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  id      String       @id @default(cuid())
+  orgId   String
+  org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId String?
+  agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
-  twilioNumber  String   @unique
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  twilioNumber String   @unique
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([orgId])
   @@index([twilioNumber])
 }
 
 model SmsPhoneNumber {
-  id            String   @id @default(cuid())
-  orgId         String
-  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  agentId       String?
-  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
-  twilioNumber  String   @unique
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String       @id @default(cuid())
+  orgId        String
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId      String?
+  agent        Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  twilioNumber String       @unique
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@index([orgId])
   @@index([twilioNumber])
 }
 
 model EmailAddress {
-  id            String   @id @default(cuid())
-  orgId         String
-  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  agentId       String?
-  agent         Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
-  email         String   @unique
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId   String?
+  agent     Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  email     String       @unique
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@index([orgId])
   @@index([email])
 }
 
-model Appointment {
+/// Dedupes Resend `email.received` webhook retries so we do not double-reply or double-charge LLM.
+model InboundEmailDedupe {
   id            String   @id @default(cuid())
+  resendEmailId String   @unique
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
   orgId         String
-  organization  Organization @relation(fields: [orgId], references: [id])
+  organization  Organization      @relation(fields: [orgId], references: [id])
   sessionId     String?
   customerName  String
   customerEmail String?
@@ -421,7 +433,7 @@ model Appointment {
   time          String
   status        AppointmentStatus @default(CONFIRMED)
   notes         String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime          @default(now())
 
   @@index([orgId])
 }
@@ -433,16 +445,16 @@ enum AppointmentStatus {
 }
 
 model Ticket {
-  id          String   @id @default(cuid())
-  orgId       String
-  organization Organization @relation(fields: [orgId], references: [id])
-  sessionId   String?
-  subject     String
-  description String
-  priority    TicketPriority @default(MEDIUM)
-  status      TicketStatus @default(OPEN)
+  id            String         @id @default(cuid())
+  orgId         String
+  organization  Organization   @relation(fields: [orgId], references: [id])
+  sessionId     String?
+  subject       String
+  description   String
+  priority      TicketPriority @default(MEDIUM)
+  status        TicketStatus   @default(OPEN)
   customerEmail String?
-  createdAt   DateTime @default(now())
+  createdAt     DateTime       @default(now())
 
   @@index([orgId])
 }
