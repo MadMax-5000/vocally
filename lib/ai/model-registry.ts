@@ -41,3 +41,40 @@ export function groupModels(models: LlmModelOption[]): Record<string, LlmModelOp
   }, {})
 }
 
+const REGISTRY_MODEL_IDS = new Set(LLM_MODELS.map((m) => m.id))
+
+/** Maps legacy or mistyped model ids to OpenRouter-compatible registry ids. */
+const LEGACY_LLM_MODEL_ALIASES: Record<string, string> = {
+  "claude-haiku-4-5": "anthropic/claude-haiku-4.5",
+  "claude-haiku-4.5": "anthropic/claude-haiku-4.5",
+  "claude-sonnet-4-6": "anthropic/claude-sonnet-4.6",
+  "claude-opus-4-7": "anthropic/claude-opus-4.7",
+}
+
+export function resolveLlmModelId(model: string): string {
+  const trimmed = model.trim()
+  if (!trimmed) return "anthropic/claude-haiku-4.5"
+
+  const alias = LEGACY_LLM_MODEL_ALIASES[trimmed]
+  if (alias) return alias
+
+  if (REGISTRY_MODEL_IDS.has(trimmed)) return trimmed
+
+  if (!trimmed.includes("/")) {
+    const withAnthropic = `anthropic/${trimmed}`
+    if (REGISTRY_MODEL_IDS.has(withAnthropic)) return withAnthropic
+
+    const withOpenai = `openai/${trimmed}`
+    if (REGISTRY_MODEL_IDS.has(withOpenai)) return withOpenai
+
+    const withGoogle = `google/${trimmed}`
+    if (REGISTRY_MODEL_IDS.has(withGoogle)) return withGoogle
+  }
+
+  return trimmed
+}
+
+export function isKnownLlmModelId(model: string): boolean {
+  return REGISTRY_MODEL_IDS.has(resolveLlmModelId(model))
+}
+

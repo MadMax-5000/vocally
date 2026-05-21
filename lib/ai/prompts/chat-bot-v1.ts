@@ -56,7 +56,8 @@ export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
 
   if (input.knowledgeContext) {
     sections.push(
-      "Use the following knowledge base information to answer questions:",
+      "The following blocks are retrieved from your organization's knowledge base for this conversation. For factual or policy questions, treat them as the primary source of truth: answer using this material when it applies, and cite the document title when helpful.",
+      "If the customer's question is not covered here, say you do not see that information in the materials you have—do not invent details that are not implied by the knowledge base or general customer support common sense.",
       "",
       input.knowledgeContext,
     );

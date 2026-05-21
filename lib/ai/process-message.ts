@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db/prisma";
 import { generateEmbedding } from "@/lib/ai/embeddings";
+import { logServerWarning } from "@/lib/logger";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
 import { callLLM } from "@/lib/ai/llm";
 import type { LLMMessage } from "@/lib/ai/llm";
+import { resolveLlmModelId } from "@/lib/ai/model-registry";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import { evaluateEscalation, applyEscalation } from "@/lib/ai/escalation-service";
@@ -37,6 +39,13 @@ const TEMPERATURE_MAP: Record<string, number> = {
 };
 
 const MAX_TOOL_ITERATIONS = 5;
+
+/** Strong match: high precision snippets for RAG injection. */
+const RAG_PRIMARY_TOP_K = 5;
+const RAG_PRIMARY_MIN_SCORE = 0.7;
+/** When nothing passes the primary bar but the agent has attached docs, retrieve broader matches for paraphrased queries. */
+const RAG_FALLBACK_TOP_K = 8;
+const RAG_FALLBACK_MIN_SCORE = 0.5;
 
 async function executeToolCalls(
   toolCalls: ToolCall[],
@@ -92,12 +101,40 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   let knowledgeContext = "";
   try {
     const { embedding } = await generateEmbedding(message);
-    const results = await similaritySearch(embedding, orgId, 5, 0.7, attachedDocIds);
+    let results = await similaritySearch(
+      embedding,
+      orgId,
+      RAG_PRIMARY_TOP_K,
+      RAG_PRIMARY_MIN_SCORE,
+      attachedDocIds,
+    );
+
+    if (results.length === 0 && attachedDocIds.length > 0) {
+      results = await similaritySearch(
+        embedding,
+        orgId,
+        RAG_FALLBACK_TOP_K,
+        RAG_FALLBACK_MIN_SCORE,
+        attachedDocIds,
+      );
+    }
+
     if (results.length > 0) {
       knowledgeContext = results.map((r) => `[${r.docTitle}] ${r.content}`).join("\n\n");
+    } else if (attachedDocIds.length > 0) {
+      logServerWarning("rag_retrieval_empty_after_fallback", {
+        attachedDocCount: attachedDocIds.length,
+        primaryMinScore: RAG_PRIMARY_MIN_SCORE,
+        fallbackMinScore: RAG_FALLBACK_MIN_SCORE,
+        messageCharLength: message.length,
+      });
     }
-  } catch {
-    // continue without knowledge context
+  } catch (err) {
+    logServerWarning("rag_retrieval_failed", {
+      attachedDocCount: attachedDocIds.length,
+      messageCharLength: message.length,
+      errorName: err instanceof Error ? err.name : "unknown",
+    });
   }
 
   const history = await prisma.message.findMany({
@@ -136,8 +173,14 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       content: m.content,
     }));
 
-  llmMessages.push({ role: "user", content: message });
+  const lastMessage = llmMessages[llmMessages.length - 1];
+  const userMessageAlreadyInHistory =
+    lastMessage?.role === "user" && lastMessage.content === message;
+  if (!userMessageAlreadyInHistory) {
+    llmMessages.push({ role: "user", content: message });
+  }
 
+  const llmModel = resolveLlmModelId(agent.llmModel);
   const temperature = TEMPERATURE_MAP[agent.creativity] ?? 0.7;
 
   let botContent: string;
@@ -146,7 +189,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
   try {
     const firstResult = await callLLM({
-      model: agent.llmModel,
+      model: llmModel,
       system: systemPrompt,
       messages: llmMessages,
       maxTokens: 1024,
@@ -174,7 +217,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       currentMessages.push(...toolResults);
 
       const followUp = await callLLM({
-        model: agent.llmModel,
+        model: llmModel,
         system: systemPrompt,
         messages: currentMessages,
         maxTokens: 1024,
