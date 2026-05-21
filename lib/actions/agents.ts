@@ -8,6 +8,7 @@ import {
   CreativityLevel,
   LlmProvider,
   KnowledgeSourceKind,
+  Prisma,
   SupportedLanguage,
   VoiceProvider,
 } from "@prisma/client";
@@ -18,6 +19,7 @@ import {
   agentDetailInclude,
   type AgentDetailWithRelations,
 } from "@/components/dashboard/agent-detail/agent-detail-types";
+import { INTEGRATION_DEPLOYMENTS } from "@/lib/constants/deploy-catalog";
 import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
@@ -380,6 +382,176 @@ export async function getAIAgentById(
       error: "Failed to fetch agent",
       code: "DB_ERROR",
     };
+  }
+}
+
+const updateAgentDeploymentSchema = z.object({
+  webChatEnabled: z.boolean().optional(),
+  helpPageEnabled: z.boolean().optional(),
+  integrationId: z.string().min(1).optional(),
+  integrationEnabled: z.boolean().optional(),
+});
+
+export async function updateAgentDeployment(
+  agentId: string,
+  input: z.infer<typeof updateAgentDeploymentSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return { success: false as const, error: "Unauthorized" };
+    }
+
+    const parsed = updateAgentDeploymentSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false as const, error: "Invalid request" };
+    }
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    if (
+      parsed.data.integrationId !== undefined &&
+      parsed.data.integrationEnabled !== undefined
+    ) {
+      const entry = INTEGRATION_DEPLOYMENTS.find(
+        (d) => d.id === parsed.data.integrationId,
+      );
+      if (!entry) {
+        return { success: false as const, error: "Unknown deployment" };
+      }
+
+      if (entry.channelType) {
+        await prisma.agentChannel.upsert({
+          where: {
+            agentId_channel: { agentId, channel: entry.channelType },
+          },
+          create: {
+            agentId,
+            channel: entry.channelType,
+            enabled: parsed.data.integrationEnabled,
+          },
+          update: { enabled: parsed.data.integrationEnabled },
+        });
+      } else {
+        const existing = await prisma.agentChannel.findUnique({
+          where: {
+            agentId_channel: { agentId, channel: "WEB_CHAT" },
+          },
+        });
+
+        const existingConfig =
+          existing?.config &&
+          typeof existing.config === "object" &&
+          !Array.isArray(existing.config)
+            ? (existing.config as Record<string, unknown>)
+            : {};
+
+        const integrations =
+          existingConfig.integrations &&
+          typeof existingConfig.integrations === "object" &&
+          !Array.isArray(existingConfig.integrations)
+            ? {
+                ...(existingConfig.integrations as Record<string, unknown>),
+              }
+            : {};
+
+        integrations[parsed.data.integrationId] = {
+          enabled: parsed.data.integrationEnabled,
+        };
+
+        const nextConfig = {
+          ...existingConfig,
+          integrations,
+        } as Prisma.InputJsonValue;
+
+        await prisma.agentChannel.upsert({
+          where: {
+            agentId_channel: { agentId, channel: "WEB_CHAT" },
+          },
+          create: {
+            agentId,
+            channel: "WEB_CHAT",
+            enabled: existing?.enabled ?? true,
+            config: nextConfig,
+          },
+          update: { config: nextConfig },
+        });
+      }
+
+      revalidatePath(`/dashboard/agents/${agentId}`);
+      revalidatePath(
+        `/dashboard/agents/${agentId}/deploy/${parsed.data.integrationId}`,
+      );
+      return { success: true as const };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const helpPage =
+      existingConfig.helpPage &&
+      typeof existingConfig.helpPage === "object" &&
+      !Array.isArray(existingConfig.helpPage)
+        ? { ...(existingConfig.helpPage as Record<string, unknown>) }
+        : {};
+
+    if (parsed.data.helpPageEnabled !== undefined) {
+      helpPage.enabled = parsed.data.helpPageEnabled;
+    }
+
+    const nextConfig = { ...existingConfig } as Prisma.InputJsonValue;
+    if (parsed.data.helpPageEnabled !== undefined) {
+      (nextConfig as Record<string, unknown>).helpPage = helpPage;
+    }
+
+    const enabled =
+      parsed.data.webChatEnabled ?? existing?.enabled ?? true;
+
+    const configPayload =
+      parsed.data.helpPageEnabled !== undefined ? nextConfig : undefined;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled,
+        config: (configPayload ?? {}) as Prisma.InputJsonValue,
+      },
+      update: {
+        ...(parsed.data.webChatEnabled !== undefined
+          ? { enabled: parsed.data.webChatEnabled }
+          : {}),
+        ...(configPayload !== undefined ? { config: configPayload } : {}),
+      },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/help-page`);
+
+    return { success: true as const };
+  } catch {
+    return { success: false as const, error: "Failed to update deployment" };
   }
 }
 

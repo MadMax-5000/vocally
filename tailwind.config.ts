@@ -5,6 +5,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        input: "var(--input)",
+        ring: "var(--ring)",
         // DESIGN.md tokens (names match intent)
         canvas: "#f5f5f5",
         "canvas-soft": "#fafafa",

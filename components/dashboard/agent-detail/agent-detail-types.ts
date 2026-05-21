@@ -21,9 +21,10 @@ export type AgentDetailTabId =
   | "workflow"
   | "preview"
   | "knowledge"
+  | "actions"
   | "analysis"
   | "tools"
   | "tests"
-  | "widget"
+  | "deploy"
   | "security"
   | "advanced";

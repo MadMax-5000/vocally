@@ -16,12 +16,15 @@ export type ChatMessage = {
   createdAt: string;
 };
 
+export type ChatDeployment = "widget" | "help";
+
 export type UseChatOptions = {
   agentId: string;
   widgetToken?: string;
   sessionId?: string | null;
   initialMessages?: ChatMessage[];
   onAudioReady?: (base64: string) => void;
+  deployment?: ChatDeployment;
 };
 
 function getVoiceSupportedSnapshot(): boolean {
@@ -49,6 +52,7 @@ export function useChat({
   sessionId: initialSessionId,
   initialMessages,
   onAudioReady,
+  deployment = "widget",
 }: UseChatOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
@@ -142,6 +146,7 @@ export function useChat({
             ...(widgetToken ? { widgetToken } : {}),
             sessionId: sessionIdRef.current,
             message: trimmed,
+            ...(deployment === "help" ? { deployment: "help" as const } : {}),
           }),
         });
 
@@ -180,7 +185,7 @@ export function useChat({
         setIsLoading(false);
       }
     },
-    [agentId, widgetToken, isLoading],
+    [agentId, widgetToken, isLoading, deployment],
   );
 
   const sendVoiceMessage = useCallback(

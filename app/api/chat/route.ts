@@ -3,12 +3,14 @@ import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
 
 const chatRequestSchema = z.object({
   agentId: z.string().min(1),
   widgetToken: z.string().min(1).optional(),
   sessionId: z.string().nullable().optional(),
   message: z.string().min(1).max(4000),
+  deployment: z.enum(["widget", "help"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -22,7 +24,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { agentId, widgetToken, sessionId: existingSessionId, message } = parsed.data;
+    const {
+      agentId,
+      widgetToken,
+      sessionId: existingSessionId,
+      message,
+      deployment = "widget",
+    } = parsed.data;
 
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
@@ -54,6 +62,16 @@ export async function POST(req: NextRequest) {
           { success: false, error: "Web chat is not enabled for this agent" },
           { status: 403 },
         );
+      }
+
+      if (deployment === "help") {
+        const config = parseWebChatConfig(webChatChannel.config);
+        if (config.helpPage?.enabled === false) {
+          return NextResponse.json(
+            { success: false, error: "Help page is not enabled for this agent" },
+            { status: 403 },
+          );
+        }
       }
     }
 

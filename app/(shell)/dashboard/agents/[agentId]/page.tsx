@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { AgentDetailShell } from "@/components/dashboard/agent-detail/AgentDetailShell";
@@ -24,7 +25,15 @@ export default async function AgentDetailPage({
 
   return (
     <div className="flex flex-col gap-0 py-0">
-      <AgentDetailShell agent={agent} />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[320px] items-center justify-center text-body-sm text-muted">
+            Loading agent…
+          </div>
+        }
+      >
+        <AgentDetailShell agent={agent} />
+      </Suspense>
     </div>
   );
 }

@@ -6,13 +6,26 @@ import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
 import { AgentDetailAnalyticsTab } from "./AgentDetailAnalyticsTab";
 import { AgentDetailKnowledgeTab } from "./AgentDetailKnowledgeTab";
 import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
-import { AgentDetailWidgetTab } from "./AgentDetailWidgetTab";
+import { AgentDetailDeployTab } from "./AgentDetailDeployTab";
+import { AgentDetailActionsTab } from "./AgentDetailActionsTab";
+
+export const AGENT_DETAIL_TAB_IDS: AgentDetailTabId[] = [
+  "preview",
+  "agent",
+  "knowledge",
+  "actions",
+  "deploy",
+  "security",
+  "tests",
+  "advanced",
+];
 
 const TAB_CONFIG: { id: AgentDetailTabId; label: string }[] = [
   { id: "preview", label: "Preview" },
   { id: "agent", label: "Agent" },
   { id: "knowledge", label: "Knowledge Base" },
-  { id: "widget", label: "Widget" },
+  { id: "actions", label: "Actions" },
+  { id: "deploy", label: "Deploy" },
   { id: "security", label: "Security" },
   { id: "tests", label: "Tests" },
   { id: "advanced", label: "Advanced" },
@@ -138,10 +151,12 @@ export function AgentDetailTabs({
               <AgentDetailAnalyticsTab agentId={agent.id} />
             ) : activeTab === "knowledge" ? (
               <AgentDetailKnowledgeTab agentId={agent.id} />
+            ) : activeTab === "actions" ? (
+              <AgentDetailActionsTab />
             ) : activeTab === "preview" ? (
               <AgentDetailPreviewTab agent={agent} />
-            ) : activeTab === "widget" ? (
-              <AgentDetailWidgetTab agent={agent} />
+            ) : activeTab === "deploy" ? (
+              <AgentDetailDeployTab agent={agent} />
             ) : (
               <TabPlaceholder label={activeLabel} />
             )}
