@@ -11,7 +11,7 @@ type AgentDetailShellProps = {
 };
 
 export function AgentDetailShell({ agent }: AgentDetailShellProps) {
-  const [activeTab, setActiveTab] = useState<AgentDetailTabId>("agent");
+  const [activeTab, setActiveTab] = useState<AgentDetailTabId>("preview");
 
   return (
     <div className="flex flex-col gap-0">

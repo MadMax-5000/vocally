@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,17 @@ export function AgentDetailWidgetTab({ agent }: Props) {
   );
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    setTitle(agent.name);
+    setWelcome(agent.welcomeMessage ?? "Hello! How can I help you today?");
+  }, [agent]);
+
   const origin = useMemo(() => {
     if (typeof window === "undefined") return "https://app.vocally.ai";
     return window.location.origin;
   }, []);
 
-  const embedUrl = `${origin}/widget/${agent.id}?title=${encodeURIComponent(title)}&welcome=${encodeURIComponent(welcome)}`;
+  const embedUrl = `${origin}/widget/${agent.id}?token=${encodeURIComponent(agent.widgetToken ?? "")}&title=${encodeURIComponent(title)}&welcome=${encodeURIComponent(welcome)}`;
 
   const iframeSnippet = `<iframe
   src="${embedUrl}"

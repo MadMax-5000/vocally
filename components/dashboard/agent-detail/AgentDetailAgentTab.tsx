@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LlmProvider, SupportedLanguage } from "@prisma/client";
 import { Check, ChevronRight, Plus } from "lucide-react";
+import { toast } from "sonner";
 import Image from "next/image";
 
 import { DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
@@ -21,7 +23,7 @@ import {
 } from "@/components/ui/command";
 
 import { Button } from "@/components/ui/button";
-import { LLM_MODELS, groupModels } from "@/lib/ai/model-registry";
+import { LLM_MODELS, groupModels, resolveLlmModelId } from "@/lib/ai/model-registry";
 import {
   updateAgentLanguageSettings,
   updateAgentLlmSettings,
@@ -127,6 +129,7 @@ function llmIconSrc(provider: LlmProvider): string {
 }
 
 export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
   const [voicesOpen, setVoicesOpen] = useState(false);
@@ -159,7 +162,9 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   }, [agent.id, voices]);
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);
-  const [llmModel, setLlmModel] = useState<string>(agent.llmModel ?? "anthropic/claude-haiku-4.5");
+  const [llmModel, setLlmModel] = useState<string>(
+    resolveLlmModelId(agent.llmModel ?? "anthropic/claude-haiku-4.5"),
+  );
 
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");
   const [systemPrompt, setSystemPrompt] = useState<string>(agent.instructions ?? "");
@@ -198,8 +203,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         languages: nextLanguages,
       });
       if (!result.success) {
-        // keep UI optimistic for now
+        toast.error(result.error ?? "Failed to save language settings");
+        return;
       }
+      router.refresh();
     } finally {
       setIsSaving(false);
     }
@@ -213,8 +220,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         llmModel: nextModel,
       });
       if (!result.success) {
-        // optimistic for now
+        toast.error(result.error ?? "Failed to save model settings");
+        return;
       }
+      router.refresh();
     } finally {
       setIsSaving(false);
     }
@@ -234,8 +243,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         additionalVoices: [],
       });
       if (!result.success) {
-        // optimistic for now
+        toast.error(result.error ?? "Failed to save voice settings");
+        return;
       }
+      router.refresh();
     } finally {
       setIsSaving(false);
     }
@@ -249,8 +260,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         instructions: nextInstructions,
       });
       if (!result.success) {
-        // optimistic for now
+        toast.error(result.error ?? "Failed to save prompt settings");
+        return;
       }
+      router.refresh();
     } finally {
       setIsSaving(false);
     }
@@ -389,7 +402,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             <div className="min-w-0">
               <h2 className="text-title-sm text-ink">System prompt</h2>
               <p className="mt-0.5 text-body-sm text-muted">
-                Defines the agent's behavior and boundaries.
+                Defines the agent&apos;s behavior and boundaries.
               </p>
             </div>
 

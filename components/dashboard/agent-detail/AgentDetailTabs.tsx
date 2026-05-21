@@ -9,15 +9,12 @@ import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
 import { AgentDetailWidgetTab } from "./AgentDetailWidgetTab";
 
 const TAB_CONFIG: { id: AgentDetailTabId; label: string }[] = [
-  { id: "agent", label: "Agent" },
-  { id: "workflow", label: "Workflow" },
   { id: "preview", label: "Preview" },
+  { id: "agent", label: "Agent" },
   { id: "knowledge", label: "Knowledge Base" },
-  { id: "analysis", label: "Analysis" },
-  { id: "tools", label: "Tools" },
-  { id: "tests", label: "Tests" },
   { id: "widget", label: "Widget" },
   { id: "security", label: "Security" },
+  { id: "tests", label: "Tests" },
   { id: "advanced", label: "Advanced" },
 ];
 

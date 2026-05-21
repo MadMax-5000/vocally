@@ -1,7 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { AgentDetailShell } from "@/components/dashboard/agent-detail/AgentDetailShell";
-import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import { getAIAgentById } from "@/lib/actions/agents";
 
 export default async function AgentDetailPage({
@@ -11,11 +10,17 @@ export default async function AgentDetailPage({
 }) {
   const result = await getAIAgentById(params.agentId);
 
-  if (!result.success || !result.data) {
-    notFound();
+  if (!result.success) {
+    if (result.code === "UNAUTHORIZED") {
+      redirect("/onboarding");
+    }
+    if (result.code === "NOT_FOUND") {
+      notFound();
+    }
+    throw new Error(result.error);
   }
 
-  const agent = result.data as AgentDetailWithRelations;
+  const agent = result.data;
 
   return (
     <div className="flex flex-col gap-0 py-0">
