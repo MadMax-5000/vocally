@@ -10,6 +10,7 @@ export default function WidgetPage({ params }: { params: { agentId: string } }) 
     <div className="h-dvh w-full overflow-hidden bg-transparent">
       <ChatWidget
         agentId={params.agentId}
+        widgetToken={searchParams.get("token") ?? undefined}
         agentName={searchParams.get("title") ?? "AI Assistant"}
         welcomeMessage={searchParams.get("welcome") ?? "Hello! How can I help you today?"}
         className="h-full w-full rounded-none border-0"

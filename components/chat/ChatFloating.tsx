@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
+import { VocallyLogo } from "@/components/brand/VocallyLogo";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
@@ -132,8 +134,8 @@ export function ChatFloating({
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
             {!hasMessages && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-xl px-4 py-2.5 bg-surface-strong text-body text-sm">
-                  {welcomeMessage}
+                <div className="max-w-[85%] rounded-xl px-4 py-2.5 bg-surface-strong text-body text-sm leading-relaxed">
+                  <ChatMarkdown content={welcomeMessage} variant="assistant" />
                 </div>
               </div>
             )}
@@ -152,7 +154,10 @@ export function ChatFloating({
                       : "bg-surface-strong text-ink"
                   }`}
                 >
-                  {msg.content}
+                  <ChatMarkdown
+                    content={msg.content}
+                    variant={msg.role === "USER" ? "user" : "assistant"}
+                  />
                 </div>
               </div>
             ))}
@@ -267,18 +272,7 @@ export function ChatFloating({
             <path d="M4 4l8 8M12 4l-8 8" />
           </svg>
         ) : (
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M14 2L2 8l5 1 1 5 6-12z" />
-          </svg>
+          <VocallyLogo variant="white" size="md" className="size-7" />
         )}
       </button>
     </div>

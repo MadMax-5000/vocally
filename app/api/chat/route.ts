@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
+import { getOrgPrismaId } from "@/lib/server/organization";
 
 const chatRequestSchema = z.object({
   agentId: z.string().min(1),
+  widgetToken: z.string().min(1).optional(),
   sessionId: z.string().nullable().optional(),
   message: z.string().min(1).max(4000),
 });
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { agentId, sessionId: existingSessionId, message } = parsed.data;
+    const { agentId, widgetToken, sessionId: existingSessionId, message } = parsed.data;
 
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
@@ -34,12 +36,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Agent not found" }, { status: 404 });
     }
 
-    const webChatChannel = agent.channels[0];
-    if (!webChatChannel?.enabled) {
-      return NextResponse.json(
-        { success: false, error: "Web chat is not enabled for this agent" },
-        { status: 403 },
-      );
+    const dbOrgId = await getOrgPrismaId();
+    const isOwnerPreview = !!dbOrgId && agent.orgId === dbOrgId;
+
+    if (!isOwnerPreview) {
+      if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
+        return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
+      }
+
+      if (agent.visibility !== "PUBLIC" || agent.status !== "ACTIVE") {
+        return NextResponse.json({ success: false, error: "Agent not available" }, { status: 403 });
+      }
+
+      const webChatChannel = agent.channels[0];
+      if (!webChatChannel?.enabled) {
+        return NextResponse.json(
+          { success: false, error: "Web chat is not enabled for this agent" },
+          { status: 403 },
+        );
+      }
     }
 
     const orgId = agent.org.id;

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 
 export type ChatMessage = {
@@ -12,10 +18,18 @@ export type ChatMessage = {
 
 export type UseChatOptions = {
   agentId: string;
+  widgetToken?: string;
   sessionId?: string | null;
   initialMessages?: ChatMessage[];
   onAudioReady?: (base64: string) => void;
 };
+
+function getVoiceSupportedSnapshot(): boolean {
+  return (
+    typeof navigator !== "undefined" &&
+    !!navigator.mediaDevices?.getUserMedia
+  );
+}
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -29,7 +43,13 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-export function useChat({ agentId, sessionId: initialSessionId, initialMessages, onAudioReady }: UseChatOptions) {
+export function useChat({
+  agentId,
+  widgetToken,
+  sessionId: initialSessionId,
+  initialMessages,
+  onAudioReady,
+}: UseChatOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +58,11 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
 
-  const isVoiceSupported = typeof navigator !== "undefined" &&
-    !!navigator.mediaDevices?.getUserMedia;
+  const isVoiceSupported = useSyncExternalStore(
+    () => () => {},
+    getVoiceSupportedSnapshot,
+    () => false,
+  );
 
   useEffect(() => {
     if (!sessionId) return;
@@ -59,11 +82,18 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
         },
         (payload) => {
           const row = payload.new as Record<string, unknown>;
+          const rawCreated =
+            row.createdAt ?? row.created_at ?? row["createdAt"];
           const msg: ChatMessage = {
             id: row.id as string,
             role: row.role as ChatMessage["role"],
             content: row.content as string,
-            createdAt: (row.created_at as string) ?? new Date().toISOString(),
+            createdAt:
+              typeof rawCreated === "string"
+                ? rawCreated
+                : rawCreated instanceof Date
+                  ? rawCreated.toISOString()
+                  : new Date().toISOString(),
           };
           setMessages((prev) => {
             if (prev.some((m) => m.id === msg.id)) return prev;
@@ -109,6 +139,7 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             agentId,
+            ...(widgetToken ? { widgetToken } : {}),
             sessionId: sessionIdRef.current,
             message: trimmed,
           }),
@@ -149,7 +180,7 @@ export function useChat({ agentId, sessionId: initialSessionId, initialMessages,
         setIsLoading(false);
       }
     },
-    [agentId, isLoading],
+    [agentId, widgetToken, isLoading],
   );
 
   const sendVoiceMessage = useCallback(
