@@ -5,6 +5,8 @@ export type InboundEmailPayload = {
   text?: string;
   html?: string;
   messageId?: string;
+  /** Address that received the message (normalized). Used as Resend `from` when verified for that inbox. */
+  replyFromEmail?: string;
 };
 
 export type ResolvedEmailSession = {

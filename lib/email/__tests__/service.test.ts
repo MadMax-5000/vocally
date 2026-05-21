@@ -173,8 +173,10 @@ describe("Email Service", () => {
       agentId: "agent-1",
       sessionId: "session-new-1",
       message: "Where is my order?",
+      channel: "EMAIL",
     });
     expect(sendEmail).toHaveBeenCalledWith({
+      from: "support@test.vocally.app",
       to: "customer@example.com",
       subject: "Re: Order status",
       body: "Thanks for your message! Let me check your order status.",
