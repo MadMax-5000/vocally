@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LlmProvider, SupportedLanguage } from "@prisma/client";
-import { Check, ChevronRight, Plus } from "lucide-react";
+import { LlmProvider, SupportedLanguage, VoiceProvider } from "@prisma/client";
+import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
-import { DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
+import { ArabicFlag, DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 import { AVATAR_DATA, AnimatedAvatar } from "@/utils/lib/avatars";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Command,
@@ -22,8 +21,9 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 
-import { Button } from "@/components/ui/button";
 import { LLM_MODELS, groupModels, resolveLlmModelId } from "@/lib/ai/model-registry";
+import { VOICE_PERSONAS, getVoicePersonaDetail } from "@/lib/voice/voice-catalog";
+import { VoicePickerDialog } from "./VoicePickerDialog";
 import {
   updateAgentLanguageSettings,
   updateAgentLlmSettings,
@@ -38,31 +38,11 @@ type AgentDetailAgentTabProps = {
 };
 
 const LANGUAGE_OPTIONS: { value: SupportedLanguage; label: string }[] = [
-  { value: SupportedLanguage.ENGLISH, label: "English" },
-  { value: SupportedLanguage.FRENCH, label: "French" },
+  { value: SupportedLanguage.ARABIC, label: "Arabic" },
   { value: SupportedLanguage.DARIJA, label: "Darija" },
+  { value: SupportedLanguage.FRENCH, label: "French" },
+  { value: SupportedLanguage.ENGLISH, label: "English" },
 ];
-
-function Pill({
-  children,
-  variant = "neutral",
-}: {
-  children: React.ReactNode;
-  variant?: "neutral" | "primary";
-}) {
-  if (variant === "primary") {
-    return (
-      <span className="inline-flex items-center rounded-md bg-primary/10 px-2.5 py-[2px] text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/20">
-        {children}
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center rounded-md bg-surface-strong px-2.5 py-[2px] text-[11px] font-semibold text-ink ring-1 ring-inset ring-hairline-strong">
-      {children}
-    </span>
-  );
-}
 
 function VoiceAvatar({ voiceId, size }: { voiceId: string; size: "row" | "list" }) {
   const direct = AVATAR_DATA.find((a) => a.id === voiceId);
@@ -138,16 +118,13 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   const groupedModels = useMemo(() => groupModels(LLM_MODELS), []);
 
-  const initialLanguages = useMemo<SupportedLanguage[]>(
-    () => agent.languages.map((l) => l.language),
-    [agent.languages]
+  const [language, setLanguage] = useState<SupportedLanguage>(
+    agent.defaultLanguage ?? SupportedLanguage.ENGLISH,
   );
 
-  const [defaultLanguage, setDefaultLanguage] = useState<SupportedLanguage>(
-    agent.defaultLanguage ?? SupportedLanguage.ENGLISH
-  );
-  const [selectedLanguages, setSelectedLanguages] =
-    useState<SupportedLanguage[]>(initialLanguages.length > 0 ? initialLanguages : [defaultLanguage]);
+  useEffect(() => {
+    setLanguage(agent.defaultLanguage ?? SupportedLanguage.ENGLISH);
+  }, [agent.id, agent.defaultLanguage]);
 
   const voices = useMemo(() => agent.voices ?? [], [agent.voices]);
 
@@ -156,9 +133,11 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   useEffect(() => {
     const def = voices.find((v) => v.isPrimary) ?? voices[0];
     setPrimaryVoiceId((prev) => {
-      if (prev && voices.some((v) => v.voiceId === prev)) return prev;
-      return def?.voiceId ?? "";
-    }); 
+      if (prev && (voices.some((v) => v.voiceId === prev) || VOICE_PERSONAS.some((v) => v.voiceId === prev))) {
+        return prev;
+      }
+      return def?.voiceId ?? VOICE_PERSONAS[0]?.voiceId ?? "";
+    });
   }, [agent.id, voices]);
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);
@@ -169,38 +148,32 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");
   const [systemPrompt, setSystemPrompt] = useState<string>(agent.instructions ?? "");
 
-  useEffect(() => {
-    if (!selectedLanguages.includes(defaultLanguage)) {
-      setSelectedLanguages((prev) => [defaultLanguage, ...prev]);
-    }
-  }, [defaultLanguage, selectedLanguages]);
-
   const languageLabel = (value: SupportedLanguage) =>
     LANGUAGE_OPTIONS.find((o) => o.value === value)?.label ?? String(value);
   const languageIcon = (value: SupportedLanguage): React.ReactNode => {
     const cls = "h-4 w-4";
     switch (value) {
-      case SupportedLanguage.ENGLISH:
-        return <EnglishFlag className={cls} />;
-      case SupportedLanguage.FRENCH:
-        return <FrenchFlag className={cls} />;
+      case SupportedLanguage.ARABIC:
+        return <ArabicFlag className={cls} />;
       case SupportedLanguage.DARIJA:
         return <DarijaFlag className={cls} />;
+      case SupportedLanguage.FRENCH:
+        return <FrenchFlag className={cls} />;
+      case SupportedLanguage.ENGLISH:
+        return <EnglishFlag className={cls} />;
       default:
         return <span className="text-[12px]">🌐</span>;
     }
   };
 
-  const primaryVoiceName =
-    voices.find((v) => v.voiceId === primaryVoiceId)?.name ??
-    (primaryVoiceId ? primaryVoiceId : "Select voice");
+  const selectedVoiceDetail = primaryVoiceId ? getVoicePersonaDetail(primaryVoiceId) : undefined;
 
-  async function saveLanguage(nextDefault: SupportedLanguage, nextLanguages: SupportedLanguage[]) {
+  async function saveLanguage(nextLanguage: SupportedLanguage) {
     setIsSaving(true);
     try {
       const result = await updateAgentLanguageSettings(agent.id, {
-        defaultLanguage: nextDefault,
-        languages: nextLanguages,
+        defaultLanguage: nextLanguage,
+        languages: [nextLanguage],
       });
       if (!result.success) {
         toast.error(result.error ?? "Failed to save language settings");
@@ -232,13 +205,15 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   async function saveVoice(nextVoiceId: string) {
     setIsSaving(true);
     try {
-      const dbVoice = voices.find((v) => v.voiceId === nextVoiceId);
-      if (!dbVoice) return;
+      const selected =
+        VOICE_PERSONAS.find((v) => v.voiceId === nextVoiceId) ??
+        voices.find((v) => v.voiceId === nextVoiceId);
+      if (!selected) return;
       const result = await updateAgentVoiceSettings(agent.id, {
         primaryVoice: {
-          provider: dbVoice.provider,
-          voiceId: nextVoiceId,
-          name: dbVoice.name,
+          provider: VoiceProvider.OPENROUTER,
+          voiceId: selected.voiceId,
+          name: selected.name,
         },
         additionalVoices: [],
       });
@@ -283,30 +258,31 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
           </div>
           <div className="mt-3 flex flex-col gap-2">
-            <div>
-              <Label className="mb-1.5 text-body-sm text-muted">Primary</Label>
-              <SelectRow
-                leftIcon={
-                  primaryVoiceId ? (
-                    <VoiceAvatar voiceId={primaryVoiceId} size="row" />
-                  ) : (
-                    <div className="h-7 w-7 shrink-0 rounded-md bg-surface-strong" />
-                  )
-                }
-                title={primaryVoiceName}
-                rightPill={<Pill variant="primary">Primary</Pill>}
-                onClick={() => setVoicesOpen(true)}
-                disabled={isSaving}
-              />
-            </div>
-            <button
-              type="button"
-              disabled
-              className="flex w-full items-center gap-2 rounded-md border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted"
-            >
-              <Plus className="h-4 w-4" />
-              Add additional voice
-            </button>
+            <SelectRow
+              leftIcon={
+                primaryVoiceId ? (
+                  <VoiceAvatar voiceId={primaryVoiceId} size="row" />
+                ) : (
+                  <div className="h-7 w-7 shrink-0 rounded-md bg-surface-strong" />
+                )
+              }
+              title={
+                selectedVoiceDetail ? (
+                  <span className="block min-w-0">
+                    <span className="block truncate font-medium text-ink">
+                      {selectedVoiceDetail.name}
+                    </span>
+                    <span className="block truncate text-[12px] font-normal text-muted">
+                      {selectedVoiceDetail.tagline}
+                    </span>
+                  </span>
+                ) : (
+                  "Select voice"
+                )
+              }
+              onClick={() => setVoicesOpen(true)}
+              disabled={isSaving}
+            />
           </div>
         </section>
 
@@ -347,30 +323,18 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             <div className="min-w-0">
               <h2 className="text-title-sm text-ink">Language</h2>
               <p className="mt-0.5 text-body-sm text-muted">
-                Choose the default and additional languages the agent will communicate in.
+                Choose the language this agent will use in conversations.
               </p>
             </div>
 
           </div>
           <div className="mt-3 flex flex-col gap-2">
-            <div>
-              <SelectRow
-                leftIcon={languageIcon(defaultLanguage)}
-                title={languageLabel(defaultLanguage)}
-                rightPill={<Pill>Default</Pill>}
-                onClick={() => setLanguageOpen(true)}
-                disabled={isSaving}
-              />
-            </div>
-            <button
-              type="button"
+            <SelectRow
+              leftIcon={languageIcon(language)}
+              title={languageLabel(language)}
               onClick={() => setLanguageOpen(true)}
               disabled={isSaving}
-              className="flex w-full items-center gap-2 rounded-md border border-hairline bg-canvas-soft px-3 py-2 text-[13px] text-muted transition-colors hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Plus className="h-4 w-4" />
-              Add additional languages
-            </button>
+            />
           </div>
         </section>
 
@@ -423,46 +387,17 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
       </div>
 
-      {/* ── Voices picker ── */}
-      <CommandDialog
+      <VoicePickerDialog
         open={voicesOpen}
         onOpenChange={setVoicesOpen}
-        title="Voices"
-        description="Pick a voice already linked to this agent."
-      >
-        <Command>
-          <CommandInput placeholder="Search voices…" />
-          <CommandList>
-            <CommandEmpty>
-              No voices configured for this agent yet.
-            </CommandEmpty>
-            <CommandGroup heading="Agent voices">
-              {voices.map((v) => {
-                const active = v.voiceId === primaryVoiceId;
-                return (
-                  <CommandItem
-                    key={v.id}
-                    value={`${v.name} ${v.voiceId}`}
-                    onSelect={async () => {
-                      setPrimaryVoiceId(v.voiceId);
-                      setVoicesOpen(false);
-                      await saveVoice(v.voiceId);
-                    }}
-                  >
-                    <span className="mr-2 inline-flex">
-                      <VoiceAvatar voiceId={v.voiceId} size="list" />
-                    </span>
-                    <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                      {active ? <Check className="h-4 w-4" /> : null}
-                    </span>
-                    <span>{v.name}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </CommandDialog>
+        selectedVoiceId={primaryVoiceId}
+        disabled={isSaving}
+        onSelect={async (voiceId) => {
+          setPrimaryVoiceId(voiceId);
+          setVoicesOpen(false);
+          await saveVoice(voiceId);
+        }}
+      />
 
       {/* ── LLM picker ── */}
       <CommandDialog
@@ -521,42 +456,23 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         open={languageOpen}
         onOpenChange={setLanguageOpen}
         title="Language"
-        description="Choose the default and additional languages."
+        description="Choose the language this agent will use."
       >
-        <div className="flex items-center justify-between gap-3 px-2 pb-2 pt-1">
-          <div className="text-[12px] text-muted">
-            Selected: <span className="text-ink">{selectedLanguages.length}</span>
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="primary"
-            disabled={isSaving || selectedLanguages.length === 0}
-            onClick={async () => {
-              await saveLanguage(defaultLanguage, selectedLanguages);
-              setLanguageOpen(false);
-            }}
-          >
-            Save
-          </Button>
-        </div>
-
         <Command>
           <CommandInput placeholder="Search languages…" />
           <CommandList>
             <CommandEmpty>No languages found.</CommandEmpty>
-            <CommandGroup heading="Default">
+            <CommandGroup heading="Languages">
               {LANGUAGE_OPTIONS.map((opt) => {
-                const active = opt.value === defaultLanguage;
+                const active = opt.value === language;
                 return (
                   <CommandItem
-                    key={`default:${opt.value}`}
-                    value={opt.label}
-                    onSelect={() => {
-                      setDefaultLanguage(opt.value);
-                      if (!selectedLanguages.includes(opt.value)) {
-                        setSelectedLanguages((prev) => [opt.value, ...prev]);
-                      }
+                    key={opt.value}
+                    value={`${opt.label} ${opt.value}`}
+                    onSelect={async () => {
+                      setLanguage(opt.value);
+                      setLanguageOpen(false);
+                      await saveLanguage(opt.value);
                     }}
                   >
                     <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
@@ -566,41 +482,6 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                       {active ? <Check className="h-4 w-4" /> : null}
                     </span>
                     <span>{opt.label}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-
-            <CommandSeparator />
-
-            <CommandGroup heading="Additional languages">
-              {LANGUAGE_OPTIONS.map((opt) => {
-                const checked = selectedLanguages.includes(opt.value);
-                const isDefault = opt.value === defaultLanguage;
-                return (
-                  <CommandItem
-                    key={`extra:${opt.value}`}
-                    value={`extra ${opt.label}`}
-                    onSelect={() => {
-                      if (isDefault) return;
-                      setSelectedLanguages((prev) => {
-                        if (prev.includes(opt.value)) {
-                          return prev.filter((x) => x !== opt.value);
-                        }
-                        return [...prev, opt.value];
-                      });
-                    }}
-                  >
-                    <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                      {languageIcon(opt.value)}
-                    </span>
-                    <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                      {checked ? <Check className="h-4 w-4" /> : null}
-                    </span>
-                    <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                      <span className="truncate">{opt.label}</span>
-                      {isDefault ? <Pill>Default</Pill> : null}
-                    </span>
                   </CommandItem>
                 );
               })}

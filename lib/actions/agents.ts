@@ -20,6 +20,7 @@ import {
 } from "@/components/dashboard/agent-detail/agent-detail-types";
 import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
+import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
 export type GetAIAgentByIdErrorCode =
@@ -190,6 +191,19 @@ export async function createAIAgentFromOnboarding(
         }
       }
 
+      const defaultPersona = VOICE_PERSONAS[0];
+      if (defaultPersona) {
+        await tx.agentVoice.create({
+          data: {
+            agentId: created.id,
+            provider: VoiceProvider.OPENROUTER,
+            voiceId: defaultPersona.voiceId,
+            name: defaultPersona.name,
+            isPrimary: true,
+          },
+        });
+      }
+
       return created;
     });
 
@@ -240,6 +254,83 @@ export async function getUserAIAgents() {
 
     return { success: true, data: agents };
   } catch (err) {
+    return { success: false, error: "Failed to fetch agents", data: [] };
+  }
+}
+
+export type SidebarAgentListItem = {
+  id: string;
+  name: string;
+  lastActivityAt: Date;
+  /** True when the org has at least one session for this agent. */
+  hasSessions: boolean;
+  activeSessionCount: number;
+};
+
+export async function getSidebarAgentsList(): Promise<{
+  success: boolean;
+  data: SidebarAgentListItem[];
+  error?: string;
+}> {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) {
+      return { success: false, error: "Unauthorized", data: [] };
+    }
+
+    const agents = await prisma.agent.findMany({
+      where: { orgId: dbOrgId },
+      select: { id: true, name: true, createdAt: true },
+    });
+
+    if (agents.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const agentIds = agents.map((a) => a.id);
+
+    const sessions = await prisma.session.findMany({
+      where: { orgId: dbOrgId, agentId: { in: agentIds } },
+      select: { agentId: true, startedAt: true, status: true },
+    });
+
+    const lastActivity = new Map<string, Date>();
+    const activeCounts = new Map<string, number>();
+    const hasSessions = new Set<string>();
+
+    for (const session of sessions) {
+      if (!session.agentId) continue;
+
+      hasSessions.add(session.agentId);
+
+      const prev = lastActivity.get(session.agentId);
+      if (!prev || session.startedAt > prev) {
+        lastActivity.set(session.agentId, session.startedAt);
+      }
+
+      if (
+        session.status !== "RESOLVED" &&
+        session.status !== "ABANDONED"
+      ) {
+        activeCounts.set(
+          session.agentId,
+          (activeCounts.get(session.agentId) ?? 0) + 1,
+        );
+      }
+    }
+
+    const data: SidebarAgentListItem[] = agents
+      .map((agent) => ({
+        id: agent.id,
+        name: agent.name,
+        lastActivityAt: lastActivity.get(agent.id) ?? agent.createdAt,
+        hasSessions: hasSessions.has(agent.id),
+        activeSessionCount: activeCounts.get(agent.id) ?? 0,
+      }))
+      .sort((a, b) => b.lastActivityAt.getTime() - a.lastActivityAt.getTime());
+
+    return { success: true, data };
+  } catch {
     return { success: false, error: "Failed to fetch agents", data: [] };
   }
 }

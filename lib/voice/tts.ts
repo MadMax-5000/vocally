@@ -1,5 +1,6 @@
 import type { SpeechResult, VoiceParams } from "@/lib/voice/types";
 import { LANGUAGE_VOICE_MAP } from "@/lib/voice/types";
+import { resolvePersonaTtsVoice } from "@/lib/voice/voice-catalog";
 import { prisma } from "@/lib/db/prisma";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
@@ -110,9 +111,11 @@ export async function resolveAgentVoice(
     });
 
     if (primary?.provider === "OPENROUTER" && primary.voiceId) {
+      const model =
+        primary.name.includes("/") ? primary.name : TTS_DEFAULT_MODEL;
       return {
-        model: primary.name || TTS_DEFAULT_MODEL,
-        voice: primary.voiceId,
+        model,
+        voice: resolvePersonaTtsVoice(primary.voiceId),
       };
     }
 

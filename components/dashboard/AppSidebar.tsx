@@ -10,7 +10,8 @@ import {
   CreditCard,
   Mail,
 } from "lucide-react"
-import { AgentIcon, KnowledgeIcon } from "@/components/ui/icons"
+import { KnowledgeIcon } from "@/components/ui/icons"
+import { SidebarAgentsSection } from "@/components/dashboard/sidebar/SidebarAgentsSection"
 
 import {
   Sidebar,
@@ -32,14 +33,18 @@ import { OrgSwitcher } from "./OrgSwitcher"
 import { getEscalationCount } from "@/lib/actions/sessions"
 import { getSupabaseBrowser } from "@/lib/supabase/client"
 
+const homeItem = {
+  title: "Home",
+  url: "/dashboard",
+  icon: LayoutDashboard,
+} as const
+
 const operationsItems = [
-  { title: "Home", url: "/dashboard", icon: LayoutDashboard },
   { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
   { title: "Live monitor", url: "/dashboard/live", icon: Radio },
 ]
 
 const workspaceItems = [
-  { title: "Agents", url: "/dashboard/agents", icon: AgentIcon },
   { title: "Knowledge base", url: "/dashboard/knowledge", icon: KnowledgeIcon },
   { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
 ]
@@ -121,6 +126,27 @@ export function AppSidebar() {
       <SidebarBrand />
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === homeItem.url}
+                  tooltip={homeItem.title}
+                >
+                  <Link href={homeItem.url}>
+                    <homeItem.icon />
+                    <span>{homeItem.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarAgentsSection />
+
+        <SidebarGroup>
           <SidebarGroupLabel>Operations</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -160,12 +186,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={
-                      item.url === "/dashboard/agents"
-                        ? pathname === item.url ||
-                          pathname.startsWith(`${item.url}/`)
-                        : pathname === item.url
-                    }
+                    isActive={pathname === item.url}
                     tooltip={item.title}
                   >
                     <Link href={item.url}>
