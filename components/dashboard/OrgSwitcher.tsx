@@ -14,9 +14,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 export function OrgSwitcher() {
+  const { setExpandHoverLock } = useSidebar()
   const { userMemberships, isLoaded, setActive } = useOrganizationList()
   const { organization: activeOrg } = useOrganization()
 
@@ -53,7 +55,7 @@ export function OrgSwitcher() {
   return (
     <SidebarMenu className="px-1 py-2">
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={setExpandHoverLock}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -62,7 +64,7 @@ export function OrgSwitcher() {
               <span className="truncate text-[13px] font-medium text-ink">
                 {currentName}
               </span>
-              <span className="ml-auto shrink-0 text-muted">
+              <span className="ml-auto shrink-0 text-muted group-data-[collapsible=icon]:ml-0">
                 <ChevronsUpDown className="size-4" />
               </span>
             </SidebarMenuButton>

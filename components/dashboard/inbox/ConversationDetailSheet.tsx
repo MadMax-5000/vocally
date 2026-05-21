@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import type { ConversationDetail, InboxMessage } from "@/lib/actions/sessions";
 import { getConversationDetail, sendMessage, claimSession, updateSessionSummary } from "@/lib/actions/sessions";
 import { Button } from "@/components/ui/button";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -217,7 +218,12 @@ function MessageBubble({ message }: { message: InboxMessage }) {
             : "bg-surface-strong text-ink rounded-2xl rounded-bl-md",
         )}
       >
-        <p className="text-[13px] leading-relaxed">{message.content}</p>
+        <div className="text-[13px] leading-relaxed">
+          <ChatMarkdown
+            content={message.content}
+            variant={isUser ? "userInk" : "assistant"}
+          />
+        </div>
         <p
           className={cn(
             "mt-1 text-[10px]",
@@ -260,7 +266,7 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
         {detail.summary && (
           <div className="rounded-lg bg-canvas-soft px-3 py-2 text-body-sm text-muted">
             <span className="font-medium text-ink">Summary: </span>
-            {detail.summary}
+            <ChatMarkdown content={detail.summary} variant="neutral" />
           </div>
         )}
         {detail.messages.length === 0 && (
@@ -271,7 +277,9 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
             <span className="text-[11px] font-medium text-muted-soft uppercase">
               {m.role}:
             </span>
-            <p className="mt-0.5 whitespace-pre-wrap">{m.content}</p>
+            <div className="mt-0.5">
+              <ChatMarkdown content={m.content} variant="neutral" />
+            </div>
           </div>
         ))}
       </div>

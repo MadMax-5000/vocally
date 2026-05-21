@@ -28,11 +28,14 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
-  setOpen: (open: boolean) => void
+  setOpen: (value: boolean | ((value: boolean) => boolean)) => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  expandOnHover: boolean
+  setExpandHoverLock: (locked: boolean) => void
+  expandHoverLocked: () => boolean
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -51,6 +54,10 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
+    /** When true (desktop), sidebar expands on pointer enter and collapses on leave. */
+    expandOnHover?: boolean
+    /** Persist open state to cookie. Defaults to `false` when `expandOnHover` is true. */
+    persistCookie?: boolean
   }
 >(
   (
@@ -58,6 +65,8 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      expandOnHover = false,
+      persistCookie: persistCookieProp,
       className,
       style,
       children,
@@ -67,6 +76,16 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
+    const persistCookie = persistCookieProp ?? !expandOnHover
+
+    const expandHoverLockRef = React.useRef(false)
+    const setExpandHoverLock = React.useCallback((locked: boolean) => {
+      expandHoverLockRef.current = locked
+    }, [])
+    const expandHoverLocked = React.useCallback(
+      () => expandHoverLockRef.current,
+      []
+    )
 
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
@@ -78,9 +97,11 @@ const SidebarProvider = React.forwardRef<
         } else {
           _setOpen(openState)
         }
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        if (persistCookie) {
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
-      [setOpenProp, open]
+      [setOpenProp, open, persistCookie]
     )
 
     const toggleSidebar = React.useCallback(() => {
@@ -90,6 +111,7 @@ const SidebarProvider = React.forwardRef<
     }, [isMobile, setOpen, setOpenMobile])
 
     React.useEffect(() => {
+      if (expandOnHover) return
       const handleKeyDown = (event: KeyboardEvent) => {
         if (
           event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
@@ -101,7 +123,7 @@ const SidebarProvider = React.forwardRef<
       }
       window.addEventListener("keydown", handleKeyDown)
       return () => window.removeEventListener("keydown", handleKeyDown)
-    }, [toggleSidebar])
+    }, [toggleSidebar, expandOnHover])
 
     const state = open ? "expanded" : "collapsed"
 
@@ -114,8 +136,22 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        expandOnHover,
+        setExpandHoverLock,
+        expandHoverLocked,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+        expandOnHover,
+        setExpandHoverLock,
+        expandHoverLocked,
+      ]
     )
 
     return (
@@ -160,11 +196,21 @@ const Sidebar = React.forwardRef<
       collapsible = "offcanvas",
       className,
       children,
+      onMouseEnter: onMouseEnterProp,
+      onMouseLeave: onMouseLeaveProp,
       ...props
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const {
+      isMobile,
+      state,
+      openMobile,
+      setOpenMobile,
+      expandOnHover,
+      setOpen,
+      expandHoverLocked,
+    } = useSidebar()
 
     if (collapsible === "none") {
       return (
@@ -209,7 +255,7 @@ const Sidebar = React.forwardRef<
         {/* Spacer div that matches the sidebar width for layout flow */}
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+            "relative h-svh w-[--sidebar-width] bg-transparent transition-[width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === "floating" || variant === "inset"
@@ -219,7 +265,7 @@ const Sidebar = React.forwardRef<
         />
         <div
           className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+            "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -228,6 +274,14 @@ const Sidebar = React.forwardRef<
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l border-hairline",
             className
           )}
+          onMouseEnter={(e) => {
+            onMouseEnterProp?.(e)
+            if (expandOnHover) setOpen(true)
+          }}
+          onMouseLeave={(e) => {
+            onMouseLeaveProp?.(e)
+            if (expandOnHover && !expandHoverLocked()) setOpen(false)
+          }}
           {...props}
         >
           <div
@@ -444,7 +498,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-none text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-[18px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-none text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink disabled:pointer-events-none disabled:opacity-50 group-data-[collapsible=icon]:gap-0 [&>svg]:size-[18px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink [&>span:not([data-sidebar=menu-trailing])]:min-w-0 [&>span:not([data-sidebar=menu-trailing])]:overflow-hidden [&>span:not([data-sidebar=menu-trailing])]:whitespace-nowrap [&>span:not([data-sidebar=menu-trailing])]:opacity-100 [&>span:not([data-sidebar=menu-trailing])]:transition-[max-width,opacity] [&>span:not([data-sidebar=menu-trailing])]:duration-300 [&>span:not([data-sidebar=menu-trailing])]:ease-[cubic-bezier(0.32,0.72,0,1)] [&>span:not([data-sidebar=menu-trailing])]:max-w-[240px] group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:max-w-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:opacity-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:pointer-events-none",
   {
     variants: {
       variant: {
@@ -496,9 +550,8 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(
           sidebarMenuButtonVariants({ variant, size }),
-          // In icon mode: become a square, center the icon, hide text
+          // In icon mode: square rail, center icon; labels clip via span max-width/opacity
           "group-data-[collapsible=icon]:!w-7 group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:justify-center",
-          "group-data-[collapsible=icon]:[&>span]:hidden",
           isActive && "bg-surface-strong",
           className
         )}

@@ -8,7 +8,7 @@ import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
 /**
  * Fullscreen routes under /dashboard (no sidebar/topbar) must be listed here.
- * Next merges `app/(shell)/dashboard/*` with `app/dashboard/*` — both share this layout.
+ * All dashboard routes live under `app/(shell)/dashboard/` and share this layout.
  */
 const FULLSCREEN_DASHBOARD_PATHS = new Set<string>(["/dashboard/agents/new"]);
 
@@ -34,7 +34,7 @@ export function DashboardRouteLayout({
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={false} expandOnHover persistCookie={false}>
       <AppSidebar />
       <div className="flex min-h-dvh flex-1 flex-col bg-surface-card">
         {hideDashboardTopbar ? null : <DashboardTopbar />}

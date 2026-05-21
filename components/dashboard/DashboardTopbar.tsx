@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { MessageCircle, Bell } from "lucide-react"
+import { VocallyLogo } from "@/components/brand/VocallyLogo"
 import { KnowledgeIcon } from "@/components/ui/icons"
 
 import { Button } from "@/components/ui/button"
@@ -18,14 +19,7 @@ export function DashboardTopbar() {
     <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center border-b border-hairline bg-surface-card px-3">
       {/* Left: wordmark */}
       <div className="flex items-center gap-2">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-1.5 transition-opacity hover:opacity-70"
-        >
-          <span className="font-display text-[14px] font-normal tracking-tight text-muted">
-            Vocally
-          </span>
-        </Link>
+        <VocallyLogo variant="black" size="sm" href="/dashboard" />
       </div>
 
       {/* Right cluster */}
