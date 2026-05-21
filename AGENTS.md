@@ -222,6 +222,7 @@ if (!orgId) throw new Error("Unauthorized");
 ## 10. Email (Resend)
 
 - All transactional emails via `lib/resend/sender.ts`
+- **Inbound AI (email channel):** Configure receiving on your domain in Resend (MX + domain verification). Webhook `email.received` → `POST /api/webhooks/email/inbound`. The handler verifies Svix signatures (`RESEND_WEBHOOK_SECRET`), fetches full message body via Resend’s Received Email API, routes by row in `EmailAddress`, then reuses `processMessage` + outbound `sendEmail`. Map mailboxes in Dashboard → **Inbound email** (`/dashboard/email`).
 - Templates: new agent invite, session summary, weekly analytics digest, billing alerts
 - Use React Email components for templates — store in `emails/` folder
 - Always send from a verified domain; use `from: "noreply@yourdomain.com"`
@@ -349,6 +350,18 @@ npx tsc --noEmit
 npm run lint
 ```
 
+### Knowledge base (pgvector)
+
+`KnowledgeChunk.embedding` is a **pgvector** column (1536 dimensions, matching `openai/text-embedding-3-small`). It is declared in `schema.prisma` as `Unsupported("vector(1536)")` so `prisma db push` can create it on new databases. Embeddings are still read and written with **raw SQL** in `lib/knowledge/vector-store.ts`.
+
+If you see Postgres error `42703` (column `embedding` does not exist), or you are on an older database, apply the extension and column with:
+
+```bash
+npx prisma db execute --schema prisma/schema.prisma --file prisma/migrations/001_enable_pgvector.sql
+```
+
+The script is idempotent (`IF NOT EXISTS`). The optional `prisma/migrations/002_match_knowledge_chunks_function.sql` defines an RPC that this codebase does not call today.
+
 ### Environment Variables (required)
 ```
 # Clerk
@@ -382,6 +395,7 @@ PINECONE_ENVIRONMENT=
 # Resend
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
+RESEND_WEBHOOK_SECRET=
 
 # LemonSqueezy
 LEMONSQUEEZY_API_KEY=
