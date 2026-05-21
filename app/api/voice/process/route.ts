@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { transcribeAudio } from "@/lib/voice/stt";
 import { synthesizeSpeech } from "@/lib/voice/tts";
@@ -15,6 +16,11 @@ const requestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
@@ -31,11 +37,9 @@ export async function POST(req: NextRequest) {
       include: { org: { select: { id: true, name: true } } },
     });
 
-    if (!agent) {
+    if (!agent || agent.orgId !== orgId) {
       return NextResponse.json({ success: false, error: "Agent not found" }, { status: 404 });
     }
-
-    const orgId = agent.org.id;
 
     const transcription = await transcribeAudio(audio, format);
     const transcript = transcription.text;

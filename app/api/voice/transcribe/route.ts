@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@clerk/nextjs/server";
 import { transcribeAudio } from "@/lib/voice/stt";
 
 const requestSchema = z.object({
@@ -10,6 +11,11 @@ const requestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
