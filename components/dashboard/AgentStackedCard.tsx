@@ -26,13 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { SidebarAgentAvatar } from "@/components/dashboard/sidebar/SidebarAgentAvatar";
 import {
   ArabicFlag,
   DarijaFlag,
@@ -40,12 +39,7 @@ import {
   FrenchFlag,
 } from "@/utils/flags";
 
-function humanizeEnum(value: string) {
-  return value
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-}
+const CARD_AVATAR_SIZE = 36;
 
 const LANGUAGE_ORDER: SupportedLanguage[] = [
   "ARABIC",
@@ -61,6 +55,20 @@ const LANGUAGE_FLAG: Record<SupportedLanguage, ComponentType<SVGProps<SVGSVGElem
   ENGLISH: EnglishFlag,
 };
 
+const LANGUAGE_LABEL: Record<SupportedLanguage, string> = {
+  ARABIC: "Arabic",
+  DARIJA: "Darija",
+  FRENCH: "French",
+  ENGLISH: "English",
+};
+
+function humanizeEnum(value: string) {
+  return value
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export type AgentCardData = {
   id: string;
   name: string;
@@ -73,162 +81,112 @@ export type AgentCardData = {
   createdAt: Date;
 };
 
-// ─── Row ────────────────────────────────────────────────────────────────────
-
-type AgentTableRowProps = {
-  agent: AgentCardData;
-  index: number;
-};
-
-function formatCreatedAt(date: Date): string {
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function AgentTableRow({ agent, index }: AgentTableRowProps) {
-  const router = useRouter();
-
-  const enabledChannels = agent.channels
-    .map((c) => CHANNEL_META.find((m) => m.value === c.channel))
-    .filter((m): m is NonNullable<typeof m> => m !== undefined);
+function AgentAvatarWithStatus({
+  agentId,
+  status,
+}: {
+  agentId: string;
+  status: AgentStatus;
+}) {
+  const showActiveDot = status === "ACTIVE";
 
   return (
-    <TableRow
-      className="group cursor-pointer border-0 transition-colors duration-200 hover:bg-surface-strong/40"
-      style={{ animationDelay: `${index * 45}ms` }}
-      onClick={() => router.push(`/dashboard/agents/${agent.id}`)}
+    <div
+      className="relative shrink-0"
+      style={{ width: CARD_AVATAR_SIZE, height: CARD_AVATAR_SIZE }}
     >
-      {/* Name */}
-      <TableCell className="py-1 pl-0">
-        <span className="text-body-sm font-medium text-ink">
-          {agent.name}
-        </span>
-      </TableCell>
-
-      {/* Created at */}
-      <TableCell className="py-1">
-        <span className="text-body-sm text-muted">
-          {formatCreatedAt(agent.createdAt)}
-        </span>
-      </TableCell>
-
-      {/* Status */}
-      <TableCell className="py-1">
+      <SidebarAgentAvatar agentId={agentId} size={CARD_AVATAR_SIZE} />
+      {showActiveDot ? (
         <span
-          className={`inline-flex items-center rounded-full px-3 py-[2px] text-xs font-semibold ring-1 ring-inset ${
-            agent.status === "ACTIVE"
-              ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
-              : agent.status === "PAUSED"
-                ? "bg-amber-50 text-amber-800 ring-amber-100"
-                : "bg-slate-50 text-slate-700 ring-slate-200"
-          }`}
-        >
-          {agent.status.charAt(0) + agent.status.slice(1).toLowerCase()}
-        </span>
-      </TableCell>
-
-      {/* Channels */}
-      <TableCell className="py-1">
-        {enabledChannels.length > 0 ? (
-          <div className="flex -space-x-1.5">
-            {enabledChannels.map((channel, i) => (
-              <div
-                key={channel.value}
-                className="relative flex h-6 w-6 items-center justify-center rounded-full border border-hairline bg-surface-card shadow-sm transition-transform group-hover:scale-105"
-                style={{ zIndex: enabledChannels.length - i }}
-              >
-                <Image
-                  src={channel.iconSrc}
-                  alt={channel.label}
-                  title={channel.label}
-                  width={12}
-                  height={12}
-                  className="rounded-[2px]"
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <span className="text-body-sm text-muted">No channels</span>
-        )}
-      </TableCell>
-
-      {/* Actions */}
-      <TableCell className="py-1">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Agent actions"
-              className="h-8 w-8 text-muted transition-all hover:bg-surface-strong hover:text-ink"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const res = await duplicateAgent(agent.id);
-                if (res.success) {
-                  toast.success("Agent duplicated");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to duplicate");
-                }
-              }}
-            >
-              Duplicate Agent
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const res = await archiveAgent(agent.id);
-                if (res.success) {
-                  toast.success(res.status === "PAUSED" ? "Agent archived" : "Agent unarchived");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to archive");
-                }
-              }}
-            >
-              {agent.status === "PAUSED" ? "Unarchive Agent" : "Archive Agent"}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const confirmed = window.confirm(
-                  `Are you sure you want to delete "${agent.name}"? This cannot be undone.`,
-                );
-                if (!confirmed) return;
-                const res = await deleteAgent(agent.id);
-                if (res.success) {
-                  toast.success("Agent deleted");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to delete");
-                }
-              }}
-              className="text-semantic-error focus:text-semantic-error"
-            >
-              Delete Agent
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
+          className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-surface-card bg-emerald-500"
+          aria-label="Active"
+        />
+      ) : null}
+    </div>
   );
 }
 
-// ─── Card ────────────────────────────────────────────────────────────────────
+type AgentActionsMenuProps = {
+  agent: AgentCardData;
+};
+
+function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
+  const router = useRouter();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Agent actions"
+          className="-mr-1 -mt-1 h-8 w-8 shrink-0 text-muted transition-all hover:bg-surface-strong hover:text-ink"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuItem asChild>
+          <Link href={`/dashboard/agents/${agent.id}`}>Open</Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+            const res = await duplicateAgent(agent.id);
+            if (res.success) {
+              toast.success("Agent duplicated");
+              router.refresh();
+            } else {
+              toast.error(res.error ?? "Failed to duplicate");
+            }
+          }}
+        >
+          Duplicate Agent
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+            const res = await archiveAgent(agent.id);
+            if (res.success) {
+              toast.success(res.status === "PAUSED" ? "Agent archived" : "Agent unarchived");
+              router.refresh();
+            } else {
+              toast.error(res.error ?? "Failed to archive");
+            }
+          }}
+        >
+          {agent.status === "PAUSED" ? "Unarchive Agent" : "Archive Agent"}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+            const confirmed = window.confirm(
+              `Are you sure you want to delete "${agent.name}"? This cannot be undone.`,
+            );
+            if (!confirmed) return;
+            const res = await deleteAgent(agent.id);
+            if (res.success) {
+              toast.success("Agent deleted");
+              router.refresh();
+            } else {
+              toast.error(res.error ?? "Failed to delete");
+            }
+          }}
+          className="text-semantic-error focus:text-semantic-error"
+        >
+          Delete Agent
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <p className="pointer-events-none px-2 py-1.5 text-caption text-muted-soft">
+          {formatRelativeCreated(agent.createdAt)}
+        </p>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 type AgentStackedCardProps = {
   agent: AgentCardData;
@@ -256,180 +214,104 @@ export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
     selectedLanguages.has(lang),
   );
 
+  const hasChannels = enabledChannels.length > 0;
+  const hasLanguages = orderedLanguages.length > 0;
+
   return (
     <div
-      className="group w-full cursor-pointer rounded-xl border border-hairline bg-surface-card p-4 transition-all duration-200 hover:border-hairline/80 hover:shadow-sm"
+      className="group flex cursor-pointer flex-col rounded-xl border border-hairline bg-surface-card p-4 transition-all duration-200 hover:border-hairline-strong/70 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)]"
       style={{ animationDelay: `${index * 45}ms` }}
       onClick={() => router.push(`/dashboard/agents/${agent.id}`)}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <span className="font-display text-title-sm tracking-tight text-ink transition-colors group-hover:text-ink/90">
+      <div className="flex items-start gap-3">
+        <AgentAvatarWithStatus agentId={agent.id} status={agent.status} />
+
+        <div className="min-w-0 flex-1 pt-1">
+          <h3 className="truncate font-display text-title-sm tracking-tight text-ink transition-colors group-hover:text-ink/90">
             {agent.name}
-          </span>
-          <span className="text-xs text-muted">
-            Created {formatRelativeCreated(agent.createdAt)}
-          </span>
+          </h3>
+          <p className="mt-0.5 truncate text-body-sm text-muted">
+            {displayType} · {displayTone}
+          </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Agent actions"
-              className="h-8 w-8 text-muted transition-all hover:bg-surface-strong hover:text-ink"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem asChild>
-              <Link href={`/dashboard/agents/${agent.id}`}>Open</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const res = await duplicateAgent(agent.id);
-                if (res.success) {
-                  toast.success("Agent duplicated");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to duplicate");
-                }
-              }}
-            >
-              Duplicate Agent
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const res = await archiveAgent(agent.id);
-                if (res.success) {
-                  toast.success(res.status === "PAUSED" ? "Agent archived" : "Agent unarchived");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to archive");
-                }
-              }}
-            >
-              {agent.status === "PAUSED" ? "Unarchive Agent" : "Archive Agent"}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                const confirmed = window.confirm(
-                  `Are you sure you want to delete "${agent.name}"? This cannot be undone.`,
+
+        <AgentActionsMenu agent={agent} />
+      </div>
+
+      {hasChannels || hasLanguages ? (
+        <div className="mt-3 flex items-center justify-between border-t border-hairline-soft pt-3">
+          {hasChannels ? (
+            <div className="flex items-center gap-1.5">
+              {enabledChannels.map((channel) => (
+                <Tooltip key={channel.value}>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="group/icon flex h-7 w-7 items-center justify-center rounded-full border border-hairline bg-surface-card transition-transform hover:scale-105"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Image
+                        src={channel.iconSrc}
+                        alt={channel.label}
+                        width={14}
+                        height={14}
+                        className="rounded-[2px] grayscale opacity-50 transition-all duration-200 group-hover/icon:grayscale-0 group-hover/icon:opacity-100"
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{channel.label}</TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          ) : (
+            <span className="text-caption text-muted">No channels</span>
+          )}
+
+          {hasLanguages ? (
+            <div className="ml-auto flex items-center gap-1.5">
+              {orderedLanguages.map((lang) => {
+                const Flag = LANGUAGE_FLAG[lang];
+                const label = LANGUAGE_LABEL[lang];
+                return (
+                  <Tooltip key={lang}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="group/icon flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-hairline bg-surface-card transition-transform hover:scale-105"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Flag
+                          className="h-4 w-4 grayscale opacity-50 transition-all duration-200 group-hover/icon:grayscale-0 group-hover/icon:opacity-100"
+                          aria-hidden
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">{label}</TooltipContent>
+                  </Tooltip>
                 );
-                if (!confirmed) return;
-                const res = await deleteAgent(agent.id);
-                if (res.success) {
-                  toast.success("Agent deleted");
-                  router.refresh();
-                } else {
-                  toast.error(res.error ?? "Failed to delete");
-                }
-              }}
-              className="text-semantic-error focus:text-semantic-error"
-            >
-              Delete Agent
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Badges */}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        <span className="inline-flex items-center rounded-md bg-surface-strong/60 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-body ring-1 ring-inset ring-hairline">
-          {displayType}
-        </span>
-        <span className="inline-flex items-center rounded-md bg-surface-strong/60 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-body ring-1 ring-inset ring-hairline">
-          {displayTone}
-        </span>
-      </div>
-
-      {/* Channels + Languages */}
-      <div className="mt-3 flex items-center justify-between">
-        {enabledChannels.length > 0 ? (
-          <div className="flex -space-x-1.5">
-            {enabledChannels.map((channel, i) => (
-              <div
-                key={channel.value}
-                className="relative flex h-6 w-6 items-center justify-center rounded-full border border-hairline bg-surface-card shadow-sm transition-transform group-hover:scale-105"
-                style={{ zIndex: enabledChannels.length - i }}
-              >
-                <Image
-                  src={channel.iconSrc}
-                  alt={channel.label}
-                  title={channel.label}
-                  width={12}
-                  height={12}
-                  className="rounded-[2px]"
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <span className="text-[11px] text-muted">No channels</span>
-        )}
-
-        {orderedLanguages.length > 0 ? (
-          <div className="flex items-center gap-1.5">
-            {orderedLanguages.map((lang) => {
-              const Flag = LANGUAGE_FLAG[lang];
-              return (
-                <div
-                  key={lang}
-                  className="flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-full ring-1 ring-hairline/50 transition-transform group-hover:scale-105"
-                  title={lang}
-                >
-                  <Flag className="h-full w-full object-cover" aria-hidden />
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <span className="text-[11px] text-muted">—</span>
-        )}
-      </div>
+              })}
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        <p className="mt-3 border-t border-hairline-soft pt-3 text-caption text-muted">
+          No channels
+        </p>
+      )}
     </div>
   );
 }
 
-// ─── Table ───────────────────────────────────────────────────────────────────
-
-type AgentTableProps = {
+type AgentCardGridProps = {
   agents: AgentCardData[];
 };
 
-export function AgentTable({ agents }: AgentTableProps) {
+export function AgentCardGrid({ agents }: AgentCardGridProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="hover:bg-transparent">
-          <TableHead className="pl-0 text-xs font-medium uppercase tracking-wider text-muted">
-            Name
-          </TableHead>
-          <TableHead className="text-xs font-medium uppercase tracking-wider text-muted">
-            Created at
-          </TableHead>
-          <TableHead className="text-xs font-medium uppercase tracking-wider text-muted">
-            Status
-          </TableHead>
-          <TableHead className="text-xs font-medium uppercase tracking-wider text-muted">
-            Channels
-          </TableHead>
-          <TableHead className="w-[44px]" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+    <TooltipProvider delayDuration={300}>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {agents.map((agent, index) => (
-          <AgentTableRow key={agent.id} agent={agent} index={index} />
+          <AgentStackedCard key={agent.id} agent={agent} index={index} />
         ))}
-      </TableBody>
-    </Table>
+      </div>
+    </TooltipProvider>
   );
 }

@@ -7,8 +7,12 @@ export function formatRelativeCreated(date: Date | string | number): string {
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) {
+  if (diffSecs < 1) {
     return "Created just now";
+  }
+
+  if (diffSecs < 60) {
+    return `Created ${diffSecs} second${diffSecs === 1 ? "" : "s"} ago`;
   }
 
   if (diffMins < 60) {
@@ -23,7 +27,6 @@ export function formatRelativeCreated(date: Date | string | number): string {
     return `Created ${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
   }
 
-  // Fallback to absolute date if older than a week
   return `Created on ${created.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

@@ -4,7 +4,13 @@ import { AVATAR_DATA, AnimatedAvatar } from "@/utils/lib/avatars";
 
 const SIDEBAR_AVATAR_SIZE = 18;
 
-export function SidebarAgentAvatar({ agentId }: { agentId: string }) {
+export function SidebarAgentAvatar({
+  agentId,
+  size = SIDEBAR_AVATAR_SIZE,
+}: {
+  agentId: string;
+  size?: number;
+}) {
   const avatar = (() => {
     let hash = 0;
     for (let i = 0; i < agentId.length; i++) {
@@ -17,7 +23,7 @@ export function SidebarAgentAvatar({ agentId }: { agentId: string }) {
     return (
       <span
         className="shrink-0 rounded-full bg-surface-strong"
-        style={{ width: SIDEBAR_AVATAR_SIZE, height: SIDEBAR_AVATAR_SIZE }}
+        style={{ width: size, height: size }}
       />
     );
   }
@@ -25,9 +31,9 @@ export function SidebarAgentAvatar({ agentId }: { agentId: string }) {
   return (
     <span
       className="inline-flex shrink-0 overflow-hidden rounded-full ring-1 ring-hairline"
-      style={{ width: SIDEBAR_AVATAR_SIZE, height: SIDEBAR_AVATAR_SIZE }}
+      style={{ width: size, height: size }}
     >
-      <AnimatedAvatar avatar={avatar} size={SIDEBAR_AVATAR_SIZE} />
+      <AnimatedAvatar avatar={avatar} size={size} />
     </span>
   );
 }

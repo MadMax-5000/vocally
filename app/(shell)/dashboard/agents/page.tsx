@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { Plus, Search } from "lucide-react";
 import { getUserAIAgents } from "@/lib/actions/agents";
 import { AgentEmptyState } from "@/components/dashboard/AgentEmptyState";
-import { AgentTable } from "@/components/dashboard/AgentStackedCard";
+import { AgentCardGrid } from "@/components/dashboard/AgentStackedCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -62,7 +62,7 @@ export default async function AgentsPage() {
         </Button>
       </div>
 
-      <AgentTable agents={result.data} />
+      <AgentCardGrid agents={result.data} />
     </div>
   );
 }
