@@ -1,165 +1,140 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, Copy, ExternalLink } from "lucide-react";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DeployManageShell } from "@/components/dashboard/agent-detail/deploy/DeployManageShell";
-import {
-  buildWidgetEmbedUrl,
-  useEmbedOrigin,
-} from "@/lib/deploy/embed-urls";
+import { updateAgentDeployment, updateChatWidgetSettings } from "@/lib/actions/agents";
+import { isWebChatEnabled } from "@/lib/deploy/web-chat-config";
 
 import type { AgentDetailWithRelations } from "../agent-detail-types";
+import {
+  buildChatWidgetDraft,
+  draftToSavePayload,
+  draftsEqual,
+  type ChatWidgetDraft,
+} from "./chat-widget/chat-widget-draft";
+import { ChatWidgetConfigTabs } from "./chat-widget/ChatWidgetConfigTabs";
+import type { ChatWidgetConfigTabId } from "./chat-widget/ChatWidgetConfigTabs";
+import { ChatWidgetManageHeader } from "./chat-widget/ChatWidgetManageHeader";
+import { ChatWidgetPreviewPanel } from "./chat-widget/ChatWidgetPreviewPanel";
 
 type Props = { agent: AgentDetailWithRelations };
 
 export function DeployChatWidgetManage({ agent }: Props) {
-  const origin = useEmbedOrigin();
-  const [title, setTitle] = useState(agent.name);
-  const [welcome, setWelcome] = useState(
-    agent.welcomeMessage ?? "Hello! How can I help you today?",
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [togglePending, startToggleTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState<ChatWidgetConfigTabId>("content");
+  const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop");
+  const [webChatEnabled, setWebChatEnabled] = useState(() =>
+    isWebChatEnabled(agent.channels),
   );
-  const [copied, setCopied] = useState(false);
-  const [activeSnippet, setActiveSnippet] = useState<"iframe" | "floating">("iframe");
+  const [savedDraft, setSavedDraft] = useState<ChatWidgetDraft>(() =>
+    buildChatWidgetDraft(agent),
+  );
+  const [draft, setDraft] = useState<ChatWidgetDraft>(() => buildChatWidgetDraft(agent));
 
   useEffect(() => {
-    setTitle(agent.name);
-    setWelcome(agent.welcomeMessage ?? "Hello! How can I help you today?");
+    const next = buildChatWidgetDraft(agent);
+    setSavedDraft(next);
+    setDraft(next);
+    setWebChatEnabled(isWebChatEnabled(agent.channels));
   }, [agent]);
 
-  const embedUrl = buildWidgetEmbedUrl(
-    origin,
-    agent.id,
-    agent.widgetToken,
-    title,
-    welcome,
-  );
-
-  const iframeSnippet = `<iframe
-  src="${embedUrl}"
-  style="width:100%;height:600px;border:none;border-radius:12px"
-  title="Chat with ${title}"
-></iframe>`;
-
-  const scriptSnippet = `<div id="vocally-widget"></div>
-<script>
-  (function() {
-    var iframe = document.createElement('iframe');
-    iframe.src = "${embedUrl}";
-    iframe.style.cssText = 'position:fixed;bottom:24px;right:24px;width:380px;height:540px;border:none;border-radius:16px;z-index:2147483647;box-shadow:0 8px 32px rgba(0,0,0,0.12)';
-    iframe.title = "Chat with ${title}";
-    document.getElementById('vocally-widget').appendChild(iframe);
-  })();
-</script>`;
-
-  const snippet = activeSnippet === "iframe" ? iframeSnippet : scriptSnippet;
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(snippet);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard denied */
+  useEffect(() => {
+    if (!webChatEnabled && activeTab === "embed") {
+      setActiveTab("content");
     }
+  }, [webChatEnabled, activeTab]);
+
+  const isDirty = !draftsEqual(draft, savedDraft);
+
+  const handleSave = useCallback(() => {
+    startTransition(async () => {
+      const result = await updateChatWidgetSettings(agent.id, draftToSavePayload(draft));
+      if (!result.success) {
+        toast.error(result.error ?? "Failed to save");
+        return;
+      }
+      toast.success("Chat widget settings saved");
+      if (result.data) {
+        const next = buildChatWidgetDraft(result.data);
+        setSavedDraft(next);
+        setDraft(next);
+      } else {
+        setSavedDraft(draft);
+      }
+      router.refresh();
+    });
+  }, [agent.id, draft, router]);
+
+  function handleWebChatToggle(enabled: boolean) {
+    const previous = webChatEnabled;
+    setWebChatEnabled(enabled);
+
+    startToggleTransition(async () => {
+      const result = await updateAgentDeployment(agent.id, { webChatEnabled: enabled });
+      if (!result.success) {
+        setWebChatEnabled(previous);
+        toast.error(result.error ?? "Failed to update");
+        return;
+      }
+      router.refresh();
+    });
   }
 
   return (
-    <DeployManageShell
-      agentId={agent.id}
-      title="Chat widget"
-      description="Add this AI chat widget to any website. Your customers can start chatting instantly."
-    >
-      <div className="flex flex-col gap-3">
-        <h3 className="text-title-sm font-medium text-ink">Configuration</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-caption text-muted">Widget title</label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="h-9 rounded-lg border-hairline text-sm"
+    <div className="-mx-4 -my-3 flex h-[calc(100dvh-3rem)] min-h-0 overflow-hidden bg-surface-card">
+      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+        <div className="flex min-h-0 flex-col overflow-hidden border-r border-hairline bg-surface-card">
+          <ChatWidgetManageHeader
+            agentId={agent.id}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            webChatEnabled={webChatEnabled}
+            toggling={togglePending}
+            onWebChatEnabledChange={handleWebChatToggle}
+          />
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <ChatWidgetConfigTabs
+              activeTab={activeTab}
+              draft={draft}
+              onDraftChange={setDraft}
+              agentId={agent.id}
+              agentName={agent.name}
+              widgetToken={agent.widgetToken}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-caption text-muted">Welcome message</label>
-            <Input
-              value={welcome}
-              onChange={(e) => setWelcome(e.target.value)}
-              className="h-9 rounded-lg border-hairline text-sm"
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveSnippet("iframe")}
-          className={`rounded-lg px-3 py-1.5 text-body-sm font-medium transition-colors ${
-            activeSnippet === "iframe"
-              ? "bg-ink text-canvas"
-              : "bg-surface-strong text-muted hover:text-ink"
-          }`}
-        >
-          Inline iframe
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSnippet("floating")}
-          className={`rounded-lg px-3 py-1.5 text-body-sm font-medium transition-colors ${
-            activeSnippet === "floating"
-              ? "bg-ink text-canvas"
-              : "bg-surface-strong text-muted hover:text-ink"
-          }`}
-        >
-          Floating bubble
-        </button>
-      </div>
-
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-title-sm font-medium text-ink">Embed code</h3>
-          <div className="flex items-center gap-2">
-            <a
-              href={embedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-body-sm text-primary hover:underline"
-            >
-              Open preview
-              <ExternalLink className="h-3 w-3" />
-            </a>
+          <div className="flex shrink-0 items-center justify-between gap-3 border-t border-hairline px-4 py-3">
+            <span className="text-caption text-muted">
+              {isDirty ? "Unsaved changes" : "All changes saved"}
+            </span>
             <Button
               type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5 rounded-lg border-hairline text-body-sm"
-              onClick={handleCopy}
+              className="btn-primary h-9 rounded-md px-4"
+              disabled={!isDirty || isPending}
+              onClick={handleSave}
             >
-              {copied ? (
-                <>
-                  <Check className="h-3.5 w-3.5" /> Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5" /> Copy
-                </>
-              )}
+              {isPending ? "Saving…" : "Save changes"}
             </Button>
           </div>
         </div>
-        <pre className="overflow-x-auto rounded-xl border border-hairline bg-canvas-soft p-4 text-body-sm text-muted">
-          <code>{snippet}</code>
-        </pre>
-        <p className="mt-2 text-caption text-muted">
-          {activeSnippet === "iframe"
-            ? "Paste this iframe tag anywhere in your HTML where you want the chat to appear."
-            : "Paste this snippet where you want the floating chat bubble to appear on your site."}
-        </p>
+
+        <div className="flex min-h-0 flex-col overflow-hidden bg-canvas-soft/40">
+          <ChatWidgetPreviewPanel
+            agentId={agent.id}
+            widgetToken={agent.widgetToken}
+            agentName={agent.name}
+            draft={draft}
+            viewport={previewViewport}
+            onViewportChange={setPreviewViewport}
+          />
+        </div>
       </div>
-    </DeployManageShell>
+    </div>
   );
 }

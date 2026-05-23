@@ -20,6 +20,10 @@ import {
   type AgentDetailWithRelations,
 } from "@/components/dashboard/agent-detail/agent-detail-types";
 import { INTEGRATION_DEPLOYMENTS } from "@/lib/constants/deploy-catalog";
+import {
+  parseWebChatConfig,
+  type WebChatWidgetConfig,
+} from "@/lib/deploy/web-chat-config";
 import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
@@ -541,6 +545,171 @@ export async function updateAgentDeployment(
     return { success: true as const };
   } catch {
     return { success: false as const, error: "Failed to update deployment" };
+  }
+}
+
+const hexColorSchema = z
+  .string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, "Invalid hex color")
+  .optional();
+
+const updateChatWidgetSettingsSchema = z.object({
+  welcomeMessage: z.string().max(4000).nullable().optional(),
+  widget: z
+    .object({
+      displayName: z.string().max(120).nullable().optional(),
+      useMobileWelcome: z.boolean().optional(),
+      welcomeMessageMobile: z.string().max(4000).nullable().optional(),
+      autoShowWelcomePopup: z.boolean().optional(),
+      welcomePopupDelaySec: z.number().int().min(1).max(60).optional(),
+      autoShowWelcomePopupMobile: z.boolean().optional(),
+      suggestedMessages: z.array(z.string().max(200)).max(20).optional(),
+      keepShowingSuggested: z.boolean().optional(),
+      placeholder: z.string().max(120).nullable().optional(),
+      voiceToTextEnabled: z.boolean().optional(),
+      attachmentsEnabled: z.boolean().optional(),
+      appearance: z.enum(["light", "dark"]).optional(),
+      primaryColor: hexColorSchema,
+      bubbleColor: hexColorSchema,
+    })
+    .optional(),
+});
+
+export async function updateChatWidgetSettings(
+  agentId: string,
+  input: z.infer<typeof updateChatWidgetSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateChatWidgetSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    if (validated.welcomeMessage !== undefined) {
+      await prisma.agent.update({
+        where: { id: agentId },
+        data: {
+          welcomeMessage: validated.welcomeMessage?.trim() || null,
+        },
+      });
+    }
+
+    if (validated.widget !== undefined) {
+      const existing = await prisma.agentChannel.findUnique({
+        where: {
+          agentId_channel: { agentId, channel: "WEB_CHAT" },
+        },
+      });
+
+      const existingConfig =
+        existing?.config &&
+        typeof existing.config === "object" &&
+        !Array.isArray(existing.config)
+          ? (existing.config as Record<string, unknown>)
+          : {};
+
+      const parsed = parseWebChatConfig(existingConfig);
+      const currentWidget = parsed.widget ?? {};
+      const incoming = validated.widget;
+
+      const nextWidget: WebChatWidgetConfig = { ...currentWidget };
+
+      if (incoming.displayName !== undefined) {
+        nextWidget.displayName = incoming.displayName?.trim() || undefined;
+      }
+      if (incoming.useMobileWelcome !== undefined) {
+        nextWidget.useMobileWelcome = incoming.useMobileWelcome;
+      }
+      if (incoming.welcomeMessageMobile !== undefined) {
+        nextWidget.welcomeMessageMobile =
+          incoming.welcomeMessageMobile?.trim() || undefined;
+      }
+      if (incoming.autoShowWelcomePopup !== undefined) {
+        nextWidget.autoShowWelcomePopup = incoming.autoShowWelcomePopup;
+      }
+      if (incoming.welcomePopupDelaySec !== undefined) {
+        nextWidget.welcomePopupDelaySec = incoming.welcomePopupDelaySec;
+      }
+      if (incoming.autoShowWelcomePopupMobile !== undefined) {
+        nextWidget.autoShowWelcomePopupMobile = incoming.autoShowWelcomePopupMobile;
+      }
+      if (incoming.suggestedMessages !== undefined) {
+        nextWidget.suggestedMessages = incoming.suggestedMessages
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      if (incoming.keepShowingSuggested !== undefined) {
+        nextWidget.keepShowingSuggested = incoming.keepShowingSuggested;
+      }
+      if (incoming.placeholder !== undefined) {
+        nextWidget.placeholder = incoming.placeholder?.trim() || undefined;
+      }
+      if (incoming.voiceToTextEnabled !== undefined) {
+        nextWidget.voiceToTextEnabled = incoming.voiceToTextEnabled;
+      }
+      if (incoming.attachmentsEnabled !== undefined) {
+        nextWidget.attachmentsEnabled = incoming.attachmentsEnabled;
+      }
+      if (incoming.appearance !== undefined) {
+        nextWidget.appearance = incoming.appearance;
+      }
+      if (incoming.primaryColor !== undefined) {
+        nextWidget.primaryColor = incoming.primaryColor;
+      }
+      if (incoming.bubbleColor !== undefined) {
+        nextWidget.bubbleColor = incoming.bubbleColor;
+      }
+
+      const nextConfig = {
+        ...existingConfig,
+        widget: nextWidget,
+      } as Prisma.InputJsonValue;
+
+      await prisma.agentChannel.upsert({
+        where: {
+          agentId_channel: { agentId, channel: "WEB_CHAT" },
+        },
+        create: {
+          agentId,
+          channel: "WEB_CHAT",
+          enabled: true,
+          config: nextConfig,
+        },
+        update: { config: nextConfig },
+      });
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
+    revalidatePath(`/widget/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return { success: false as const, error: "Failed to update chat widget settings" };
   }
 }
 

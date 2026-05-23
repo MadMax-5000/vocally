@@ -1,6 +1,6 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { DashboardTabBar } from "@/components/dashboard/DashboardTabBar";
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
 import { AgentDetailAnalyticsTab } from "./AgentDetailAnalyticsTab";
@@ -54,86 +54,14 @@ export function AgentDetailTabs({
 
   return (
     <div className="flex flex-col">
-      {/* Tab bar — flush to card edges, white bg, single bottom border */}
-      <div
+      <DashboardTabBar
+        tabs={TAB_CONFIG}
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        layoutId="agentDetailTabPill"
+        ariaLabel="Agent sections"
         className="-mx-4 -mt-1 px-4"
-        style={{
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #e5e7eb", // zinc-200 equivalent
-        }}
-      >
-        <nav
-          className="flex overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          aria-label="Agent sections"
-        >
-          {TAB_CONFIG.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => onTabChange(tab.id)}
-                className="relative shrink-0 transition-colors"
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  outline: "none",
-                  padding: "2px 2px 8px",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).querySelector<HTMLSpanElement>(".tab-label")!.style.color = "#374151";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLButtonElement).querySelector<HTMLSpanElement>(".tab-label")!.style.color = "#6b7280";
-                  }
-                }}
-              >
-                {/* Pill wrapper — animates shared layout */}
-                <span className="relative block">
-                  {isActive && (
-                    <motion.span
-                      layoutId="agentDetailTabPill"
-                      className="absolute inset-0 rounded-lg"
-                      style={{
-                        border: "1px solid #d1d5db",
-                        backgroundColor: "#ffffff",
-                        boxShadow: "0 1px 2px 0 rgba(0,0,0,0.04)",
-                      }}
-                      transition={{ type: "spring", stiffness: 400, damping: 34 }}
-                    />
-                  )}
-                  <span
-                    className="tab-label relative block px-3 py-1"
-                    style={{
-                      fontSize: "13.5px",
-                      fontWeight: isActive ? 500 : 400,
-                      color: isActive ? "#111827" : "#6b7280",
-                      lineHeight: "1.4",
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {tab.label}
-                  </span>
-                </span>
-
-                {/* Underline beneath the active pill */}
-                {isActive && (
-                  <motion.span
-                    layoutId="agentDetailTabIndicator"
-                    className="absolute inset-x-2 -bottom-px h-0.5 rounded-full"
-                    style={{ backgroundColor: "#111827" }}
-                    transition={{ type: "spring", stiffness: 400, damping: 34 }}
-                  />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
+      />
 
       {/* Tab content with fade+slide transition */}
       <div className="pt-6">

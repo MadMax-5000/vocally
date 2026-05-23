@@ -1,20 +1,23 @@
-"use client";
+import { notFound } from "next/navigation";
 
-import { useSearchParams } from "next/navigation";
-import { ChatWidget } from "@/components/chat/ChatWidget";
+import { loadPublicWidgetPageData } from "@/lib/deploy/load-widget-settings";
 
-export default function WidgetPage({ params }: { params: { agentId: string } }) {
-  const searchParams = useSearchParams();
+import { WidgetPageClient } from "./WidgetPageClient";
 
-  return (
-    <div className="h-dvh w-full overflow-hidden bg-transparent">
-      <ChatWidget
-        agentId={params.agentId}
-        widgetToken={searchParams.get("token") ?? undefined}
-        agentName={searchParams.get("title") ?? "AI Assistant"}
-        welcomeMessage={searchParams.get("welcome") ?? "Hello! How can I help you today?"}
-        className="h-full w-full rounded-none border-0"
-      />
-    </div>
-  );
+export default async function WidgetPage({
+  params,
+  searchParams,
+}: {
+  params: { agentId: string };
+  searchParams: { token?: string; title?: string; welcome?: string };
+}) {
+  const data = await loadPublicWidgetPageData(params.agentId, {
+    widgetToken: searchParams.token,
+    titleOverride: searchParams.title,
+    welcomeOverride: searchParams.welcome,
+  });
+
+  if (!data) notFound();
+
+  return <WidgetPageClient data={data} />;
 }

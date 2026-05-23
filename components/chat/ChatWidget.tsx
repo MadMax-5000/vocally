@@ -8,6 +8,7 @@ import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import type { WebChatWidgetAppearance } from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -27,6 +28,11 @@ type ChatWidgetProps = {
   /** Pass `true` or a handler to show the refresh control (dashboard preview). */
   onClear?: boolean | (() => void);
   showPoweredBy?: boolean;
+  appearance?: WebChatWidgetAppearance;
+  primaryColor?: string;
+  placeholder?: string;
+  suggestedMessages?: string[];
+  onSuggestedClick?: (message: string) => void;
 };
 
 function formatDuration(ms: number): string {
@@ -46,6 +52,11 @@ export function ChatWidget({
   initialSessionId,
   onClear,
   showPoweredBy = true,
+  appearance = "light",
+  primaryColor,
+  placeholder = "Message...",
+  suggestedMessages = [],
+  onSuggestedClick,
 }: ChatWidgetProps) {
   const { isPlaying, play } = useAudioPlayer();
 
@@ -127,16 +138,49 @@ export function ChatWidget({
   const hasMessages = messages.length > 0;
   const isBusy = isLoading || isProcessingVoice;
   const canSend = draft.trim().length > 0 && !isBusy && !isRecording;
+  const isDark = appearance === "dark";
+  const visibleSuggestions = suggestedMessages.filter((s) => s.trim());
+
+  const widgetStyle = primaryColor
+    ? ({ "--widget-primary": primaryColor } as React.CSSProperties)
+    : undefined;
+
+  function handleSuggestedClick(text: string) {
+    if (onSuggestedClick) {
+      onSuggestedClick(text);
+      return;
+    }
+    if (!isBusy && !isRecording) {
+      sendMessage(text);
+    }
+  }
 
   return (
     <div
+      data-widget-appearance={appearance}
+      style={widgetStyle}
       className={cn(
-        "flex h-full min-h-[500px] max-h-[min(650px,100%)] w-full flex-col overflow-hidden rounded-xl border border-hairline bg-surface-card shadow-[0_2px_8px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.1)]",
+        "flex h-full min-h-0 w-full max-h-full flex-col overflow-hidden rounded-xl border shadow-[0_2px_8px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.1)]",
+        isDark
+          ? "border-hairline-strong bg-[#1c1917] text-[#fafaf9]"
+          : "border-hairline bg-surface-card",
         className,
       )}
     >
-      <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b border-hairline-soft bg-canvas-soft/60 px-3.5">
-        <h2 className="min-w-0 truncate text-[15px] font-medium tracking-[-0.01em] text-ink">
+      <header
+        className={cn(
+          "flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3.5",
+          isDark
+            ? "border-hairline-strong bg-[#292524]/80"
+            : "border-hairline-soft bg-canvas-soft/60",
+        )}
+      >
+        <h2
+          className={cn(
+            "min-w-0 truncate text-[15px] font-medium tracking-[-0.01em]",
+            isDark ? "text-[#fafaf9]" : "text-ink",
+          )}
+        >
           {agentName}
         </h2>
         {showClearButton && (
@@ -147,7 +191,12 @@ export function ChatWidget({
                   type="button"
                   onClick={handleClear}
                   aria-label="Clear messages"
-                  className="flex size-7 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface-card text-muted transition-colors hover:border-hairline-strong hover:bg-white hover:text-ink"
+                  className={cn(
+                    "flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors",
+                    isDark
+                      ? "border-hairline-strong bg-[#292524] text-muted hover:text-[#fafaf9]"
+                      : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
+                  )}
                 >
                   <RefreshCw className="size-3.5" strokeWidth={2} />
                 </button>
@@ -161,7 +210,12 @@ export function ChatWidget({
       <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3.5 py-2.5">
         {!hasMessages && (
           <div className="flex justify-start">
-            <div className="max-w-[85%] rounded-xl bg-surface-strong px-3 py-2 text-sm leading-relaxed text-ink">
+            <div
+              className={cn(
+                "max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed",
+                isDark ? "bg-[#292524] text-[#fafaf9]" : "bg-surface-strong text-ink",
+              )}
+            >
               <ChatMarkdown content={welcomeMessage} variant="assistant" />
             </div>
           </div>
@@ -173,11 +227,26 @@ export function ChatWidget({
             className={cn("flex", msg.role === "USER" ? "justify-end" : "justify-start")}
           >
             {msg.role === "USER" ? (
-              <div className="max-w-[85%] rounded-md bg-primary px-3 py-1.5 text-sm leading-relaxed text-on-primary">
+              <div
+                className={cn(
+                  "max-w-[85%] rounded-md px-3 py-1.5 text-sm leading-relaxed",
+                  primaryColor ? "text-white" : "bg-primary text-on-primary",
+                )}
+                style={
+                  primaryColor
+                    ? { backgroundColor: "var(--widget-primary)" }
+                    : undefined
+                }
+              >
                 <ChatMarkdown content={msg.content} variant="user" />
               </div>
             ) : (
-              <div className="max-w-[85%] text-sm leading-relaxed text-ink">
+              <div
+                className={cn(
+                  "max-w-[85%] text-sm leading-relaxed",
+                  isDark ? "text-[#fafaf9]" : "text-ink",
+                )}
+              >
                 <ChatMarkdown content={msg.content} variant="assistant" />
               </div>
             )}
@@ -208,15 +277,48 @@ export function ChatWidget({
       <div className="shrink-0 px-3.5 pb-2 pt-0.5">
         {showPoweredBy && <PoweredByVocally />}
 
+        {visibleSuggestions.length > 0 ? (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {visibleSuggestions.map((text, i) => (
+              <button
+                key={`${text}-${i}`}
+                type="button"
+                onClick={() => handleSuggestedClick(text)}
+                disabled={isBusy || isRecording}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-50",
+                  isDark
+                    ? "border-hairline-strong text-[#fafaf9] hover:bg-[#292524]"
+                    : "border-hairline text-ink hover:bg-surface-strong",
+                )}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         <form onSubmit={handleSubmit}>
-          <div className="flex items-center gap-1 rounded-full border border-hairline bg-surface-card py-1 pl-3.5 pr-1.5">
+          <div
+            className={cn(
+              "flex items-center gap-1 rounded-full border py-1 pl-3.5 pr-1.5",
+              isDark
+                ? "border-hairline-strong bg-[#292524]"
+                : "border-hairline bg-surface-card",
+            )}
+          >
             <input
               type="text"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Message..."
+              placeholder={placeholder}
               disabled={isBusy || isRecording}
-              className="min-w-0 flex-1 bg-transparent text-sm text-ink placeholder:text-muted-soft outline-none disabled:opacity-50"
+              className={cn(
+                "min-w-0 flex-1 bg-transparent text-sm outline-none disabled:opacity-50",
+                isDark
+                  ? "text-[#fafaf9] placeholder:text-[#a8a29e]"
+                  : "text-ink placeholder:text-muted-soft",
+              )}
             />
 
             {isVoiceSupported && (
@@ -251,9 +353,18 @@ export function ChatWidget({
               className={cn(
                 "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors",
                 canSend
-                  ? "bg-primary text-on-primary hover:bg-primary-active"
-                  : "bg-surface-strong text-muted-soft",
+                  ? primaryColor
+                    ? "text-white"
+                    : "bg-primary text-on-primary hover:bg-primary-active"
+                  : isDark
+                    ? "bg-[#44403c] text-[#a8a29e]"
+                    : "bg-surface-strong text-muted-soft",
               )}
+              style={
+                canSend && primaryColor
+                  ? { backgroundColor: "var(--widget-primary)" }
+                  : undefined
+              }
             >
               {isBusy ? (
                 <span className="flex items-center gap-0.5">
