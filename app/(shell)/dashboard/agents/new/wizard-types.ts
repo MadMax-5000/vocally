@@ -1,5 +1,4 @@
 import type {
-  AgentChannelType,
   AgentTone,
   CreativityLevel,
   SupportedLanguage,
@@ -10,7 +9,6 @@ export const ONBOARDING_STEP_ORDER = [
   "tone",
   "creativity",
   "languages",
-  "channels",
   "knowledge",
   "complete",
 ] as const;
@@ -24,7 +22,6 @@ export type WizardFormState = {
   customTone: string;
   creativity: CreativityLevel | null;
   languages: SupportedLanguage[];
-  channels: AgentChannelType[];
   knowledgeDocIds: string[];
   name: string;
   website: string;
@@ -39,7 +36,6 @@ export const initialWizardState: WizardFormState = {
   customTone: "",
   creativity: null,
   languages: [],
-  channels: [],
   knowledgeDocIds: [],
   name: "",
   website: "",

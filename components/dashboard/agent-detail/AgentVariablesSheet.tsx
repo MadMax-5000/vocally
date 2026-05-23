@@ -6,6 +6,7 @@ import { Braces, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteAgentVariable, upsertAgentVariable } from "@/lib/actions/agents";
+import { getEnabledAgentChannelTypes } from "@/lib/deploy/web-chat-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,9 +28,8 @@ function buildSystemVariableRows(agent: AgentDetailWithRelations) {
     ? `${formatEnumLabel(agent.tone)} — ${agent.customTone}`
     : formatEnumLabel(agent.tone);
   const channels =
-    agent.channels
-      .filter((c) => c.enabled)
-      .map((c) => formatEnumLabel(c.channel))
+    getEnabledAgentChannelTypes(agent.channels)
+      .map((channel) => formatEnumLabel(channel))
       .join(", ") || "—";
   const languages =
     agent.languages.length > 0

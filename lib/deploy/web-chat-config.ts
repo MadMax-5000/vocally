@@ -57,23 +57,29 @@ export function getAgentChannel(
   return channels.find((c) => c.channel === channelType);
 }
 
-/** Defaults to enabled when channel row is missing. */
+export function getEnabledAgentChannelTypes(
+  channels: Pick<AgentChannel, "channel" | "enabled">[],
+): AgentChannelType[] {
+  return channels.filter((c) => c.enabled).map((c) => c.channel);
+}
+
+/** Defaults to disabled when channel row is missing. */
 export function isWebChatEnabled(
   channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
 ): boolean {
   const row = getWebChatChannel(channels);
-  if (!row) return true;
+  if (!row) return false;
   return row.enabled;
 }
 
-/** Defaults to enabled when not explicitly disabled in config. */
+/** Defaults to disabled when channel row is missing. */
 export function isHelpPageEnabled(
   channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
 ): boolean {
   const row = getWebChatChannel(channels);
-  if (!row) return true;
+  if (!row) return false;
   const parsed = parseWebChatConfig(row.config);
-  return parsed.helpPage?.enabled !== false;
+  return parsed.helpPage?.enabled === true;
 }
 
 /** Integration / config-only deployments default to off until enabled. */

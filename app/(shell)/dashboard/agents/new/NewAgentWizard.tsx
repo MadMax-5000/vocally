@@ -23,7 +23,6 @@ import { StartStep } from "./_steps/StartStep";
 import { ToneStep } from "./_steps/ToneStep";
 import { CreativityStep } from "./_steps/CreativityStep";
 import { LanguagesStep } from "./_steps/LanguagesStep";
-import { ChannelsStep } from "./_steps/ChannelsStep";
 import { KnowledgeStep } from "./_steps/KnowledgeStep";
 import { CompleteStep } from "./_steps/CompleteStep";
 
@@ -83,7 +82,7 @@ export function NewAgentWizard({ knowledgeDocs }: { knowledgeDocs: KnowledgeDocR
 
   const buildPayload = useCallback((): CreateAgentFromOnboardingInput | null => {
     if (!state.creativity) return null;
-    if (state.languages.length === 0 || state.channels.length === 0) return null;
+    if (state.languages.length === 0) return null;
 
     let tone: AgentTone;
     let customTone: string | undefined;
@@ -102,7 +101,6 @@ export function NewAgentWizard({ knowledgeDocs }: { knowledgeDocs: KnowledgeDocR
       customTone,
       creativity: state.creativity,
       languages: state.languages,
-      channels: state.channels,
       knowledgeDocIds:
         state.knowledgeDocIds.length > 0 ? state.knowledgeDocIds : undefined,
       name: state.name.trim(),
@@ -218,26 +216,6 @@ export function NewAgentWizard({ knowledgeDocs }: { knowledgeDocs: KnowledgeDocR
               }}
               onContinue={() => {
                 if (state.languages.length === 0) return;
-                play();
-                advance("channels");
-              }}
-            />
-          ) : null}
-
-          {state.step === "channels" ? (
-            <ChannelsStep
-              channels={state.channels}
-              onToggle={(value) => {
-                play();
-                const has = state.channels.includes(value);
-                patch({
-                  channels: has
-                    ? state.channels.filter((c) => c !== value)
-                    : [...state.channels, value],
-                });
-              }}
-              onContinue={() => {
-                if (state.channels.length === 0) return;
                 play();
                 advance("knowledge");
               }}

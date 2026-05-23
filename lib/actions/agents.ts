@@ -88,9 +88,6 @@ const createAgentFromOnboardingSchema = z
     languages: z
       .array(z.nativeEnum(SupportedLanguage))
       .min(1, "Select at least one language"),
-    channels: z
-      .array(z.nativeEnum(AgentChannelType))
-      .min(1, "Select at least one channel"),
     knowledgeDocIds: z.array(z.string().min(1)).optional(),
     name: z.string().min(1, "Agent name is required").max(50, "Name is too long"),
     website: z.string().max(500).optional(),
@@ -162,14 +159,6 @@ export async function createAIAgentFromOnboarding(
         data: validated.languages.map((language) => ({
           agentId: created.id,
           language,
-        })),
-      });
-
-      await tx.agentChannel.createMany({
-        data: validated.channels.map((channel) => ({
-          agentId: created.id,
-          channel,
-          enabled: true,
         })),
       });
 
@@ -247,7 +236,7 @@ export async function getUserAIAgents() {
         status: true,
         channels: {
           where: { enabled: true },
-          select: { channel: true },
+          select: { channel: true, enabled: true },
         },
         languages: { select: { language: true } },
         createdAt: true,

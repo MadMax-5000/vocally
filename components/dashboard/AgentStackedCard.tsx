@@ -16,6 +16,7 @@ import {
 import { archiveAgent, deleteAgent, duplicateAgent } from "@/lib/actions/agents";
 
 import { CHANNEL_META } from "@/lib/constants/agent-channels";
+import { getEnabledAgentChannelTypes } from "@/lib/deploy/web-chat-config";
 import { formatRelativeCreated } from "@/lib/format/relative-created";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,7 +77,7 @@ export type AgentCardData = {
   tone: AgentTone;
   customRole: string | null;
   status: AgentStatus;
-  channels: { channel: AgentChannelType }[];
+  channels: { channel: AgentChannelType; enabled: boolean }[];
   languages: { language: SupportedLanguage }[];
   createdAt: Date;
 };
@@ -203,8 +204,8 @@ export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
 
   const displayTone = humanizeEnum(agent.tone);
 
-  const enabledChannels = agent.channels
-    .map((c) => CHANNEL_META.find((m) => m.value === c.channel))
+  const enabledChannels = getEnabledAgentChannelTypes(agent.channels)
+    .map((channel) => CHANNEL_META.find((m) => m.value === channel))
     .filter((m): m is NonNullable<typeof m> => m !== undefined);
 
   const selectedLanguages = new Set(
