@@ -87,7 +87,7 @@ export function DeployChatWidgetManage({ agent }: Props) {
 
   return (
     <div className="-mx-4 -my-3 flex h-[calc(100dvh-3rem)] min-h-0 overflow-hidden bg-surface-card">
-      <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+      <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
         <div className="flex min-h-0 flex-col overflow-hidden border-r border-hairline bg-surface-card">
           <ChatWidgetManageHeader
             agentId={agent.id}
