@@ -5,6 +5,8 @@ import type { DeployCatalogEntry } from "@/lib/constants/deploy-catalog";
 export const WIDGET_PRIMARY_COLOR_DEFAULT = "#FF5A36";
 export const WIDGET_PLACEHOLDER_DEFAULT = "Message...";
 export const WIDGET_POPUP_DELAY_DEFAULT = 3;
+export const HELP_PAGE_HEADLINE_DEFAULT = "How can I help you today?";
+export const HELP_PAGE_PLACEHOLDER_DEFAULT = "Ask me anything...";
 
 export type WebChatWidgetAppearance = "light" | "dark";
 
@@ -25,11 +27,117 @@ export type WebChatWidgetConfig = {
   bubbleColor?: string;
 };
 
+export type WebChatHelpPageTheme = WebChatWidgetAppearance;
+
+export type HelpPageNavLinkVariant = "primary" | "default";
+
+export type HelpPageNavLink = {
+  label: string;
+  href: string;
+  variant: HelpPageNavLinkVariant;
+};
+
+export type WebChatHelpPageConfig = {
+  enabled?: boolean;
+  pageTitle?: string;
+  headline?: string;
+  faviconUrl?: string;
+  themeSwitchEnabled?: boolean;
+  defaultTheme?: WebChatHelpPageTheme;
+  primaryColorLight?: string;
+  primaryColorDark?: string;
+  voiceToTextEnabled?: boolean;
+  logoUrl?: string;
+  logoDarkUrl?: string;
+  heroUrl?: string;
+  heroDarkUrl?: string;
+  suggestedMessages?: string[];
+  keepShowingSuggested?: boolean;
+  placeholder?: string;
+  navLinks?: HelpPageNavLink[];
+};
+
+const MAX_HELP_PAGE_NAV_LINKS = 8;
+
+function parseNavLinks(value: unknown): HelpPageNavLink[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const links: HelpPageNavLink[] = [];
+  for (const item of value.slice(0, MAX_HELP_PAGE_NAV_LINKS)) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const raw = item as Record<string, unknown>;
+    const label = typeof raw.label === "string" ? raw.label.trim() : "";
+    const href = typeof raw.href === "string" ? raw.href.trim() : "";
+    if (!label || !href) continue;
+    const variant = raw.variant === "primary" ? "primary" : "default";
+    links.push({ label, href, variant });
+  }
+  return links.length > 0 ? links : [];
+}
+
 export type WebChatChannelConfig = {
-  helpPage?: { enabled?: boolean };
+  helpPage?: WebChatHelpPageConfig;
   integrations?: Record<string, { enabled?: boolean }>;
   widget?: WebChatWidgetConfig;
 };
+
+function parseUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
+export function parseWebChatHelpPageConfig(config: unknown): WebChatHelpPageConfig {
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    return {};
+  }
+  const raw = config as Record<string, unknown>;
+  const result: WebChatHelpPageConfig = {};
+
+  if (typeof raw.enabled === "boolean") {
+    result.enabled = raw.enabled;
+  }
+  if (typeof raw.pageTitle === "string") {
+    result.pageTitle = raw.pageTitle.trim() || undefined;
+  }
+  if (typeof raw.headline === "string") {
+    result.headline = raw.headline.trim() || undefined;
+  }
+  const faviconUrl = parseUrl(raw.faviconUrl);
+  if (faviconUrl) result.faviconUrl = faviconUrl;
+  if (typeof raw.themeSwitchEnabled === "boolean") {
+    result.themeSwitchEnabled = raw.themeSwitchEnabled;
+  }
+  if (raw.defaultTheme === "light" || raw.defaultTheme === "dark") {
+    result.defaultTheme = raw.defaultTheme;
+  }
+  const primaryLight = parseHexColor(raw.primaryColorLight);
+  if (primaryLight) result.primaryColorLight = primaryLight;
+  const primaryDark = parseHexColor(raw.primaryColorDark);
+  if (primaryDark) result.primaryColorDark = primaryDark;
+  if (typeof raw.voiceToTextEnabled === "boolean") {
+    result.voiceToTextEnabled = raw.voiceToTextEnabled;
+  }
+  const logoUrl = parseUrl(raw.logoUrl);
+  if (logoUrl) result.logoUrl = logoUrl;
+  const logoDarkUrl = parseUrl(raw.logoDarkUrl);
+  if (logoDarkUrl) result.logoDarkUrl = logoDarkUrl;
+  const heroUrl = parseUrl(raw.heroUrl);
+  if (heroUrl) result.heroUrl = heroUrl;
+  const heroDarkUrl = parseUrl(raw.heroDarkUrl);
+  if (heroDarkUrl) result.heroDarkUrl = heroDarkUrl;
+  const suggested = parseStringArray(raw.suggestedMessages);
+  if (suggested !== undefined) result.suggestedMessages = suggested;
+  if (typeof raw.keepShowingSuggested === "boolean") {
+    result.keepShowingSuggested = raw.keepShowingSuggested;
+  }
+  if (typeof raw.placeholder === "string") {
+    result.placeholder = raw.placeholder.trim() || undefined;
+  }
+  const navLinks = parseNavLinks(raw.navLinks);
+  if (navLinks !== undefined) result.navLinks = navLinks;
+
+  return result;
+}
 
 function parseHexColor(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -107,10 +215,7 @@ export function parseWebChatConfig(config: unknown): WebChatChannelConfig {
 
   const helpPage = raw.helpPage;
   if (helpPage && typeof helpPage === "object" && !Array.isArray(helpPage)) {
-    const hp = helpPage as Record<string, unknown>;
-    result.helpPage = {
-      enabled: typeof hp.enabled === "boolean" ? hp.enabled : undefined,
-    };
+    result.helpPage = parseWebChatHelpPageConfig(helpPage);
   }
 
   const integrations = raw.integrations;
@@ -145,6 +250,14 @@ export function getWebChatWidgetConfig(
   const row = getWebChatChannel(channels);
   if (!row) return {};
   return parseWebChatConfig(row.config).widget ?? {};
+}
+
+export function getWebChatHelpPageConfig(
+  channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
+): WebChatHelpPageConfig {
+  const row = getWebChatChannel(channels);
+  if (!row) return {};
+  return parseWebChatConfig(row.config).helpPage ?? {};
 }
 
 export function resolveWidgetDisplayName(
@@ -234,6 +347,52 @@ export function isWebChatEnabled(
   const row = getWebChatChannel(channels);
   if (!row) return false;
   return row.enabled;
+}
+
+export type ResolvedWebChatHelpPageSettings = {
+  pageTitle: string;
+  headline: string;
+  faviconUrl?: string;
+  themeSwitchEnabled: boolean;
+  defaultTheme: WebChatHelpPageTheme;
+  primaryColorLight: string;
+  primaryColorDark: string;
+  voiceToTextEnabled: boolean;
+  logoUrl?: string;
+  logoDarkUrl?: string;
+  heroUrl?: string;
+  heroDarkUrl?: string;
+  suggestedMessages: string[];
+  keepShowingSuggested: boolean;
+  placeholder: string;
+  navLinks: HelpPageNavLink[];
+};
+
+export function resolveWebChatHelpPageSettings(
+  agentName: string,
+  channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
+): ResolvedWebChatHelpPageSettings {
+  const helpPage = getWebChatHelpPageConfig(channels);
+  const primary = WIDGET_PRIMARY_COLOR_DEFAULT;
+
+  return {
+    pageTitle: helpPage.pageTitle?.trim() || agentName,
+    headline: helpPage.headline?.trim() || HELP_PAGE_HEADLINE_DEFAULT,
+    faviconUrl: helpPage.faviconUrl,
+    themeSwitchEnabled: helpPage.themeSwitchEnabled ?? false,
+    defaultTheme: helpPage.defaultTheme ?? "light",
+    primaryColorLight: helpPage.primaryColorLight ?? primary,
+    primaryColorDark: helpPage.primaryColorDark ?? primary,
+    voiceToTextEnabled: helpPage.voiceToTextEnabled ?? false,
+    logoUrl: helpPage.logoUrl,
+    logoDarkUrl: helpPage.logoDarkUrl,
+    heroUrl: helpPage.heroUrl,
+    heroDarkUrl: helpPage.heroDarkUrl,
+    suggestedMessages: helpPage.suggestedMessages ?? [],
+    keepShowingSuggested: helpPage.keepShowingSuggested ?? false,
+    placeholder: helpPage.placeholder?.trim() || HELP_PAGE_PLACEHOLDER_DEFAULT,
+    navLinks: helpPage.navLinks ?? [],
+  };
 }
 
 /** Defaults to disabled when channel row is missing. */

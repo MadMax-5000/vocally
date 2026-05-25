@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, FormEvent, useCallback, useState } from "react";
-import { ArrowUp, Mic, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
+import {
+  ChatMessageComposer,
+  chatComposerFormatDuration,
+} from "@/components/chat/ChatMessageComposer";
 import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
@@ -34,13 +38,6 @@ type ChatWidgetProps = {
   suggestedMessages?: string[];
   onSuggestedClick?: (message: string) => void;
 };
-
-function formatDuration(ms: number): string {
-  const secs = Math.floor(ms / 1000);
-  const mins = Math.floor(secs / 60);
-  const s = secs % 60;
-  return `${mins}:${s.toString().padStart(2, "0")}`;
-}
 
 export function ChatWidget({
   agentId,
@@ -277,107 +274,30 @@ export function ChatWidget({
       <div className="shrink-0 px-3.5 pb-2 pt-0.5">
         {showPoweredBy && <PoweredByVocally />}
 
-        {visibleSuggestions.length > 0 ? (
-          <div className="mb-2 flex flex-wrap gap-1.5">
-            {visibleSuggestions.map((text, i) => (
-              <button
-                key={`${text}-${i}`}
-                type="button"
-                onClick={() => handleSuggestedClick(text)}
-                disabled={isBusy || isRecording}
-                className={cn(
-                  "rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-50",
-                  isDark
-                    ? "border-hairline-strong text-[#fafaf9] hover:bg-[#292524]"
-                    : "border-hairline text-ink hover:bg-surface-strong",
-                )}
-              >
-                {text}
-              </button>
-            ))}
-          </div>
-        ) : null}
-
-        <form onSubmit={handleSubmit}>
-          <div
-            className={cn(
-              "flex items-center gap-1 rounded-full border py-1 pl-3.5 pr-1.5",
-              isDark
-                ? "border-hairline-strong bg-[#292524]"
-                : "border-hairline bg-surface-card",
-            )}
-          >
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder={placeholder}
-              disabled={isBusy || isRecording}
-              className={cn(
-                "min-w-0 flex-1 bg-transparent text-sm outline-none disabled:opacity-50",
-                isDark
-                  ? "text-[#fafaf9] placeholder:text-[#a8a29e]"
-                  : "text-ink placeholder:text-muted-soft",
-              )}
-            />
-
-            {isVoiceSupported && (
-              <button
-                type="button"
-                onClick={handleMicToggle}
-                disabled={isBusy}
-                aria-label={isRecording ? "Stop recording" : "Start voice input"}
-                className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors",
-                  isRecording
-                    ? "bg-error text-white"
-                    : "text-muted hover:text-ink disabled:opacity-50",
-                )}
-              >
-                {isRecording ? (
-                  <span className="text-[10px] font-medium tabular-nums">
-                    {formatDuration(durationMs)}
-                  </span>
-                ) : isPlaying ? (
-                  <span className="text-[10px] font-medium">▮▮</span>
-                ) : (
-                  <Mic className="size-4" strokeWidth={1.75} />
-                )}
-              </button>
-            )}
-
-            <button
-              type="submit"
-              disabled={!canSend}
-              aria-label="Send message"
-              className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors",
-                canSend
-                  ? primaryColor
-                    ? "text-white"
-                    : "bg-primary text-on-primary hover:bg-primary-active"
-                  : isDark
-                    ? "bg-[#44403c] text-[#a8a29e]"
-                    : "bg-surface-strong text-muted-soft",
-              )}
-              style={
-                canSend && primaryColor
-                  ? { backgroundColor: "var(--widget-primary)" }
-                  : undefined
-              }
-            >
-              {isBusy ? (
-                <span className="flex items-center gap-0.5">
-                  <span className="size-1 animate-bounce rounded-full bg-current opacity-70" />
-                  <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.1s]" />
-                  <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.2s]" />
-                </span>
-              ) : (
-                <ArrowUp className="size-4" strokeWidth={2} />
-              )}
-            </button>
-          </div>
-        </form>
+        <ChatMessageComposer
+          appearance={appearance}
+          primaryColor={primaryColor}
+          placeholder={placeholder}
+          value={draft}
+          onChange={setDraft}
+          onSubmit={handleSubmit}
+          isBusy={isBusy || isRecording}
+          canSend={canSend}
+          showSuggestions={visibleSuggestions.length > 0}
+          suggestedMessages={suggestedMessages}
+          onSuggestedClick={handleSuggestedClick}
+          voice={
+            isVoiceSupported
+              ? {
+                  show: true,
+                  onClick: handleMicToggle,
+                  isRecording,
+                  recordingLabel: chatComposerFormatDuration(durationMs),
+                  isPlaying,
+                }
+              : undefined
+          }
+        />
       </div>
     </div>
   );

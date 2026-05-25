@@ -1,154 +1,132 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, Copy, ExternalLink } from "lucide-react";
+import { useCallback, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DeployManageShell } from "@/components/dashboard/agent-detail/deploy/DeployManageShell";
-import { buildHelpEmbedUrl, useEmbedOrigin } from "@/lib/deploy/embed-urls";
+import { updateAgentDeployment, updateHelpPageSettings } from "@/lib/actions/agents";
+import { isHelpPageEnabled } from "@/lib/deploy/web-chat-config";
 
 import type { AgentDetailWithRelations } from "../agent-detail-types";
+import {
+  buildHelpPageDraft,
+  draftToSavePayload,
+  draftsEqual,
+  type HelpPageDraft,
+} from "./help-page/help-page-draft";
+import { HelpPageConfigTabs } from "./help-page/HelpPageConfigTabs";
+import type { HelpPageConfigTabId } from "./help-page/HelpPageConfigTabs";
+import { HelpPageManageHeader } from "./help-page/HelpPageManageHeader";
+import { HelpPagePreviewPanel } from "./help-page/HelpPagePreviewPanel";
 
 type Props = { agent: AgentDetailWithRelations };
 
 export function DeployHelpPageManage({ agent }: Props) {
-  const origin = useEmbedOrigin();
-  const [title, setTitle] = useState(agent.name);
-  const [welcome, setWelcome] = useState(
-    agent.welcomeMessage ?? "Hello! How can I help you today?",
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [togglePending, startToggleTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState<HelpPageConfigTabId>("settings");
+  const [helpPageEnabled, setHelpPageEnabled] = useState(() =>
+    isHelpPageEnabled(agent.channels),
   );
-  const [copied, setCopied] = useState(false);
+  const [savedDraft, setSavedDraft] = useState<HelpPageDraft>(() =>
+    buildHelpPageDraft(agent),
+  );
+  const [draft, setDraft] = useState<HelpPageDraft>(() => buildHelpPageDraft(agent));
 
   useEffect(() => {
-    setTitle(agent.name);
-    setWelcome(agent.welcomeMessage ?? "Hello! How can I help you today?");
+    const next = buildHelpPageDraft(agent);
+    setSavedDraft(next);
+    setDraft(next);
+    setHelpPageEnabled(isHelpPageEnabled(agent.channels));
   }, [agent]);
 
-  const embedUrl = buildHelpEmbedUrl(
-    origin,
-    agent.id,
-    agent.widgetToken,
-    title,
-    welcome,
-  );
-
-  const iframeSnippet = `<iframe
-  src="${embedUrl}"
-  style="width:100%;min-height:720px;border:none"
-  title="Help — ${title}"
-></iframe>`;
-
-  const linkSnippet = `<!-- Standalone help page -->
-<a href="${embedUrl.replace(/\?.*$/, "")}?token=YOUR_TOKEN">Open help center</a>`;
-
-  const [activeSnippet, setActiveSnippet] = useState<"iframe" | "link">("iframe");
-  const snippet = activeSnippet === "iframe" ? iframeSnippet : linkSnippet;
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(snippet);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard denied */
+  useEffect(() => {
+    if (!helpPageEnabled && activeTab === "embed") {
+      setActiveTab("settings");
     }
+  }, [helpPageEnabled, activeTab]);
+
+  const isDirty = !draftsEqual(draft, savedDraft);
+
+  const handleSave = useCallback(() => {
+    startTransition(async () => {
+      const result = await updateHelpPageSettings(agent.id, draftToSavePayload(draft));
+      if (!result.success) {
+        toast.error(result.error ?? "Failed to save");
+        return;
+      }
+      toast.success("Help page settings saved");
+      if (result.data) {
+        const next = buildHelpPageDraft(result.data);
+        setSavedDraft(next);
+        setDraft(next);
+      } else {
+        setSavedDraft(draft);
+      }
+      router.refresh();
+    });
+  }, [agent.id, draft, router]);
+
+  function handleHelpPageToggle(enabled: boolean) {
+    const previous = helpPageEnabled;
+    setHelpPageEnabled(enabled);
+
+    startToggleTransition(async () => {
+      const result = await updateAgentDeployment(agent.id, { helpPageEnabled: enabled });
+      if (!result.success) {
+        setHelpPageEnabled(previous);
+        toast.error(result.error ?? "Failed to update");
+        return;
+      }
+      router.refresh();
+    });
   }
 
   return (
-    <DeployManageShell
-      agentId={agent.id}
-      title="Help page"
-      description="Deploy a ChatGPT-style help center on your site or at /help."
-    >
-      <div className="flex flex-col gap-3">
-        <h3 className="text-title-sm font-medium text-ink">Configuration</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-caption text-muted">Page title</label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="h-9 rounded-lg border-hairline text-sm"
+    <div className="-mx-4 -my-3 flex h-[calc(100dvh-3rem)] min-h-0 overflow-hidden bg-surface-card">
+      <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
+        <div className="flex min-h-0 flex-col overflow-hidden border-r border-hairline bg-surface-card">
+          <HelpPageManageHeader
+            agentId={agent.id}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            helpPageEnabled={helpPageEnabled}
+            toggling={togglePending}
+            onHelpPageEnabledChange={handleHelpPageToggle}
+          />
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <HelpPageConfigTabs
+              activeTab={activeTab}
+              draft={draft}
+              onDraftChange={setDraft}
+              agentId={agent.id}
+              agentName={agent.name}
+              widgetToken={agent.widgetToken}
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-caption text-muted">Welcome message</label>
-            <Input
-              value={welcome}
-              onChange={(e) => setWelcome(e.target.value)}
-              className="h-9 rounded-lg border-hairline text-sm"
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveSnippet("iframe")}
-          className={`rounded-lg px-3 py-1.5 text-body-sm font-medium transition-colors ${
-            activeSnippet === "iframe"
-              ? "bg-ink text-canvas"
-              : "bg-surface-strong text-muted hover:text-ink"
-          }`}
-        >
-          Embed iframe
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSnippet("link")}
-          className={`rounded-lg px-3 py-1.5 text-body-sm font-medium transition-colors ${
-            activeSnippet === "link"
-              ? "bg-ink text-canvas"
-              : "bg-surface-strong text-muted hover:text-ink"
-          }`}
-        >
-          Direct link
-        </button>
-      </div>
-
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-title-sm font-medium text-ink">Embed code</h3>
-          <div className="flex items-center gap-2">
-            <a
-              href={embedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-body-sm text-primary hover:underline"
-            >
-              Open preview
-              <ExternalLink className="h-3 w-3" />
-            </a>
+          <div className="flex shrink-0 items-center justify-between gap-3 border-t border-hairline px-4 py-3">
+            <span className="text-caption text-muted">
+              {isDirty ? "Unsaved changes" : "All changes saved"}
+            </span>
             <Button
               type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5 rounded-lg border-hairline text-body-sm"
-              onClick={handleCopy}
+              className="btn-primary h-9 rounded-md px-4"
+              disabled={!isDirty || isPending}
+              onClick={handleSave}
             >
-              {copied ? (
-                <>
-                  <Check className="h-3.5 w-3.5" /> Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5" /> Copy
-                </>
-              )}
+              {isPending ? "Saving…" : "Save changes"}
             </Button>
           </div>
         </div>
-        <pre className="overflow-x-auto rounded-xl border border-hairline bg-canvas-soft p-4 text-body-sm text-muted">
-          <code>{snippet}</code>
-        </pre>
-        <p className="mt-2 text-caption text-muted">
-          {activeSnippet === "iframe"
-            ? "Embed the full help center in a page on your site."
-            : "Share the help page URL with the query parameters from the preview link."}
-        </p>
+
+        <div className="flex min-h-0 flex-col overflow-hidden bg-canvas-soft/40">
+          <HelpPagePreviewPanel draft={draft} agentName={agent.name} />
+        </div>
       </div>
-    </DeployManageShell>
+    </div>
   );
 }

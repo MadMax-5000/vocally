@@ -123,7 +123,6 @@ export function AgentDetailDeployTab({ agent }: Props) {
               enabled={enabled}
               toggling={pending}
               manageHref={`${manageBase}/${item.id}`}
-              manageLabel={isChat ? "Manage" : "Setup"}
               onEnabledChange={(next) => {
                 if (isChat) {
                   setWebChatEnabled(next);

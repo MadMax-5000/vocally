@@ -22,6 +22,7 @@ import {
 import { INTEGRATION_DEPLOYMENTS } from "@/lib/constants/deploy-catalog";
 import {
   parseWebChatConfig,
+  type WebChatHelpPageConfig,
   type WebChatWidgetConfig,
 } from "@/lib/deploy/web-chat-config";
 import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
@@ -710,6 +711,187 @@ export async function updateChatWidgetSettings(
       };
     }
     return { success: false as const, error: "Failed to update chat widget settings" };
+  }
+}
+
+const urlSchema = z.string().url().max(2048).nullable().optional();
+
+const updateHelpPageSettingsSchema = z.object({
+  helpPage: z
+    .object({
+      pageTitle: z.string().max(120).nullable().optional(),
+      headline: z.string().max(200).nullable().optional(),
+      faviconUrl: urlSchema,
+      themeSwitchEnabled: z.boolean().optional(),
+      defaultTheme: z.enum(["light", "dark"]).optional(),
+      primaryColorLight: hexColorSchema,
+      primaryColorDark: hexColorSchema,
+      voiceToTextEnabled: z.boolean().optional(),
+      logoUrl: urlSchema,
+      logoDarkUrl: urlSchema,
+      heroUrl: urlSchema,
+      heroDarkUrl: urlSchema,
+      suggestedMessages: z.array(z.string().max(200)).max(20).optional(),
+      keepShowingSuggested: z.boolean().optional(),
+      placeholder: z.string().max(120).nullable().optional(),
+      navLinks: z
+        .array(
+          z.object({
+            label: z.string().max(80),
+            href: z
+              .string()
+              .max(2048)
+              .refine(
+                (v) =>
+                  v.startsWith("/") ||
+                  v.startsWith("http://") ||
+                  v.startsWith("https://"),
+                "Link must be a path or URL",
+              ),
+            variant: z.enum(["primary", "default"]),
+          }),
+        )
+        .max(8)
+        .optional(),
+    })
+    .optional(),
+});
+
+export async function updateHelpPageSettings(
+  agentId: string,
+  input: z.infer<typeof updateHelpPageSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateHelpPageSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    if (validated.helpPage !== undefined) {
+      const existing = await prisma.agentChannel.findUnique({
+        where: {
+          agentId_channel: { agentId, channel: "WEB_CHAT" },
+        },
+      });
+
+      const existingConfig =
+        existing?.config &&
+        typeof existing.config === "object" &&
+        !Array.isArray(existing.config)
+          ? (existing.config as Record<string, unknown>)
+          : {};
+
+      const parsed = parseWebChatConfig(existingConfig);
+      const currentHelpPage = parsed.helpPage ?? {};
+      const incoming = validated.helpPage;
+
+      const nextHelpPage: WebChatHelpPageConfig = { ...currentHelpPage };
+
+      if (incoming.pageTitle !== undefined) {
+        nextHelpPage.pageTitle = incoming.pageTitle?.trim() || undefined;
+      }
+      if (incoming.headline !== undefined) {
+        nextHelpPage.headline = incoming.headline?.trim() || undefined;
+      }
+      if (incoming.faviconUrl !== undefined) {
+        nextHelpPage.faviconUrl = incoming.faviconUrl?.trim() || undefined;
+      }
+      if (incoming.themeSwitchEnabled !== undefined) {
+        nextHelpPage.themeSwitchEnabled = incoming.themeSwitchEnabled;
+      }
+      if (incoming.defaultTheme !== undefined) {
+        nextHelpPage.defaultTheme = incoming.defaultTheme;
+      }
+      if (incoming.primaryColorLight !== undefined) {
+        nextHelpPage.primaryColorLight = incoming.primaryColorLight;
+      }
+      if (incoming.primaryColorDark !== undefined) {
+        nextHelpPage.primaryColorDark = incoming.primaryColorDark;
+      }
+      if (incoming.voiceToTextEnabled !== undefined) {
+        nextHelpPage.voiceToTextEnabled = incoming.voiceToTextEnabled;
+      }
+      if (incoming.logoUrl !== undefined) {
+        nextHelpPage.logoUrl = incoming.logoUrl?.trim() || undefined;
+      }
+      if (incoming.logoDarkUrl !== undefined) {
+        nextHelpPage.logoDarkUrl = incoming.logoDarkUrl?.trim() || undefined;
+      }
+      if (incoming.heroUrl !== undefined) {
+        nextHelpPage.heroUrl = incoming.heroUrl?.trim() || undefined;
+      }
+      if (incoming.heroDarkUrl !== undefined) {
+        nextHelpPage.heroDarkUrl = incoming.heroDarkUrl?.trim() || undefined;
+      }
+      if (incoming.suggestedMessages !== undefined) {
+        nextHelpPage.suggestedMessages = incoming.suggestedMessages
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      if (incoming.keepShowingSuggested !== undefined) {
+        nextHelpPage.keepShowingSuggested = incoming.keepShowingSuggested;
+      }
+      if (incoming.placeholder !== undefined) {
+        nextHelpPage.placeholder = incoming.placeholder?.trim() || undefined;
+      }
+      if (incoming.navLinks !== undefined) {
+        nextHelpPage.navLinks = incoming.navLinks.map((l) => ({
+          label: l.label.trim(),
+          href: l.href.trim(),
+          variant: l.variant,
+        }));
+      }
+
+      const nextConfig = {
+        ...existingConfig,
+        helpPage: nextHelpPage,
+      } as Prisma.InputJsonValue;
+
+      await prisma.agentChannel.upsert({
+        where: {
+          agentId_channel: { agentId, channel: "WEB_CHAT" },
+        },
+        create: {
+          agentId,
+          channel: "WEB_CHAT",
+          enabled: true,
+          config: nextConfig,
+        },
+        update: { config: nextConfig },
+      });
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/help-page`);
+    revalidatePath(`/help/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return { success: false as const, error: "Failed to update help page settings" };
   }
 }
 
