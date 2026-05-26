@@ -26,6 +26,7 @@ model Organization {
   twilioNumbers              TwilioPhoneNumber[]
   smsNumbers                 SmsPhoneNumber[]
   emailAddresses             EmailAddress[]
+  gmailConnections           GmailConnection[]
   appointments               Appointment[]
   tickets                    Ticket[]
 }
@@ -83,11 +84,39 @@ model Agent {
   voiceNumbers    TwilioPhoneNumber[]
   smsNumbers      SmsPhoneNumber[]
   emailAddresses  EmailAddress[]
+  gmailConnection GmailConnection?
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
 
   @@unique([orgId, name])
   @@index([orgId])
+}
+
+model GmailConnection {
+  id              String       @id @default(cuid())
+  orgId           String
+  org             Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId         String       @unique
+  agent           Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  googleEmail     String
+  refreshTokenEnc String
+  historyId       String?
+  watchExpiration DateTime?
+  labelIds        Json         @default("[\"INBOX\"]")
+  connectedAt     DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([orgId, googleEmail])
+  @@index([googleEmail])
+}
+
+/// Dedupes Gmail message processing across Pub/Sub retries.
+model GmailMessageDedupe {
+  id             String   @id @default(cuid())
+  gmailMessageId String   @unique
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model AgentVoice {

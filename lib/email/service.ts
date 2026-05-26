@@ -1,6 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
 import { sendEmail } from "@/lib/email/send";
+import {
+  createEmailSession,
+  findActiveEmailSession,
+  resolveActiveEmailAgent,
+  storeEmailMessage,
+} from "@/lib/email/session-helpers";
 import type { InboundEmailPayload, ResolvedEmailSession } from "./email-types";
 import { plainTextFromInboundParts } from "./email-body";
 
@@ -38,40 +44,6 @@ async function resolveOrganization(to: string): Promise<ResolvedEmailSession | n
   };
 }
 
-async function findActiveSession(orgId: string, customerId: string): Promise<string | null> {
-  const session = await prisma.session.findFirst({
-    where: {
-      orgId,
-      customerId,
-      channel: "EMAIL",
-      status: { in: ["ACTIVE", "WAITING", "BOT"] },
-    },
-    select: { id: true },
-    orderBy: { createdAt: "desc" },
-  });
-  return session?.id ?? null;
-}
-
-async function createSession(orgId: string, agentId: string | null, customerId: string): Promise<string> {
-  const session = await prisma.session.create({
-    data: {
-      orgId,
-      agentId,
-      channel: "EMAIL",
-      status: "ACTIVE",
-      customerId,
-      language: "auto",
-    },
-  });
-  return session.id;
-}
-
-async function storeMessage(sessionId: string, role: "USER" | "BOT", content: string): Promise<void> {
-  await prisma.message.create({
-    data: { sessionId, role, content },
-  });
-}
-
 function extractTextBody(payload: InboundEmailPayload): string {
   return plainTextFromInboundParts(payload.text, payload.html);
 }
@@ -91,19 +63,18 @@ async function handleInboundEmail(payload: InboundEmailPayload): Promise<void> {
 
   if (!body) return;
 
-  const sessionId = (await findActiveSession(resolved.orgId, customerEmail))
-    ?? await createSession(resolved.orgId, resolved.agentId, customerEmail);
+  const sessionId = (await findActiveEmailSession(resolved.orgId, customerEmail))
+    ?? (await createEmailSession(resolved.orgId, resolved.agentId, customerEmail));
 
-  await storeMessage(sessionId, "USER", body);
+  await storeEmailMessage(sessionId, "USER", body);
 
-  const agentId = resolved.agentId
-    ?? await resolveActiveAgent(resolved.orgId);
+  const agentId = resolved.agentId ?? (await resolveActiveEmailAgent(resolved.orgId));
 
   const replyFrom = payload.replyFromEmail ?? matchedMailbox;
 
   if (!agentId) {
     const fallback = "No active email agent is configured for your organization. Please contact support.";
-    await storeMessage(sessionId, "BOT", fallback);
+    await storeEmailMessage(sessionId, "BOT", fallback);
     await sendEmail({
       from: replyFrom,
       to: customerEmail,
@@ -121,7 +92,7 @@ async function handleInboundEmail(payload: InboundEmailPayload): Promise<void> {
     channel: "EMAIL",
   });
 
-  await storeMessage(sessionId, "BOT", botContent);
+  await storeEmailMessage(sessionId, "BOT", botContent);
 
   await sendEmail({
     from: replyFrom,
@@ -139,20 +110,8 @@ function replySubject(original: string): string {
   return `Re: ${trimmed}`;
 }
 
-async function resolveActiveAgent(orgId: string): Promise<string | null> {
-  const agent = await prisma.agent.findFirst({
-    where: {
-      orgId,
-      status: "ACTIVE",
-      channels: { some: { channel: "EMAIL", enabled: true } },
-    },
-    select: { id: true },
-  });
-  return agent?.id ?? null;
-}
-
 export const emailService = {
   handleInboundEmail,
   resolveOrganization,
-  findActiveSession,
+  findActiveSession: findActiveEmailSession,
 };

@@ -4,6 +4,7 @@ export const agentDetailInclude = {
   languages: true,
   channels: true,
   voices: true,
+  gmailConnection: true,
   knowledgeDocs: {
     include: {
       knowledgeDoc: { select: { id: true, title: true } },

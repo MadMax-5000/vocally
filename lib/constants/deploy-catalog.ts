@@ -32,9 +32,9 @@ export const FEATURED_DEPLOYMENTS = [
 export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
   {
     id: "email",
-    title: "Email",
+    title: "Gmail",
     description:
-      "Connect your agent to an email address and let it respond to messages from your customers.",
+      "Connect your agent to Gmail and let it respond to customer emails from your inbox.",
     iconSrc: "/svg/gmail.svg",
     channelType: "EMAIL",
   },
