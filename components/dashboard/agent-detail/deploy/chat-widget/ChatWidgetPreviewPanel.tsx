@@ -3,6 +3,10 @@
 import { useMemo } from "react";
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import type {
+  ResolvedCustomButtonAction,
+  ResolvedSuggestedMessagesAction,
+} from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
 
 import { ChatWidgetLauncherPreview } from "./ChatWidgetLauncherPreview";
@@ -15,6 +19,8 @@ type ChatWidgetPreviewPanelProps = {
   widgetToken?: string | null;
   agentName: string;
   draft: ChatWidgetDraft;
+  suggestedMessagesAction?: ResolvedSuggestedMessagesAction;
+  customButtonsAction?: ResolvedCustomButtonAction;
   viewport: PreviewViewport;
   onViewportChange: (v: PreviewViewport) => void;
 };
@@ -24,6 +30,8 @@ export function ChatWidgetPreviewPanel({
   widgetToken,
   agentName,
   draft,
+  suggestedMessagesAction,
+  customButtonsAction,
   viewport,
   onViewportChange,
 }: ChatWidgetPreviewPanelProps) {
@@ -87,6 +95,10 @@ export function ChatWidgetPreviewPanel({
             primaryColor={w.primaryColor}
             placeholder={w.placeholder}
             suggestedMessages={suggestedMessages}
+            keepShowingSuggested={w.keepShowingSuggested}
+            suggestedMessagesAction={suggestedMessagesAction}
+            customButtonsAction={customButtonsAction}
+            deployment="widget"
             onClear
             showPoweredBy
             className={cn(

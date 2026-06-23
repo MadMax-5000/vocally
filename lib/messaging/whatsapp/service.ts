@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
 import { sendWhatsAppMessage } from "@/lib/twilio/client";
@@ -20,6 +22,35 @@ async function resolveOrganization(to: string): Promise<ResolvedSession | null> 
     agentId: mapping.agentId,
     isNew: true,
   };
+}
+
+async function resolveAgentId(
+  orgId: string,
+  mappedAgentId: string | null,
+): Promise<string | null> {
+  if (mappedAgentId) {
+    const mapped = await prisma.agent.findFirst({
+      where: {
+        id: mappedAgentId,
+        orgId,
+        status: "ACTIVE",
+        channels: { some: { channel: "WHATSAPP", enabled: true } },
+      },
+      select: { id: true },
+    });
+    if (mapped) return mapped.id;
+  }
+
+  const fallback = await prisma.agent.findFirst({
+    where: {
+      orgId,
+      status: "ACTIVE",
+      channels: { some: { channel: "WHATSAPP", enabled: true } },
+    },
+    select: { id: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return fallback?.id ?? null;
 }
 
 async function findActiveSession(orgId: string, customerId: string): Promise<string | null> {
@@ -59,39 +90,41 @@ async function storeMessage(sessionId: string, role: "USER" | "BOT", content: st
 async function handleInboundMessage(payload: IncomingWhatsAppPayload): Promise<void> {
   const { From, To, Body, MessageSid } = payload;
 
+  if (MessageSid) {
+    try {
+      await prisma.whatsappMessageDedupe.create({ data: { messageId: MessageSid } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        return;
+      }
+      throw e;
+    }
+  }
+
   const resolved = await resolveOrganization(To);
   if (!resolved) {
     return;
   }
 
   const customerPhone = normalizePhoneNumber(From);
-  const sessionId = await findActiveSession(resolved.orgId, customerPhone) ?? await createSession(
-    resolved.orgId,
-    resolved.agentId,
-    customerPhone,
-  );
+  const sessionId =
+    (await findActiveSession(resolved.orgId, customerPhone)) ??
+    (await createSession(resolved.orgId, resolved.agentId, customerPhone));
 
   await storeMessage(sessionId, "USER", Body);
 
-  if (!resolved.agentId) {
-    const firstAgent = await prisma.agent.findFirst({
-      where: {
-        orgId: resolved.orgId,
-        channels: { some: { channel: "WHATSAPP", enabled: true } },
-        status: "ACTIVE",
-      },
-      select: { id: true },
-    });
-    if (!firstAgent) {
-      await storeMessage(sessionId, "BOT", "No active WhatsApp agent is configured for your organization. Please contact support.");
-      return;
-    }
-    resolved.agentId = firstAgent.id;
+  const agentId = await resolveAgentId(resolved.orgId, resolved.agentId);
+  if (!agentId) {
+    const fallbackBody =
+      "No active WhatsApp agent is configured for your organization. Please contact support.";
+    await storeMessage(sessionId, "BOT", fallbackBody);
+    await sendWhatsAppMessage({ to: From, from: To, body: fallbackBody });
+    return;
   }
 
   const { botContent } = await processMessage({
     orgId: resolved.orgId,
-    agentId: resolved.agentId,
+    agentId,
     sessionId,
     message: Body,
   });

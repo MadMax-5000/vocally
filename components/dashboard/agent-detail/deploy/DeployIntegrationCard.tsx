@@ -14,6 +14,7 @@ type DeployIntegrationCardProps = {
   enabled: boolean;
   onEnabledChange: (enabled: boolean) => void;
   beta?: boolean;
+  comingSoon?: boolean;
   toggling?: boolean;
 };
 
@@ -25,8 +26,49 @@ export function DeployIntegrationCard({
   enabled,
   onEnabledChange,
   beta,
+  comingSoon = false,
   toggling = false,
 }: DeployIntegrationCardProps) {
+  if (comingSoon) {
+    return (
+      <article
+        aria-disabled
+        className={cn(
+          "relative flex min-h-[168px] flex-col overflow-hidden rounded-xl",
+          "border border-dashed border-hairline-strong bg-surface-strong/80",
+        )}
+      >
+        <div className="pointer-events-none flex flex-1 flex-col p-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-hairline bg-canvas-soft">
+              <Image
+                src={iconSrc}
+                alt=""
+                width={22}
+                height={22}
+                className="size-[22px] object-contain opacity-40 grayscale"
+              />
+            </div>
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <h3 className="text-title-sm font-medium text-muted">{title}</h3>
+              <span className="shrink-0 rounded-pill bg-canvas-soft px-2 py-0.5 text-xs text-muted-soft">
+                Coming soon
+              </span>
+            </div>
+          </div>
+
+          <p className="mt-2 flex-1 pl-[2.875rem] text-body-sm leading-relaxed text-muted-soft">
+            {description}
+          </p>
+
+          <p className="mt-3 text-right text-caption text-muted-soft">
+            Not available yet
+          </p>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article
       className={cn(
@@ -47,7 +89,7 @@ export function DeployIntegrationCard({
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <h3 className="text-title-sm font-medium text-ink">{title}</h3>
           {beta ? (
-            <span className="shrink-0 rounded-full bg-surface-strong px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-muted">
+            <span className="shrink-0 rounded-pill bg-surface-strong px-2 py-0.5 text-caption-uppercase text-muted">
               Beta
             </span>
           ) : null}

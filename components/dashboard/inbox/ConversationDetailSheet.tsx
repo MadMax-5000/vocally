@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2, MessageCircle, Send, Handshake } from "lucide-react";
 
+import { buildTriggerLabels } from "@/lib/ai/escalation-service";
 import { cn } from "@/lib/utils";
 import type { ConversationDetail, InboxMessage } from "@/lib/actions/sessions";
 import { getConversationDetail, sendMessage, claimSession, updateSessionSummary } from "@/lib/actions/sessions";
@@ -470,6 +471,37 @@ export function ConversationDetailSheet({
             </>
           )}
         </SheetHeader>
+
+        {detail && !loading && (isEscalated || detail.ticket) ? (
+          <div className="shrink-0 space-y-2 border-b border-hairline px-5 py-3">
+            {isEscalated && detail.escalatedReason ? (
+              <p className="text-body-sm text-muted">
+                Escalation reason:{" "}
+                <span className="text-ink">
+                  {buildTriggerLabels()[detail.escalatedReason] ??
+                    detail.escalatedReason}
+                </span>
+              </p>
+            ) : null}
+            {detail.ticket ? (
+              <div className="rounded-xl border border-hairline bg-surface-strong px-3 py-2.5">
+                <p className="text-caption-uppercase text-muted">Support ticket</p>
+                <p className="mt-1 text-body-sm font-medium text-ink">
+                  {detail.ticket.subject}
+                </p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-2 text-caption text-muted">
+                  <span className="rounded-full bg-surface-card px-2 py-0.5 ring-1 ring-inset ring-hairline">
+                    {detail.ticket.priority}
+                  </span>
+                  <span className="rounded-full bg-surface-card px-2 py-0.5 ring-1 ring-inset ring-hairline">
+                    {detail.ticket.status}
+                  </span>
+                  <span>#{detail.ticket.id.slice(0, 8)}</span>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* ── Scrollable content ──────────────────────────── */}
         <div className="flex-1 overflow-y-auto">

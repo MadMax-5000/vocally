@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
-import { processMessage } from "@/lib/ai/process-message";
+import { handleAgentChatMessage } from "@/lib/api/agent-chat-handler";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
 
@@ -77,58 +77,22 @@ export async function POST(req: NextRequest) {
 
     const orgId = agent.org.id;
 
-    let sessionId = existingSessionId;
-    if (sessionId) {
-      const session = await prisma.session.findUnique({ where: { id: sessionId } });
-      if (!session || session.orgId !== orgId) {
-        return NextResponse.json({ success: false, error: "Session not found" }, { status: 404 });
-      }
-    } else {
-      const session = await prisma.session.create({
-        data: {
-          orgId,
-          agentId,
-          channel: "CHAT",
-          status: "ACTIVE",
-          language: "auto",
-        },
-      });
-      sessionId = session.id;
-    }
-
-    const userMessage = await prisma.message.create({
-      data: { sessionId, role: "USER", content: message },
-    });
-
-    const { botContent } = await processMessage({
+    const result = await handleAgentChatMessage({
       orgId,
       agentId,
-      sessionId,
+      sessionId: existingSessionId,
       message,
+      deployment,
     });
 
-    const botMessage = await prisma.message.create({
-      data: { sessionId, role: "BOT", content: botContent },
-    });
+    if (!result.ok) {
+      return NextResponse.json(
+        { success: false, error: result.error.message },
+        { status: result.error.status },
+      );
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        sessionId,
-        userMessage: {
-          id: userMessage.id,
-          role: "USER",
-          content: userMessage.content,
-          createdAt: userMessage.createdAt.toISOString(),
-        },
-        message: {
-          id: botMessage.id,
-          role: "BOT",
-          content: botMessage.content,
-          createdAt: botMessage.createdAt.toISOString(),
-        },
-      },
-    });
+    return NextResponse.json({ success: true, data: result.data });
   } catch (err) {
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }

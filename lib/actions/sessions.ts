@@ -287,6 +287,14 @@ export type InboxMessage = {
   createdAt: Date;
 };
 
+export type ConversationTicketSummary = {
+  id: string;
+  subject: string;
+  priority: string;
+  status: string;
+  createdAt: Date;
+};
+
 export type ConversationDetail = {
   id: string;
   channel: string;
@@ -299,6 +307,8 @@ export type ConversationDetail = {
   resolvedByAI: boolean;
   sentiment: number | null;
   summary: string | null;
+  escalatedAt: Date | null;
+  escalatedReason: string | null;
   agentName: string | null;
   agentAvatarUrl: string | null;
   duration: number | null;
@@ -306,6 +316,7 @@ export type ConversationDetail = {
   qaScore: number | null;
   messages: InboxMessage[];
   transcript: string | null;
+  ticket: ConversationTicketSummary | null;
 };
 
 export async function getInboxSessions(): Promise<
@@ -396,6 +407,8 @@ export async function getConversationDetail(
         resolvedByAI: true,
         sentiment: true,
         summary: true,
+        escalatedAt: true,
+        escalatedReason: true,
         agent: {
           select: { name: true, avatarUrl: true },
         },
@@ -405,6 +418,17 @@ export async function getConversationDetail(
             recordingUrl: true,
             qaScore: true,
             transcript: true,
+          },
+        },
+        tickets: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            subject: true,
+            priority: true,
+            status: true,
+            createdAt: true,
           },
         },
         messages: {
@@ -417,6 +441,8 @@ export async function getConversationDetail(
     if (!session) {
       return { success: false, error: "Session not found" };
     }
+
+    const latestTicket = session.tickets[0] ?? null;
 
     return {
       success: true,
@@ -432,6 +458,8 @@ export async function getConversationDetail(
         resolvedByAI: session.resolvedByAI,
         sentiment: session.sentiment,
         summary: session.summary,
+        escalatedAt: session.escalatedAt,
+        escalatedReason: session.escalatedReason,
         agentName: session.agent?.name ?? null,
         agentAvatarUrl: session.agent?.avatarUrl ?? null,
         duration: session.callLog?.duration ?? null,
@@ -439,6 +467,7 @@ export async function getConversationDetail(
         qaScore: session.callLog?.qaScore ?? null,
         messages: session.messages,
         transcript: session.callLog?.transcript ?? null,
+        ticket: latestTicket,
       },
     };
   } catch (err) {

@@ -2,13 +2,20 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
+import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMessageComposer } from "@/components/chat/ChatMessageComposer";
 import { HelpPageShell } from "@/components/chat/HelpPageShell";
 import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
 import { useChat } from "@/hooks/useChat";
 import type { ResolvedWebChatHelpPageSettings } from "@/lib/deploy/web-chat-config";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
+import { getVisibleCustomButtons } from "@/lib/deploy/custom-button-action";
+import {
+  getInitialSuggestedMessages,
+  shouldShowSuggestedMessages,
+} from "@/lib/deploy/suggested-messages-action";
 import { cn } from "@/lib/utils";
 
 type HelpCenterChatProps = {
@@ -26,16 +33,31 @@ export function HelpCenterChat({
   settings,
   className = "",
 }: HelpCenterChatProps) {
+  const action = settings.suggestedMessagesAction;
+  const actionEnabled = action.enabled;
+
+  const initialSuggestedMessages = useMemo(() => {
+    if (!actionEnabled) return [];
+    return getInitialSuggestedMessages(action, settings.suggestedMessages);
+  }, [action, actionEnabled, settings.suggestedMessages]);
+
   const {
     messages,
+    suggestedMessages: liveSuggestedMessages,
+    isEscalated,
+    escalationMessage,
     isLoading,
     error,
+    activeForm,
+    formSubmitting,
     sendMessage,
+    submitForm,
     clearMessages,
   } = useChat({
     agentId,
     widgetToken,
     deployment: "help",
+    initialSuggestedMessages: actionEnabled ? initialSuggestedMessages : undefined,
   });
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -49,7 +71,7 @@ export function HelpCenterChat({
 
   const hasMessages = messages.length > 0;
   const isBusy = isLoading;
-  const canSend = draft.trim().length > 0 && !isBusy;
+  const canSend = draft.trim().length > 0 && !isBusy && !isEscalated;
   const isDark = theme === "dark";
 
   const { logoUrl, heroUrl, primaryColor } = useMemo(() => {
@@ -64,8 +86,22 @@ export function HelpCenterChat({
     };
   }, [isDark, settings]);
 
+  const displaySuggestions = actionEnabled
+    ? liveSuggestedMessages
+    : settings.suggestedMessages;
+
+  const keepShowing = actionEnabled
+    ? action.keepShowingAfterFirst
+    : settings.keepShowingSuggested;
+
+  const visibleSuggestions = displaySuggestions.filter((s) => s.trim());
   const showSuggestions =
-    !hasMessages || settings.keepShowingSuggested;
+    !isEscalated &&
+    shouldShowSuggestedMessages({
+      hasMessages,
+      keepShowingAfterFirst: keepShowing,
+      suggestionCount: visibleSuggestions.length,
+    });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,30 +110,81 @@ export function HelpCenterChat({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || isBusy) return;
+    if (!text || isBusy || isEscalated) return;
     sendMessage(text);
     setDraft("");
   };
 
   function handleSuggestedClick(text: string) {
-    if (isBusy) return;
+    if (isBusy || isEscalated) return;
     sendMessage(text);
   }
 
+  const visibleCustomButtons = useMemo(
+    () => getVisibleCustomButtons(settings.customButtonsAction),
+    [settings.customButtonsAction],
+  );
+
+  function handleCustomButtonMessage(text: string) {
+    if (isBusy || isEscalated) return;
+    sendMessage(text);
+  }
+
+  const handoffBannerText =
+    escalationMessage ?? "Connecting you to an agent. Please wait.";
+
+  const escalationBanner = isEscalated ? (
+    <div
+      className={cn(
+        "mb-2 rounded-lg border px-3 py-2 text-body-sm leading-relaxed",
+        isDark
+          ? "border-hairline-strong bg-[#292524] text-[#fafaf9]"
+          : "border-hairline bg-surface-strong text-ink",
+      )}
+      role="status"
+    >
+      {handoffBannerText}
+    </div>
+  ) : null;
+
+  const customButtonsRow = (
+    <ChatCustomButtonsRow
+      buttons={visibleCustomButtons}
+      appearance={theme}
+      isBusy={isBusy || isEscalated}
+      readOnly={isEscalated}
+      onMessageClick={handleCustomButtonMessage}
+    />
+  );
+
+  const inlineForm =
+    activeForm && !isEscalated ? (
+      <div className="mb-2 w-full max-w-xl">
+        <ChatInlineForm
+          form={activeForm}
+          disabled={isBusy || formSubmitting}
+          onSubmit={submitForm}
+        />
+      </div>
+    ) : null;
+
   const emptyComposer = (
     <div className="mt-4 w-full max-w-xl">
+      {escalationBanner}
+      {customButtonsRow}
+      {inlineForm}
       <ChatMessageComposer
         appearance={theme}
         primaryColor={primaryColor}
         primaryCssVar="--help-primary"
-        placeholder={settings.placeholder}
+        placeholder={isEscalated ? "Waiting for an agent…" : settings.placeholder}
         value={draft}
         onChange={setDraft}
         onSubmit={handleSubmit}
-        isBusy={isBusy}
+        isBusy={isBusy || isEscalated}
         canSend={canSend}
         showSuggestions={showSuggestions}
-        suggestedMessages={settings.suggestedMessages}
+        suggestedMessages={displaySuggestions}
         onSuggestedClick={handleSuggestedClick}
         suggestionsBelow
         voice={
@@ -112,18 +199,21 @@ export function HelpCenterChat({
   const threadComposer = (
     <div className="shrink-0 px-3 pb-2 pt-1">
       <div className="mx-auto w-full max-w-3xl">
+        {escalationBanner}
+        {customButtonsRow}
+        {inlineForm}
         <ChatMessageComposer
           appearance={theme}
           primaryColor={primaryColor}
           primaryCssVar="--help-primary"
-          placeholder={settings.placeholder}
+          placeholder={isEscalated ? "Waiting for an agent…" : settings.placeholder}
           value={draft}
           onChange={setDraft}
           onSubmit={handleSubmit}
-          isBusy={isBusy}
+          isBusy={isBusy || isEscalated}
           canSend={canSend}
           showSuggestions={showSuggestions}
-          suggestedMessages={settings.suggestedMessages}
+          suggestedMessages={displaySuggestions}
           onSuggestedClick={handleSuggestedClick}
           voice={
             settings.voiceToTextEnabled

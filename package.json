@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "build:wordpress-plugin": "node scripts/build-wordpress-plugin.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

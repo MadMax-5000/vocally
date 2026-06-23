@@ -45,11 +45,25 @@ const HUGEICONS: Partial<Record<ActionIconKey, typeof CodeIcon>> = {
 type ActionCatalogIconProps = {
   icon: ActionIconKey;
   className?: string;
+  variant?: "default" | "muted";
 };
 
-export function ActionCatalogIcon({ icon, className }: ActionCatalogIconProps) {
+export function ActionCatalogIcon({
+  icon,
+  className,
+  variant = "default",
+}: ActionCatalogIconProps) {
+  const muted = variant === "muted";
+  const plateClass = cn(
+    muted
+      ? "flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-hairline bg-canvas-soft"
+      : ICON_PLATE_CLASS,
+    className,
+  );
+  const mediaMutedClass = muted ? "opacity-40 grayscale" : undefined;
+
   if (icon === "escalation-stack") {
-    return <EscalationIconStack className={className} />;
+    return <EscalationIconStack className={cn(className, mediaMutedClass)} />;
   }
 
   const svg = SVG_ICONS[icon];
@@ -57,13 +71,13 @@ export function ActionCatalogIcon({ icon, className }: ActionCatalogIconProps) {
     const sizeKey = svg.size ?? "default";
     const px = sizeKey === "large" ? 28 : 20;
     return (
-      <span className={cn(ICON_PLATE_CLASS, className)} aria-hidden>
+      <span className={plateClass} aria-hidden>
         <Image
           src={svg.src}
           alt={svg.alt}
           width={px}
           height={px}
-          className={SVG_SIZE_CLASS[sizeKey]}
+          className={cn(SVG_SIZE_CLASS[sizeKey], mediaMutedClass)}
         />
       </span>
     );
@@ -71,7 +85,10 @@ export function ActionCatalogIcon({ icon, className }: ActionCatalogIconProps) {
 
   const hugeicon = HUGEICONS[icon] ?? CodeIcon;
   return (
-    <span className={cn(ICON_PLATE_CLASS, "text-ink", className)} aria-hidden>
+    <span
+      className={cn(plateClass, muted ? "text-muted-soft" : "text-ink")}
+      aria-hidden
+    >
       <HugeiconsIcon icon={hugeicon} size={20} strokeWidth={1.75} />
     </span>
   );

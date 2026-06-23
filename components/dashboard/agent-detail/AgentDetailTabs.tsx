@@ -80,7 +80,7 @@ export function AgentDetailTabs({
             ) : activeTab === "knowledge" ? (
               <AgentDetailKnowledgeTab agentId={agent.id} />
             ) : activeTab === "actions" ? (
-              <AgentDetailActionsTab />
+              <AgentDetailActionsTab agent={agent} />
             ) : activeTab === "preview" ? (
               <AgentDetailPreviewTab agent={agent} />
             ) : activeTab === "deploy" ? (

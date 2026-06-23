@@ -37,7 +37,16 @@ export type ToolHandler = (
   context: ToolContext,
 ) => Promise<string>;
 
+import type { Channel } from "@prisma/client";
+
+import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
+import type { ResolvedCustomFormAction } from "@/lib/deploy/custom-form-action";
+
 export type ToolContext = {
   orgId: string;
   sessionId: string;
+  agentId?: string;
+  channel?: Channel;
+  collectLeads?: ResolvedCollectLeadsAction;
+  customForm?: ResolvedCustomFormAction;
 };

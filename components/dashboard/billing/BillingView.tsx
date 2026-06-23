@@ -10,8 +10,8 @@ type PaidPlan = "STARTER" | "PRO" | "ENTERPRISE";
 const PAID_PLANS: PaidPlan[] = ["STARTER", "PRO", "ENTERPRISE"];
 
 const planDescription: Record<PaidPlan, string> = {
-  STARTER: "Higher knowledge storage and room to grow.",
-  PRO: "Full production capacity for teams.",
+  STARTER: "3 AI agents, 2,000 min/mo, and knowledge base — for small teams.",
+  PRO: "8 AI agents, 10,000 min/mo, all channels, and co-pilot — for scaling teams.",
   ENTERPRISE: "Volume, compliance, and dedicated support.",
 };
 

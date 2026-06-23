@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, ArrowUpRight } from "lucide-react";
 
 import { auth } from "@clerk/nextjs/server";
 import { PLAN_META, PLAN_PRICES } from "@/lib/billing/plan-features";
 import { formatPrice } from "@/lib/billing/currency";
-import { detectCurrency } from "@/lib/billing/detect-currency";
+import { getOverageRate } from "@/lib/billing/overage";
 import { HeaderAuth } from "@/components/marketing/HeaderAuth";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 
@@ -14,9 +14,11 @@ export default async function PricingPage() {
   const { userId, orgId } = await auth();
   const signedIn = !!userId;
 
-  const currency = detectCurrency();
-
   const plans = [
+    {
+      ...PLAN_META.FREE,
+      price: PLAN_PRICES.FREE,
+    },
     {
       ...PLAN_META.STARTER,
       price: PLAN_PRICES.STARTER,
@@ -25,11 +27,13 @@ export default async function PricingPage() {
       ...PLAN_META.PRO,
       price: PLAN_PRICES.PRO,
     },
-    {
-      ...PLAN_META.ENTERPRISE,
-      price: null,
-    },
   ];
+
+  function overageDisplay(planKey: string): string | null {
+    const rate = getOverageRate(planKey);
+    if (rate === 0) return null;
+    return `+ ${rate} DH/min after plan limit`;
+  }
 
   function ctaHref(): string {
     if (!signedIn) return "/sign-up";
@@ -48,17 +52,17 @@ export default async function PricingPage() {
           Simple plans for AI-first contact centers
         </h1>
         <p className="mt-6 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
-          Prices are shown in {currency.code === "MAD" ? "Moroccan Dirham (MAD)" : "USD"}.
-          All plans include a 14-day free trial — no credit card required.
+          All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.
         </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {plans.map((plan) => {
             const isPro = plan.key === "pro";
-            const rawPrice = plan.price !== null
-              ? (currency.code === "MAD" ? plan.price.madCents : plan.price.usdCents)
-              : null;
-            const formattedPrice = rawPrice !== null ? formatPrice(rawPrice, currency.code) : null;
+            const isFree = plan.key === "free";
+            const rawPrice = plan.price !== null ? plan.price.madCents : null;
+            const showPrice = isFree ? "Free" : (
+              rawPrice !== null ? formatPrice(rawPrice) : null
+            );
 
             return (
               <article
@@ -83,9 +87,9 @@ export default async function PricingPage() {
                 </p>
 
                 <p className={`mt-6 font-display text-display-md tracking-tighter ${isPro ? "text-on-primary" : "text-ink"}`}>
-                  {plan.key === "enterprise" && !rawPrice ? "Custom" : formattedPrice}
+                  {showPrice}
                 </p>
-                {plan.key !== "enterprise" && (
+                {!isFree && (
                   <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>
                     per month, billed monthly
                   </p>
@@ -124,6 +128,12 @@ export default async function PricingPage() {
                       </li>
                     ))}
                   </ul>
+
+                  {overageDisplay(plan.key) && (
+                    <p className={`mt-4 text-caption leading-relaxed ${isPro ? "text-on-primary/60" : "text-muted-soft"}`}>
+                      {overageDisplay(plan.key)}
+                    </p>
+                  )}
                 </div>
 
                 <Link
@@ -134,12 +144,44 @@ export default async function PricingPage() {
                       : "bg-ink text-on-primary hover:bg-body-strong"
                   }`}
                 >
-                  Get started
+                  {isFree ? "Start free trial" : "Get started"}
                 </Link>
               </article>
             );
           })}
         </div>
+
+        <section className="mt-12 flex flex-col items-start gap-6 rounded-xxl border border-hairline bg-surface-card p-8 md:flex-row md:items-center md:justify-between md:p-10">
+          <div>
+            <h2 className="font-display text-display-sm tracking-tighter text-ink">Enterprise</h2>
+            <p className="mt-1 text-body-sm leading-relaxed text-body">
+              Custom plan for your organization.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                "Unlimited agents",
+                "Custom call volume",
+                "On-premise",
+                "Law 09-08 compliance",
+                "Dedicated manager",
+              ].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-hairline bg-surface-strong px-3 py-1 text-caption text-ink"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <Link
+            href="mailto:sales@vocally.ma"
+            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
+          >
+            Contact sales
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </section>
       </div>
     </main>
   );

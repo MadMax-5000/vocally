@@ -1,14 +1,6 @@
-"use client";
-
-import { useMemo } from "react";
 import { buildEmbedQueryParams } from "@/lib/deploy/web-chat-config";
 
-export function useEmbedOrigin(): string {
-  return useMemo(() => {
-    if (typeof window === "undefined") return "https://app.vocally.ai";
-    return window.location.origin;
-  }, []);
-}
+export { useEmbedOrigin } from "@/lib/deploy/embed-origin";
 
 export function buildWidgetEmbedUrl(
   origin: string,

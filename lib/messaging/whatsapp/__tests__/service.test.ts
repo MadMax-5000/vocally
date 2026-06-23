@@ -5,6 +5,9 @@ vi.mock("@/lib/db/prisma", () => ({
     whatsappPhoneNumber: {
       findUnique: vi.fn(),
     },
+    whatsappMessageDedupe: {
+      create: vi.fn(),
+    },
     session: {
       findFirst: vi.fn(),
       create: vi.fn(),
@@ -130,19 +133,11 @@ describe("WhatsApp Service", () => {
 
   it("should handle inbound message end-to-end", async () => {
     vi.mocked(prisma.whatsappPhoneNumber.findUnique).mockResolvedValue(mockNumberMapping());
+    vi.mocked(prisma.whatsappMessageDedupe.create).mockResolvedValue({} as any);
     vi.mocked(prisma.session.findFirst).mockResolvedValue(null);
     vi.mocked(prisma.session.create).mockResolvedValue(mockSession("session-new-1"));
     vi.mocked(prisma.message.create).mockResolvedValue({} as any);
-    vi.mocked(prisma.agent.findUnique).mockResolvedValue({
-      id: "agent-1",
-      orgId: "org-1",
-      name: "Test Agent",
-      org: { name: "Test Org" },
-      instructions: null,
-      creativity: "BALANCED",
-      llmModel: "openai/gpt-4.1-mini",
-      knowledgeDocs: [],
-    } as any);
+    vi.mocked(prisma.agent.findFirst).mockResolvedValue({ id: "agent-1" } as any);
     vi.mocked(processMessage).mockResolvedValue({
       botContent: "Hello! How can I help you?",
       sessionId: "session-new-1",
@@ -176,5 +171,26 @@ describe("WhatsApp Service", () => {
       from: "whatsapp:+14155238886",
       body: "Hello! How can I help you?",
     });
+  });
+
+  it("should skip duplicate MessageSid", async () => {
+    const { Prisma } = await import("@prisma/client");
+    vi.mocked(prisma.whatsappMessageDedupe.create).mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError("Unique constraint", {
+        code: "P2002",
+        clientVersion: "test",
+      }),
+    );
+
+    const { whatsAppService } = await import("../service");
+
+    await whatsAppService.handleInboundMessage({
+      MessageSid: "SM-dup",
+      From: "whatsapp:+1234567890",
+      To: "whatsapp:+14155238886",
+      Body: "Hello",
+    });
+
+    expect(prisma.whatsappPhoneNumber.findUnique).not.toHaveBeenCalled();
   });
 });

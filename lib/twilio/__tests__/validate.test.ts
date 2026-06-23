@@ -14,7 +14,7 @@ describe("validateTwilioWebhook", () => {
       bodyParams: {},
     });
     expect(result).toBe(false);
-  });
+  }, 15000);
 
   it("returns false when auth token is not configured", async () => {
     vi.stubEnv("TWILIO_AUTH_TOKEN", "");

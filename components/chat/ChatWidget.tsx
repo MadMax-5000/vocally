@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, FormEvent, useCallback, useState } from "react";
+import { useEffect, useRef, FormEvent, useCallback, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
+import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
+import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import {
   ChatMessageComposer,
@@ -12,7 +14,16 @@ import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import type { WebChatWidgetAppearance } from "@/lib/deploy/web-chat-config";
+import { getVisibleCustomButtons } from "@/lib/deploy/custom-button-action";
+import type {
+  ResolvedCustomButtonAction,
+  ResolvedSuggestedMessagesAction,
+  WebChatWidgetAppearance,
+} from "@/lib/deploy/web-chat-config";
+import {
+  getInitialSuggestedMessages,
+  shouldShowSuggestedMessages,
+} from "@/lib/deploy/suggested-messages-action";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -36,7 +47,12 @@ type ChatWidgetProps = {
   primaryColor?: string;
   placeholder?: string;
   suggestedMessages?: string[];
+  keepShowingSuggested?: boolean;
+  suggestedMessagesAction?: ResolvedSuggestedMessagesAction;
+  customButtonsAction?: ResolvedCustomButtonAction;
+  deployment?: "widget" | "help";
   onSuggestedClick?: (message: string) => void;
+  customButtonsReadOnly?: boolean;
 };
 
 export function ChatWidget({
@@ -53,8 +69,20 @@ export function ChatWidget({
   primaryColor,
   placeholder = "Message...",
   suggestedMessages = [],
+  keepShowingSuggested = false,
+  suggestedMessagesAction,
+  customButtonsAction,
+  deployment = "widget",
   onSuggestedClick,
+  customButtonsReadOnly,
 }: ChatWidgetProps) {
+  const actionEnabled = suggestedMessagesAction?.enabled ?? false;
+
+  const initialSuggestedMessages = useMemo(() => {
+    if (!actionEnabled || !suggestedMessagesAction) return [];
+    return getInitialSuggestedMessages(suggestedMessagesAction, suggestedMessages);
+  }, [actionEnabled, suggestedMessagesAction, suggestedMessages]);
+
   const { isPlaying, play } = useAudioPlayer();
 
   const handleAudioReady = useCallback(
@@ -66,11 +94,17 @@ export function ChatWidget({
 
   const {
     messages,
+    suggestedMessages: liveSuggestedMessages,
+    isEscalated,
+    escalationMessage,
     isLoading,
     isProcessingVoice,
     isVoiceSupported,
     error,
+    activeForm,
+    formSubmitting,
     sendMessage,
+    submitForm,
     sendVoiceMessage,
     clearMessages,
   } = useChat({
@@ -78,7 +112,9 @@ export function ChatWidget({
     widgetToken,
     sessionId: initialSessionId,
     initialMessages,
+    initialSuggestedMessages: actionEnabled ? initialSuggestedMessages : undefined,
     onAudioReady: handleAudioReady,
+    deployment,
   });
 
   const { stream, isMicEnabled, requestMic } = useMicrophone();
@@ -97,7 +133,7 @@ export function ChatWidget({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || isLoading || isProcessingVoice) return;
+    if (!text || isLoading || isProcessingVoice || isEscalated) return;
     sendMessage(text);
     setDraft("");
   };
@@ -134,9 +170,26 @@ export function ChatWidget({
 
   const hasMessages = messages.length > 0;
   const isBusy = isLoading || isProcessingVoice;
-  const canSend = draft.trim().length > 0 && !isBusy && !isRecording;
+  const canSend =
+    draft.trim().length > 0 && !isBusy && !isRecording && !isEscalated;
   const isDark = appearance === "dark";
-  const visibleSuggestions = suggestedMessages.filter((s) => s.trim());
+
+  const displaySuggestions = actionEnabled
+    ? liveSuggestedMessages
+    : suggestedMessages;
+
+  const keepShowing = actionEnabled
+    ? (suggestedMessagesAction?.keepShowingAfterFirst ?? false)
+    : keepShowingSuggested;
+
+  const visibleSuggestions = displaySuggestions.filter((s) => s.trim());
+  const showSuggestionChips =
+    !isEscalated &&
+    shouldShowSuggestedMessages({
+      hasMessages,
+      keepShowingAfterFirst: keepShowing,
+      suggestionCount: visibleSuggestions.length,
+    });
 
   const widgetStyle = primaryColor
     ? ({ "--widget-primary": primaryColor } as React.CSSProperties)
@@ -147,10 +200,25 @@ export function ChatWidget({
       onSuggestedClick(text);
       return;
     }
-    if (!isBusy && !isRecording) {
+    if (!isBusy && !isRecording && !isEscalated) {
       sendMessage(text);
     }
   }
+
+  const visibleCustomButtons = useMemo(
+    () =>
+      customButtonsAction ? getVisibleCustomButtons(customButtonsAction) : [],
+    [customButtonsAction],
+  );
+
+  function handleCustomButtonMessage(text: string) {
+    if (!isBusy && !isRecording && !isEscalated) {
+      sendMessage(text);
+    }
+  }
+
+  const handoffBannerText =
+    escalationMessage ?? "Connecting you to an agent. Please wait.";
 
   return (
     <div
@@ -272,19 +340,51 @@ export function ChatWidget({
       </div>
 
       <div className="shrink-0 px-3.5 pb-2 pt-0.5">
+        {isEscalated ? (
+          <div
+            className={cn(
+              "mb-2 rounded-lg border px-3 py-2 text-body-sm leading-relaxed",
+              isDark
+                ? "border-hairline-strong bg-[#292524] text-[#fafaf9]"
+                : "border-hairline bg-surface-strong text-ink",
+            )}
+            role="status"
+          >
+            {handoffBannerText}
+          </div>
+        ) : null}
+
         {showPoweredBy && <PoweredByVocally />}
+
+        <ChatCustomButtonsRow
+          buttons={visibleCustomButtons}
+          appearance={appearance}
+          isBusy={isBusy || isRecording || isEscalated}
+          readOnly={customButtonsReadOnly || isEscalated}
+          onMessageClick={handleCustomButtonMessage}
+        />
+
+        {activeForm && !isEscalated ? (
+          <div className="mb-2">
+            <ChatInlineForm
+              form={activeForm}
+              disabled={isBusy || isRecording || formSubmitting}
+              onSubmit={submitForm}
+            />
+          </div>
+        ) : null}
 
         <ChatMessageComposer
           appearance={appearance}
           primaryColor={primaryColor}
-          placeholder={placeholder}
+          placeholder={isEscalated ? "Waiting for an agent…" : placeholder}
           value={draft}
           onChange={setDraft}
           onSubmit={handleSubmit}
-          isBusy={isBusy || isRecording}
+          isBusy={isBusy || isRecording || isEscalated}
           canSend={canSend}
-          showSuggestions={visibleSuggestions.length > 0}
-          suggestedMessages={suggestedMessages}
+          showSuggestions={showSuggestionChips}
+          suggestedMessages={displaySuggestions}
           onSuggestedClick={handleSuggestedClick}
           voice={
             isVoiceSupported

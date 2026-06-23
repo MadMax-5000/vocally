@@ -1,5 +1,7 @@
+import { buildCollectLeadsPromptSection } from "@/lib/ai/prompts/collect-leads-prompt";
 import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
 import type { ToolDefinition } from "@/lib/ai/tools/types";
+import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 
 export type VoiceBotPromptInput = {
   agentName: string;
@@ -8,6 +10,7 @@ export type VoiceBotPromptInput = {
   knowledgeContext: string;
   language: string;
   toolDefinitions?: ToolDefinition[];
+  collectLeads?: ResolvedCollectLeadsAction;
 };
 
 export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
@@ -45,6 +48,10 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
       "",
       "When you need to use a tool, the system executes it and gives you the result. Use the result to answer the customer conversationally. Keep your spoken response brief.",
     );
+  }
+
+  if (input.collectLeads?.enabled) {
+    sections.push(buildCollectLeadsPromptSection(input.collectLeads));
   }
 
   sections.push(

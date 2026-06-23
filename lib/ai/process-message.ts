@@ -7,9 +7,26 @@ import type { LLMMessage } from "@/lib/ai/llm";
 import { resolveLlmModelId } from "@/lib/ai/model-registry";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
-import { evaluateEscalation, applyEscalation } from "@/lib/ai/escalation-service";
+import {
+  evaluateEscalation,
+  applyEscalation,
+  createEscalationTicket,
+} from "@/lib/ai/escalation-service";
 import type { EscalationDecision } from "@/lib/ai/escalation-service";
-import { getAllToolDefinitions, getToolHandler } from "@/lib/ai/tools/registry";
+import {
+  resolveEscalationAction,
+  resolveCustomerEscalationMessage,
+  resolveEscalationTriggers,
+} from "@/lib/deploy/escalation-action";
+import { getWebChatChannel, parseWebChatConfig } from "@/lib/deploy/web-chat-config";
+import { resolveCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
+import {
+  isCustomFormConfigured,
+  resolveCustomFormAction,
+} from "@/lib/deploy/custom-form-action";
+import type { ChatFormUi } from "@/lib/chat/form-ui";
+import { customFormRequestStore } from "@/lib/ai/tools/handlers/show-custom-form";
+import { getToolDefinitionsForAgent, getToolHandler } from "@/lib/ai/tools/registry";
 import type { ToolCall, ToolContext } from "@/lib/ai/tools/types";
 import { dtmfRequestStore } from "@/lib/ai/tools/handlers";
 import type { DtmfRequest } from "@/lib/ai/tools/handlers";
@@ -27,7 +44,10 @@ export type ProcessMessageResult = {
   botContent: string;
   sessionId: string;
   escalation?: EscalationDecision;
+  customerFacingMessage?: string;
+  ticketId?: string;
   dtmfRequest?: DtmfRequest | null;
+  formRequest?: ChatFormUi | null;
 };
 
 const AI_FALLBACK = "I'm sorry, I'm having trouble processing your request right now. Please try again later.";
@@ -89,6 +109,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     include: {
       org: { select: { name: true } },
       knowledgeDocs: { select: { knowledgeDocId: true } },
+      channels: { select: { channel: true, enabled: true, config: true } },
     },
   });
 
@@ -145,25 +166,65 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
   const promptLanguage = "the same language the customer is using";
 
-  const toolDefinitions = getAllToolDefinitions();
+  const escalationConfig = resolveEscalationAction(agent.channels);
+  const webChatRow = getWebChatChannel(agent.channels);
+  const webChatParsed = webChatRow ? parseWebChatConfig(webChatRow.config) : {};
+  const hasEscalationConfig = webChatParsed.actions?.escalations !== undefined;
+  const collectLeadsAction = resolveCollectLeadsAction(agent.channels);
+  const customFormAction = resolveCustomFormAction(agent.channels);
+  const customFormActive =
+    customFormAction.enabled && isCustomFormConfigured(customFormAction);
+  const handoffActive =
+    agent.handoffEnabled &&
+    (escalationConfig.enabled || (!hasEscalationConfig && agent.handoffEnabled));
+  const enabledTriggers = resolveEscalationTriggers(escalationConfig.triggers);
+
+  const sessionRow = await prisma.session.findFirst({
+    where: { id: sessionId, orgId },
+    select: { channel: true },
+  });
+  const messageChannel = input.channel ?? sessionRow?.channel ?? "CHAT";
+
+  const toolDefinitions = getToolDefinitionsForAgent({
+    allowCreateTicket: escalationConfig.allowCreateTicketTool,
+    includeCollectLeads: collectLeadsAction.enabled,
+    includeCustomForm:
+      customFormActive && customFormAction.allowLlmTrigger,
+  });
+
+  let escalationPromptExtra = "";
+  if (
+    escalationConfig.createTicketOnEscalate &&
+    escalationConfig.requireEmailForTicket
+  ) {
+    escalationPromptExtra =
+      "If you escalate or cannot resolve an issue, use create_ticket when you have subject, description, priority, and the customer's email.";
+  }
+
+  const instructionsWithEscalation = [agent.instructions, escalationPromptExtra]
+    .filter(Boolean)
+    .join("\n\n");
 
   const systemPrompt =
     input.channel === "VOICE"
       ? voiceBotSystemPromptV1({
           agentName: agent.name,
           orgName: agent.org.name,
-          instructions: agent.instructions,
+          instructions: instructionsWithEscalation,
           knowledgeContext,
           language: promptLanguage,
           toolDefinitions,
+          collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
         })
       : chatBotSystemPromptV1({
           agentName: agent.name,
           orgName: agent.org.name,
-          instructions: agent.instructions,
+          instructions: instructionsWithEscalation,
           knowledgeContext,
           language: promptLanguage,
           toolDefinitions,
+          collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
+          customForm: customFormActive ? customFormAction : undefined,
         });
 
   const llmMessages: LLMMessage[] = history
@@ -185,7 +246,14 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
   let botContent: string;
   let llmFailed = false;
-  const toolCtx: ToolContext = { orgId, sessionId };
+  const toolCtx: ToolContext = {
+    orgId,
+    sessionId,
+    agentId,
+    channel: messageChannel,
+    collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
+    customForm: customFormActive ? customFormAction : undefined,
+  };
 
   try {
     const firstResult = await callLLM({
@@ -248,8 +316,12 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     botContent,
     llmFailed,
     previousBotMessages,
-    handoffEnabled: agent.handoffEnabled,
+    handoffEnabled: handoffActive,
+    enabledTriggers,
   });
+
+  let ticketId: string | undefined;
+  let customerFacingMessage: string | undefined;
 
   if (escalation.shouldEscalate) {
     await applyEscalation({
@@ -257,15 +329,34 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       orgId,
       decision: escalation,
     });
+
+    customerFacingMessage = resolveCustomerEscalationMessage(escalationConfig);
+
+    if (escalationConfig.createTicketOnEscalate) {
+      const createdId = await createEscalationTicket({
+        orgId,
+        sessionId,
+        userMessage: message,
+        decision: escalation,
+        config: escalationConfig,
+      });
+      if (createdId) ticketId = createdId;
+    }
   }
 
   const dtmfRequest = dtmfRequestStore.get(sessionId) ?? null;
   if (dtmfRequest) dtmfRequestStore.delete(sessionId);
 
+  const formRequest = customFormRequestStore.get(sessionId) ?? null;
+  if (formRequest) customFormRequestStore.delete(sessionId);
+
   return {
     botContent,
     sessionId,
     escalation: escalation.shouldEscalate ? escalation : undefined,
+    customerFacingMessage,
+    ticketId,
     dtmfRequest,
+    formRequest,
   };
 }

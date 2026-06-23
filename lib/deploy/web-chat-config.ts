@@ -1,6 +1,37 @@
 import type { AgentChannel, AgentChannelType } from "@prisma/client";
 
 import type { DeployCatalogEntry } from "@/lib/constants/deploy-catalog";
+import {
+  resolveCustomButtonAction,
+  type CustomButtonActionConfig,
+  type ResolvedCustomButtonAction,
+} from "@/lib/deploy/custom-button-action";
+import type {
+  EscalationActionConfig,
+  ResolvedEscalationAction,
+} from "@/lib/deploy/escalation-action";
+import type { CollectLeadsActionConfig } from "@/lib/deploy/collect-leads-action";
+import type {
+  CustomFormActionConfig,
+  ResolvedCustomFormAction,
+} from "@/lib/deploy/custom-form-action";
+import {
+  parseWebChatActionsConfig,
+  resolveSuggestedMessagesAction,
+  type ResolvedSuggestedMessagesAction,
+  type SuggestedMessagesActionConfig,
+} from "@/lib/deploy/suggested-messages-action";
+
+export type { EscalationActionConfig, ResolvedEscalationAction } from "@/lib/deploy/escalation-action";
+export { resolveEscalationAction } from "@/lib/deploy/escalation-action";
+
+export type { ResolvedCustomButtonAction } from "@/lib/deploy/custom-button-action";
+export type { ResolvedSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
+export type {
+  CustomFormActionConfig,
+  ResolvedCustomFormAction,
+} from "@/lib/deploy/custom-form-action";
+export { resolveCustomFormAction } from "@/lib/deploy/custom-form-action";
 
 export const WIDGET_PRIMARY_COLOR_DEFAULT = "#FF5A36";
 export const WIDGET_PLACEHOLDER_DEFAULT = "Message...";
@@ -74,10 +105,19 @@ function parseNavLinks(value: unknown): HelpPageNavLink[] | undefined {
   return links.length > 0 ? links : [];
 }
 
+export type WebChatChannelActionsConfig = {
+  suggestedMessages?: SuggestedMessagesActionConfig;
+  customButtons?: CustomButtonActionConfig;
+  customForm?: CustomFormActionConfig;
+  escalations?: EscalationActionConfig;
+  collectLeads?: CollectLeadsActionConfig;
+};
+
 export type WebChatChannelConfig = {
   helpPage?: WebChatHelpPageConfig;
   integrations?: Record<string, { enabled?: boolean }>;
   widget?: WebChatWidgetConfig;
+  actions?: WebChatChannelActionsConfig;
 };
 
 function parseUrl(value: unknown): string | undefined {
@@ -241,6 +281,11 @@ export function parseWebChatConfig(config: unknown): WebChatChannelConfig {
     result.widget = parseWebChatWidgetConfig(widget);
   }
 
+  const actions = parseWebChatActionsConfig(raw.actions);
+  if (actions) {
+    result.actions = actions;
+  }
+
   return result;
 }
 
@@ -286,6 +331,8 @@ export type ResolvedWebChatWidgetSettings = {
   placeholder: string;
   suggestedMessages: string[];
   keepShowingSuggested: boolean;
+  suggestedMessagesAction: ResolvedSuggestedMessagesAction;
+  customButtonsAction: ResolvedCustomButtonAction;
   appearance: WebChatWidgetAppearance;
   primaryColor: string;
   bubbleColor: string;
@@ -303,6 +350,8 @@ export function resolveWebChatWidgetSettings(
   options?: { isMobile?: boolean },
 ): ResolvedWebChatWidgetSettings {
   const widget = getWebChatWidgetConfig(channels);
+  const suggestedMessagesAction = resolveSuggestedMessagesAction(channels);
+  const customButtonsAction = resolveCustomButtonAction(channels);
   const primary = widget.primaryColor ?? WIDGET_PRIMARY_COLOR_DEFAULT;
   return {
     displayName: resolveWidgetDisplayName(agentName, widget),
@@ -310,6 +359,8 @@ export function resolveWebChatWidgetSettings(
     placeholder: widget.placeholder?.trim() || WIDGET_PLACEHOLDER_DEFAULT,
     suggestedMessages: widget.suggestedMessages ?? [],
     keepShowingSuggested: widget.keepShowingSuggested ?? false,
+    suggestedMessagesAction,
+    customButtonsAction,
     appearance: widget.appearance ?? "light",
     primaryColor: primary,
     bubbleColor: widget.bubbleColor ?? primary,
@@ -364,6 +415,8 @@ export type ResolvedWebChatHelpPageSettings = {
   heroDarkUrl?: string;
   suggestedMessages: string[];
   keepShowingSuggested: boolean;
+  suggestedMessagesAction: ResolvedSuggestedMessagesAction;
+  customButtonsAction: ResolvedCustomButtonAction;
   placeholder: string;
   navLinks: HelpPageNavLink[];
 };
@@ -390,6 +443,8 @@ export function resolveWebChatHelpPageSettings(
     heroDarkUrl: helpPage.heroDarkUrl,
     suggestedMessages: helpPage.suggestedMessages ?? [],
     keepShowingSuggested: helpPage.keepShowingSuggested ?? false,
+    suggestedMessagesAction: resolveSuggestedMessagesAction(channels),
+    customButtonsAction: resolveCustomButtonAction(channels),
     placeholder: helpPage.placeholder?.trim() || HELP_PAGE_PLACEHOLDER_DEFAULT,
     navLinks: helpPage.navLinks ?? [],
   };

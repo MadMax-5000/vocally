@@ -41,6 +41,11 @@ export async function POST(req: NextRequest) {
       return buildTwiLResponse(buildGoodbyeTwiML("Missing required call parameters. Goodbye."));
     }
 
+    if (process.env.VOICE_PIPELINE === "vapi") {
+      console.warn("[twilio-voice-webhook] Legacy Twilio stream invoked, but VOICE_PIPELINE=vapi. Ensure Twilio phone number is pointed to Vapi serverUrl instead of this webhook.");
+      return buildTwiLResponse(buildGoodbyeTwiML("System is configured for Vapi. Please update your Twilio webhook URL. Goodbye."));
+    }
+
     const resolved = await resolveVoiceNumber(called);
     if (!resolved) {
       return buildTwiLResponse(buildNoAgentTwiML());

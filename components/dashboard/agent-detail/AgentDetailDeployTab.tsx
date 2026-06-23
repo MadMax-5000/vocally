@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -12,7 +12,8 @@ import {
 import { DeployIntegrationCard } from "@/components/dashboard/agent-detail/deploy/DeployIntegrationCard";
 import {
   FEATURED_DEPLOYMENTS,
-  INTEGRATION_DEPLOYMENTS,
+  isDeploymentImplemented,
+  partitionIntegrationDeployments,
 } from "@/lib/constants/deploy-catalog";
 import {
   isHelpPageEnabled,
@@ -28,8 +29,9 @@ type Props = { agent: AgentDetailWithRelations };
 function buildIntegrationState(
   channels: AgentDetailWithRelations["channels"],
 ): Record<string, boolean> {
+  const { available, comingSoon } = partitionIntegrationDeployments();
   return Object.fromEntries(
-    INTEGRATION_DEPLOYMENTS.map((entry) => [
+    [...available, ...comingSoon].map((entry) => [
       entry.id,
       isIntegrationDeploymentEnabled(channels, entry),
     ]),
@@ -39,6 +41,11 @@ function buildIntegrationState(
 export function AgentDetailDeployTab({ agent }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+
+  const { available, comingSoon } = useMemo(
+    () => partitionIntegrationDeployments(),
+    [],
+  );
 
   const [webChatEnabled, setWebChatEnabled] = useState(() =>
     isWebChatEnabled(agent.channels),
@@ -76,6 +83,8 @@ export function AgentDetailDeployTab({ agent }: Props) {
   }
 
   function handleIntegrationToggle(id: string, enabled: boolean) {
+    if (!isDeploymentImplemented(id)) return;
+
     const previous = integrationEnabled[id];
     setIntegrationEnabled((prev) => ({ ...prev, [id]: enabled }));
 
@@ -141,21 +150,45 @@ export function AgentDetailDeployTab({ agent }: Props) {
         })}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {INTEGRATION_DEPLOYMENTS.map((item) => (
-          <DeployIntegrationCard
-            key={item.id}
-            title={item.title}
-            description={item.description}
-            iconSrc={item.iconSrc}
-            beta={item.beta}
-            enabled={integrationEnabled[item.id] ?? false}
-            toggling={pending}
-            manageHref={`${manageBase}/${item.id}`}
-            onEnabledChange={(next) => handleIntegrationToggle(item.id, next)}
-          />
-        ))}
-      </div>
+      {available.length > 0 ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {available.map((item) => (
+            <DeployIntegrationCard
+              key={item.id}
+              title={item.title}
+              description={item.description}
+              iconSrc={item.iconSrc}
+              beta={item.beta}
+              comingSoon={false}
+              enabled={integrationEnabled[item.id] ?? false}
+              toggling={pending}
+              manageHref={`${manageBase}/${item.id}`}
+              onEnabledChange={(next) => handleIntegrationToggle(item.id, next)}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {comingSoon.length > 0 ? (
+        <div className="mt-2 flex flex-col gap-3 border-t border-hairline pt-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {comingSoon.map((item) => (
+              <DeployIntegrationCard
+                key={item.id}
+                title={item.title}
+                description={item.description}
+                iconSrc={item.iconSrc}
+                beta={item.beta}
+                comingSoon
+                enabled={false}
+                toggling={false}
+                manageHref={`${manageBase}/${item.id}`}
+                onEnabledChange={() => {}}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

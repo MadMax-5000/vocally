@@ -19,12 +19,31 @@ import {
   agentDetailInclude,
   type AgentDetailWithRelations,
 } from "@/components/dashboard/agent-detail/agent-detail-types";
-import { INTEGRATION_DEPLOYMENTS } from "@/lib/constants/deploy-catalog";
+import {
+  INTEGRATION_DEPLOYMENTS,
+  isDeploymentImplemented,
+} from "@/lib/constants/deploy-catalog";
 import {
   parseWebChatConfig,
   type WebChatHelpPageConfig,
   type WebChatWidgetConfig,
 } from "@/lib/deploy/web-chat-config";
+import type { CustomButtonActionConfig } from "@/lib/deploy/custom-button-action";
+import type { EscalationActionConfig } from "@/lib/deploy/escalation-action";
+import type {
+  CollectLeadsActionConfig,
+  CollectLeadsFieldsConfig,
+  CollectLeadsWhenToAsk,
+} from "@/lib/deploy/collect-leads-action";
+import type { SuggestedMessagesActionConfig } from "@/lib/deploy/suggested-messages-action";
+import type { CustomFormActionConfig } from "@/lib/deploy/custom-form-action";
+import {
+  MAX_FORM_FIELDS,
+  MAX_FORM_DESCRIPTION,
+  MAX_FORM_SUBMIT_LABEL,
+  MAX_FORM_TITLE,
+  CUSTOM_FORM_FIELD_TYPES,
+} from "@/lib/deploy/custom-form-action";
 import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
@@ -157,6 +176,7 @@ export async function createAIAgentFromOnboarding(
           websiteUrl,
           handoffEnabled: validated.handoffEnabled,
           widgetToken: crypto.randomUUID(),
+          apiToken: crypto.randomUUID(),
         },
       });
 
@@ -419,6 +439,13 @@ export async function updateAgentDeployment(
       );
       if (!entry) {
         return { success: false as const, error: "Unknown deployment" };
+      }
+
+      if (!isDeploymentImplemented(parsed.data.integrationId)) {
+        return {
+          success: false as const,
+          error: "This integration is not available yet",
+        };
       }
 
       if (entry.channelType) {
@@ -691,6 +718,7 @@ export async function updateChatWidgetSettings(
 
     revalidatePath(`/dashboard/agents/${agentId}`);
     revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/wordpress`);
     revalidatePath(`/widget/${agentId}`);
 
     const updated = await prisma.agent.findFirst({
@@ -711,6 +739,790 @@ export async function updateChatWidgetSettings(
       };
     }
     return { success: false as const, error: "Failed to update chat widget settings" };
+  }
+}
+
+const updateSuggestedMessagesActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  staticStarters: z.array(z.string().max(200)).max(20).optional(),
+  keepShowingAfterFirst: z.boolean().optional(),
+  dynamicEnabled: z.boolean().optional(),
+});
+
+export async function updateSuggestedMessagesActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateSuggestedMessagesActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateSuggestedMessagesActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.suggestedMessages ?? {};
+    const incoming = validated;
+
+    const nextAction: SuggestedMessagesActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.staticStarters !== undefined) {
+      nextAction.staticStarters = incoming.staticStarters
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    if (incoming.keepShowingAfterFirst !== undefined) {
+      nextAction.keepShowingAfterFirst = incoming.keepShowingAfterFirst;
+    }
+    if (incoming.dynamicEnabled !== undefined) {
+      nextAction.dynamicEnabled = incoming.dynamicEnabled;
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        suggestedMessages: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/help-page`);
+    revalidatePath(`/widget/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update suggested messages action",
+    };
+  }
+}
+
+const leadFieldRequirementSchema = z.enum(["required", "optional", "off"]);
+
+const collectLeadsFieldsSchema = z
+  .object({
+    name: leadFieldRequirementSchema.optional(),
+    email: leadFieldRequirementSchema.optional(),
+    phone: leadFieldRequirementSchema.optional(),
+    company: leadFieldRequirementSchema.optional(),
+    notes: leadFieldRequirementSchema.optional(),
+  })
+  .optional();
+
+const updateCollectLeadsActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  whenToAsk: z.enum(["proactive", "intent_only"]).optional(),
+  fields: collectLeadsFieldsSchema,
+  consentText: z.string().max(2000).optional(),
+  notifyEmail: z.union([z.string().email().max(320), z.literal("")]).optional(),
+});
+
+export async function updateCollectLeadsActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateCollectLeadsActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateCollectLeadsActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.collectLeads ?? {};
+    const incoming = validated;
+
+    const nextAction: CollectLeadsActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.whenToAsk !== undefined) {
+      nextAction.whenToAsk = incoming.whenToAsk as CollectLeadsWhenToAsk;
+    }
+    if (incoming.fields !== undefined) {
+      nextAction.fields = incoming.fields as CollectLeadsFieldsConfig;
+    }
+    if (incoming.consentText !== undefined) {
+      const trimmed = incoming.consentText.trim();
+      if (trimmed) nextAction.consentText = trimmed;
+    }
+    if (incoming.notifyEmail !== undefined) {
+      const trimmed = incoming.notifyEmail.trim();
+      nextAction.notifyEmail = trimmed || undefined;
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        collectLeads: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update collect leads action",
+    };
+  }
+}
+
+export type AgentLeadListItem = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  source: string;
+  createdAt: string;
+};
+
+export async function listAgentLeads(
+  agentId: string,
+  options?: { limit?: number },
+): Promise<
+  | { success: true; data: AgentLeadListItem[] }
+  | { success: false; error: string }
+> {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false, error: "Agent not found" };
+    }
+
+    const limit = Math.min(options?.limit ?? 20, 50);
+
+    const leads = await prisma.agentLead.findMany({
+      where: { orgId: dbOrgId, agentId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        company: true,
+        source: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: leads.map((lead) => ({
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        company: lead.company,
+        source: lead.source,
+        createdAt: lead.createdAt.toISOString(),
+      })),
+    };
+  } catch {
+    return { success: false, error: "Failed to load leads" };
+  }
+}
+
+const escalationTriggersSchema = z.object({
+  userRequested: z.boolean().optional(),
+  negativeSentiment: z.boolean().optional(),
+  aiFailure: z.boolean().optional(),
+  unsupportedRequest: z.boolean().optional(),
+});
+
+const updateEscalationActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  triggers: escalationTriggersSchema.optional(),
+  customerMessage: z.string().max(500).optional(),
+  createTicketOnEscalate: z.boolean().optional(),
+  allowCreateTicketTool: z.boolean().optional(),
+  ticketPriority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  requireEmailForTicket: z.boolean().optional(),
+});
+
+export async function updateEscalationActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateEscalationActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateEscalationActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.escalations ?? {};
+    const incoming = validated;
+
+    const nextAction: EscalationActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.triggers !== undefined) {
+      nextAction.triggers = {
+        ...(current.triggers ?? {}),
+        ...incoming.triggers,
+      };
+    }
+    if (incoming.customerMessage !== undefined) {
+      const trimmed = incoming.customerMessage.trim();
+      nextAction.customerMessage = trimmed || undefined;
+    }
+    if (incoming.createTicketOnEscalate !== undefined) {
+      nextAction.createTicketOnEscalate = incoming.createTicketOnEscalate;
+    }
+    if (incoming.allowCreateTicketTool !== undefined) {
+      nextAction.allowCreateTicketTool = incoming.allowCreateTicketTool;
+    }
+    if (incoming.ticketPriority !== undefined) {
+      nextAction.ticketPriority = incoming.ticketPriority;
+    }
+    if (incoming.requireEmailForTicket !== undefined) {
+      nextAction.requireEmailForTicket = incoming.requireEmailForTicket;
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        escalations: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    if (incoming.enabled !== undefined) {
+      await prisma.agent.update({
+        where: { id: agentId },
+        data: { handoffEnabled: incoming.enabled },
+      });
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/widget/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update escalation action",
+    };
+  }
+}
+
+const customButtonItemSchema = z.discriminatedUnion("kind", [
+  z.object({
+    label: z.string().min(1).max(80),
+    kind: z.literal("message"),
+    message: z.string().min(1).max(200),
+  }),
+  z.object({
+    label: z.string().min(1).max(80),
+    kind: z.literal("link"),
+    href: z
+      .string()
+      .url()
+      .max(2048)
+      .refine((v) => v.startsWith("https://"), "Link must use HTTPS"),
+    openInNewTab: z.boolean().optional(),
+  }),
+]);
+
+const customFormFieldSchema = z.object({
+  id: z
+    .string()
+    .min(1)
+    .max(64)
+    .regex(/^[a-zA-Z0-9_-]+$/, "Invalid field id"),
+  type: z.enum(CUSTOM_FORM_FIELD_TYPES),
+  label: z.string().min(1).max(80),
+  placeholder: z.string().max(120).optional(),
+  required: z.boolean(),
+  options: z.array(z.string().min(1).max(80)).max(20).optional(),
+});
+
+const updateCustomFormActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  formId: z.string().min(1).max(64).optional(),
+  title: z.string().max(MAX_FORM_TITLE).optional(),
+  description: z.string().max(MAX_FORM_DESCRIPTION).optional(),
+  submitLabel: z.string().max(MAX_FORM_SUBMIT_LABEL).optional(),
+  fields: z.array(customFormFieldSchema).max(MAX_FORM_FIELDS).optional(),
+  showAfterUserMessages: z.number().int().min(1).max(100).nullable().optional(),
+  allowLlmTrigger: z.boolean().optional(),
+});
+
+const updateCustomButtonActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  buttons: z.array(customButtonItemSchema).max(8).optional(),
+});
+
+export async function updateCustomButtonActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateCustomButtonActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateCustomButtonActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.customButtons ?? {};
+    const incoming = validated;
+
+    const nextAction: CustomButtonActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.buttons !== undefined) {
+      nextAction.buttons = incoming.buttons.map((b) => {
+        if (b.kind === "message") {
+          return {
+            label: b.label.trim(),
+            kind: b.kind,
+            message: b.message.trim(),
+          };
+        }
+        return {
+          label: b.label.trim(),
+          kind: b.kind,
+          href: b.href.trim(),
+          openInNewTab: b.openInNewTab ?? true,
+        };
+      });
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        customButtons: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/help-page`);
+    revalidatePath(`/widget/${agentId}`);
+    revalidatePath(`/help/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update custom button action",
+    };
+  }
+}
+
+export async function updateCustomFormActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateCustomFormActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateCustomFormActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.customForm ?? {};
+    const incoming = validated;
+
+    const nextAction: CustomFormActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.formId !== undefined) {
+      nextAction.formId = incoming.formId;
+    } else if (!nextAction.formId) {
+      nextAction.formId = crypto.randomUUID().replace(/-/g, "").slice(0, 24);
+    }
+    if (incoming.title !== undefined) {
+      const trimmed = incoming.title.trim();
+      nextAction.title = trimmed || undefined;
+    }
+    if (incoming.description !== undefined) {
+      const trimmed = incoming.description.trim();
+      nextAction.description = trimmed || undefined;
+    }
+    if (incoming.submitLabel !== undefined) {
+      const trimmed = incoming.submitLabel.trim();
+      nextAction.submitLabel = trimmed || undefined;
+    }
+    if (incoming.fields !== undefined) {
+      nextAction.fields = incoming.fields.map((f) => {
+        const base = {
+          id: f.id,
+          type: f.type,
+          label: f.label.trim(),
+          required: f.required,
+          ...(f.placeholder?.trim()
+            ? { placeholder: f.placeholder.trim() }
+            : {}),
+        };
+        if (f.type === "select" && f.options?.length) {
+          return { ...base, options: f.options.map((o) => o.trim()) };
+        }
+        return base;
+      });
+    }
+    if (incoming.showAfterUserMessages !== undefined) {
+      nextAction.showAfterUserMessages = incoming.showAfterUserMessages;
+    }
+    if (incoming.allowLlmTrigger !== undefined) {
+      nextAction.allowLlmTrigger = incoming.allowLlmTrigger;
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        customForm: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath(`/widget/${agentId}`);
+    revalidatePath(`/help/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update custom form action",
+    };
+  }
+}
+
+export type FormSubmissionListItem = {
+  id: string;
+  formId: string;
+  sessionId: string | null;
+  values: Record<string, string>;
+  createdAt: string;
+};
+
+export async function listFormSubmissions(
+  agentId: string,
+  options?: { limit?: number },
+): Promise<
+  | { success: true; data: FormSubmissionListItem[] }
+  | { success: false; error: string }
+> {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false, error: "Agent not found" };
+    }
+
+    const limit = Math.min(options?.limit ?? 20, 50);
+
+    const submissions = await prisma.formSubmission.findMany({
+      where: { orgId: dbOrgId, agentId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        formId: true,
+        sessionId: true,
+        values: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: submissions.map((row) => ({
+        id: row.id,
+        formId: row.formId,
+        sessionId: row.sessionId,
+        values:
+          row.values &&
+          typeof row.values === "object" &&
+          !Array.isArray(row.values)
+            ? (row.values as Record<string, string>)
+            : {},
+        createdAt: row.createdAt.toISOString(),
+      })),
+    };
+  } catch {
+    return { success: false, error: "Failed to load form submissions" };
   }
 }
 
@@ -1500,6 +2312,7 @@ export async function duplicateAgent(agentId: string) {
         llmProvider: original.llmProvider,
         llmModel: original.llmModel,
         widgetToken: crypto.randomUUID(),
+        apiToken: crypto.randomUUID(),
         languages: {
           create: original.languages.map((l) => ({ language: l.language })),
         },
@@ -1551,5 +2364,57 @@ export async function deleteAgent(agentId: string) {
     return { success: true as const };
   } catch (err) {
     return { success: false as const, error: "Failed to delete agent" };
+  }
+}
+
+export async function ensureAgentApiToken(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true, apiToken: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    if (agent.apiToken) {
+      return { success: true as const, data: { apiToken: agent.apiToken } };
+    }
+
+    const apiToken = crypto.randomUUID();
+    await prisma.agent.update({
+      where: { id: agentId },
+      data: { apiToken },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/api`);
+    return { success: true as const, data: { apiToken } };
+  } catch {
+    return { success: false as const, error: "Failed to ensure API token" };
+  }
+}
+
+export async function regenerateAgentApiToken(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    const apiToken = crypto.randomUUID();
+    await prisma.agent.update({
+      where: { id: agentId },
+      data: { apiToken },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}/deploy/api`);
+    return { success: true as const, data: { apiToken } };
+  } catch {
+    return { success: false as const, error: "Failed to regenerate API token" };
   }
 }

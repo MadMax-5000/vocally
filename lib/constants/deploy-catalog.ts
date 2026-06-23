@@ -29,6 +29,26 @@ export const FEATURED_DEPLOYMENTS = [
   },
 ] as const;
 
+/** Deployments with a full configuration UI (dedicated route). */
+export const IMPLEMENTED_DEPLOYMENT_IDS = [
+  "chat-widget",
+  "help-page",
+  "email",
+  "whatsapp",
+  "messenger",
+  "instagram",
+  "wordpress",
+  "api",
+  "phone",
+] as const;
+
+export type ImplementedDeploymentId = (typeof IMPLEMENTED_DEPLOYMENT_IDS)[number];
+
+export function isDeploymentImplemented(deploymentId: string): boolean {
+  return (IMPLEMENTED_DEPLOYMENT_IDS as readonly string[]).includes(deploymentId);
+}
+
+/** Available integrations first, then coming soon (catalog source order). */
 export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
   {
     id: "email",
@@ -37,21 +57,6 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
       "Connect your agent to Gmail and let it respond to customer emails from your inbox.",
     iconSrc: "/svg/gmail.svg",
     channelType: "EMAIL",
-  },
-  {
-    id: "shopify",
-    title: "Shopify",
-    description:
-      "Connect your agent to Shopify and let it respond to messages from your customers.",
-    iconSrc: "/svg/shopify.svg",
-  },
-  {
-    id: "phone",
-    title: "Phone",
-    description: "Let your AI agent handle inbound phone calls.",
-    iconSrc: "/svg/call.svg",
-    beta: true,
-    channelType: "VOICE_CALLS",
   },
   {
     id: "whatsapp",
@@ -78,6 +83,35 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
     channelType: "INSTAGRAM",
   },
   {
+    id: "wordpress",
+    title: "WordPress",
+    description:
+      "Install the official Vocally plugin or paste embed code to add your agent to WordPress.",
+    iconSrc: "/svg/wordpress.svg",
+  },
+  {
+    id: "api",
+    title: "API",
+    description:
+      "Integrate your agent directly with your applications using our REST API.",
+    iconSrc: "/svg/api.svg",
+  },
+  {
+    id: "shopify",
+    title: "Shopify",
+    description:
+      "Connect your agent to Shopify and let it respond to messages from your customers.",
+    iconSrc: "/svg/shopify.svg",
+  },
+  {
+    id: "phone",
+    title: "Phone",
+    description: "Let your AI agent handle inbound phone calls.",
+    iconSrc: "/svg/call.svg",
+    beta: true,
+    channelType: "VOICE_CALLS",
+  },
+  {
     id: "zendesk",
     title: "Zendesk",
     description:
@@ -100,26 +134,28 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
     channelType: "SLACK",
   },
   {
-    id: "wordpress",
-    title: "WordPress",
-    description:
-      "Use the official Vocally plugin for WordPress to embed your agent on your site.",
-    iconSrc: "/svg/wordpress.svg",
-  },
-  {
-    id: "api",
-    title: "API",
-    description:
-      "Integrate your agent directly with your applications using our REST API.",
-    iconSrc: "/svg/api.svg",
-  },
-  {
     id: "zapier",
     title: "Zapier",
     description: "Connect your agent with thousands of apps using Zapier.",
     iconSrc: "/svg/zapier.svg",
   },
 ];
+
+export function partitionIntegrationDeployments(): {
+  available: DeployCatalogEntry[];
+  comingSoon: DeployCatalogEntry[];
+} {
+  const available: DeployCatalogEntry[] = [];
+  const comingSoon: DeployCatalogEntry[] = [];
+  for (const entry of INTEGRATION_DEPLOYMENTS) {
+    if (isDeploymentImplemented(entry.id)) {
+      available.push(entry);
+    } else {
+      comingSoon.push(entry);
+    }
+  }
+  return { available, comingSoon };
+}
 
 export function getDeployCatalogEntry(
   deploymentId: string,
@@ -128,3 +164,12 @@ export function getDeployCatalogEntry(
   if (featured) return featured;
   return INTEGRATION_DEPLOYMENTS.find((d) => d.id === deploymentId);
 }
+
+export function isDeploymentComingSoon(deploymentId: string): boolean {
+  return Boolean(getDeployCatalogEntry(deploymentId)) && !isDeploymentImplemented(deploymentId);
+}
+
+/** Integration catalog entries without a manage UI yet. */
+export const COMING_SOON_DEPLOYMENT_IDS = INTEGRATION_DEPLOYMENTS.filter(
+  (entry) => !isDeploymentImplemented(entry.id),
+).map((entry) => entry.id);

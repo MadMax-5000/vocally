@@ -27,8 +27,12 @@ model Organization {
   smsNumbers                 SmsPhoneNumber[]
   emailAddresses             EmailAddress[]
   gmailConnections           GmailConnection[]
+  instagramConnections       InstagramConnection[]
+  messengerConnections       MessengerConnection[]
   appointments               Appointment[]
   tickets                    Ticket[]
+  agentLeads                 AgentLead[]
+  formSubmissions            FormSubmission[]
 }
 
 model KnowledgeFolder {
@@ -54,6 +58,7 @@ model Agent {
   name        String
   avatarUrl   String?
   widgetToken String? @unique
+  apiToken    String? @unique
 
   agentType    AgentType       @default(RETAIL_ECOMMERCE)
   customRole   String?
@@ -85,11 +90,59 @@ model Agent {
   smsNumbers      SmsPhoneNumber[]
   emailAddresses  EmailAddress[]
   gmailConnection GmailConnection?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
+  instagramConnection InstagramConnection?
+  messengerConnection MessengerConnection?
+  agentLeads          AgentLead[]
+  formSubmissions     FormSubmission[]
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
 
   @@unique([orgId, name])
   @@index([orgId])
+}
+
+model FormSubmission {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  sessionId String?
+  session   Session?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  formId    String
+  values    Json
+  createdAt DateTime     @default(now())
+
+  @@unique([agentId, sessionId, formId])
+  @@index([orgId])
+  @@index([agentId, createdAt(sort: Desc)])
+}
+
+model InstagramConnection {
+  id                String       @id @default(cuid())
+  orgId             String
+  org               Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId           String       @unique
+  agent             Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  pageId            String
+  pageName          String
+  pageAccessTokenEnc String
+
+  connectedAt       DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@unique([orgId, pageId])
+  @@index([orgId])
+  @@index([pageId])
+}
+
+model InstagramMessageDedupe {
+  id        String   @id @default(cuid())
+  messageId String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model GmailConnection {
@@ -108,6 +161,23 @@ model GmailConnection {
 
   @@unique([orgId, googleEmail])
   @@index([googleEmail])
+}
+
+model MessengerConnection {
+  id                 String       @id @default(cuid())
+  orgId              String
+  org                Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId            String       @unique
+  agent              Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  pageId             String       @unique
+  pageName           String?
+  pageAccessTokenEnc String
+  verifyTokenEnc     String
+  connectedAt        DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([orgId])
+  @@index([pageId])
 }
 
 /// Dedupes Gmail message processing across Pub/Sub retries.
@@ -198,8 +268,35 @@ model Session {
   endedAt         DateTime?
   createdAt       DateTime      @default(now())
   callLog         CallLog?
+  agentLeads      AgentLead[]
+  formSubmissions FormSubmission[]
+  tickets         Ticket[]
 
   @@index([orgId])
+}
+
+model AgentLead {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  sessionId String?
+  session   Session?     @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  name    String?
+  email   String?
+  phone   String?
+  company String?
+  notes   String? @db.Text
+  source  Channel
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([agentId, sessionId])
+  @@index([orgId])
+  @@index([agentId, createdAt(sort: Desc)])
 }
 
 model Message {
@@ -211,6 +308,36 @@ model Message {
   audioUrl  String?
   createdAt DateTime    @default(now())
 
+  @@index([sessionId])
+}
+
+model VapiCallMetadata {
+  id               String   @id @default(cuid())
+  sessionId        String   @unique
+  vapiCallId       String   @unique
+  pipelineMode     String   // realtime | cascaded
+  detectedLanguage  String?
+  darijaConfidence Float?
+  latencyP50Ms     Int?
+  latencyP95Ms     Int?
+  endedReason      String?
+  costBreakdown    Json?
+  transferOutcome  String?  // success | failed | no_answer
+  createdAt        DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+model ToolExecutionLog {
+  id         String   @id @default(cuid())
+  sessionId  String
+  toolName   String
+  parameters Json
+  result     Json?
+  success    Boolean
+  latencyMs  Int
+  createdAt  DateTime @default(now())
+  
   @@index([sessionId])
 }
 
@@ -266,6 +393,7 @@ model CallLog {
   sessionId     String       @unique
   session       Session      @relation(fields: [sessionId], references: [id])
   twilioCallSid String?
+  vapiCallId    String?      @unique
   duration      Int?
   recordingUrl  String?
   transcript    String?
@@ -288,6 +416,8 @@ enum Channel {
   SMS
   WHATSAPP
   EMAIL
+  INSTAGRAM
+  MESSENGER
 }
 
 enum SessionStatus {
@@ -393,6 +523,15 @@ model WhatsappPhoneNumber {
 
   @@index([orgId])
   @@index([twilioNumber])
+  @@index([orgId, agentId])
+}
+
+model WhatsappMessageDedupe {
+  id        String   @id @default(cuid())
+  messageId String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model TwilioPhoneNumber {
@@ -478,6 +617,7 @@ model Ticket {
   orgId         String
   organization  Organization   @relation(fields: [orgId], references: [id])
   sessionId     String?
+  session       Session?       @relation(fields: [sessionId], references: [id])
   subject       String
   description   String
   priority      TicketPriority @default(MEDIUM)

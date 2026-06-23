@@ -72,7 +72,19 @@ TWILIO_WHATSAPP_NUMBER=+14155238886
 
 ---
 
-## 5. Database Setup
+## 5. Link sender to an agent (dashboard)
+
+The recommended way to register a WhatsApp sender is from the agent deploy UI:
+
+1. Open **Dashboard → Agents → [your agent] → Deploy → WhatsApp**
+2. Enable WhatsApp for the agent
+3. On **Setup**, copy the inbound webhook URL into Twilio Console
+4. On **Connect**, enter your Twilio WhatsApp sender number (E.164, e.g. `+14155238886`) and click **Connect WhatsApp**
+5. On **Test**, confirm the readiness checklist, then send a message from your phone
+
+This creates a `WhatsappPhoneNumber` row scoped to your organization and agent.
+
+### Manual database setup (advanced)
 
 The `WhatsappPhoneNumber` model maps a Twilio number to an organization and (optionally) a specific agent.
 
@@ -82,7 +94,13 @@ Apply the schema:
 npx prisma db push
 ```
 
-Then register your WhatsApp number for an organization. You can do this via the Prisma Studio or a SQL insert:
+If you use webhook deduplication, apply the optional migration:
+
+```bash
+npx prisma db execute --schema prisma/schema.prisma --file prisma/migrations/004_whatsapp_message_dedupe.sql
+```
+
+Alternatively, register your WhatsApp number via Prisma Studio or SQL:
 
 ```sql
 INSERT INTO "WhatsappPhoneNumber" ("id", "orgId", "agentId", "twilioNumber", "isActive", "createdAt", "updatedAt")

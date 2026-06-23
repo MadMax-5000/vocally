@@ -21,6 +21,10 @@ export function WidgetPageClient({ data }: WidgetPageClientProps) {
         primaryColor={settings.primaryColor}
         placeholder={settings.placeholder}
         suggestedMessages={settings.suggestedMessages}
+        keepShowingSuggested={settings.keepShowingSuggested}
+        suggestedMessagesAction={settings.suggestedMessagesAction}
+        customButtonsAction={settings.customButtonsAction}
+        deployment="widget"
         className="h-full w-full rounded-none border-0 shadow-none"
         showPoweredBy
       />

@@ -144,6 +144,59 @@ export const REQUEST_SECURE_INPUT: ToolDefinition = {
   },
 };
 
+export const SAVE_LEAD: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "save_lead",
+    description:
+      "Save or update lead contact details collected from the customer during the conversation. Call whenever you learn new information; partial updates are allowed.",
+    parameters: {
+      type: "object",
+      properties: {
+        name: {
+          type: "string",
+          description: "Customer full name",
+        },
+        email: {
+          type: "string",
+          description: "Customer email address",
+        },
+        phone: {
+          type: "string",
+          description: "Customer phone number",
+        },
+        company: {
+          type: "string",
+          description: "Customer company or organization",
+        },
+        notes: {
+          type: "string",
+          description: "Additional context about the lead or request",
+        },
+      },
+    },
+  },
+};
+
+export const SHOW_CUSTOM_FORM: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "show_custom_form",
+    description:
+      "Display the configured custom form in the chat UI so the customer can submit structured information at once. Use when collecting multiple fields (contact details, booking info, surveys) instead of asking one field at a time.",
+    parameters: {
+      type: "object",
+      properties: {
+        reason: {
+          type: "string",
+          description:
+            "Brief internal note on why the form is being shown (not shown to the customer)",
+        },
+      },
+    },
+  },
+};
+
 export const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   CHECK_ORDER_STATUS,
   BOOK_APPOINTMENT,
@@ -151,3 +204,4 @@ export const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   LOOKUP_ACCOUNT,
   REQUEST_SECURE_INPUT,
 ];
+

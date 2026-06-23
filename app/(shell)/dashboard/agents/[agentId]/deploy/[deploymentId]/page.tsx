@@ -1,7 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
 import { DeployStubManage } from "@/components/dashboard/agent-detail/deploy/DeployStubManage";
-import { getDeployCatalogEntry } from "@/lib/constants/deploy-catalog";
+import {
+  getDeployCatalogEntry,
+  isDeploymentComingSoon,
+} from "@/lib/constants/deploy-catalog";
 import { getAIAgentById } from "@/lib/actions/agents";
 
 export default async function DeployStubPage({
@@ -14,6 +17,10 @@ export default async function DeployStubPage({
   const entry = getDeployCatalogEntry(deploymentId);
   if (!entry) notFound();
 
+  if (!isDeploymentComingSoon(deploymentId)) {
+    notFound();
+  }
+
   const result = await getAIAgentById(agentId);
   if (!result.success) {
     if (result.code === "UNAUTHORIZED") redirect("/onboarding");
@@ -21,5 +28,7 @@ export default async function DeployStubPage({
     throw new Error(result.error);
   }
 
-  return <DeployStubManage agentId={agentId} title={entry.title} />;
+  if (!("iconSrc" in entry)) notFound();
+
+  return <DeployStubManage agentId={agentId} entry={entry} />;
 }

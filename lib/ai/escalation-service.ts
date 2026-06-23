@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
+import { logServerWarning } from "@/lib/logger";
+import type { ResolvedEscalationAction } from "@/lib/deploy/escalation-action";
 
 export enum EscalationTrigger {
   USER_REQUESTED = "user_requested",
@@ -141,18 +143,30 @@ export function checkAiFailure(
   return recentFailures.length >= 2;
 }
 
+function isTriggerEnabled(
+  enabledTriggers: EscalationTrigger[] | undefined,
+  trigger: EscalationTrigger,
+): boolean {
+  if (!enabledTriggers || enabledTriggers.length === 0) return true;
+  return enabledTriggers.includes(trigger);
+}
+
 export function evaluateEscalation(params: {
   userMessage: string;
   botContent: string;
   llmFailed: boolean;
   previousBotMessages: Array<{ content: string }>;
   handoffEnabled: boolean;
+  enabledTriggers?: EscalationTrigger[];
 }): EscalationDecision {
   if (!params.handoffEnabled) {
     return { shouldEscalate: false };
   }
 
-  if (checkUserRequestedHuman(params.userMessage)) {
+  if (
+    isTriggerEnabled(params.enabledTriggers, EscalationTrigger.USER_REQUESTED) &&
+    checkUserRequestedHuman(params.userMessage)
+  ) {
     return {
       shouldEscalate: true,
       trigger: EscalationTrigger.USER_REQUESTED,
@@ -160,7 +174,10 @@ export function evaluateEscalation(params: {
     };
   }
 
-  if (params.llmFailed || checkAiFailure(params.botContent, params.previousBotMessages)) {
+  if (
+    isTriggerEnabled(params.enabledTriggers, EscalationTrigger.AI_FAILURE) &&
+    (params.llmFailed || checkAiFailure(params.botContent, params.previousBotMessages))
+  ) {
     return {
       shouldEscalate: true,
       trigger: EscalationTrigger.AI_FAILURE,
@@ -170,7 +187,10 @@ export function evaluateEscalation(params: {
     };
   }
 
-  if (checkUnsupportedRequest(params.botContent)) {
+  if (
+    isTriggerEnabled(params.enabledTriggers, EscalationTrigger.UNSUPPORTED_REQUEST) &&
+    checkUnsupportedRequest(params.botContent)
+  ) {
     return {
       shouldEscalate: true,
       trigger: EscalationTrigger.UNSUPPORTED_REQUEST,
@@ -178,7 +198,10 @@ export function evaluateEscalation(params: {
     };
   }
 
-  if (checkNegativeSentiment(params.userMessage)) {
+  if (
+    isTriggerEnabled(params.enabledTriggers, EscalationTrigger.NEGATIVE_SENTIMENT) &&
+    checkNegativeSentiment(params.userMessage)
+  ) {
     return {
       shouldEscalate: true,
       trigger: EscalationTrigger.NEGATIVE_SENTIMENT,
@@ -229,4 +252,73 @@ export function buildTriggerLabels(): Record<string, string> {
     [EscalationTrigger.UNSUPPORTED_REQUEST]: "Unsupported request",
     [EscalationTrigger.NEGATIVE_SENTIMENT]: "Negative sentiment",
   };
+}
+
+const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+
+function extractEmailFromText(...texts: string[]): string | null {
+  for (const text of texts) {
+    const match = text.match(EMAIL_PATTERN);
+    if (match) return match[0];
+  }
+  return null;
+}
+
+export async function createEscalationTicket(params: {
+  orgId: string;
+  sessionId: string;
+  userMessage: string;
+  decision: EscalationDecision;
+  config: Pick<
+    ResolvedEscalationAction,
+    "ticketPriority" | "requireEmailForTicket"
+  >;
+}): Promise<string | null> {
+  if (!params.decision.shouldEscalate) return null;
+
+  const existing = await prisma.ticket.findFirst({
+    where: { sessionId: params.sessionId, orgId: params.orgId },
+    select: { id: true },
+  });
+  if (existing) return existing.id;
+
+  const history = await prisma.message.findMany({
+    where: { sessionId: params.sessionId, role: "USER" },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { content: true },
+  });
+
+  const customerEmail = extractEmailFromText(
+    params.userMessage,
+    ...history.map((m) => m.content),
+  );
+
+  if (params.config.requireEmailForTicket && !customerEmail) {
+    logServerWarning("escalation_ticket_skipped_no_email", {
+      sessionId: params.sessionId,
+    });
+    return null;
+  }
+
+  const subject =
+    params.decision.reason?.slice(0, 120) ?? "Escalated conversation";
+  const description = [
+    params.decision.reason ?? "Escalated to human agent",
+    "",
+    `Last customer message: ${params.userMessage.slice(0, 500)}`,
+  ].join("\n");
+
+  const ticket = await prisma.ticket.create({
+    data: {
+      orgId: params.orgId,
+      sessionId: params.sessionId,
+      subject,
+      description,
+      priority: params.config.ticketPriority,
+      customerEmail,
+    },
+  });
+
+  return ticket.id;
 }

@@ -1,11 +1,10 @@
 import "server-only";
 import Link from "next/link";
+import { Check, ArrowUpRight } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
-import { Check } from "lucide-react";
 
 import { PLAN_META, PLAN_PRICES } from "@/lib/billing/plan-features";
 import { formatPrice } from "@/lib/billing/currency";
-import { detectCurrency } from "@/lib/billing/detect-currency";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -13,9 +12,11 @@ export async function PricingShowcase() {
   const { userId } = await auth();
   const signedIn = !!userId;
 
-  const currency = detectCurrency();
-
   const plans = [
+    {
+      ...PLAN_META.FREE,
+      price: PLAN_PRICES.FREE,
+    },
     {
       ...PLAN_META.STARTER,
       price: PLAN_PRICES.STARTER,
@@ -23,10 +24,6 @@ export async function PricingShowcase() {
     {
       ...PLAN_META.PRO,
       price: PLAN_PRICES.PRO,
-    },
-    {
-      ...PLAN_META.ENTERPRISE,
-      price: null,
     },
   ];
 
@@ -49,18 +46,18 @@ export async function PricingShowcase() {
             </Link>
           </div>
           <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-            Prices in {currency.code === "MAD" ? "Moroccan Dirham (MAD)" : "USD"}.
-            All plans include a 14-day free trial — no credit card required.
+            All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.
           </p>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {plans.map((plan) => {
             const isPro = plan.key === "pro";
-            const rawPrice = plan.price !== null
-              ? (currency.code === "MAD" ? plan.price.madCents : plan.price.usdCents)
-              : null;
-            const formattedPrice = rawPrice !== null ? formatPrice(rawPrice, currency.code) : null;
+            const isFree = plan.key === "free";
+            const rawPrice = plan.price !== null ? plan.price.madCents : null;
+            const showPrice = isFree ? "Free" : (
+              rawPrice !== null ? formatPrice(rawPrice) : null
+            );
 
             return (
               <div
@@ -85,9 +82,9 @@ export async function PricingShowcase() {
                 </p>
 
                 <p className={`mt-6 font-display text-display-md tracking-tighter ${isPro ? "text-on-primary" : "text-ink"}`}>
-                  {plan.key === "enterprise" && !rawPrice ? "Custom" : formattedPrice}
+                  {showPrice}
                 </p>
-                {plan.key !== "enterprise" && (
+                {!isFree && (
                   <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>
                     per month, billed monthly
                   </p>
@@ -136,11 +133,43 @@ export async function PricingShowcase() {
                       : "bg-ink text-on-primary hover:bg-body-strong"
                   }`}
                 >
-                  Get started
+                  {isFree ? "Start free trial" : "Get started"}
                 </Link>
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-8 flex flex-col items-start gap-6 rounded-xxl border border-hairline bg-surface-card p-8 md:flex-row md:items-center md:justify-between md:p-10">
+          <div>
+            <h3 className="font-display text-display-sm tracking-tighter text-ink">Enterprise</h3>
+            <p className="mt-1 text-body-sm leading-relaxed text-body">
+              Custom plan for your organization.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                "Unlimited agents",
+                "Custom call volume",
+                "On-premise",
+                "Law 09-08 compliance",
+                "Dedicated manager",
+              ].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-hairline bg-surface-strong px-3 py-1 text-caption text-ink"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <Link
+            href="/pricing"
+            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
+          >
+            Contact sales
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>

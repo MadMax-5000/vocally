@@ -10,7 +10,7 @@ export function getKnowledgeStorageQuotaBytes(plan: Plan): number {
     case Plan.STARTER:
       return 50 * MIB;
     case Plan.PRO:
-      return 200 * MIB;
+      return 500 * MIB;
     case Plan.ENTERPRISE:
       return 1024 * MIB;
     default:

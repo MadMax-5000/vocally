@@ -33,6 +33,20 @@ export type ActionCatalogEntry = {
   icon: ActionIconKey;
 };
 
+export const IMPLEMENTED_ACTION_IDS = [
+  "suggested-messages",
+  "custom-button",
+  "custom-form",
+  "collect-leads",
+  "escalations",
+] as const;
+
+export type ImplementedActionId = (typeof IMPLEMENTED_ACTION_IDS)[number];
+
+export function isActionImplemented(id: string): id is ImplementedActionId {
+  return (IMPLEMENTED_ACTION_IDS as readonly string[]).includes(id);
+}
+
 export const ACTION_CATALOG_TYPE_LABELS: Record<
   Exclude<ActionCatalogType, "all">,
   string

@@ -1,5 +1,9 @@
+import { buildCollectLeadsPromptSection } from "@/lib/ai/prompts/collect-leads-prompt";
+import { buildCustomFormPromptSection } from "@/lib/ai/prompts/custom-form-prompt";
 import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
 import type { ToolDefinition } from "@/lib/ai/tools/types";
+import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
+import type { ResolvedCustomFormAction } from "@/lib/deploy/custom-form-action";
 
 export type ChatBotPromptInput = {
   agentName: string;
@@ -8,6 +12,8 @@ export type ChatBotPromptInput = {
   knowledgeContext: string;
   language: string;
   toolDefinitions?: ToolDefinition[];
+  collectLeads?: ResolvedCollectLeadsAction;
+  customForm?: ResolvedCustomFormAction;
 };
 
 export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
@@ -45,6 +51,14 @@ export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
       "To use a tool, the system will handle the execution. When you need to look up information or perform an action, call the appropriate tool and the result will be provided to you. Then respond to the customer naturally based on what you found.",
       "If a tool returns an error or the information isn't available, let the customer know and offer alternatives.",
     );
+  }
+
+  if (input.collectLeads?.enabled) {
+    sections.push(buildCollectLeadsPromptSection(input.collectLeads));
+  }
+
+  if (input.customForm?.enabled && input.customForm.fields.length > 0) {
+    sections.push(buildCustomFormPromptSection(input.customForm));
   }
 
   sections.push(

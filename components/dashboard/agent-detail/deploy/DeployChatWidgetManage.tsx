@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { updateAgentDeployment, updateChatWidgetSettings } from "@/lib/actions/agents";
+import { resolveCustomButtonAction } from "@/lib/deploy/custom-button-action";
+import { resolveSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
 import { isWebChatEnabled } from "@/lib/deploy/web-chat-config";
 
 import type { AgentDetailWithRelations } from "../agent-detail-types";
@@ -130,6 +132,8 @@ export function DeployChatWidgetManage({ agent }: Props) {
             widgetToken={agent.widgetToken}
             agentName={agent.name}
             draft={draft}
+            suggestedMessagesAction={resolveSuggestedMessagesAction(agent.channels)}
+            customButtonsAction={resolveCustomButtonAction(agent.channels)}
             viewport={previewViewport}
             onViewportChange={setPreviewViewport}
           />

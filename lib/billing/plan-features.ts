@@ -11,25 +11,40 @@ export type PlanMeta = {
   features: PlanFeature[];
 };
 
-export const PLAN_PRICES: Record<string, { usdCents: number; madCents: number }> = {
-  STARTER: { usdCents: 7900, madCents: 79000 },
-  PRO: { usdCents: 29900, madCents: 299000 },
+export const PLAN_PRICES: Record<string, { madCents: number }> = {
+  FREE: { madCents: 0 },
+  STARTER: { madCents: 99999 },
+  PRO: { madCents: 399999 },
 };
 
-export const PLAN_META: Record<"STARTER" | "PRO" | "ENTERPRISE", PlanMeta> = {
+export const PLAN_META: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", PlanMeta> = {
+  FREE: {
+    key: "free",
+    name: "Free",
+    description: "Try Vocally with 50 minutes of AI call handling — no credit card required.",
+    blurb: "Get started with a 14-day free trial.",
+    features: [
+      { text: "1 AI agent", included: true },
+      { text: "50 call minutes / mo", included: true },
+      { text: "Chat channel only", included: true },
+      { text: "Basic analytics dashboard", included: false },
+      { text: "Knowledge base (RAG)", included: false },
+      { text: "Email support", included: false },
+    ],
+  },
   STARTER: {
     key: "starter",
     name: "Starter",
     description: "For small businesses getting started with AI-powered customer support.",
     blurb: "Growing teams that need more knowledge capacity and channels.",
     features: [
-      { text: "Up to 1 AI agent", included: true },
-      { text: "500 call minutes / mo", included: true },
+      { text: "Up to 3 AI agents", included: true },
+      { text: "2,000 call minutes / mo", included: true },
       { text: "2 channels (phone + chat)", included: true },
-      { text: "Email support", included: true },
+      { text: "Knowledge base (50MB storage)", included: true },
       { text: "Basic analytics dashboard", included: true },
+      { text: "Email support", included: true },
       { text: "AI Co-pilot for live agents", included: false },
-      { text: "Custom knowledge base (RAG)", included: false },
       { text: "Priority support", included: false },
     ],
   },
@@ -39,13 +54,13 @@ export const PLAN_META: Record<"STARTER" | "PRO" | "ENTERPRISE", PlanMeta> = {
     description: "For scaling contact centers that need advanced capabilities and all channels.",
     blurb: "Production deployments with higher limits and priority workflows.",
     features: [
-      { text: "Up to 5 AI agents", included: true },
-      { text: "2,000 call minutes / mo", included: true },
+      { text: "Up to 8 AI agents", included: true },
+      { text: "10,000 call minutes / mo", included: true },
       { text: "All channels (phone, chat, WhatsApp, SMS, email)", included: true },
-      { text: "Priority support", included: true },
+      { text: "Knowledge base (500MB storage)", included: true },
       { text: "Advanced analytics & QA scoring", included: true },
       { text: "AI Co-pilot for live agents", included: true },
-      { text: "Custom knowledge base (RAG)", included: true },
+      { text: "Priority support", included: true },
       { text: "SSO & audit logs", included: false },
     ],
   },
