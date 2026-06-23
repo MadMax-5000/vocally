@@ -1,4 +1,10 @@
 {
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=6144",
+      "SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING": "1"
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/gmail-renew-watch",

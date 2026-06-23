@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server/index.ts",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
     "start": "cross-env NODE_ENV=production tsx server/index.ts",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
