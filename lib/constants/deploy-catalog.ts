@@ -40,6 +40,7 @@ export const IMPLEMENTED_DEPLOYMENT_IDS = [
   "wordpress",
   "api",
   "phone",
+  "sms",
 ] as const;
 
 export type ImplementedDeploymentId = (typeof IMPLEMENTED_DEPLOYMENT_IDS)[number];
@@ -65,6 +66,14 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
       "Connect your agent to a WhatsApp number and let it respond to messages from your customers.",
     iconSrc: "/svg/whatsapp-icon.svg",
     channelType: "WHATSAPP",
+  },
+  {
+    id: "sms",
+    title: "SMS",
+    description:
+      "Connect your agent to an SMS number and let it respond to text messages from your customers.",
+    iconSrc: "/svg/send.svg",
+    channelType: "SMS",
   },
   {
     id: "messenger",

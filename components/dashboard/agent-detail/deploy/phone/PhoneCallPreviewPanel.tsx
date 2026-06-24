@@ -94,9 +94,9 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
         <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl bg-canvas-soft/80">
           <div
             className={cn(
-              "flex flex-col overflow-hidden rounded-[32px] border border-hairline shadow-[0_2px_8px_rgba(0,0,0,0.06),0_16px_48px_rgba(0,0,0,0.10)]",
-              "h-[640px] w-[320px]",
+              "flex h-full max-h-full w-auto flex-col overflow-hidden rounded-[32px] border border-hairline shadow-[0_2px_8px_rgba(0,0,0,0.06),0_16px_48px_rgba(0,0,0,0.10)]",
             )}
+            style={{ aspectRatio: '9 / 16' }}
           >
             {/* Status bar */}
             <div className="flex items-center justify-between bg-ink px-6 pt-[52px] pb-3 text-white/80">

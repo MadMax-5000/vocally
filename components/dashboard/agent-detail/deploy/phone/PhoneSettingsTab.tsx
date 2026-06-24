@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { Info } from "lucide-react";
 
+import { Textarea } from "@/components/ui/textarea";
 import {
   ChatWidgetSettingRow,
   chatWidgetFieldInputClass,
+  chatWidgetFieldTextareaClass,
 } from "@/components/dashboard/agent-detail/deploy/chat-widget/ChatWidgetSettingRow";
 
 type PhoneSettingsTabProps = {
@@ -34,10 +36,10 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
             label="Greeting message"
             description="First message the caller hears when the call connects."
           >
-            <textarea
+            <Textarea
               value={greeting}
               onChange={(e) => setGreeting(e.target.value)}
-              className="min-h-[72px] w-full resize-y rounded-lg border-hairline bg-surface-card text-body-sm shadow-none focus-visible:border-ink focus-visible:ring-0"
+              className={chatWidgetFieldTextareaClass}
               rows={2}
             />
           </ChatWidgetSettingRow>

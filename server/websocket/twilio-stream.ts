@@ -7,6 +7,7 @@ import { resolveAgentVoice } from "../../lib/voice/tts";
 import type { DtmfRequest } from "../../lib/ai/tools/handlers";
 import { computeRmsEnergy, wavToUlawChunks, synthesizeSpeechWav } from "./audio-utils";
 import { getHandoffPhoneNumber, escalateCall } from "./escalate-call";
+import { logServerError } from "../../lib/logger";
 
 const BARGE_IN_THRESHOLD = 0.025;
 
@@ -86,8 +87,8 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
   function triggerSummary(): void {
     if (summaryTriggered || !state.sessionId) return;
     summaryTriggered = true;
-    summarizeSession(state.sessionId).catch((err) =>
-      console.error(`[stream ${state.callSid}] Summary error:`, err),
+      summarizeSession(state.sessionId).catch((err) =>
+      logServerError("stream.summary_error", { callSid: state.callSid ?? undefined, error: String(err) }),
     );
   }
 
@@ -96,7 +97,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
 
     const apiKey = process.env.DEEPGRAM_API_KEY;
     if (!apiKey) {
-      console.error("[stream] DEEPGRAM_API_KEY is not configured");
+      logServerError("stream.missing_deepgram_key", {});
       return;
     }
 
@@ -128,7 +129,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
       });
 
       socket.on("error", (err: Error) => {
-        console.error(`[stream ${state.callSid}] Deepgram error:`, err.message);
+        logServerError("stream.deepgram_error", { callSid: state.callSid ?? undefined, error: err.message });
       });
 
       socket.on("close", () => {
@@ -138,7 +139,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
 
       state.dgSocket = socket;
     } catch (err) {
-      console.error(`[stream ${state.callSid}] Failed to connect Deepgram:`, err);
+      logServerError("stream.deepgram_connect_failed", { callSid: state.callSid ?? undefined, error: String(err) });
       state.dgSocket = null;
       dgReady = false;
     }
@@ -188,7 +189,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
         return;
       }
     } catch (err) {
-      console.error(`[stream ${state.callSid}] processMessage error:`, err);
+      logServerError("stream.process_message_error", { callSid: state.callSid ?? undefined, error: String(err) });
       await speakToCaller("I'm sorry, I'm having trouble processing that.");
     } finally {
       if (
@@ -234,7 +235,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
         });
       }
     } catch (err) {
-      console.error(`[stream ${state.callSid}] TTS error:`, err);
+      logServerError("stream.tts_error", { callSid: state.callSid ?? undefined, error: String(err) });
     }
 
     if (state.state !== ("ENDED" as CallPhase)) {
@@ -270,7 +271,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
         });
       }
     } catch (err) {
-      console.error(`[stream ${state.callSid}] Consent TTS error:`, err);
+      logServerError("stream.consent_tts_error", { callSid: state.callSid ?? undefined, error: String(err) });
     }
 
     if (state.state === "CONSENT") {
@@ -328,7 +329,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
 
       await speakToCaller(result.botContent);
     } catch (err) {
-      console.error(`[stream ${state.callSid}] DTMF processMessage error:`, err);
+      logServerError("stream.dtmf_process_message_error", { callSid: state.callSid ?? undefined, error: String(err) });
       await speakToCaller("I'm sorry, I had trouble processing that input.");
     }
   }
@@ -370,7 +371,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
         );
       }
     } catch (err) {
-      console.error(`[stream ${state.callSid}] Escalation error:`, err);
+      logServerError("stream.escalation_error", { callSid: state.callSid ?? undefined, error: String(err) });
       await speakToCaller(
         "I'm sorry, I'm unable to transfer you at this time.",
       );
@@ -492,7 +493,7 @@ export function handleMediaStream(ws: WebSocket, _req: IncomingMessage): void {
   });
 
   ws.on("error", (err) => {
-    console.error(`[stream ${state.callSid}] WS error:`, err.message);
+    logServerError("stream.ws_error", { callSid: state.callSid ?? undefined, error: err.message });
     state.state = "ENDED";
     cancelDtmfCollection();
     closeDeepgram();

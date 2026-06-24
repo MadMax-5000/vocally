@@ -86,8 +86,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mt-5 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
-              Upfirst is the AI answering service that keeps your phone covered so you never miss a lead or leave a customer
-              waiting.
+              AI agents that deliver premium customer experiences — handling up to 80% of your support so you can focus on what matters.
             </p>
 
             <div className="mt-8 flex w-full flex-col items-center gap-2 sm:w-auto">

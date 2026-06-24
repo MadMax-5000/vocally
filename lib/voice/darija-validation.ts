@@ -1,3 +1,5 @@
+import { logServerWarning } from "@/lib/logger";
+
 // Darija Validation Test Suite
 // This suite tests Moroccan Darija samples against the chosen STT and Voice models.
 // Enable DARIJA_PRODUCTION_ENABLED in voice-stack.config.ts ONLY after these pass with >90% accuracy.
@@ -25,7 +27,7 @@ export async function runDarijaValidation() {
   }
 
   const passRate = passed / DARIJA_SAMPLES.length;
-  console.log(`Darija validation pass rate: ${passRate * 100}%`);
+    logServerWarning("darija_validation.pass_rate", { passRate: passRate * 100 });
 
   return passRate > 0.9;
 }

@@ -565,6 +565,14 @@ model SmsPhoneNumber {
   @@index([twilioNumber])
 }
 
+model SmsMessageDedupe {
+  id        String   @id @default(cuid())
+  messageId String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model EmailAddress {
   id        String       @id @default(cuid())
   orgId     String

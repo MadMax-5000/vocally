@@ -49,7 +49,7 @@ export default async function PricingPage() {
       <div className={[container, "py-section"].join(" ")}>
         <p className="text-caption-uppercase text-muted">Pricing</p>
         <h1 className="mt-4 font-display text-display-xl tracking-tighter text-balance text-ink md:text-display-mega">
-          Simple plans for AI-first contact centers
+          Simple plans for premium AI-powered customer experiences
         </h1>
         <p className="mt-6 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
           All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.

@@ -54,7 +54,7 @@ export function BentoShowcase() {
               Vocally Agents
             </div>
             <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-              Deploy agents that talk,<br className="hidden md:block" /> type, and take action
+              Deploy AI agents that deliver premium customer<br className="hidden md:block" /> experiences across every channel
             </h2>
             <a
               href="/dashboard"
@@ -64,9 +64,7 @@ export function BentoShowcase() {
             </a>
           </div>
           <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-            Configure, deploy and monitor natural, human-sounding agents in 70+
-            languages with leading accuracy and ultra-low latency across voice or
-            chat.
+Configure, deploy and monitor AI agents in 70+ languages that resolve up to 80% of inquiries automatically — across voice, chat, email, and more.
           </p>
         </div>
 
@@ -138,8 +136,7 @@ export function BentoShowcase() {
                 Omnichannel agents
               </p>
               <p className="mt-1 text-body-sm text-body-strong leading-snug">
-                Agents listen, read and interact just like humans would across
-                phone, chat, email and WhatsApp.
+Agents handle up to 80% of inquiries across phone, chat, email, WhatsApp, and more — automatically.
               </p>
             </div>
           </div>
@@ -156,8 +153,7 @@ export function BentoShowcase() {
                 Analytics
               </p>
               <p className="mt-1 text-body-sm text-body-strong leading-snug">
-                Easily measure success rates and CX metrics, optimizing flows over
-                time.
+Track resolution rates, customer satisfaction, and optimize your AI agents over time.
               </p>
             </div>
           </div>

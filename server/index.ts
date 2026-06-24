@@ -3,6 +3,7 @@ import { parse } from "url";
 import next from "next";
 import { WebSocketServer } from "ws";
 import { handleMediaStream } from "./websocket/twilio-stream";
+import { logServerWarning } from "../lib/logger";
 
 const dev = process.env.NODE_ENV !== "production";
 
@@ -26,8 +27,17 @@ app.prepare().then(() => {
     handleMediaStream(ws, req);
   });
 
+  const shutdown = (signal: string) => {
+    logServerWarning("server.shutdown", { signal, port: PORT });
+    wss.close(() => {
+      server.close(() => process.exit(0));
+    });
+  };
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
+
   server.listen(PORT, () => {
-    console.log(`> Ready on http://localhost:${PORT}`);
-    console.log(`> Media Streams WS on ws://localhost:${PORT}${WS_PATH}`);
+    logServerWarning("server.started", { port: PORT, wsPath: WS_PATH });
   });
 });

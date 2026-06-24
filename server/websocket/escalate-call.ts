@@ -1,4 +1,5 @@
 import { buildDialTwiML } from "../../lib/twilio/voice/twiml";
+import { logServerError } from "../../lib/logger";
 
 const TWILIO_API = "https://api.twilio.com/2010-04-01";
 
@@ -38,7 +39,7 @@ export async function escalateCall(params: {
   const authToken = process.env.TWILIO_AUTH_TOKEN;
 
   if (!accountSid || !authToken) {
-    console.error("[escalate] TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN not configured");
+        logServerError("escalate.missing_twilio_credentials", {});
     return false;
   }
 
@@ -60,13 +61,13 @@ export async function escalateCall(params: {
 
     if (!res.ok) {
       const body = await res.text();
-      console.error(`[escalate] Twilio API error (${res.status}): ${body}`);
+            logServerError("escalate.twilio_api_error", { status: res.status, body });
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error(`[escalate] Network error:`, err);
+        logServerError("escalate.network_error", { error: String(err) });
     return false;
   }
 }

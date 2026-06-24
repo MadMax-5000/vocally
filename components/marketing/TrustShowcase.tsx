@@ -246,7 +246,7 @@ export function TrustShowcase() {
               Trust &amp; security
             </div>
             <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-              Enterprise-ready AI agents<br className="hidden md:block" /> your customers can trust
+              Premium experiences<br className="hidden md:block" /> your customers will love
             </h2>
             <a
               href="/dashboard"
@@ -256,9 +256,7 @@ export function TrustShowcase() {
             </a>
           </div>
           <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-            Built-in compliance, behavioral guardrails, and omnichannel reach keep every
-            conversation on-policy, on-brand, and resolutely professional — without sacrificing
-            the natural feel customers love.
+Cut support volume by up to 80% while delivering faster, more consistent customer experiences across every channel your customers use — from voice and chat to WhatsApp, Messenger, and Instagram.
           </p>
         </div>
 
@@ -270,7 +268,7 @@ export function TrustShowcase() {
             bgAlt="Omnichannel channels background"
             overlay={<OmnichannelOverlay />}
             eyebrow="Omnichannel agents"
-            body="Easily integrate your AI Agent with various platforms and channels, including website chat, WhatsApp, Slack, and email."
+            body="Connect your AI agent across every channel your customers use — chat, WhatsApp, Messenger, Instagram, email, and voice calls."
           />
 
           <TrustCard

@@ -1,4 +1,5 @@
 import type { TranscriptionResult } from "@/lib/voice/types";
+import { logServerError } from "@/lib/logger";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
@@ -45,7 +46,7 @@ export async function transcribeAudio(
 
   if (!res.ok) {
     const text = await res.text();
-    console.error("[stt] API error", res.status, text);
+        logServerError("stt.api_error", { status: res.status });
     throw new Error(`STT API error (${res.status}): ${text}`);
   }
 

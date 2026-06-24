@@ -68,10 +68,10 @@ function slotValues(dist: number): SlotValues {
 
   if (abs === 0) return { x: 0,          scale: 1.0,  opacity: 1.0,  blurPx: 0,  zIndex: 10, pointerEvents: "auto" };
   // Keep the main 3 (center + immediate neighbors) crisp.
-  if (abs === 1) return { x: sign * 272, scale: 0.70, opacity: 0.65, blurPx: 0,  zIndex: 5,  pointerEvents: "auto" };
+  if (abs === 1) return { x: sign * 293, scale: 0.70, opacity: 0.65, blurPx: 0,  zIndex: 5,  pointerEvents: "auto" };
   // Only the far edges get blurred.
-  if (abs === 2) return { x: sign * 510, scale: 0.48, opacity: 0.18, blurPx: 10, zIndex: 1,  pointerEvents: "auto" };
-  return                { x: sign * 650, scale: 0.30, opacity: 0,    blurPx: 14, zIndex: 0,  pointerEvents: "none" };
+  if (abs === 2) return { x: sign * 549, scale: 0.48, opacity: 0.18, blurPx: 10, zIndex: 1,  pointerEvents: "auto" };
+  return                { x: sign * 700, scale: 0.30, opacity: 0,    blurPx: 14, zIndex: 0,  pointerEvents: "none" };
 }
 
 export function HeroVoiceSpheres() {
@@ -154,7 +154,7 @@ export function HeroVoiceSpheres() {
         aria-roledescription="carousel"
         aria-label="AI voice personas"
         tabIndex={0}
-        className="relative h-[300px] w-full overflow-visible rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2"
+        className="relative h-[350px] w-full overflow-visible rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2"
       >
         {SPHERES.map((sphere, i) => {
           const offset = activeIndex - i;
@@ -184,15 +184,15 @@ export function HeroVoiceSpheres() {
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                marginTop: -117,
-                marginLeft: -117,
+                marginTop: -140,
+                marginLeft: -140,
                 zIndex,
                 pointerEvents,
               }}
               onClick={() => !isCentered && goTo(virtualIndex)}
               className={!isCentered && opacity > 0 ? "cursor-pointer" : undefined}
             >
-              <div className="relative h-[234px] w-[234px] select-none overflow-hidden rounded-full">
+              <div className="relative h-[280px] w-[280px] select-none overflow-hidden rounded-full">
                 <Image
                   src={sphere.imageSrc}
                   alt={sphere.title}

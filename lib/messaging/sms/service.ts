@@ -55,6 +55,17 @@ async function storeMessage(sessionId: string, role: "USER" | "BOT", content: st
 async function handleInboundMessage(payload: IncomingSmsPayload): Promise<void> {
   const { From, To, Body, MessageSid } = payload;
 
+  const alreadyProcessed = await prisma.smsMessageDedupe.findUnique({
+    where: { messageId: MessageSid },
+  });
+  if (alreadyProcessed) {
+    return;
+  }
+
+  await prisma.smsMessageDedupe.create({
+    data: { messageId: MessageSid },
+  });
+
   const resolved = await resolveOrganization(To);
   if (!resolved) {
     return;

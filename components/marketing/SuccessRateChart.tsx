@@ -112,14 +112,14 @@ export function SuccessRateChart() {
               Success rate
             </p>
             <p className="mt-1 font-display text-[28px] font-normal leading-none tracking-tight text-ink">
-              61.5%
+               78.3%
             </p>
           </div>
           {/* Dotted legend — top-right */}
           <div className="flex flex-col items-end gap-1 pt-1">
             <div className="flex items-center gap-1.5">
               <span className="inline-block h-2 w-2 rounded-full bg-primary" />
-              <span className="text-[11px] text-muted">78.10%</span>
+              <span className="text-[11px] text-muted">              82.40%</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="inline-block h-2 w-2 rounded-full bg-ink" />
