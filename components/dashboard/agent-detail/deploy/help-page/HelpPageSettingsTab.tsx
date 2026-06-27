@@ -183,7 +183,7 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
 
       <ChatWidgetSettingRow
         label="Enable voice to text"
-        description="Show a microphone button in the chat input. Speech recognition coming soon."
+        description="Show a microphone button in the chat input. Speech is transcribed into the message field."
         variant="row"
       >
         <Switch

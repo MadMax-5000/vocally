@@ -121,7 +121,7 @@ export function checkNegativeSentiment(text: string): boolean {
 
   const hasKeyword = FRUSTRATION_KEYWORDS.some((kw) => lower.includes(kw));
 
-  const hasAllCaps = text.split(/\s+/).filter((w) => w.length > 2).some((w) => w === w.toUpperCase() && /[A-Z]{3,}/.test(w));
+  const hasAllCaps = text.split(/\s+/).filter((w) => w.length > 2).some((w) => w === w.toUpperCase() && /^[A-Z]{3,}$/.test(w));
 
   const hasRepeatedPunct = /[!?]{2,}/.test(text) || (text.split("!").length - 1) + (text.split("?").length - 1) >= 3;
 

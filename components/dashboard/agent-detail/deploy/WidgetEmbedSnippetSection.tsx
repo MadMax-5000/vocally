@@ -12,14 +12,16 @@ import {
 import { cn } from "@/lib/utils";
 
 type WidgetEmbedSnippetSectionProps = {
-  embedUrl: string;
+  inlineEmbedUrl: string;
+  floatingEmbedUrl: string;
   description: string;
   iframeHint: string;
   floatingHint: string;
 };
 
 export function WidgetEmbedSnippetSection({
-  embedUrl,
+  inlineEmbedUrl,
+  floatingEmbedUrl,
   description,
   iframeHint,
   floatingHint,
@@ -27,12 +29,15 @@ export function WidgetEmbedSnippetSection({
   const [copied, setCopied] = useState(false);
   const [activeSnippet, setActiveSnippet] = useState<WidgetEmbedSnippetKind>("iframe");
 
-  const titleMatch = embedUrl.match(/[?&]title=([^&]+)/);
+  const activeEmbedUrl =
+    activeSnippet === "floating" ? floatingEmbedUrl : inlineEmbedUrl;
+
+  const titleMatch = activeEmbedUrl.match(/[?&]title=([^&]+)/);
   const title = titleMatch
     ? decodeURIComponent(titleMatch[1].replace(/\+/g, " "))
     : "Support";
 
-  const snippet = buildWidgetEmbedSnippet(activeSnippet, embedUrl, title);
+  const snippet = buildWidgetEmbedSnippet(activeSnippet, activeEmbedUrl, title);
 
   async function handleCopy() {
     try {
@@ -79,7 +84,7 @@ export function WidgetEmbedSnippetSection({
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <a
-          href={embedUrl}
+          href={activeEmbedUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-body-sm text-primary hover:underline"
@@ -137,11 +142,26 @@ export function WidgetEmbedFromAgent({
   floatingHint,
 }: WidgetEmbedFromAgentProps) {
   const origin = useEmbedOrigin();
-  const embedUrl = buildWidgetEmbedUrl(origin, agentId, widgetToken, title, welcome);
+  const inlineEmbedUrl = buildWidgetEmbedUrl(
+    origin,
+    agentId,
+    widgetToken,
+    title,
+    welcome,
+  );
+  const floatingEmbedUrl = buildWidgetEmbedUrl(
+    origin,
+    agentId,
+    widgetToken,
+    title,
+    welcome,
+    "floating",
+  );
 
   return (
     <WidgetEmbedSnippetSection
-      embedUrl={embedUrl}
+      inlineEmbedUrl={inlineEmbedUrl}
+      floatingEmbedUrl={floatingEmbedUrl}
       description={description}
       iframeHint={iframeHint}
       floatingHint={floatingHint}

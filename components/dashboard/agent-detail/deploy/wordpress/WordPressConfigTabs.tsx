@@ -49,7 +49,10 @@ export function WordPressConfigTabs({
               pluginDefaults={pluginDefaults}
             />
           ) : activeTab === "embed" ? (
-            <WordPressEmbedTab embedUrl={pluginDefaults.embedUrl} />
+            <WordPressEmbedTab
+              inlineEmbedUrl={pluginDefaults.embedUrl}
+              floatingEmbedUrl={pluginDefaults.floatingEmbedUrl}
+            />
           ) : (
             <WordPressInstallTab />
           )}

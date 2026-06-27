@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, FormEvent, useCallback, useMemo, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { useEffect, useRef, FormEvent, useMemo, useState } from "react";
+import { ChevronDown, RefreshCw } from "lucide-react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
@@ -11,9 +11,7 @@ import {
 } from "@/components/chat/ChatMessageComposer";
 import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
-import { useMicrophone } from "@/hooks/useMicrophone";
-import { useAudioRecorder } from "@/hooks/useAudioRecorder";
-import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { useVoiceToText } from "@/hooks/useVoiceToText";
 import { getVisibleCustomButtons } from "@/lib/deploy/custom-button-action";
 import type {
   ResolvedCustomButtonAction,
@@ -42,6 +40,8 @@ type ChatWidgetProps = {
   initialSessionId?: string;
   /** Pass `true` or a handler to show the refresh control (dashboard preview). */
   onClear?: boolean | (() => void);
+  /** When provided, shows a minimize control in the header (floating bubble). */
+  onMinimize?: () => void;
   showPoweredBy?: boolean;
   appearance?: WebChatWidgetAppearance;
   primaryColor?: string;
@@ -53,6 +53,7 @@ type ChatWidgetProps = {
   deployment?: "widget" | "help";
   onSuggestedClick?: (message: string) => void;
   customButtonsReadOnly?: boolean;
+  voiceToTextEnabled?: boolean;
 };
 
 export function ChatWidget({
@@ -64,6 +65,7 @@ export function ChatWidget({
   initialMessages,
   initialSessionId,
   onClear,
+  onMinimize,
   showPoweredBy = true,
   appearance = "light",
   primaryColor,
@@ -75,6 +77,7 @@ export function ChatWidget({
   deployment = "widget",
   onSuggestedClick,
   customButtonsReadOnly,
+  voiceToTextEnabled = false,
 }: ChatWidgetProps) {
   const actionEnabled = suggestedMessagesAction?.enabled ?? false;
 
@@ -83,29 +86,17 @@ export function ChatWidget({
     return getInitialSuggestedMessages(suggestedMessagesAction, suggestedMessages);
   }, [actionEnabled, suggestedMessagesAction, suggestedMessages]);
 
-  const { isPlaying, play } = useAudioPlayer();
-
-  const handleAudioReady = useCallback(
-    (base64: string) => {
-      play(base64);
-    },
-    [play],
-  );
-
   const {
     messages,
     suggestedMessages: liveSuggestedMessages,
     isEscalated,
     escalationMessage,
     isLoading,
-    isProcessingVoice,
-    isVoiceSupported,
     error,
     activeForm,
     formSubmitting,
     sendMessage,
     submitForm,
-    sendVoiceMessage,
     clearMessages,
   } = useChat({
     agentId,
@@ -113,16 +104,31 @@ export function ChatWidget({
     sessionId: initialSessionId,
     initialMessages,
     initialSuggestedMessages: actionEnabled ? initialSuggestedMessages : undefined,
-    onAudioReady: handleAudioReady,
     deployment,
   });
 
-  const { stream, isMicEnabled, requestMic } = useMicrophone();
-  const { isRecording, audioBlob, durationMs, startRecording, stopRecording, clear } =
-    useAudioRecorder(isMicEnabled ? stream : null);
-
   const bottomRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState("");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
+  const {
+    isMicSupported,
+    isRecording,
+    isTranscribing,
+    durationMs,
+    handleMicToggle,
+    cancelRecording,
+  } = useVoiceToText({
+    agentId,
+    widgetToken,
+    deployment,
+    enabled: voiceToTextEnabled,
+    onTranscript: (text) => {
+      setDraft(text);
+      setVoiceError(null);
+    },
+    onError: (message) => setVoiceError(message),
+  });
 
   const showClearButton = onClear !== undefined;
 
@@ -133,7 +139,7 @@ export function ChatWidget({
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
-    if (!text || isLoading || isProcessingVoice || isEscalated) return;
+    if (!text || isLoading || isTranscribing || isEscalated) return;
     sendMessage(text);
     setDraft("");
   };
@@ -146,33 +152,23 @@ export function ChatWidget({
     }
   };
 
-  const handleMicToggle = async () => {
-    if (isRecording) {
-      stopRecording();
-      return;
-    }
-
-    if (audioBlob) {
-      clear();
-    }
-
-    if (!isMicEnabled) {
-      await requestMic();
-    }
-
-    setTimeout(() => startRecording(), 100);
-  };
-
-  useEffect(() => {
-    if (!audioBlob || isRecording) return;
-    sendVoiceMessage(audioBlob);
-  }, [audioBlob, isRecording, sendVoiceMessage]);
-
   const hasMessages = messages.length > 0;
-  const isBusy = isLoading || isProcessingVoice;
+  const isBusy = isLoading || isTranscribing;
   const canSend =
     draft.trim().length > 0 && !isBusy && !isRecording && !isEscalated;
   const isDark = appearance === "dark";
+
+  const voiceProps =
+    voiceToTextEnabled && isMicSupported
+      ? {
+          show: true as const,
+          onClick: handleMicToggle,
+          onCancel: cancelRecording,
+          isRecording,
+          isTranscribing,
+          recordingLabel: chatComposerFormatDuration(durationMs),
+        }
+      : undefined;
 
   const displaySuggestions = actionEnabled
     ? liveSuggestedMessages
@@ -248,27 +244,46 @@ export function ChatWidget({
         >
           {agentName}
         </h2>
-        {showClearButton && (
-          <TooltipProvider delayDuration={300}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  aria-label="Clear messages"
-                  className={cn(
-                    "flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors",
-                    isDark
-                      ? "border-hairline-strong bg-[#292524] text-muted hover:text-[#fafaf9]"
-                      : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
-                  )}
-                >
-                  <RefreshCw className="size-3.5" strokeWidth={2} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top">Clear messages</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        {(showClearButton || onMinimize) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {onMinimize ? (
+              <button
+                type="button"
+                onClick={onMinimize}
+                aria-label="Minimize chat"
+                className={cn(
+                  "flex size-7 items-center justify-center rounded-full border transition-colors",
+                  isDark
+                    ? "border-hairline-strong bg-[#292524] text-muted hover:text-[#fafaf9]"
+                    : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
+                )}
+              >
+                <ChevronDown className="size-4" strokeWidth={2} />
+              </button>
+            ) : null}
+            {showClearButton ? (
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      aria-label="Clear messages"
+                      className={cn(
+                        "flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors",
+                        isDark
+                          ? "border-hairline-strong bg-[#292524] text-muted hover:text-[#fafaf9]"
+                          : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
+                      )}
+                    >
+                      <RefreshCw className="size-3.5" strokeWidth={2} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Clear messages</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : null}
+          </div>
         )}
       </header>
 
@@ -328,10 +343,10 @@ export function ChatWidget({
           </div>
         )}
 
-        {error && (
+        {(error || voiceError) && (
           <div className="flex justify-center">
             <span className="rounded-full bg-error/10 px-3 py-1 text-xs text-error">
-              {error}
+              {error ?? voiceError}
             </span>
           </div>
         )}
@@ -381,22 +396,12 @@ export function ChatWidget({
           value={draft}
           onChange={setDraft}
           onSubmit={handleSubmit}
-          isBusy={isBusy || isRecording || isEscalated}
+          isBusy={isBusy || isEscalated}
           canSend={canSend}
           showSuggestions={showSuggestionChips}
           suggestedMessages={displaySuggestions}
           onSuggestedClick={handleSuggestedClick}
-          voice={
-            isVoiceSupported
-              ? {
-                  show: true,
-                  onClick: handleMicToggle,
-                  isRecording,
-                  recordingLabel: chatComposerFormatDuration(durationMs),
-                  isPlaying,
-                }
-              : undefined
-          }
+          voice={voiceProps}
         />
       </div>
     </div>

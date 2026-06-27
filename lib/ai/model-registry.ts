@@ -53,7 +53,7 @@ const LEGACY_LLM_MODEL_ALIASES: Record<string, string> = {
 
 export function resolveLlmModelId(model: string): string {
   const trimmed = model.trim()
-  if (!trimmed) return "anthropic/claude-haiku-4.5"
+  if (!trimmed) return "openai/gpt-4.1-mini"
 
   const alias = LEGACY_LLM_MODEL_ALIASES[trimmed]
   if (alias) return alias

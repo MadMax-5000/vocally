@@ -75,8 +75,8 @@ model Agent {
   visibility     AgentVisibility @default(PRIVATE)
 
   defaultLanguage SupportedLanguage @default(ENGLISH)
-  llmProvider     LlmProvider       @default(ANTHROPIC)
-  llmModel        String            @default("anthropic/claude-haiku-4.5")
+  llmProvider     LlmProvider       @default(OPENAI)
+  llmModel        String            @default("openai/gpt-4.1-mini")
 
   languages     AgentLanguage[]
   channels      AgentChannel[]

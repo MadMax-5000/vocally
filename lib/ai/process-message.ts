@@ -266,6 +266,15 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       tool_choice: "auto",
     });
 
+    logServerWarning("debug_llm_first_result", {
+      hasToolCalls: firstResult.tool_calls !== undefined && firstResult.tool_calls.length > 0,
+      toolCallCount: firstResult.tool_calls?.length ?? 0,
+      toolNames: firstResult.tool_calls?.map((t) => t.function.name).join(",") ?? "",
+      finishReason: firstResult.finishReason ?? "none",
+      contentPreview: (firstResult.content ?? "").slice(0, 120),
+      model: llmModel,
+    });
+
     const currentMessages: LLMMessage[] = [
       ...llmMessages,
       {
@@ -280,6 +289,12 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
     while (activeToolCalls && activeToolCalls.length > 0 && toolCallCount < MAX_TOOL_ITERATIONS) {
       toolCallCount++;
+
+      logServerWarning("debug_llm_tool_execution", {
+        iteration: toolCallCount,
+        toolCount: activeToolCalls.length,
+        toolNames: activeToolCalls.map((t) => t.function.name).join(","),
+      });
 
       const toolResults = await executeToolCalls(activeToolCalls, toolCtx);
       currentMessages.push(...toolResults);
@@ -307,6 +322,12 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     llmFailed = true;
   }
 
+  logServerWarning("debug_llm_bot_content", {
+    llmFailed,
+    charLength: botContent.length,
+    contentPreview: botContent.slice(0, 200),
+  });
+
   const previousBotMessages = history
     .filter((m) => m.role === "BOT")
     .map((m) => ({ content: m.content }));
@@ -318,6 +339,12 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     previousBotMessages,
     handoffEnabled: handoffActive,
     enabledTriggers,
+  });
+
+  logServerWarning("debug_llm_escalation", {
+    shouldEscalate: escalation.shouldEscalate,
+    trigger: escalation.trigger ?? "none",
+    reason: escalation.reason ?? "none",
   });
 
   let ticketId: string | undefined;

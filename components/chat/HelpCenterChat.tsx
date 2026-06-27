@@ -5,10 +5,14 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
-import { ChatMessageComposer } from "@/components/chat/ChatMessageComposer";
+import {
+  ChatMessageComposer,
+  chatComposerFormatDuration,
+} from "@/components/chat/ChatMessageComposer";
 import { HelpPageShell } from "@/components/chat/HelpPageShell";
 import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
 import { useChat } from "@/hooks/useChat";
+import { useVoiceToText } from "@/hooks/useVoiceToText";
 import type { ResolvedWebChatHelpPageSettings } from "@/lib/deploy/web-chat-config";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
 import { getVisibleCustomButtons } from "@/lib/deploy/custom-button-action";
@@ -62,17 +66,52 @@ export function HelpCenterChat({
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState("");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const [theme, setTheme] = useState<WebChatHelpPageTheme>(settings.defaultTheme);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const voiceEnabled = settings.voiceToTextEnabled;
+
+  const {
+    isMicSupported,
+    isRecording,
+    isTranscribing,
+    durationMs,
+    handleMicToggle,
+    cancelRecording,
+  } = useVoiceToText({
+    agentId,
+    widgetToken,
+    deployment: "help",
+    enabled: voiceEnabled,
+    onTranscript: (text) => {
+      setDraft(text);
+      setVoiceError(null);
+    },
+    onError: (message) => setVoiceError(message),
+  });
 
   useEffect(() => {
     setTheme(settings.defaultTheme);
   }, [settings.defaultTheme]);
 
   const hasMessages = messages.length > 0;
-  const isBusy = isLoading;
-  const canSend = draft.trim().length > 0 && !isBusy && !isEscalated;
+  const isBusy = isLoading || isTranscribing;
+  const canSend =
+    draft.trim().length > 0 && !isBusy && !isRecording && !isEscalated;
   const isDark = theme === "dark";
+
+  const voiceProps =
+    voiceEnabled && isMicSupported
+      ? {
+          show: true as const,
+          onClick: handleMicToggle,
+          onCancel: cancelRecording,
+          isRecording,
+          isTranscribing,
+          recordingLabel: chatComposerFormatDuration(durationMs),
+        }
+      : undefined;
 
   const { logoUrl, heroUrl, primaryColor } = useMemo(() => {
     return {
@@ -116,7 +155,7 @@ export function HelpCenterChat({
   };
 
   function handleSuggestedClick(text: string) {
-    if (isBusy || isEscalated) return;
+    if (isBusy || isRecording || isEscalated) return;
     sendMessage(text);
   }
 
@@ -126,7 +165,7 @@ export function HelpCenterChat({
   );
 
   function handleCustomButtonMessage(text: string) {
-    if (isBusy || isEscalated) return;
+    if (isBusy || isRecording || isEscalated) return;
     sendMessage(text);
   }
 
@@ -187,11 +226,7 @@ export function HelpCenterChat({
         suggestedMessages={displaySuggestions}
         onSuggestedClick={handleSuggestedClick}
         suggestionsBelow
-        voice={
-          settings.voiceToTextEnabled
-            ? { show: true, disabled: true, comingSoon: true }
-            : undefined
-        }
+        voice={voiceProps}
       />
     </div>
   );
@@ -215,11 +250,7 @@ export function HelpCenterChat({
           showSuggestions={showSuggestions}
           suggestedMessages={displaySuggestions}
           onSuggestedClick={handleSuggestedClick}
-          voice={
-            settings.voiceToTextEnabled
-              ? { show: true, disabled: true, comingSoon: true }
-              : undefined
-          }
+          voice={voiceProps}
         />
         <div className="mt-2">
           <PoweredByVocally />
@@ -266,10 +297,10 @@ export function HelpCenterChat({
           </div>
         )}
 
-        {error && (
+        {(error || voiceError) && (
           <div className="flex justify-center">
             <span className="rounded-full bg-error/10 px-3 py-1 text-xs text-error">
-              {error}
+              {error ?? voiceError}
             </span>
           </div>
         )}

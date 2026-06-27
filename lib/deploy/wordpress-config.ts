@@ -16,6 +16,7 @@ export type WordPressPluginDefaults = {
   agentId: string;
   widgetToken: string | null;
   embedUrl: string;
+  floatingEmbedUrl: string;
 };
 
 export function buildWordPressPluginDefaults(
@@ -31,5 +32,13 @@ export function buildWordPressPluginDefaults(
     agentId,
     widgetToken: widgetToken ?? null,
     embedUrl: buildWidgetEmbedUrl(appUrl, agentId, widgetToken, title, welcome),
+    floatingEmbedUrl: buildWidgetEmbedUrl(
+      appUrl,
+      agentId,
+      widgetToken,
+      title,
+      welcome,
+      "floating",
+    ),
   };
 }

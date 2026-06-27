@@ -476,14 +476,18 @@ export function isIntegrationDeploymentEnabled(
   return parsed.integrations?.[entry.id]?.enabled ?? false;
 }
 
+export type WidgetEmbedLayout = "inline" | "floating";
+
 export function buildEmbedQueryParams(
   widgetToken: string | null | undefined,
   title: string,
   welcome: string,
+  layout?: WidgetEmbedLayout,
 ): string {
   const params = new URLSearchParams();
   if (widgetToken) params.set("token", widgetToken);
   params.set("title", title);
   params.set("welcome", welcome);
+  if (layout === "floating") params.set("layout", "floating");
   return params.toString();
 }

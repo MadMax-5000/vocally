@@ -566,6 +566,17 @@ export async function updateAgentDeployment(
       },
     });
 
+    if (parsed.data.webChatEnabled !== undefined) {
+      await prisma.agent.update({
+        where: { id: agentId, orgId: dbOrgId },
+        data: {
+          visibility: parsed.data.webChatEnabled
+            ? AgentVisibility.PUBLIC
+            : AgentVisibility.PRIVATE,
+        },
+      });
+    }
+
     revalidatePath(`/dashboard/agents/${agentId}`);
     revalidatePath(`/dashboard/agents/${agentId}/deploy/chat-widget`);
     revalidatePath(`/dashboard/agents/${agentId}/deploy/help-page`);

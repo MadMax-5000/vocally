@@ -1,4 +1,4 @@
-import { buildEmbedQueryParams } from "@/lib/deploy/web-chat-config";
+import { buildEmbedQueryParams, type WidgetEmbedLayout } from "@/lib/deploy/web-chat-config";
 
 export { useEmbedOrigin } from "@/lib/deploy/embed-origin";
 
@@ -8,8 +8,9 @@ export function buildWidgetEmbedUrl(
   widgetToken: string | null | undefined,
   title: string,
   welcome: string,
+  layout?: WidgetEmbedLayout,
 ): string {
-  const qs = buildEmbedQueryParams(widgetToken, title, welcome);
+  const qs = buildEmbedQueryParams(widgetToken, title, welcome, layout);
   return `${origin}/widget/${agentId}?${qs}`;
 }
 

@@ -61,7 +61,7 @@ export function HelpPagePreviewFrame({
         suggestionsBelow
         voice={
           voiceToTextEnabled
-            ? { show: true, disabled: true, comingSoon: true }
+            ? { show: true, disabled: true }
             : undefined
         }
       />

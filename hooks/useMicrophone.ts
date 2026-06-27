@@ -63,7 +63,7 @@ export function useMicrophone(): MicrophoneState {
 
   return {
     stream,
-    isMicEnabled: streamRef.current !== null,
+    isMicEnabled: stream !== null,
     error,
     requestMic,
     releaseMic,

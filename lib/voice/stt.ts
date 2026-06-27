@@ -3,14 +3,47 @@ import { logServerError } from "@/lib/logger";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
+export class SttError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "SttError";
+    this.status = status;
+  }
+}
+
 function getApiKey(): string {
   const key = process.env.OPENROUTER_API_KEY;
-  if (!key) throw new Error("OPENROUTER_API_KEY is not configured");
+  if (!key) throw new SttError("OPENROUTER_API_KEY is not configured", 503);
   return key;
 }
 
 function normalizeFormat(raw: string): string {
   return raw.replace(/^audio\//, "").replace(/;.*$/, "").trim();
+}
+
+function parseSttFailure(status: number, body: string): SttError {
+  if (status === 402) {
+    return new SttError(
+      "Voice transcription requires OpenRouter credits. Add at least $0.50 at openrouter.ai/settings/credits.",
+      402,
+    );
+  }
+
+  let detail = "";
+  try {
+    const json = JSON.parse(body) as { error?: { message?: string } };
+    detail = json.error?.message ?? "";
+  } catch {
+    detail = body.slice(0, 200);
+  }
+
+  const message = detail
+    ? `Transcription failed: ${detail}`
+    : `Transcription failed (${status})`;
+
+  return new SttError(message, status >= 400 && status < 600 ? status : 502);
 }
 
 export async function transcribeAudio(
@@ -46,8 +79,8 @@ export async function transcribeAudio(
 
   if (!res.ok) {
     const text = await res.text();
-        logServerError("stt.api_error", { status: res.status });
-    throw new Error(`STT API error (${res.status}): ${text}`);
+    logServerError("stt.api_error", { status: res.status });
+    throw parseSttFailure(res.status, text);
   }
 
   const json = await res.json();

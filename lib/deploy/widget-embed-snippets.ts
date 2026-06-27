@@ -14,9 +14,15 @@ export function buildWidgetFloatingSnippet(embedUrl: string, title: string): str
   (function() {
     var iframe = document.createElement('iframe');
     iframe.src = "${embedUrl}";
-    iframe.style.cssText = 'position:fixed;bottom:24px;right:24px;width:380px;height:540px;border:none;border-radius:16px;z-index:2147483647;box-shadow:0 8px 32px rgba(0,0,0,0.12)';
+    iframe.style.cssText = 'position:fixed;bottom:24px;right:24px;width:80px;height:80px;border:none;background:transparent;z-index:2147483647;overflow:hidden';
     iframe.title = "Chat with ${title}";
+    iframe.setAttribute('allow', 'microphone');
     document.getElementById('vocally-widget').appendChild(iframe);
+    window.addEventListener('message', function(e) {
+      if (!e.data || e.data.type !== 'vocally-widget-resize') return;
+      iframe.style.width = e.data.width;
+      iframe.style.height = e.data.height;
+    });
   })();
 </script>`;
 }

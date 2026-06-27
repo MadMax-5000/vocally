@@ -140,9 +140,9 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
     });
   }, [agent.id, voices]);
 
-  const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.ANTHROPIC);
+  const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.OPENAI);
   const [llmModel, setLlmModel] = useState<string>(
-    resolveLlmModelId(agent.llmModel ?? "anthropic/claude-haiku-4.5"),
+    resolveLlmModelId(agent.llmModel ?? "openai/gpt-4.1-mini"),
   );
 
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");

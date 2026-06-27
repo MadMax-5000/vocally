@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
-import { ArrowUp, Mic } from "lucide-react";
+import { ArrowUp, Mic, X } from "lucide-react";
 
 import type { WebChatWidgetAppearance } from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,9 @@ export type ChatComposerVoiceSlot = {
   disabled?: boolean;
   comingSoon?: boolean;
   onClick?: () => void;
+  onCancel?: () => void;
   isRecording?: boolean;
+  isTranscribing?: boolean;
   recordingLabel?: string;
   isPlaying?: boolean;
 };
@@ -42,6 +44,16 @@ function formatDuration(ms: number): string {
   return `${mins}:${s.toString().padStart(2, "0")}`;
 }
 
+function ComposerDots({ className }: { className?: string }) {
+  return (
+    <span className={cn("flex items-center gap-0.5", className)}>
+      <span className="size-1 animate-bounce rounded-full bg-current opacity-70" />
+      <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.1s]" />
+      <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.2s]" />
+    </span>
+  );
+}
+
 export function ChatMessageComposer({
   appearance = "light",
   primaryColor,
@@ -62,6 +74,10 @@ export function ChatMessageComposer({
 }: ChatMessageComposerProps) {
   const isDark = appearance === "dark";
   const visibleSuggestions = suggestedMessages.filter((s) => s.trim());
+  const isRecording = voice?.isRecording ?? false;
+  const isTranscribing = voice?.isTranscribing ?? false;
+  const voiceActive = isRecording || isTranscribing;
+  const inputDisabled = readOnly || isBusy || voiceActive;
 
   const suggestionsEl =
     showSuggestions && visibleSuggestions.length > 0 ? (
@@ -71,7 +87,7 @@ export function ChatMessageComposer({
             key={`${text}-${i}`}
             type="button"
             onClick={() => onSuggestedClick?.(text)}
-            disabled={readOnly || isBusy}
+            disabled={readOnly || isBusy || voiceActive}
             className={cn(
               "rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-50",
               isDark
@@ -90,16 +106,71 @@ export function ChatMessageComposer({
     ? ({ [primaryCssVar]: primaryColor } as React.CSSProperties)
     : undefined;
 
-  const form = (
+  const shellClass = cn(
+    "flex items-center gap-2 rounded-full border py-1.5 pl-3.5 pr-1.5",
+    isDark ? "border-hairline-strong bg-[#292524]" : "border-hairline bg-surface-card",
+  );
+
+  const voiceActiveBar = voiceActive ? (
+    <div
+      style={composerStyle}
+      className={cn(shellClass, "min-h-10")}
+      role="status"
+      aria-live="polite"
+      aria-label={isRecording ? "Recording" : "Processing recording"}
+    >
+      <span className="relative flex size-2 shrink-0">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-semantic-error opacity-40" />
+        <span className="relative inline-flex size-2 rounded-full bg-semantic-error" />
+      </span>
+
+      {isRecording ? (
+        <span
+          className={cn(
+            "shrink-0 text-xs font-medium tabular-nums",
+            isDark ? "text-[#fafaf9]" : "text-ink",
+          )}
+        >
+          {voice?.recordingLabel ?? formatDuration(0)}
+        </span>
+      ) : (
+        <ComposerDots className={isDark ? "text-[#fafaf9]" : "text-ink"} />
+      )}
+
+      <span className="min-w-0 flex-1" aria-hidden />
+
+      {isRecording && voice?.onCancel ? (
+        <button
+          type="button"
+          onClick={voice.onCancel}
+          aria-label="Cancel recording"
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors",
+            isDark
+              ? "text-[#a8a29e] hover:bg-[#44403c] hover:text-[#fafaf9]"
+              : "text-muted hover:bg-surface-strong hover:text-ink",
+          )}
+        >
+          <X className="size-4" strokeWidth={2} />
+        </button>
+      ) : null}
+
+      {isRecording ? (
+        <button
+          type="button"
+          onClick={voice?.onClick}
+          aria-label="Stop recording"
+          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-semantic-error transition-colors hover:bg-[#b91c1c]"
+        >
+          <span className="size-2.5 rounded-[2px] bg-white" aria-hidden />
+        </button>
+      ) : null}
+    </div>
+  ) : null;
+
+  const normalForm = !voiceActive ? (
     <form onSubmit={onSubmit} style={composerStyle}>
-      <div
-        className={cn(
-          "flex items-center gap-1 rounded-full border py-1 pl-3.5 pr-1.5",
-          isDark
-            ? "border-hairline-strong bg-[#292524]"
-            : "border-hairline bg-surface-card",
-        )}
-      >
+      <div className={cn(shellClass, "gap-1 pl-3.5")}>
         {readOnly ? (
           <span
             className={cn(
@@ -115,7 +186,7 @@ export function ChatMessageComposer({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            disabled={isBusy}
+            disabled={inputDisabled}
             className={cn(
               "min-w-0 flex-1 bg-transparent text-sm outline-none disabled:opacity-50",
               isDark
@@ -129,29 +200,21 @@ export function ChatMessageComposer({
           <button
             type="button"
             onClick={voice.onClick}
-            disabled={readOnly || voice.disabled || isBusy}
+            disabled={readOnly || voice.disabled || voice.comingSoon}
             aria-label={
-              voice.comingSoon
-                ? "Voice to text (coming soon)"
-                : voice.isRecording
-                  ? "Stop recording"
-                  : "Start voice input"
+              voice.comingSoon ? "Voice to text (coming soon)" : "Start voice input"
             }
             title={voice.comingSoon ? "Voice to text (coming soon)" : undefined}
             className={cn(
               "flex size-8 shrink-0 items-center justify-center rounded-full transition-colors",
-              voice.isRecording
-                ? "bg-error text-white"
-                : voice.comingSoon || voice.disabled
-                  ? "text-muted opacity-50"
-                  : "text-muted hover:text-ink disabled:opacity-50",
+              voice.comingSoon || voice.disabled
+                ? "text-muted opacity-50"
+                : isDark
+                  ? "text-[#a8a29e] hover:bg-[#44403c] hover:text-[#fafaf9]"
+                  : "text-muted hover:bg-surface-strong hover:text-ink",
             )}
           >
-            {voice.isRecording && voice.recordingLabel ? (
-              <span className="text-[10px] font-medium tabular-nums">
-                {voice.recordingLabel}
-              </span>
-            ) : voice.isPlaying ? (
+            {voice.isPlaying ? (
               <span className="text-[10px] font-medium">▮▮</span>
             ) : (
               <Mic className="size-4" strokeWidth={1.75} />
@@ -180,23 +243,19 @@ export function ChatMessageComposer({
           }
         >
           {isBusy ? (
-            <span className="flex items-center gap-0.5">
-              <span className="size-1 animate-bounce rounded-full bg-current opacity-70" />
-              <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.1s]" />
-              <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.2s]" />
-            </span>
+            <ComposerDots />
           ) : (
             <ArrowUp className="size-4" strokeWidth={2} />
           )}
         </button>
       </div>
     </form>
-  );
+  ) : null;
 
   return (
     <div className={className}>
       {!suggestionsBelow && suggestionsEl}
-      {form}
+      {voiceActiveBar ?? normalForm}
       {suggestionsBelow && suggestionsEl}
     </div>
   );

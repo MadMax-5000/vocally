@@ -128,13 +128,12 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
 
       <ChatWidgetSettingRow
         label="Enable voice-to-text"
-        description="Coming soon"
+        description="Show a microphone button in the chat input. Speech is transcribed into the message field."
         variant="row"
       >
         <Switch
           checked={w.voiceToTextEnabled}
           onCheckedChange={(checked) => patchWidget({ voiceToTextEnabled: checked })}
-          disabled
         />
       </ChatWidgetSettingRow>
 
