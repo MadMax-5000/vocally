@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { AgentIcon } from "@/components/ui/icons";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -200,8 +202,9 @@ export function SidebarAgentsSection() {
   const agentsNavActive =
     pathname === "/dashboard/agents" || pathname.startsWith("/dashboard/agents/");
 
-  if (!isExpanded) {
-    return (
+  return (
+    <div className={cn("flex flex-col", isExpanded && "py-1")}>
+      {isExpanded ? <Separator className="mb-2" /> : null}
       <SidebarGroup className="py-0">
         <SidebarGroupContent>
           <SidebarMenu>
@@ -212,48 +215,35 @@ export function SidebarAgentsSection() {
                   <span>Agents</span>
                 </Link>
               </SidebarMenuButton>
+              {isExpanded ? (
+                <SidebarMenuAction asChild>
+                  <Link href="/dashboard/agents/new" aria-label="Create agent">
+                    <AppIcon icon={PlusIcon} className="h-3.5 w-3.5" />
+                  </Link>
+                </SidebarMenuAction>
+              ) : null}
             </SidebarMenuItem>
+            {isExpanded
+              ? recentAgents.map((agent) => (
+                  <AgentSidebarLink
+                    key={agent.id}
+                    agent={agent}
+                    isActive={
+                      pathname === `/dashboard/agents/${agent.id}` ||
+                      pathname.startsWith(`/dashboard/agents/${agent.id}/`)
+                    }
+                  />
+                ))
+              : null}
+            {isExpanded ? (
+              <SidebarMenuItem>
+                <AgentsMorePopover agents={agents} />
+              </SidebarMenuItem>
+            ) : null}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
-    );
-  }
-
-  return (
-    <SidebarGroup className="py-0">
-      <div className="mb-1 flex h-6 items-center justify-between px-2">
-        <span className="text-[12px] font-medium uppercase tracking-wide text-muted">
-          Agents
-        </span>
-        <Link
-          href="/dashboard/agents/new"
-          aria-label="Create agent"
-          className={cn(
-            "inline-flex h-6 w-6 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted transition-colors",
-            "hover:bg-surface-strong hover:text-ink",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
-          )}
-        >
-          <AppIcon icon={PlusIcon} className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {recentAgents.map((agent) => (
-            <AgentSidebarLink
-              key={agent.id}
-              agent={agent}
-              isActive={
-                pathname === `/dashboard/agents/${agent.id}` ||
-                pathname.startsWith(`/dashboard/agents/${agent.id}/`)
-              }
-            />
-          ))}
-          <SidebarMenuItem>
-            <AgentsMorePopover agents={agents} />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+      {isExpanded ? <Separator className="mt-2" /> : null}
+    </div>
   );
 }
