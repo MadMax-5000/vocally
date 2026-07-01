@@ -6,11 +6,11 @@ import { SelectableCard } from "@/components/onboarding/SelectableCard";
 import { Button } from "@/components/ui/button";
 import { ArabicFlag, DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 
-const OPTIONS: { value: SupportedLanguage; label: string; icon: React.ElementType }[] = [
-  { value: "ARABIC", label: "Arabic (MSA)", icon: ArabicFlag },
-  { value: "DARIJA", label: "Darija", icon: DarijaFlag },
-  { value: "FRENCH", label: "French", icon: FrenchFlag },
-  { value: "ENGLISH", label: "English", icon: EnglishFlag },
+const OPTIONS: { value: SupportedLanguage; label: string; customIcon: React.ComponentType<{ className?: string }> }[] = [
+  { value: "ARABIC", label: "Arabic (MSA)", customIcon: ArabicFlag },
+  { value: "DARIJA", label: "Darija", customIcon: DarijaFlag },
+  { value: "FRENCH", label: "French", customIcon: FrenchFlag },
+  { value: "ENGLISH", label: "English", customIcon: EnglishFlag },
 ];
 
 type LanguagesStepProps = {
@@ -38,7 +38,7 @@ export function LanguagesStep({ languages, onToggle, onContinue }: LanguagesStep
           <SelectableCard
             key={opt.value}
             title={opt.label}
-            icon={opt.icon}
+            customIcon={opt.customIcon}
             selected={languages.includes(opt.value)}
             onClick={() => onToggle(opt.value)}
           />

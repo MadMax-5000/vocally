@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CopyIcon, ExternalLink } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import { Check, Copy, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { buildWidgetEmbedUrl, useEmbedOrigin } from "@/lib/deploy/embed-urls";
@@ -90,7 +91,7 @@ export function WidgetEmbedSnippetSection({
           className="inline-flex items-center gap-1 text-body-sm text-primary hover:underline"
         >
           Open preview
-          <ExternalLink className="h-3 w-3" />
+          <AppIcon icon={ExternalLink} className="h-3 w-3" />
         </a>
         <Button
           type="button"
@@ -101,11 +102,11 @@ export function WidgetEmbedSnippetSection({
         >
           {copied ? (
             <>
-              <Check className="h-3.5 w-3.5" /> Copied
+              <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
             </>
           ) : (
             <>
-              <Copy className="h-3.5 w-3.5" /> Copy code
+              <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy code
             </>
           )}
         </Button>

@@ -11,7 +11,6 @@ import {
 } from "@/lib/deploy/custom-form-action";
 import {
   mergeSuggestedMessagesForResponse,
-  resolveDeploymentStaticStarters,
   resolveSuggestedMessagesAction,
 } from "@/lib/deploy/suggested-messages-action";
 import { prisma } from "@/lib/db/prisma";
@@ -179,8 +178,6 @@ export async function handleAgentChatMessage({
     const action = resolveSuggestedMessagesAction(channels);
 
     if (action.enabled) {
-      const deploymentStatic = resolveDeploymentStaticStarters(channels, deployment);
-
       let dynamicSuggestions: string[] = [];
       if (action.dynamicEnabled) {
         const recentMessages = await prisma.message.findMany({
@@ -201,7 +198,6 @@ export async function handleAgentChatMessage({
 
       suggestedMessages = mergeSuggestedMessagesForResponse({
         action,
-        deploymentStatic,
         userMessageCount,
         dynamicSuggestions,
       });

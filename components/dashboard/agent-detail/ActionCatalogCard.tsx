@@ -56,7 +56,7 @@ export function ActionCatalogCard({
         "group flex w-full flex-col gap-3 rounded-xl border border-hairline bg-surface-card p-4 text-left",
         "transition-all duration-200",
         "hover:border-hairline-strong/70 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/10 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong/10 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
       )}
     >
       <div className="flex items-start justify-between gap-2">

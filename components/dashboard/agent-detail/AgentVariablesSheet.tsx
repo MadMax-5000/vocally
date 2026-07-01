@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Braces, CopyIcon, Trash2Icon } from "@/lib/icons/app-icons"
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Braces, Copy, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { deleteAgentVariable, upsertAgentVariable } from "@/lib/actions/agents";
@@ -11,6 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Sheet,
   SheetContent,
@@ -22,6 +28,7 @@ import {
 
 import type { AgentDetailWithRelations } from "./agent-detail-types";
 import { formatEnumLabel } from "./format-agent-labels";
+import { cn } from "@/lib/utils";
 
 function buildSystemVariableRows(agent: AgentDetailWithRelations) {
   const toneDisplay = agent.customTone?.trim()
@@ -95,13 +102,15 @@ async function copyText(text: string) {
 
 type AgentVariablesSheetProps = {
   agent: AgentDetailWithRelations;
+  triggerClassName?: string;
 };
 
-export function AgentVariablesSheet({ agent }: AgentVariablesSheetProps) {
+export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesSheetProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const systemRows = buildSystemVariableRows(agent);
+  const customVariableCount = agent.variables.length;
 
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
@@ -168,17 +177,33 @@ export function AgentVariablesSheet({ agent }: AgentVariablesSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 gap-1.5 border-hairline-strong px-2.5 text-body-sm text-ink"
-        >
-          <Braces className="h-3.5 w-3.5" />
-          Variables
-        </Button>
-      </SheetTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SheetTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "group h-7 gap-1.5 rounded-none border-0 px-2.5 text-body-sm font-medium text-ink shadow-none hover:bg-surface-strong",
+                triggerClassName,
+              )}
+            >
+              <AppIcon
+                icon={Braces}
+                className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-ink"
+              />
+              Variables
+              {customVariableCount > 0 ? (
+                <span className="ml-0.5 tabular-nums text-caption text-muted">
+                  {customVariableCount}
+                </span>
+              ) : null}
+            </Button>
+          </SheetTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Manage prompt variables</TooltipContent>
+      </Tooltip>
       <SheetContent
         side="right"
         className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-lg"
@@ -212,7 +237,7 @@ export function AgentVariablesSheet({ agent }: AgentVariablesSheetProps) {
                     aria-label={`Copy ${row.token}`}
                     onClick={() => void copyText(row.token)}
                   >
-                    <Copy className="h-4 w-4" />
+                    <AppIcon icon={CopyIcon} className="h-4 w-4" />
                   </Button>
                 </li>
               ))}
@@ -244,7 +269,7 @@ export function AgentVariablesSheet({ agent }: AgentVariablesSheetProps) {
                         disabled={pending}
                         onClick={() => handleDelete(v.id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <AppIcon icon={Trash2Icon} className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="space-y-1.5">

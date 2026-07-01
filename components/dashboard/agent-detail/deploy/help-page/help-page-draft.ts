@@ -23,8 +23,6 @@ export type HelpPageDraft = {
     logoDarkUrl: string;
     heroUrl: string;
     heroDarkUrl: string;
-    suggestedMessages: string[];
-    keepShowingSuggested: boolean;
     placeholder: string;
     navLinks: HelpPageNavLink[];
   };
@@ -48,8 +46,6 @@ export function buildHelpPageDraft(agent: AgentDetailWithRelations): HelpPageDra
       logoDarkUrl: stored.logoDarkUrl ?? "",
       heroUrl: stored.heroUrl ?? "",
       heroDarkUrl: stored.heroDarkUrl ?? "",
-      suggestedMessages: stored.suggestedMessages ?? [],
-      keepShowingSuggested: stored.keepShowingSuggested ?? false,
       placeholder: stored.placeholder?.trim() || HELP_PAGE_PLACEHOLDER_DEFAULT,
       navLinks: stored.navLinks ?? [],
     },
@@ -76,8 +72,6 @@ export function draftToSavePayload(draft: HelpPageDraft) {
       logoDarkUrl: hp.logoDarkUrl.trim() || null,
       heroUrl: hp.heroUrl.trim() || null,
       heroDarkUrl: hp.heroDarkUrl.trim() || null,
-      suggestedMessages: hp.suggestedMessages.map((s) => s.trim()).filter(Boolean),
-      keepShowingSuggested: hp.keepShowingSuggested,
       placeholder: hp.placeholder.trim() || null,
       navLinks: hp.navLinks
         .filter((l) => l.label.trim() && l.href.trim())

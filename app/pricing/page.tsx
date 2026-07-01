@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Check, ArrowUpRight } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, ArrowUpRightIcon } from "@/lib/icons/app-icons"
 
 import { auth } from "@clerk/nextjs/server";
 import { PLAN_META, PLAN_PRICES } from "@/lib/billing/plan-features";
@@ -110,7 +111,7 @@ export default async function PricingPage() {
                                 : "bg-surface-strong text-muted-soft"
                           }`}
                         >
-                          <Check className="h-3 w-3" aria-hidden="true" />
+                          <AppIcon icon={CheckIcon} className="h-3 w-3" aria-hidden="true" />
                         </span>
                         <span
                           className={`text-body-sm leading-snug ${
@@ -179,7 +180,7 @@ export default async function PricingPage() {
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
           >
             Contact sales
-            <ArrowUpRight className="h-4 w-4" />
+            <AppIcon icon={ArrowUpRightIcon} className="h-4 w-4" />
           </Link>
         </section>
       </div>

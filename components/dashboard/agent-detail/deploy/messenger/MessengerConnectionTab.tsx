@@ -2,7 +2,8 @@
 
 import { useMemo, useTransition } from "react";
 import Image from "next/image";
-import { Loader2, Unplug } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -144,9 +145,9 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
           onClick={handleDisconnect}
         >
           {disconnectPending ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
+            <AppIcon icon={LoaderIcon} size={16} className="mr-2 size-4 animate-spin" />
           ) : (
-            <Unplug className="mr-2 size-4" />
+            <AppIcon icon={UnplugIcon} size={16} className="mr-2 size-4" />
           )}
           Disconnect
         </Button>

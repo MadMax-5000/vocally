@@ -1,20 +1,36 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { InfoIcon, LoaderIcon } from "@/lib/icons/app-icons"
 
-import { useState } from "react";
-import { Info } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ChatWidgetSettingRow,
-  chatWidgetFieldInputClass,
   chatWidgetFieldTextareaClass,
 } from "@/components/dashboard/agent-detail/deploy/chat-widget/ChatWidgetSettingRow";
+import {
+  getPhoneSettings,
+  updatePhoneSettings,
+} from "@/lib/actions/phone-settings";
 
 type PhoneSettingsTabProps = {
+  agentId: string;
   agentName: string;
 };
 
-export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
+export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) {
   const [greeting, setGreeting] = useState(
     `Hi, you've reached ${agentName}. How can I help you today?`,
   );
@@ -22,6 +38,61 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
   const [bargeIn, setBargeIn] = useState(true);
   const [timeout, setTimeout_] = useState(15);
   const [language, setLanguage] = useState("auto");
+  const [handoffPhone, setHandoffPhone] = useState("");
+  const [escalationsEnabled, setEscalationsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      const result = await getPhoneSettings(agentId);
+      if (result.success) {
+        setGreeting(result.data.greeting);
+        setVoicemailDetection(result.data.voicemailDetection);
+        setBargeIn(result.data.bargeIn);
+        setTimeout_(result.data.timeout);
+        setLanguage(result.data.language);
+        setHandoffPhone(result.data.handoffPhone);
+        setEscalationsEnabled(result.data.escalationsEnabled);
+      }
+      setIsLoading(false);
+    }
+    load();
+  }, [agentId]);
+
+  const markChanged = useCallback(() => setHasChanges(true), []);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    const result = await updatePhoneSettings(agentId, {
+      greeting,
+      voicemailDetection,
+      bargeIn,
+      timeout,
+      language,
+      handoffPhone,
+    });
+    setIsSaving(false);
+    if (result.success) {
+      setHasChanges(false);
+      toast.success("Phone settings saved");
+    } else {
+      toast.error(result.error || "Failed to save settings");
+    }
+  }, [agentId, greeting, voicemailDetection, bargeIn, timeout, language, handoffPhone]);
+
+  const showHandoffWarning =
+    escalationsEnabled && handoffPhone.trim().length === 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <AppIcon icon={LoaderIcon} className="size-5 animate-spin text-muted-soft" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -38,7 +109,10 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
           >
             <Textarea
               value={greeting}
-              onChange={(e) => setGreeting(e.target.value)}
+              onChange={(e) => {
+                setGreeting(e.target.value);
+                markChanged();
+              }}
               className={chatWidgetFieldTextareaClass}
               rows={2}
             />
@@ -49,21 +123,13 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
             description="Automatically detect voicemail and leave a pre-recorded message."
             variant="row"
           >
-            <button
-              type="button"
-              role="switch"
-              aria-checked={voicemailDetection}
-              onClick={() => setVoicemailDetection(!voicemailDetection)}
-              className={`relative inline-flex h-[18.4px] w-[32px] shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors outline-none ${
-                voicemailDetection ? "bg-primary" : "bg-input"
-              }`}
-            >
-              <span
-                className={`inline-block size-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
-                  voicemailDetection ? "translate-x-[calc(100%-2px)]" : "translate-x-0"
-                }`}
-              />
-            </button>
+            <Switch
+              checked={voicemailDetection}
+              onCheckedChange={(v) => {
+                setVoicemailDetection(v);
+                markChanged();
+              }}
+            />
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
@@ -71,38 +137,37 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
             description="Allow the caller to interrupt the AI mid-prompt. The AI stops and listens."
             variant="row"
           >
-            <button
-              type="button"
-              role="switch"
-              aria-checked={bargeIn}
-              onClick={() => setBargeIn(!bargeIn)}
-              className={`relative inline-flex h-[18.4px] w-[32px] shrink-0 cursor-pointer items-center rounded-full border border-transparent transition-colors outline-none ${
-                bargeIn ? "bg-primary" : "bg-input"
-              }`}
-            >
-              <span
-                className={`inline-block size-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
-                  bargeIn ? "translate-x-[calc(100%-2px)]" : "translate-x-0"
-                }`}
-              />
-            </button>
+            <Switch
+              checked={bargeIn}
+              onCheckedChange={(v) => {
+                setBargeIn(v);
+                markChanged();
+              }}
+            />
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
             label="Language"
             description="Auto-detect or set a fixed language for voice conversations."
           >
-            <select
+            <Select
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className={chatWidgetFieldInputClass}
+              onValueChange={(v) => {
+                setLanguage(v);
+                markChanged();
+              }}
             >
-              <option value="auto">Auto-detect</option>
-              <option value="ar">Arabic (MSA)</option>
-              <option value="ary">Arabic (Darija)</option>
-              <option value="fr">French</option>
-              <option value="en">English</option>
-            </select>
+              <SelectTrigger className="h-10 w-full border-hairline-strong bg-surface-card text-body-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Auto-detect</SelectItem>
+                <SelectItem value="ar">Arabic (MSA)</SelectItem>
+                <SelectItem value="ary">Arabic (Darija)</SelectItem>
+                <SelectItem value="fr">French</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
@@ -110,24 +175,100 @@ export function PhoneSettingsTab({ agentName }: PhoneSettingsTabProps) {
             description="Max seconds to wait for the caller to speak before the AI prompts again."
           >
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 type="number"
                 value={timeout}
-                onChange={(e) => setTimeout_(Number(e.target.value))}
+                onChange={(e) => {
+                  setTimeout_(Number(e.target.value));
+                  markChanged();
+                }}
                 min={5}
                 max={120}
-                className={chatWidgetFieldInputClass}
+                className="w-20"
               />
               <span className="text-caption text-muted-soft">seconds</span>
             </div>
           </ChatWidgetSettingRow>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-3 border-t border-hairline pt-4">
+          {hasChanges && (
+            <p className="text-caption text-muted-soft">Unsaved changes</p>
+          )}
+          <Button
+            type="button"
+            className="btn-primary h-9 rounded-md px-4"
+            disabled={isSaving || !hasChanges}
+            onClick={handleSave}
+          >
+            {isSaving ? (
+              <>
+                <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              "Save changes"
+            )}
+          </Button>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-hairline bg-surface-card p-4">
+        <h2 className="text-title-sm font-medium text-ink">Human handoff</h2>
+        <p className="mt-1 text-body-sm leading-relaxed text-muted">
+          When a call escalates, Vocally transfers the caller to this number.
+        </p>
+
+        <div className="mt-2 divide-y divide-hairline">
+          <ChatWidgetSettingRow
+            label="Handoff phone number"
+            description="E.164 format with country code (e.g. +212612345678). Required for phone escalations."
+          >
+            <Input
+              value={handoffPhone}
+              onChange={(e) => {
+                setHandoffPhone(e.target.value);
+                markChanged();
+              }}
+              placeholder="+212612345678"
+              className="font-mono text-body-sm"
+            />
+          </ChatWidgetSettingRow>
+        </div>
+
+        {showHandoffWarning ? (
+          <p className="mt-3 text-caption text-amber-700">
+            Escalations are enabled on this agent but no handoff number is set. Calls
+            cannot transfer to a human until you add one.
+          </p>
+        ) : null}
+
+        <div className="mt-4 flex items-center justify-end gap-3 border-t border-hairline pt-4">
+          {hasChanges && (
+            <p className="text-caption text-muted-soft">Unsaved changes</p>
+          )}
+          <Button
+            type="button"
+            className="btn-primary h-9 rounded-md px-4"
+            disabled={isSaving || !hasChanges}
+            onClick={handleSave}
+          >
+            {isSaving ? (
+              <>
+                <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              "Save changes"
+            )}
+          </Button>
         </div>
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
         <div className="flex items-start gap-3">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50">
-            <Info className="size-4 text-amber-600" />
+            <AppIcon icon={InfoIcon} className="size-4 text-amber-600" />
           </div>
           <div className="min-w-0">
             <p className="text-body-sm font-medium text-ink">Important</p>

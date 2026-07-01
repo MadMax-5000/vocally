@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const host = req.headers.get("x-forwarded-host") ?? url.host;
     const fullUrl = `${proto}://${host}${url.pathname}${url.search}`;
 
-    const isValid = validateTwilioWebhook({
+    const isValid = await validateTwilioWebhook({
       twilioSignature,
       url: fullUrl,
       bodyParams: body as unknown as Record<string, string>,

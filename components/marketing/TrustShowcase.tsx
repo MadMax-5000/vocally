@@ -1,5 +1,7 @@
 import Image from "next/image";
-import { PhoneCall, ShieldAlert, ShieldCheck, Sparkles } from "lucide-react";
+
+import { AppIcon } from "@/components/ui/app-icon";
+import { PhoneCall, ShieldAlert, ShieldCheck, Sparkles } from "@/lib/icons/app-icons";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -110,7 +112,7 @@ function OmnichannelOverlay() {
 
       <div className="pt-3">
         <StatusPill
-          icon={<PhoneCall className="h-3 w-3" aria-hidden="true" />}
+          icon={<AppIcon icon={PhoneCall} size={12} className="h-3 w-3" aria-hidden="true" />}
           label="Channels connected"
         />
       </div>
@@ -136,7 +138,7 @@ function BotBubble({ text }: { text: string }) {
     <div className="flex justify-start">
       <div className="flex max-w-[92%] items-center gap-2 rounded-xxl bg-surface-strong px-3 py-2">
         <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-on-primary">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+          <AppIcon icon={Sparkles} size={14} className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
         <p className="text-[13px] leading-tight text-ink">{text}</p>
       </div>
@@ -160,7 +162,7 @@ function SecureOverlay() {
 
       <div className="pt-3">
         <StatusPill
-          icon={<ShieldAlert className="h-3 w-3" aria-hidden="true" />}
+          icon={<AppIcon icon={ShieldAlert} size={12} className="h-3 w-3" aria-hidden="true" />}
           label="Violation detected"
         />
       </div>
@@ -184,7 +186,7 @@ function GuardrailsOverlay() {
 
       <div className="pt-3">
         <StatusPill
-          icon={<ShieldCheck className="h-3 w-3" aria-hidden="true" />}
+          icon={<AppIcon icon={ShieldCheck} size={12} className="h-3 w-3" aria-hidden="true" />}
           label="Guardrails activated"
         />
       </div>

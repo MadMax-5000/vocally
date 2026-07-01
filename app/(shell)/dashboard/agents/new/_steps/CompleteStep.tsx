@@ -1,6 +1,6 @@
 "use client";
-
-import { Loader2 } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,7 +141,7 @@ export function CompleteStep({
           <Button type="submit" variant="primary" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
                 Creating…
               </>
             ) : (

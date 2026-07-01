@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import type { AgentPhoneSettings } from "@/lib/actions/vapi-phone";
+import type { PhoneConnectionSettings } from "@/lib/actions/phone-connection";
 
 import { PhoneNumbersTab } from "./PhoneNumbersTab";
 import { PhoneSettingsTab } from "./PhoneSettingsTab";
@@ -14,7 +14,7 @@ type PhoneConfigTabsProps = {
   agentId: string;
   agentName: string;
   phoneEnabled: boolean;
-  settings: AgentPhoneSettings;
+  settings: PhoneConnectionSettings;
   onSettingsRefresh: () => Promise<void>;
 };
 
@@ -44,7 +44,7 @@ export function PhoneConfigTabs({
               onSettingsRefresh={onSettingsRefresh}
             />
           ) : (
-            <PhoneSettingsTab agentName={agentName} />
+            <PhoneSettingsTab agentId={agentId} agentName={agentName} />
           )}
         </motion.div>
       </AnimatePresence>

@@ -31,29 +31,40 @@ export async function loadPublicWidgetPageData(
 
   if (!agent) return null;
 
+  const { ensureSuggestedMessagesMigrated } = await import(
+    "@/lib/deploy/migrate-suggested-messages"
+  );
+  await ensureSuggestedMessagesMigrated(agentId);
+
+  const refreshed = await prisma.agent.findUnique({
+    where: { id: agentId },
+    include: { channels: true },
+  });
+  if (!refreshed) return null;
+
   const token = options?.widgetToken?.trim();
-  if (token && agent.widgetToken && agent.widgetToken !== token) {
+  if (token && refreshed.widgetToken && refreshed.widgetToken !== token) {
     return null;
   }
 
-  const widget = getWebChatWidgetConfig(agent.channels);
+  const widget = getWebChatWidgetConfig(refreshed.channels);
   const settings = resolveWebChatWidgetSettings(
-    agent.name,
-    agent.welcomeMessage,
-    agent.channels,
+    refreshed.name,
+    refreshed.welcomeMessage,
+    refreshed.channels,
     { isMobile: options?.isMobile },
   );
 
   const displayName =
     options?.titleOverride?.trim() ||
-    resolveWidgetDisplayName(agent.name, widget);
+    resolveWidgetDisplayName(refreshed.name, widget);
 
   const welcomeMessage =
     options?.welcomeOverride?.trim() ||
-    resolveWidgetWelcomeMessage(agent.welcomeMessage, widget, options?.isMobile);
+    resolveWidgetWelcomeMessage(refreshed.welcomeMessage, widget, options?.isMobile);
 
   return {
-    agentId: agent.id,
+    agentId: refreshed.id,
     widgetToken: token || undefined,
     displayName,
     welcomeMessage,

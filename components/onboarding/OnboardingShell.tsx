@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowLeftIcon, XIcon } from "@/lib/icons/app-icons"
 
 import Link from "next/link";
-import { ArrowLeft, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ProgressDots } from "@/components/onboarding/ProgressDots";
@@ -39,7 +40,7 @@ export function OnboardingShell({
               className="text-muted hover:text-ink"
               aria-label="Back"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <AppIcon icon={ArrowLeftIcon} className="h-4 w-4" />
             </Button>
           ) : (
             <span className="inline-block h-7 w-7" aria-hidden />
@@ -53,7 +54,7 @@ export function OnboardingShell({
             className="text-muted hover:text-ink"
           >
             <Link href={exitHref} aria-label="Close and exit">
-              <X className="h-4 w-4" />
+              <AppIcon icon={XIcon} className="h-4 w-4" />
             </Link>
           </Button>
         </div>

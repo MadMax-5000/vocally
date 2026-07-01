@@ -2,9 +2,9 @@
 
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
-
+import { AppIcon } from "@/components/ui/app-icon"
 import { cn } from "@/lib/utils"
+import { CheckIcon, ChevronRight, CircleIcon } from "@/lib/icons/app-icons"
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -27,14 +27,14 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex h-7 cursor-default select-none items-center rounded-md px-2 text-[13px] leading-none text-muted outline-none focus:bg-surface-strong focus:text-ink data-[state=open]:bg-surface-strong data-[state=open]:text-ink [&>svg]:text-muted",
+      "flex h-7 cursor-default select-none items-center rounded-md px-2 text-[13px] leading-none text-body outline-none transition-colors data-[highlighted]:bg-surface-strong data-[highlighted]:text-ink focus:bg-surface-strong focus:text-ink data-[state=open]:bg-surface-strong data-[state=open]:text-ink [&>svg]:text-muted",
       inset && "pl-8",
       className
     )}
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto h-3.5 w-3.5" />
+    <AppIcon icon={ChevronRight} size={14} className="ml-auto" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName =
@@ -47,7 +47,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-lg border border-hairline bg-canvas-soft p-1 text-muted shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      "z-50 min-w-[8rem] overflow-hidden rounded-xl border border-hairline bg-surface-card p-1 text-ink shadow-[0_4px_16px_rgba(0,0,0,0.04)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
       className
     )}
     {...props}
@@ -65,7 +65,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-lg border border-hairline bg-canvas-soft p-1 text-muted shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "z-50 min-w-[8rem] overflow-hidden rounded-xl border border-hairline bg-surface-card p-1 text-ink shadow-[0_4px_16px_rgba(0,0,0,0.04)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         className
       )}
       {...props}
@@ -83,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex h-7 cursor-default select-none items-center rounded-md px-2 text-[13px] leading-none text-muted outline-none transition-colors focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:text-muted",
+      "relative flex h-7 cursor-default select-none items-center rounded-md px-2 text-[13px] leading-none text-body outline-none transition-colors data-[highlighted]:bg-surface-strong data-[highlighted]:text-ink focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:text-muted",
       inset && "pl-8",
       className
     )}
@@ -99,7 +99,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex h-7 cursor-default select-none items-center rounded-md pl-8 pr-2 text-[13px] leading-none text-muted outline-none transition-colors focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex h-7 cursor-default select-none items-center rounded-md pl-8 pr-2 text-[13px] leading-none text-body outline-none transition-colors data-[highlighted]:bg-surface-strong data-[highlighted]:text-ink focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -107,7 +107,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <AppIcon icon={CheckIcon} size={16} />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -123,14 +123,14 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex h-7 cursor-default select-none items-center rounded-md pl-8 pr-2 text-[13px] leading-none text-muted outline-none transition-colors focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex h-7 cursor-default select-none items-center rounded-md pl-8 pr-2 text-[13px] leading-none text-body outline-none transition-colors data-[highlighted]:bg-surface-strong data-[highlighted]:text-ink focus:bg-surface-strong focus:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Circle className="h-2 w-2 fill-current" />
+        <AppIcon icon={CircleIcon} size={8} className="fill-current" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

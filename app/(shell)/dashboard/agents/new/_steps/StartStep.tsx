@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowUpRightIcon, LayoutPanelLeft, PlusIcon } from "@/lib/icons/app-icons"
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, LayoutPanelLeft, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type StartStepProps = {
@@ -30,11 +31,11 @@ export function StartStep({ onScratch, onSound }: StartStepProps) {
           className={cn(
             "flex flex-1 w-full flex-col gap-4 rounded-xl border border-hairline bg-surface-card p-6 text-left transition-colors",
             "hover:border-ink",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           )}
         >
           <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-surface-strong text-muted">
-            <Plus className="h-[18px] w-[18px]" aria-hidden />
+            <AppIcon icon={PlusIcon} className="h-[18px] w-[18px]" aria-hidden />
           </span>
 
           <span className="flex flex-1 flex-col gap-2">
@@ -92,12 +93,12 @@ export function StartStep({ onScratch, onSound }: StartStepProps) {
             className={cn(
               "relative flex h-full w-full flex-col gap-4 rounded-xl border border-hairline bg-surface-card p-6 text-left transition-colors",
               "hover:border-ink",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             )}
           >
-            <ArrowUpRight className="absolute right-6 top-6 h-4 w-4 text-muted" aria-hidden />
+            <AppIcon icon={ArrowUpRightIcon} className="absolute right-6 top-6 h-4 w-4 text-muted" aria-hidden />
             <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-surface-strong text-muted">
-              <LayoutPanelLeft className="h-[18px] w-[18px]" aria-hidden />
+              <AppIcon icon={LayoutPanelLeft} className="h-[18px] w-[18px]" aria-hidden />
             </span>
             <span className="flex flex-1 flex-col gap-2">
               <span className="text-title-sm font-semibold text-ink">Browse templates</span>

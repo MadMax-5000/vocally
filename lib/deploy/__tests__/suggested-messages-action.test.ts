@@ -39,22 +39,17 @@ describe("suggested-messages-action", () => {
       keepShowingAfterFirst: false,
       dynamicEnabled: false,
     };
-    expect(getInitialSuggestedMessages(action, ["Deploy fallback"])).toEqual([
-      "Hello",
-    ]);
-    expect(getInitialSuggestedMessages(action, [])).toEqual(["Hello"]);
+    expect(getInitialSuggestedMessages(action)).toEqual(["Hello"]);
   });
 
-  it("falls back to deploy static when action starters empty", () => {
+  it("returns empty when disabled", () => {
     const action = {
-      enabled: true,
-      staticStarters: [],
+      enabled: false,
+      staticStarters: ["Hello"],
       keepShowingAfterFirst: false,
       dynamicEnabled: false,
     };
-    expect(getInitialSuggestedMessages(action, ["From deploy"])).toEqual([
-      "From deploy",
-    ]);
+    expect(getInitialSuggestedMessages(action)).toEqual([]);
   });
 
   it("merges dynamic suggestions and optionally keeps static", () => {
@@ -67,7 +62,6 @@ describe("suggested-messages-action", () => {
 
     const merged = mergeSuggestedMessagesForResponse({
       action,
-      deploymentStatic: [],
       userMessageCount: 2,
       dynamicSuggestions: ["Tell me more", "Contact sales"],
     });
@@ -85,7 +79,6 @@ describe("suggested-messages-action", () => {
 
     const merged = mergeSuggestedMessagesForResponse({
       action,
-      deploymentStatic: [],
       userMessageCount: 1,
       dynamicSuggestions: ["Next step"],
     });
@@ -101,7 +94,6 @@ describe("suggested-messages-action", () => {
         keepShowingAfterFirst: true,
         dynamicEnabled: true,
       },
-      deploymentStatic: ["Hi"],
       userMessageCount: 0,
       dynamicSuggestions: ["Dynamic"],
     });

@@ -1,6 +1,6 @@
 "use client";
-
-import { Info, Plus, Trash2 } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { InfoIcon, PlusIcon, Trash2Icon } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
       <div className="flex items-center gap-1.5">
         <h4 className="text-body-sm text-muted">Sidebar navigation</h4>
         <span title="Buttons shown in the help page sidebar. Primary uses a filled style.">
-          <Info className="size-3.5 text-muted-soft" aria-hidden />
+          <AppIcon icon={InfoIcon} className="size-3.5 text-muted-soft" aria-hidden />
         </span>
       </div>
       <p className="text-caption text-muted-soft">
@@ -85,7 +85,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
                   onClick={() => removeLink(index)}
                   aria-label="Remove link"
                 >
-                  <Trash2 className="size-4" />
+                  <AppIcon icon={Trash2Icon} className="size-4" />
                 </Button>
               </div>
               <Input
@@ -112,7 +112,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
         onClick={addLink}
         disabled={links.length >= 8}
       >
-        <Plus className="mr-1.5 size-4" />
+        <AppIcon icon={PlusIcon} className="mr-1.5 size-4" />
         Add sidebar link
       </Button>
     </div>

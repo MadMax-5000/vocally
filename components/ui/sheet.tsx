@@ -3,9 +3,9 @@
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
-
+import { AppIcon } from "@/components/ui/app-icon"
 import { cn } from "@/lib/utils"
+import { XIcon } from "@/lib/icons/app-icons"
 
 const Sheet = SheetPrimitive.Root
 
@@ -15,13 +15,20 @@ const SheetClose = SheetPrimitive.Close
 
 const SheetPortal = SheetPrimitive.Portal
 
+const SHEET_EASE = "ease-[cubic-bezier(0.32,0.72,0,1)] [animation-timing-function:cubic-bezier(0.32,0.72,0,1)]";
+const SHEET_DURATION =
+  "data-[state=closed]:duration-300 data-[state=open]:duration-300";
+
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-ink/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-ink/80",
+      SHEET_EASE,
+      SHEET_DURATION,
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -31,7 +38,12 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-canvas p-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  cn(
+    "fixed z-50 gap-4 bg-canvas p-4 shadow-lg",
+    SHEET_EASE,
+    SHEET_DURATION,
+    "data-[state=open]:animate-in data-[state=closed]:animate-out",
+  ),
   {
     variants: {
       side: {
@@ -66,7 +78,7 @@ const SheetContent = React.forwardRef<
     >
       {children}
       <SheetPrimitive.Close className="absolute right-3 top-3 rounded-sm opacity-70 ring-offset-canvas transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-surface-strong">
-        <X className="h-4 w-4" />
+        <AppIcon icon={XIcon} size={16} />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>

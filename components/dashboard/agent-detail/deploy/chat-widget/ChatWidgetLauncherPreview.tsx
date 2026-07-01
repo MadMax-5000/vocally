@@ -1,6 +1,6 @@
 "use client";
-
-import { MessageCircle } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { MessageCircle } from "@/lib/icons/app-icons"
 
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function ChatWidgetLauncherPreview({
         style={{ backgroundColor: bubbleColor }}
         aria-label="Chat launcher preview"
       >
-        <MessageCircle className="size-5" />
+        <AppIcon icon={MessageCircle} className="size-5" />
       </button>
     </div>
   );

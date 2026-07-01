@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ImageIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import { ImageIcon } from "lucide-react";
 
 import { ChatMessageComposer } from "@/components/chat/ChatMessageComposer";
 import { HelpPageShell } from "@/components/chat/HelpPageShell";
@@ -97,7 +98,7 @@ export function HelpPagePreviewFrame({
                   : "mb-4 flex size-20 items-center justify-center rounded-xl bg-surface-strong text-muted-soft"
               }
             >
-              <ImageIcon className="size-9" strokeWidth={1.25} />
+              <AppIcon icon={ImageIcon} className="size-9" strokeWidth={1.25} />
             </div>
           )}
           <h1

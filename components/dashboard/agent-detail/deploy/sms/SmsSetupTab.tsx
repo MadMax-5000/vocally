@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CopyIcon, ExternalLink } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import { Check, Copy, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +55,7 @@ function CopyField({
           onClick={handleCopy}
           aria-label={`Copy ${label}`}
         >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
         </Button>
       </div>
     </ChatWidgetSettingRow>
@@ -93,7 +94,7 @@ export function SmsSetupTab({
             target="_blank"
             rel="noreferrer"
           >
-            Twilio SMS docs <ExternalLink className="ml-1.5 size-3.5" />
+            Twilio SMS docs <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
           </a>
         </div>
       </section>
@@ -138,7 +139,7 @@ export function SmsSetupTab({
           target="_blank"
           rel="noreferrer"
         >
-          Open Twilio Phone Numbers <ExternalLink className="ml-1.5 size-3.5" />
+          Open Twilio Phone Numbers <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
         </a>
       </section>
     </div>

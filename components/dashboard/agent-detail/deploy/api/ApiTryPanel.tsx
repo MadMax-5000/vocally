@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon, SendIcon } from "@/lib/icons/app-icons"
 
 import { useCallback, useState } from "react";
-import { Loader2, Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { buildAgentChatApiUrl } from "@/lib/deploy/api-config";
@@ -139,7 +140,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
                 ))}
                 {loading ? (
                   <div className="flex items-center gap-2 text-body-sm text-muted">
-                    <Loader2 className="size-4 animate-spin" />
+                    <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
                     Waiting for response…
                   </div>
                 ) : null}
@@ -173,9 +174,9 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
               aria-label="Send test message"
             >
               {loading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
               ) : (
-                <Send className="size-4" />
+                <AppIcon icon={SendIcon} className="size-4" />
               )}
             </Button>
           </div>

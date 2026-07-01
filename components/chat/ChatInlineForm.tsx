@@ -5,6 +5,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ChatFormUi } from "@/lib/chat/form-ui";
 import { cn } from "@/lib/utils";
 
@@ -85,7 +92,7 @@ export function ChatInlineForm({
   }
 
   const inputClass =
-    "h-9 w-full rounded-md border border-hairline bg-surface-card px-3 text-body-sm text-ink shadow-none placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10";
+    "h-9 w-full rounded-md border border-hairline bg-surface-card px-3 text-body-sm text-ink shadow-none placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10";
 
   return (
     <form
@@ -127,20 +134,25 @@ export function ChatInlineForm({
                   className={cn(inputClass, "mt-1 min-h-[72px] resize-y py-2")}
                 />
               ) : field.type === "select" ? (
-                <select
-                  id={fieldId}
+                <Select
                   value={values[field.id] ?? ""}
-                  onChange={(e) => setValue(field.id, e.target.value)}
+                  onValueChange={(v) => setValue(field.id, v)}
                   disabled={disabled || submitting || preview}
-                  className={cn(inputClass, "mt-1")}
                 >
-                  <option value="">{field.placeholder ?? "Select…"}</option>
-                  {(field.options ?? []).map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger
+                    id={fieldId}
+                    className={cn(inputClass, "mt-1 w-full")}
+                  >
+                    <SelectValue placeholder={field.placeholder ?? "Select…"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(field.options ?? []).map((opt) => (
+                      <SelectItem key={opt} value={opt}>
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               ) : (
                 <Input
                   id={fieldId}

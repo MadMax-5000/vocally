@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { ArrowLeftIcon } from "@/lib/icons/app-icons";
 
 import {
   DashboardTabBar,
@@ -44,7 +45,7 @@ export function InstagramManageHeader({
           href={`/dashboard/agents/${agentId}?tab=deploy`}
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
-          <ArrowLeft className="size-3.5" />
+          <AppIcon icon={ArrowLeftIcon} size={14} className="size-3.5" />
           Back to Deploy
         </Link>
 

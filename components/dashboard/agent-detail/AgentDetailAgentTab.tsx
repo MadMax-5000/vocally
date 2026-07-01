@@ -1,9 +1,10 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, ChevronRight } from "@/lib/icons/app-icons"
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LlmProvider, SupportedLanguage, VoiceProvider } from "@prisma/client";
-import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -89,7 +90,7 @@ function SelectRow({
       </div>
       <div className="flex items-center gap-2">
         {rightPill}
-        <ChevronRight className="h-4 w-4 text-muted" />
+        <AppIcon icon={ChevronRight} className="h-4 w-4 text-muted" />
       </div>
     </button>
   );
@@ -435,7 +436,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                         />
                       </span>
                       <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                        {active ? <Check className="h-4 w-4" /> : null}
+                        {active ? <AppIcon icon={CheckIcon} className="h-4 w-4" /> : null}
                       </span>
                       <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                         <span className="truncate">{m.label}</span>
@@ -479,7 +480,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                       {languageIcon(opt.value)}
                     </span>
                     <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
-                      {active ? <Check className="h-4 w-4" /> : null}
+                      {active ? <AppIcon icon={CheckIcon} className="h-4 w-4" /> : null}
                     </span>
                     <span>{opt.label}</span>
                   </CommandItem>

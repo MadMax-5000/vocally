@@ -1,6 +1,7 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { PlugIcon } from "@/lib/icons/app-icons"
 
-import { Plug } from "lucide-react";
 import { KnowledgeIcon } from "@/components/ui/icons";
 
 import { SelectableCard } from "@/components/onboarding/SelectableCard";
@@ -38,7 +39,7 @@ export function KnowledgeStep({
       <section className="space-y-3 rounded-xl border border-hairline bg-surface-card p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-strong text-muted">
-            <Plug className="h-5 w-5" aria-hidden />
+            <AppIcon icon={PlugIcon} className="h-5 w-5" aria-hidden />
           </span>
           <div>
             <p className="text-title-sm font-medium text-ink">Tools</p>
@@ -66,7 +67,7 @@ export function KnowledgeStep({
               <SelectableCard
                 key={doc.id}
                 title={doc.title}
-                icon={KnowledgeIcon}
+                customIcon={KnowledgeIcon}
                 selected={selectedIds.includes(doc.id)}
                 onClick={() => onToggle(doc.id)}
               />

@@ -1,42 +1,45 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AgentStatus, AgentVisibility } from "@prisma/client";
-import { z } from "zod";
+import { AgentStatus, AgentVisibility, WhatsappConnectionStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 import {
-  e164PhoneSchema,
   formatWhatsappDisplay,
-  getSuggestedWhatsappNumber,
-  getWhatsappWebhookUrl,
+  isLegacyWhatsappConnection,
   isTwilioPlatformConfigured,
-  normalizeWhatsappSenderId,
+  isWhatsappConnectAvailable,
+  isWhatsappEmbeddedSignupConfigured,
+  isWhatsappSandboxMode,
 } from "@/lib/deploy/whatsapp-config";
+import { disconnectWhatsappForAgent } from "@/lib/integrations/whatsapp/connect";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
 export type AgentWhatsAppSettings = {
   platformConfigured: boolean;
-  suggestedNumber: string | null;
-  webhookUrl: string;
+  embeddedSignupConfigured: boolean;
+  sandboxMode: boolean;
+  connectAvailable: boolean;
   connection: {
     id: string;
     twilioNumber: string;
     connectedAt: Date;
     isActive: boolean;
+    status: WhatsappConnectionStatus;
+    statusMessage: string | null;
+    twilioSenderSid: string | null;
+    qualityRating: string | null;
+    messagingLimit: string | null;
+    isLegacy: boolean;
   } | null;
   readiness: {
     channelEnabled: boolean;
     agentActive: boolean;
     agentPublic: boolean;
-    mappingActive: boolean;
+    connectionOnline: boolean;
     platformConfigured: boolean;
   };
 };
-
-const connectSchema = z.object({
-  phoneNumber: e164PhoneSchema,
-});
 
 function revalidateWhatsAppDeploy(agentId: string) {
   revalidatePath(`/dashboard/agents/${agentId}/deploy/whatsapp`);
@@ -64,94 +67,57 @@ export async function getAgentWhatsAppSettings(agentId: string): Promise<
 
     const connection = await prisma.whatsappPhoneNumber.findFirst({
       where: { orgId, agentId, isActive: true },
-      select: { id: true, twilioNumber: true, createdAt: true, isActive: true },
+      select: {
+        id: true,
+        twilioNumber: true,
+        createdAt: true,
+        isActive: true,
+        status: true,
+        statusMessage: true,
+        twilioSenderSid: true,
+        qualityRating: true,
+        messagingLimit: true,
+      },
     });
 
     const channelEnabled = agent.channels.some((c) => c.enabled);
     const platformConfigured = isTwilioPlatformConfigured();
+    const connectionOnline =
+      Boolean(connection?.isActive) &&
+      (connection?.status === "ONLINE" || isLegacyWhatsappConnection(connection));
 
     return {
       success: true,
       data: {
         platformConfigured,
-        suggestedNumber: getSuggestedWhatsappNumber(),
-        webhookUrl: getWhatsappWebhookUrl(),
+        embeddedSignupConfigured: isWhatsappEmbeddedSignupConfigured(),
+        sandboxMode: isWhatsappSandboxMode(),
+        connectAvailable: isWhatsappConnectAvailable(),
         connection: connection
           ? {
               id: connection.id,
               twilioNumber: formatWhatsappDisplay(connection.twilioNumber),
               connectedAt: connection.createdAt,
               isActive: connection.isActive,
+              status: connection.status,
+              statusMessage: connection.statusMessage,
+              twilioSenderSid: connection.twilioSenderSid,
+              qualityRating: connection.qualityRating,
+              messagingLimit: connection.messagingLimit,
+              isLegacy: isLegacyWhatsappConnection(connection),
             }
           : null,
         readiness: {
           channelEnabled,
           agentActive: agent.status === AgentStatus.ACTIVE,
           agentPublic: agent.visibility === AgentVisibility.PUBLIC,
-          mappingActive: Boolean(connection?.isActive),
+          connectionOnline,
           platformConfigured,
         },
       },
     };
   } catch {
     return { success: false, error: "Could not load WhatsApp settings" };
-  }
-}
-
-export async function connectWhatsAppForAgent(
-  agentId: string,
-  input: { phoneNumber: string },
-): Promise<{ success: true } | { success: false; error: string }> {
-  try {
-    const orgId = await getOrgPrismaId();
-    if (!orgId) return { success: false, error: "Unauthorized" };
-
-    if (!isTwilioPlatformConfigured()) {
-      return {
-        success: false,
-        error: "Twilio is not configured on this deployment. Contact your administrator.",
-      };
-    }
-
-    const parsed = connectSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid phone number" };
-    }
-
-    const agent = await prisma.agent.findFirst({
-      where: { id: agentId, orgId },
-      select: { id: true },
-    });
-    if (!agent) return { success: false, error: "Agent not found" };
-
-    const twilioNumber = normalizeWhatsappSenderId(parsed.data.phoneNumber);
-
-    const existing = await prisma.whatsappPhoneNumber.findUnique({
-      where: { twilioNumber },
-    });
-
-    if (existing && existing.orgId !== orgId) {
-      return {
-        success: false,
-        error: "This number is already registered to another organization.",
-      };
-    }
-
-    if (existing) {
-      await prisma.whatsappPhoneNumber.update({
-        where: { id: existing.id },
-        data: { orgId, agentId, isActive: true },
-      });
-    } else {
-      await prisma.whatsappPhoneNumber.create({
-        data: { orgId, agentId, twilioNumber, isActive: true },
-      });
-    }
-
-    revalidateWhatsAppDeploy(agentId);
-    return { success: true };
-  } catch {
-    return { success: false, error: "Could not connect WhatsApp number" };
   }
 }
 
@@ -168,10 +134,7 @@ export async function disconnectWhatsAppForAgent(
     });
     if (!agent) return { success: false, error: "Agent not found" };
 
-    await prisma.whatsappPhoneNumber.deleteMany({
-      where: { orgId, agentId },
-    });
-
+    await disconnectWhatsappForAgent({ orgId, agentId });
     revalidateWhatsAppDeploy(agentId);
     return { success: true };
   } catch {

@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon, MailIcon, UnplugIcon } from "@/lib/icons/app-icons"
 
 import { useTransition } from "react";
 import Image from "next/image";
-import { Loader2, Mail, Unplug } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ export function EmailConnectionTab({
           </p>
         </div>
         <Button type="button" className="btn-primary h-10 rounded-md px-5" onClick={handleConnect}>
-          <Mail className="mr-2 size-4" />
+          <AppIcon icon={MailIcon} className="mr-2 size-4" />
           Connect Gmail
         </Button>
       </div>
@@ -128,9 +129,9 @@ export function EmailConnectionTab({
           onClick={handleTestEmail}
         >
           {testPending ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
+            <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
           ) : (
-            <Mail className="mr-2 size-4" />
+            <AppIcon icon={MailIcon} className="mr-2 size-4" />
           )}
           Send test email
         </Button>
@@ -142,9 +143,9 @@ export function EmailConnectionTab({
           onClick={handleDisconnect}
         >
           {disconnectPending ? (
-            <Loader2 className="mr-2 size-4 animate-spin" />
+            <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
           ) : (
-            <Unplug className="mr-2 size-4" />
+            <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
           )}
           Disconnect
         </Button>

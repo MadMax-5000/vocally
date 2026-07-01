@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { ExternalLink } from "@/lib/icons/app-icons";
 
 type InstagramSetupTabProps = {
   agentId: string;
@@ -48,7 +49,7 @@ export function InstagramSetupTab({
               target="_blank"
               rel="noreferrer"
             >
-              Docs <ExternalLink className="ml-1 inline size-3.5" />
+              Docs <AppIcon icon={ExternalLink} size={14} className="ml-1 inline size-3.5" />
             </a>
           </div>
 

@@ -1,6 +1,7 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Play, Pause, DownloadIcon } from "@/lib/icons/app-icons"
 
-import { Play, Pause, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------

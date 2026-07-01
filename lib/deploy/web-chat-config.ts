@@ -48,8 +48,6 @@ export type WebChatWidgetConfig = {
   autoShowWelcomePopup?: boolean;
   welcomePopupDelaySec?: number;
   autoShowWelcomePopupMobile?: boolean;
-  suggestedMessages?: string[];
-  keepShowingSuggested?: boolean;
   placeholder?: string;
   voiceToTextEnabled?: boolean;
   attachmentsEnabled?: boolean;
@@ -82,8 +80,6 @@ export type WebChatHelpPageConfig = {
   logoDarkUrl?: string;
   heroUrl?: string;
   heroDarkUrl?: string;
-  suggestedMessages?: string[];
-  keepShowingSuggested?: boolean;
   placeholder?: string;
   navLinks?: HelpPageNavLink[];
 };
@@ -165,11 +161,6 @@ export function parseWebChatHelpPageConfig(config: unknown): WebChatHelpPageConf
   if (heroUrl) result.heroUrl = heroUrl;
   const heroDarkUrl = parseUrl(raw.heroDarkUrl);
   if (heroDarkUrl) result.heroDarkUrl = heroDarkUrl;
-  const suggested = parseStringArray(raw.suggestedMessages);
-  if (suggested !== undefined) result.suggestedMessages = suggested;
-  if (typeof raw.keepShowingSuggested === "boolean") {
-    result.keepShowingSuggested = raw.keepShowingSuggested;
-  }
   if (typeof raw.placeholder === "string") {
     result.placeholder = raw.placeholder.trim() || undefined;
   }
@@ -184,15 +175,6 @@ function parseHexColor(value: unknown): string | undefined {
   const trimmed = value.trim();
   if (/^#[0-9A-Fa-f]{6}$/.test(trimmed)) return trimmed;
   return undefined;
-}
-
-function parseStringArray(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const items = value
-    .filter((v): v is string => typeof v === "string")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  return items.length > 0 ? items : [];
 }
 
 export function parseWebChatWidgetConfig(config: unknown): WebChatWidgetConfig {
@@ -219,11 +201,6 @@ export function parseWebChatWidgetConfig(config: unknown): WebChatWidgetConfig {
   }
   if (typeof raw.autoShowWelcomePopupMobile === "boolean") {
     result.autoShowWelcomePopupMobile = raw.autoShowWelcomePopupMobile;
-  }
-  const suggested = parseStringArray(raw.suggestedMessages);
-  if (suggested !== undefined) result.suggestedMessages = suggested;
-  if (typeof raw.keepShowingSuggested === "boolean") {
-    result.keepShowingSuggested = raw.keepShowingSuggested;
   }
   if (typeof raw.placeholder === "string") {
     result.placeholder = raw.placeholder.trim() || undefined;
@@ -329,8 +306,6 @@ export type ResolvedWebChatWidgetSettings = {
   displayName: string;
   welcomeMessage: string;
   placeholder: string;
-  suggestedMessages: string[];
-  keepShowingSuggested: boolean;
   suggestedMessagesAction: ResolvedSuggestedMessagesAction;
   customButtonsAction: ResolvedCustomButtonAction;
   appearance: WebChatWidgetAppearance;
@@ -357,8 +332,6 @@ export function resolveWebChatWidgetSettings(
     displayName: resolveWidgetDisplayName(agentName, widget),
     welcomeMessage: resolveWidgetWelcomeMessage(agentWelcome, widget, options?.isMobile),
     placeholder: widget.placeholder?.trim() || WIDGET_PLACEHOLDER_DEFAULT,
-    suggestedMessages: widget.suggestedMessages ?? [],
-    keepShowingSuggested: widget.keepShowingSuggested ?? false,
     suggestedMessagesAction,
     customButtonsAction,
     appearance: widget.appearance ?? "light",
@@ -413,8 +386,6 @@ export type ResolvedWebChatHelpPageSettings = {
   logoDarkUrl?: string;
   heroUrl?: string;
   heroDarkUrl?: string;
-  suggestedMessages: string[];
-  keepShowingSuggested: boolean;
   suggestedMessagesAction: ResolvedSuggestedMessagesAction;
   customButtonsAction: ResolvedCustomButtonAction;
   placeholder: string;
@@ -441,8 +412,6 @@ export function resolveWebChatHelpPageSettings(
     logoDarkUrl: helpPage.logoDarkUrl,
     heroUrl: helpPage.heroUrl,
     heroDarkUrl: helpPage.heroDarkUrl,
-    suggestedMessages: helpPage.suggestedMessages ?? [],
-    keepShowingSuggested: helpPage.keepShowingSuggested ?? false,
     suggestedMessagesAction: resolveSuggestedMessagesAction(channels),
     customButtonsAction: resolveCustomButtonAction(channels),
     placeholder: helpPage.placeholder?.trim() || HELP_PAGE_PLACEHOLDER_DEFAULT,

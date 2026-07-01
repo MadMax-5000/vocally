@@ -1,6 +1,6 @@
 "use client";
-
-import { Upload } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { UploadIcon } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button";
 import { WIDGET_PRIMARY_COLOR_DEFAULT } from "@/lib/deploy/web-chat-config";
@@ -65,7 +65,7 @@ function UploadStubField({
         disabled
         className="h-10 w-fit gap-1.5 rounded-lg border-hairline bg-surface-card text-body-sm"
       >
-        <Upload className="size-3.5" />
+        <AppIcon icon={UploadIcon} className="size-3.5" />
         Upload
       </Button>
     </ChatWidgetSettingRow>

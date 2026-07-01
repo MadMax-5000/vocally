@@ -3,15 +3,18 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  LayoutDashboard,
-  Inbox,
-  Radio,
-  CreditCard,
-  Mail,
-} from "lucide-react"
+
+import type { IconSvgElement } from "@/components/ui/app-icon"
+import { AppIcon } from "@/components/ui/app-icon"
 import { KnowledgeIcon } from "@/components/ui/icons"
 import { SidebarAgentsSection } from "@/components/dashboard/sidebar/SidebarAgentsSection"
+import {
+  BriefcaseIcon,
+  CreditCard,
+  Inbox,
+  LayoutDashboard,
+  Radio,
+} from "@/lib/icons/app-icons"
 
 import {
   Sidebar,
@@ -33,18 +36,28 @@ import { OrgSwitcher } from "./OrgSwitcher"
 import { getEscalationCount } from "@/lib/actions/sessions"
 import { getSupabaseBrowser } from "@/lib/supabase/client"
 
+type SidebarIcon = IconSvgElement | typeof KnowledgeIcon
+
+function SidebarNavIcon({ icon }: { icon: SidebarIcon }) {
+  if (icon === KnowledgeIcon) {
+    return <KnowledgeIcon />
+  }
+  return <AppIcon icon={icon as IconSvgElement} size={16} />
+}
+
 const homeItem = {
   title: "Home",
   url: "/dashboard",
   icon: LayoutDashboard,
 } as const
 
-const operationsItems = [
+const operationsItems: { title: string; url: string; icon: IconSvgElement }[] = [
   { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
+  { title: "Leads", url: "/dashboard/leads", icon: BriefcaseIcon },
   { title: "Live monitor", url: "/dashboard/live", icon: Radio },
 ]
 
-const workspaceItems = [
+const workspaceItems: { title: string; url: string; icon: SidebarIcon }[] = [
   { title: "Knowledge base", url: "/dashboard/knowledge", icon: KnowledgeIcon },
   { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
 ]
@@ -69,7 +82,7 @@ function SidebarBrand() {
         aria-label="Vocally"
         className={cn(
           "inline-flex shrink-0 items-center gap-2 rounded-md transition-opacity hover:opacity-80",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
           !isExpanded && "justify-center",
         )}
       >
@@ -122,7 +135,7 @@ export function AppSidebar() {
   }, [])
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="overlay">
       <SidebarBrand />
       <SidebarContent>
         <SidebarGroup>
@@ -135,7 +148,7 @@ export function AppSidebar() {
                   tooltip={homeItem.title}
                 >
                   <Link href={homeItem.url}>
-                    <homeItem.icon />
+                    <SidebarNavIcon icon={homeItem.icon} />
                     <span>{homeItem.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -158,7 +171,7 @@ export function AppSidebar() {
                     tooltip={item.title}
                   >
                     <Link href={item.url} className="relative">
-                      <item.icon />
+                      <SidebarNavIcon icon={item.icon} />
                       <span>{item.title}</span>
                       {item.title === "Inbox" &&
                         escalationCount > 0 &&
@@ -190,7 +203,7 @@ export function AppSidebar() {
                     tooltip={item.title}
                   >
                     <Link href={item.url}>
-                      <item.icon />
+                      <SidebarNavIcon icon={item.icon} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

@@ -1,15 +1,23 @@
 {
-    "prisma.pinToPrisma6": true,
-  
-    "files.watcherExclude": {
-      "**/.next/**": true,
-      "**/node_modules/**": true,
-      "**/dist/**": true
-    },
-  
-    "search.exclude": {
-      "**/.next": true,
-      "**/node_modules": true,
-      "**/dist": true
-    }
+  "prisma.pinToPrisma6": true,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.tsserver.watchOptions": {
+    "excludeDirectories": ["**/node_modules", "**/.next", "**/dist", "**/.git"]
+  },
+  "files.watcherExclude": {
+    "**/.next/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.git/**": true,
+    "**/coverage/**": true
+  },
+  "search.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/coverage": true
   }
+}

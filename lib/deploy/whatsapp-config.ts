@@ -47,6 +47,21 @@ export function isTwilioPlatformConfigured(): boolean {
   );
 }
 
+export function isWhatsappEmbeddedSignupConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_META_APP_ID?.trim() &&
+      process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID?.trim(),
+  );
+}
+
+export function isWhatsappSandboxMode(): boolean {
+  return process.env.WHATSAPP_SANDBOX_MODE === "true";
+}
+
+export function isWhatsappConnectAvailable(): boolean {
+  return isWhatsappSandboxMode() || isWhatsappEmbeddedSignupConfigured();
+}
+
 export function getSuggestedWhatsappNumber(): string | null {
   const num = process.env.TWILIO_WHATSAPP_NUMBER?.trim();
   if (!num) return null;
@@ -71,4 +86,12 @@ export function isWhatsAppReady(input: WhatsAppReadinessInput): boolean {
     input.agentPublic &&
     input.mappingActive
   );
+}
+
+export function isLegacyWhatsappConnection(connection: {
+  twilioSenderSid: string | null;
+  status: string;
+} | null): boolean {
+  if (!connection) return false;
+  return !connection.twilioSenderSid && connection.status === "PENDING";
 }

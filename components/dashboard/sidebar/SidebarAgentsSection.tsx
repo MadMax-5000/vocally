@@ -1,9 +1,10 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { MoreHorizontal, PlusIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MoreHorizontal, Plus } from "lucide-react";
 
 import {
   Popover,
@@ -107,14 +108,14 @@ function AgentsMorePopover({
           className={cn(
             "flex h-8 w-full items-center gap-2 rounded-md px-2 text-[13px] text-muted transition-colors",
             "hover:bg-surface-strong",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
+            "focus-visible:outline-none focus-visible:ring-0",
             "disabled:pointer-events-none disabled:opacity-50",
             pathname === "/dashboard/agents" || pathname.startsWith("/dashboard/agents/")
               ? "bg-surface-strong"
               : undefined,
           )}
         >
-          <MoreHorizontal className="h-4 w-4 shrink-0 text-muted" />
+          <AppIcon icon={MoreHorizontal} className="h-4 w-4 shrink-0 text-muted" />
           <span className="text-muted">More</span>
         </button>
       </PopoverTrigger>
@@ -230,10 +231,10 @@ export function SidebarAgentsSection() {
           className={cn(
             "inline-flex h-6 w-6 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted transition-colors",
             "hover:bg-surface-strong hover:text-ink",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
           )}
         >
-          <Plus className="h-3.5 w-3.5" />
+          <AppIcon icon={PlusIcon} className="h-3.5 w-3.5" />
         </Link>
       </div>
       <SidebarGroupContent>

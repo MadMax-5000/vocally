@@ -1,6 +1,6 @@
 "use client";
-
-import { Loader2 } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon } from "@/lib/icons/app-icons"
 
 import { Checkbox } from "@/components/ui/checkbox";
 import type { GmailLabelOption } from "@/lib/actions/gmail-connection";
@@ -24,7 +24,7 @@ export function EmailLabelPicker({
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-2 text-body-sm text-muted">
-        <Loader2 className="size-4 animate-spin" />
+        <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
         Loading Gmail labels…
       </div>
     );

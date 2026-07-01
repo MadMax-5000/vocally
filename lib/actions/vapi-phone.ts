@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { getTwilioVoiceNumber } from "@/lib/twilio/env";
 
 export type AgentPhoneSettings = {
   numbers: Array<{
@@ -9,6 +10,10 @@ export type AgentPhoneSettings = {
     number: string;
     vapiPhoneNumberId?: string | null;
   }>;
+  /** The customer's own phone number that forwards to this Twilio number */
+  customerNumber?: string | null;
+  /** The Vocally forwarding number */
+  forwardingNumber?: string;
 };
 
 export async function getAgentPhoneSettings(agentId: string): Promise<{ success: boolean; data?: AgentPhoneSettings; error?: string }> {
@@ -26,14 +31,17 @@ export async function getAgentPhoneSettings(agentId: string): Promise<{ success:
       where: { orgId, agentId }
     });
 
-    // In a real implementation we might also store vapiPhoneNumberId in the db.
+    const first = numbers[0];
+
     return {
       success: true,
       data: {
         numbers: numbers.map(n => ({
           id: n.id,
           number: n.twilioNumber,
-        }))
+        })),
+        customerNumber: first?.customerNumber ?? null,
+        forwardingNumber: getTwilioVoiceNumber(),
       }
     };
   } catch (error: any) {

@@ -2,6 +2,10 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
+import {
+  isWithinBusinessHours,
+  parseWhatsappChannelConfig,
+} from "@/lib/deploy/whatsapp-channel-config";
 import { sendWhatsAppMessage } from "@/lib/twilio/client";
 import type { IncomingWhatsAppPayload, ResolvedSession } from "./whatsapp-types";
 
@@ -16,12 +20,23 @@ async function resolveOrganization(to: string): Promise<ResolvedSession | null> 
   });
 
   if (!mapping || !mapping.isActive) return null;
+  const isLegacy = !mapping.twilioSenderSid;
+  if (!isLegacy && mapping.status !== "ONLINE") return null;
+
   return {
     sessionId: "",
     orgId: mapping.orgId,
     agentId: mapping.agentId,
     isNew: true,
   };
+}
+
+async function getWhatsappChannelConfig(agentId: string) {
+  const channel = await prisma.agentChannel.findUnique({
+    where: { agentId_channel: { agentId, channel: "WHATSAPP" } },
+    select: { config: true },
+  });
+  return parseWhatsappChannelConfig(channel?.config);
 }
 
 async function resolveAgentId(
@@ -107,8 +122,10 @@ async function handleInboundMessage(payload: IncomingWhatsAppPayload): Promise<v
   }
 
   const customerPhone = normalizePhoneNumber(From);
+  const existingSessionId = await findActiveSession(resolved.orgId, customerPhone);
+  const isNewSession = !existingSessionId;
   const sessionId =
-    (await findActiveSession(resolved.orgId, customerPhone)) ??
+    existingSessionId ??
     (await createSession(resolved.orgId, resolved.agentId, customerPhone));
 
   await storeMessage(sessionId, "USER", Body);
@@ -122,6 +139,17 @@ async function handleInboundMessage(payload: IncomingWhatsAppPayload): Promise<v
     return;
   }
 
+  const channelConfig = await getWhatsappChannelConfig(agentId);
+
+  if (!isWithinBusinessHours(channelConfig)) {
+    const awayBody =
+      channelConfig.awayMessage?.trim() ||
+      "We're currently unavailable. We'll reply as soon as we're back.";
+    await storeMessage(sessionId, "BOT", awayBody);
+    await sendWhatsAppMessage({ to: From, from: To, body: awayBody });
+    return;
+  }
+
   const { botContent } = await processMessage({
     orgId: resolved.orgId,
     agentId,
@@ -129,12 +157,17 @@ async function handleInboundMessage(payload: IncomingWhatsAppPayload): Promise<v
     message: Body,
   });
 
-  await storeMessage(sessionId, "BOT", botContent);
+  let replyBody = botContent;
+  if (isNewSession && channelConfig.welcomeMessage?.trim()) {
+    replyBody = `${channelConfig.welcomeMessage.trim()}\n\n${botContent}`;
+  }
+
+  await storeMessage(sessionId, "BOT", replyBody);
 
   await sendWhatsAppMessage({
     to: From,
     from: To,
-    body: botContent,
+    body: replyBody,
   });
 }
 

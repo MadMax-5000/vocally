@@ -1,6 +1,6 @@
 "use client";
-
-import { ImageIcon, Moon, PanelLeft, Plus, Sun } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ImageIcon, Moon, PanelLeft, PlusIcon, Sun } from "@/lib/icons/app-icons"
 
 import type { HelpPageNavLink, WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
@@ -38,14 +38,16 @@ function LogoMark({
           isDark ? "bg-white/5 text-white/50" : "bg-surface-strong text-muted",
         )}
       >
-        <ImageIcon className="size-4" strokeWidth={1.75} />
+        <AppIcon icon={ImageIcon} className="size-4" strokeWidth={1.75} />
       </span>
     );
   }
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <ImageIcon
+      <AppIcon
+        icon={ImageIcon}
+        size={16}
         className={cn("size-4 shrink-0", isDark ? "text-white/50" : "text-muted")}
         strokeWidth={1.75}
       />
@@ -189,7 +191,7 @@ export function HelpPageShell({
               )}
               aria-label="Collapse sidebar"
             >
-              <PanelLeft className="size-4" strokeWidth={1.75} />
+              <AppIcon icon={PanelLeft} className="size-4" strokeWidth={1.75} />
             </button>
           </div>
 
@@ -207,7 +209,7 @@ export function HelpPageShell({
                     : "border-hairline bg-canvas-soft text-ink hover:bg-surface-strong",
                 )}
               >
-                <Plus className="size-3.5" strokeWidth={2} />
+                <AppIcon icon={PlusIcon} className="size-3.5" strokeWidth={2} />
                 New chat
               </button>
             </div>
@@ -242,7 +244,7 @@ export function HelpPageShell({
               )}
               aria-label="Open sidebar"
             >
-              <PanelLeft className="size-4" strokeWidth={1.75} />
+              <AppIcon icon={PanelLeft} className="size-4" strokeWidth={1.75} />
             </button>
           ) : null}
 
@@ -259,9 +261,9 @@ export function HelpPageShell({
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDark ? (
-                <Sun className="size-4" strokeWidth={1.75} />
+                <AppIcon icon={Sun} className="size-4" strokeWidth={1.75} />
               ) : (
-                <Moon className="size-4" strokeWidth={1.75} />
+                <AppIcon icon={Moon} className="size-4" strokeWidth={1.75} />
               )}
             </button>
           ) : null}
@@ -288,7 +290,7 @@ export function HelpPageShell({
                           : "bg-surface-strong text-muted-soft",
                       )}
                     >
-                      <ImageIcon className="size-9" strokeWidth={1.25} />
+                      <AppIcon icon={ImageIcon} className="size-9" strokeWidth={1.25} />
                     </div>
                   )}
                   <h1

@@ -2,294 +2,157 @@
 
 ## Overview
 
-This document covers the end-to-end setup of WhatsApp messaging via Twilio for the Vocally platform.
+Vocally connects customer WhatsApp Business numbers via **Twilio ISV + Meta Embedded Signup**. Customers enter their number in the dashboard, verify with Meta in-app, and Vocally automatically:
 
-The architecture maps incoming WhatsApp messages to specific organizations (multi-tenant) via the `WhatsappPhoneNumber` model, then processes them through the shared AI pipeline.
-
----
-
-## Prerequisites
-
-- A Twilio account ([sign up](https://www.twilio.com/try-twilio))
-- A WhatsApp Business Account (WABA) — or use the Twilio WhatsApp Sandbox for development
-- Verified domain for webhook URLs (ngrok for local dev)
+- Creates a Twilio subaccount per organization
+- Registers the WhatsApp sender via the Twilio Senders API
+- Configures inbound webhooks to `/api/webhooks/twilio/message`
+- Routes messages to the correct agent and AI pipeline
 
 ---
 
-## 1. Twilio Account Setup
+## For customers (dashboard)
 
-1. Log in to the [Twilio Console](https://console.twilio.com)
-2. Note your **Account SID** and **Auth Token** from the dashboard
-3. Buy a phone number capable of SMS (console → Phone Numbers → Buy a Number)
+1. Open **Dashboard → Agents → [agent] → Deploy → WhatsApp**
+2. Enable the WhatsApp toggle
+3. On **Connect**, enter your WhatsApp Business phone number (E.164, e.g. `+212612345678`)
+4. Click **Connect with WhatsApp** and complete the Meta verification popup
+5. Wait until status shows **Online**
+6. On **Test**, send a message from your phone to confirm auto-replies
+7. On **Settings**, customize welcome message, away message, business hours, and profile text
 
----
-
-## 2. WhatsApp Sandbox Setup (Development)
-
-The Sandbox lets you test WhatsApp messaging without a production WhatsApp Business Account.
-
-1. In Twilio Console, go to **Messaging → Try it out → Send a WhatsApp message**
-2. You'll see a Sandbox number (e.g., `+14155238886`)
-3. Note the **Sandbox join code** (e.g., `join some-word`)
-4. From your WhatsApp app, send the join code to the Sandbox number
-5. You're now connected to the Sandbox
+No Twilio Console access is required for customers.
 
 ---
 
-## 3. Webhook Configuration
+## For Vocally operators (one-time platform setup)
 
-### Configure Messaging Webhook
+Before customers can connect production numbers:
 
-1. In Twilio Console, go to **Messaging → Settings → WhatsApp Sandbox Settings**
-2. Set **WHEN A MESSAGE COMES IN** to your webhook URL:
-   - Production: `https://vocally.app/api/webhooks/twilio/message`
-   - Development: `https://your-ngrok.ngrok.io/api/webhooks/twilio/message`
-3. Set the HTTP method to **POST**
-4. Leave **Status callback URL** empty unless you want delivery receipts
-
-### Production WhatsApp Sender
-
-When using a production WhatsApp Business number:
-1. Go to **Messaging → Senders → WhatsApp Senders**
-2. Click your sender number
-3. Under **Webhook URL**, set the same `/api/webhooks/twilio/message` URL
-
----
-
-## 4. Environment Variables
-
-Add these to your `.env` file:
+### 1. Twilio parent account
 
 ```bash
-# Required
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_auth_token_here
-TWILIO_WHATSAPP_NUMBER=+14155238886
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
 ```
 
-- `TWILIO_WHATSAPP_NUMBER`: The Twilio WhatsApp number (with or without `whatsapp:` prefix — the code handles both)
-- For Sandbox: use the Sandbox number from the console
+### 2. Meta Tech Provider program
 
----
+Follow [Twilio WhatsApp Tech Provider integration guide](https://www.twilio.com/docs/whatsapp/isv/tech-provider-program/integration-guide):
 
-## 5. Link sender to an agent (dashboard)
+1. Create a Meta Business app
+2. Complete Tech Provider onboarding + App Review (`whatsapp_business_messaging`, `whatsapp_business_management`)
+3. Open a Twilio support ticket to link your Meta app to the **Twilio Partner Solution**
+4. Copy the **Configuration ID** and **Partner Solution ID**
 
-The recommended way to register a WhatsApp sender is from the agent deploy UI:
+### 3. Environment variables
 
-1. Open **Dashboard → Agents → [your agent] → Deploy → WhatsApp**
-2. Enable WhatsApp for the agent
-3. On **Setup**, copy the inbound webhook URL into Twilio Console
-4. On **Connect**, enter your Twilio WhatsApp sender number (E.164, e.g. `+14155238886`) and click **Connect WhatsApp**
-5. On **Test**, confirm the readiness checklist, then send a message from your phone
+```bash
+# Twilio ISV parent account
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
 
-This creates a `WhatsappPhoneNumber` row scoped to your organization and agent.
+# Meta Embedded Signup (client + server)
+NEXT_PUBLIC_META_APP_ID=
+NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID=
+NEXT_PUBLIC_META_PARTNER_SOLUTION_ID=
+META_APP_SECRET=
 
-### Manual database setup (advanced)
+# Public app URL (webhooks + OAuth)
+NEXT_PUBLIC_APP_URL=https://app.vocally.ai
 
-The `WhatsappPhoneNumber` model maps a Twilio number to an organization and (optionally) a specific agent.
+# Optional: dev sandbox without Meta signup
+# WHATSAPP_SANDBOX_MODE=true
+# TWILIO_WHATSAPP_NUMBER=+14155238886
+```
 
-Apply the schema:
+### 4. Database
 
 ```bash
 npx prisma db push
-```
-
-If you use webhook deduplication, apply the optional migration:
-
-```bash
-npx prisma db execute --schema prisma/schema.prisma --file prisma/migrations/004_whatsapp_message_dedupe.sql
-```
-
-Alternatively, register your WhatsApp number via Prisma Studio or SQL:
-
-```sql
-INSERT INTO "WhatsappPhoneNumber" ("id", "orgId", "agentId", "twilioNumber", "isActive", "createdAt", "updatedAt")
-VALUES (
-  gen_random_uuid()::text,
-  '<org-prisma-id>',
-  NULL,  -- or an agent ID to route to a specific agent
-  'whatsapp:+14155238886',
-  true,
-  NOW(),
-  NOW()
-);
-```
-
-Or using Prisma Studio:
-
-```bash
-npx prisma studio
-```
-
-Then add a record to the `WhatsappPhoneNumber` table.
-
-### Agent Configuration
-
-Each agent must have the `WHATSAPP` channel enabled in their `AgentChannel` configuration. This is configured via the dashboard agent settings UI. If no agent is specified in `WhatsappPhoneNumber`, the system will use the first active agent with WhatsApp channel enabled in the organization.
-
----
-
-## 6. Local Development with ngrok
-
-Since Twilio needs a public HTTPS URL to send webhooks, use ngrok for local development:
-
-```bash
-# Install ngrok (one time)
-npm install -g ngrok
-
-# Start ngrok tunnel
-ngrok http 3000
-
-# Copy the HTTPS URL (e.g., https://abc123.ngrok.io)
-# Set it as the webhook URL in Twilio Console
-# Update your .env if needed
-```
-
-Then run your dev server:
-
-```bash
-npm run dev
+npx prisma generate
 ```
 
 ---
 
-## 7. Testing the Integration
+## Architecture
 
-### Send a WhatsApp Message
+### Multi-tenancy
 
-1. From your WhatsApp app, send a message to the Sandbox number
-2. The webhook will hit `POST /api/webhooks/twilio/message`
-3. The system will:
-   - Validate the Twilio signature
-   - Resolve the organization from the `To` number
-   - Find or create a session
-   - Save your message
-   - Run the AI pipeline (RAG → LLM)
-   - Save the AI response
-   - Reply back via WhatsApp
+- One **Twilio subaccount** per customer organization (`Organization.twilioSubaccountSid`)
+- One **WABA** maps to one subaccount
+- `WhatsappPhoneNumber.twilioNumber` routes inbound webhooks to org + agent
+- Webhook signature validation uses the subaccount auth token (falls back to parent for legacy rows)
 
-### Verify in Database
+### Connection statuses
 
-```bash
-npx prisma studio
-```
+| Status | Meaning |
+|---|---|
+| `PENDING` | Legacy manual mapping (reconnect recommended) |
+| `CREATING` | Sender registration in progress |
+| `VERIFYING_OTP` | Meta OTP required for non-Twilio numbers |
+| `ONLINE` | Ready to send/receive |
+| `FAILED` | Registration error (see `statusMessage`) |
 
-Check:
-- `Session` table: new session with `channel: WHATSAPP` and your customerId
-- `Message` table: both USER and BOT messages linked to the session
-- `WhatsappPhoneNumber` table: your number mapping
-
----
-
-## 8. Production Number Migration
-
-To migrate from Sandbox to a production WhatsApp Business number:
-
-1. Register a WhatsApp Business Account (WABA) via Twilio Console
-2. Submit a WhatsApp Business profile (display name, description, website)
-3. Complete business verification
-4. Submit message templates for approval (required for business-initiated messages)
-5. Once approved, request the production number migration
-6. Update `TWILIO_WHATSAPP_NUMBER` in your environment
-7. Update the `twilioNumber` in `WhatsappPhoneNumber` table
-8. Update the webhook URL in Twilio Console to point to the production sender
-
----
-
-## 9. Architecture Notes
-
-### Multi-Tenancy
-
-Each Twilio WhatsApp number maps to exactly one organization via `WhatsappPhoneNumber.twilioNumber`. This allows:
-
-- Multiple WhatsApp numbers per organization
-- One-to-one mapping between number and tenant
-- Future: multiple numbers routed to different agents in the same org
-
-### Session Persistence
-
-- Each customer (identified by their WhatsApp number) gets one active session per organization
-- Active sessions are those with status `ACTIVE`, `WAITING`, or `BOT`
-- Resolved or abandoned sessions can be followed up with a new session
-- Full message history is preserved
-
-### AI Pipeline
-
-The WhatsApp flow reuses the same AI pipeline as the web chat:
-1. **RAG**: Message is embedded → pgvector similarity search → relevant knowledge chunks
-2. **Context**: Knowledge chunks + recent history → system prompt
-3. **LLM**: OpenRouter chat completions → AI response
-4. **Response**: Saved as BOT message & sent via Twilio API
-
-### Rate Limiting
-
-- Twilio WhatsApp API: 80 messages/second per sender (text)
-- The `processMessage` function handles LLM errors gracefully with a fallback message
-- No additional rate limiting is applied at the webhook level (Twilio handles queuing)
-
-### Idempotency
-
-Webhook processing is NOT idempotent by `MessageSid` in this version. For production with high-volume traffic, add an idempotency check:
-
-```typescript
-const exists = await prisma.message.findFirst({
-  where: { sessionId, content: `[webhook:${MessageSid}]` },
-});
-if (exists) return;
-```
-
----
-
-## 10. Message Flow (End-to-End)
+### Message flow
 
 ```
 Customer WhatsApp → Twilio → POST /api/webhooks/twilio/message
-                                         │
-                                    Validate signature
-                                         │
-                                    Parse body (From, To, Body, MessageSid)
-                                         │
-                                    Lookup WhatsappPhoneNumber by To
-                                         │
-                               ┌─── Org found? ───┐
-                               │                   │
-                               │                   No → Return empty TwiML
-                               │                         (ignore orphan messages)
-                               │
-                          Find/Create Session
-                         (by customerId + orgId)
-                               │
-                          Save USER message
-                               │
-                          Fetch agent (from mapping or first
-                          active with WhatsApp channel)
-                               │
-                          ┌──── Agent found? ────┐
-                          │                      │
-                          │                      No → Reply: "No agent configured"
-                          │
-                          processMessage()
-                          │  → generateEmbedding()
-                          │  → similaritySearch() (RAG)
-                          │  → build prompt + history
-                          │  → callLLM()
-                          │
-                          Save BOT message
-                               │
-                          sendWhatsAppMessage()
-                               │
-                         Response: <Response></Response>
+  → Validate signature (subaccount token)
+  → Lookup WhatsappPhoneNumber by To
+  → Find/create Session (channel=WHATSAPP)
+  → Apply business hours / welcome message settings
+  → processMessage() (RAG + LLM)
+  → sendWhatsAppMessage() via subaccount credentials
+```
+
+### Idempotency
+
+Inbound messages are deduplicated by `MessageSid` in `WhatsappMessageDedupe`.
+
+---
+
+## Local development
+
+### Sandbox mode (no Meta app)
+
+```bash
+WHATSAPP_SANDBOX_MODE=true
+TWILIO_WHATSAPP_NUMBER=+14155238886
+```
+
+Join the Twilio WhatsApp sandbox from your phone, then connect in the dashboard. Vocally maps your agent to the sandbox number.
+
+### Production Embedded Signup locally
+
+Meta requires HTTPS for the JavaScript SDK. Use ngrok:
+
+```bash
+ngrok http 3000
+# Set NEXT_PUBLIC_APP_URL to the ngrok HTTPS URL
+# Add the domain to Meta App → Facebook Login for Business → Allowed Domains
 ```
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Likely Cause |
+| Symptom | Likely cause |
 |---|---|
-| Webhook returns 403 | Twilio signature validation failed — check `TWILIO_AUTH_TOKEN` |
-| "No agent configured" message | No `WhatsappPhoneNumber` record, or no agent with WhatsApp channel enabled |
-| AI response not sending | Check `OPENROUTER_API_KEY` and LLM model configuration |
-| Duplicate responses | Webhook retry — consider idempotency by `MessageSid` |
-| Media messages ignored | Media not supported yet — system responds with text-only message |
-| ngrok URL not working | Update webhook URL in Twilio Console; restart ngrok if URL changed |
+| Connect button disabled | Missing `NEXT_PUBLIC_META_*` env vars or Twilio credentials |
+| Stuck on CREATING | Twilio sender registration async — wait or check Twilio Console Senders |
+| OTP required | Non-Twilio number — enter Meta SMS code on Connect tab |
+| Webhook 403 | Wrong auth token — subaccount token must match `AccountSid` in webhook body |
+| Legacy connection banner | Reconnect via new flow to enable automatic webhook setup |
+| No AI reply | Agent not Public/Active, or connection not ONLINE |
+
+---
+
+## API routes (internal)
+
+| Route | Purpose |
+|---|---|
+| `POST /api/integrations/whatsapp/complete` | Register sender after Embedded Signup |
+| `PUT /api/integrations/whatsapp/complete` | Submit OTP verification |
+| `GET /api/integrations/whatsapp/status` | Poll connection status |
+| `POST /api/webhooks/twilio/message` | Inbound WhatsApp (and SMS) webhook |

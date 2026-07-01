@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { Plus, Search } from "lucide-react";
 import { getUserAIAgents } from "@/lib/actions/agents";
 import { AgentEmptyState } from "@/components/dashboard/AgentEmptyState";
 import { AgentCardGrid } from "@/components/dashboard/AgentStackedCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AppIcon } from "@/components/ui/app-icon"
+import { PlusIcon, SearchIcon } from "@/lib/icons/app-icons"
 
 export default async function AgentsPage() {
   const session = await auth();
@@ -33,7 +34,7 @@ export default async function AgentsPage() {
           </Link>
           <Link href="/dashboard/agents/new">
             <Button variant="primary" size="sm">
-              <Plus className="mr-1.5 h-4 w-4" />
+              <AppIcon icon={PlusIcon} className="mr-1.5 h-4 w-4" />
               New agent
             </Button>
           </Link>
@@ -41,7 +42,7 @@ export default async function AgentsPage() {
       </div>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+        <AppIcon icon={SearchIcon} size={14} className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
         <Input
           placeholder="Search agents..."
           className="h-9 rounded-lg border-hairline pl-8 pr-16 text-sm"

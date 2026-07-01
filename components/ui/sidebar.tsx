@@ -3,10 +3,11 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
 
+import { AppIcon } from "@/components/ui/app-icon"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
+import { PanelLeft } from "@/lib/icons/app-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -186,7 +187,7 @@ const Sidebar = React.forwardRef<
   React.ComponentProps<"div"> & {
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
-    collapsible?: "offcanvas" | "icon" | "none"
+    collapsible?: "offcanvas" | "icon" | "none" | "overlay"
   }
 >(
   (
@@ -240,6 +241,48 @@ const Sidebar = React.forwardRef<
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
+      )
+    }
+
+    if (collapsible === "overlay") {
+      return (
+        <div
+          ref={ref}
+          className="group peer hidden md:block text-ink"
+          data-state={state}
+          data-collapsible={state === "collapsed" ? "icon" : ""}
+          data-variant={variant}
+          data-side={side}
+        >
+          {/* Spacer — always icon width, never pushes content */}
+          <div className="relative h-svh w-[--sidebar-width-icon] bg-transparent" />
+          <div
+            className={cn(
+              "fixed inset-y-0 z-50 hidden h-svh transition-[width,box-shadow] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex",
+              side === "left" ? "left-0" : "right-0",
+              state === "expanded"
+                ? "w-[--sidebar-width] shadow-[4px_0_12px_rgba(0,0,0,0.08)]"
+                : "w-[--sidebar-width-icon] border-r border-hairline",
+              className
+            )}
+            onMouseEnter={(e) => {
+              onMouseEnterProp?.(e)
+              if (expandOnHover) setOpen(true)
+            }}
+            onMouseLeave={(e) => {
+              onMouseLeaveProp?.(e)
+              if (expandOnHover && !expandHoverLocked()) setOpen(false)
+            }}
+            {...props}
+          >
+            <div
+              data-sidebar="sidebar"
+              className="flex h-full w-full flex-col bg-canvas-soft"
+            >
+              {children}
+            </div>
+          </div>
+        </div>
       )
     }
 
@@ -316,7 +359,7 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft className="h-4 w-4" />
+      <AppIcon icon={PanelLeft} size={16} />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
@@ -426,7 +469,7 @@ const SidebarGroupLabel = React.forwardRef<
       ref={ref}
       data-sidebar="group-label"
       className={cn(
-        "mb-0.5 mt-2 flex h-6 shrink-0 items-center rounded-md px-2 text-[12px] font-medium uppercase tracking-wide text-muted outline-none ring-offset-canvas transition-[margin,opacity] ease-linear focus-visible:ring-2 focus-visible:ring-ink",
+        "mb-0.5 mt-2 flex h-6 shrink-0 items-center rounded-md px-2 text-[12px] font-medium uppercase tracking-wide text-muted outline-none ring-offset-canvas transition-[margin,opacity] ease-linear focus-visible:ring-2 focus-visible:ring-hairline-strong",
         "group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none",
         className
       )}
@@ -447,7 +490,7 @@ const SidebarGroupAction = React.forwardRef<
       ref={ref}
       data-sidebar="group-action"
       className={cn(
-        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-all hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink",
+        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-all hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong",
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         className
@@ -498,7 +541,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-none text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink disabled:pointer-events-none disabled:opacity-50 group-data-[collapsible=icon]:gap-0 [&>svg]:size-[18px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink [&>span:not([data-sidebar=menu-trailing])]:min-w-0 [&>span:not([data-sidebar=menu-trailing])]:overflow-hidden [&>span:not([data-sidebar=menu-trailing])]:whitespace-nowrap [&>span:not([data-sidebar=menu-trailing])]:opacity-100 [&>span:not([data-sidebar=menu-trailing])]:transition-[max-width,opacity] [&>span:not([data-sidebar=menu-trailing])]:duration-300 [&>span:not([data-sidebar=menu-trailing])]:ease-[cubic-bezier(0.32,0.72,0,1)] [&>span:not([data-sidebar=menu-trailing])]:max-w-[240px] group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:max-w-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:opacity-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:pointer-events-none",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2 text-left text-[13px] leading-snug text-muted outline-none ring-offset-canvas transition-colors hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong disabled:pointer-events-none disabled:opacity-50 group-data-[collapsible=icon]:gap-0 [&>svg]:size-[18px] [&>svg]:shrink-0 [&>svg]:text-muted hover:[&>svg]:text-ink [&>span:not([data-sidebar=menu-trailing])]:min-w-0 [&>span:not([data-sidebar=menu-trailing])]:overflow-x-hidden [&>span:not([data-sidebar=menu-trailing])]:whitespace-nowrap [&>span:not([data-sidebar=menu-trailing])]:opacity-100 [&>span:not([data-sidebar=menu-trailing])]:transition-[max-width,opacity] [&>span:not([data-sidebar=menu-trailing])]:duration-300 [&>span:not([data-sidebar=menu-trailing])]:ease-[cubic-bezier(0.32,0.72,0,1)] [&>span:not([data-sidebar=menu-trailing])]:max-w-[240px] group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:max-w-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:opacity-0 group-data-[collapsible=icon]:[&>span:not([data-sidebar=menu-trailing])]:pointer-events-none",
   {
     variants: {
       variant: {
@@ -596,7 +639,7 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-1 top-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-transform hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink peer-hover/menu-button:text-ink [&>svg]:size-4 [&>svg]:shrink-0",
+        "absolute right-1 top-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-transform hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong peer-hover/menu-button:text-ink [&>svg]:size-4 [&>svg]:shrink-0",
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
@@ -694,7 +737,7 @@ const SidebarMenuSubButton = React.forwardRef<
       data-size={size}
       data-active={isActive}
       className={cn(
-        "flex h-6 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-ink outline-none ring-offset-canvas hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-ink active:bg-surface-strong disabled:pointer-events-none disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-ink",
+        "flex h-6 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-ink outline-none ring-offset-canvas hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong active:bg-surface-strong disabled:pointer-events-none disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-ink",
         "data-[active=true]:bg-surface-strong data-[active=true]:text-ink",
         size === "sm" && "text-xs",
         size === "md" && "text-body-sm",

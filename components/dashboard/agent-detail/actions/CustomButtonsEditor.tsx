@@ -1,10 +1,10 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { ChevronDown, ChevronUp, PlusIcon, Trash2Icon } from "@/lib/icons/app-icons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
   MAX_CUSTOM_BUTTONS,
@@ -13,7 +13,11 @@ import {
 } from "@/lib/deploy/custom-button-action";
 import { cn } from "@/lib/utils";
 
-import { chatWidgetFieldInputClass } from "../deploy/chat-widget/ChatWidgetSettingRow";
+import {
+  ActionSheetSection,
+  ActionSheetToggleRow,
+  actionSheetInputClass,
+} from "./ActionSheetShell";
 
 type CustomButtonsEditorProps = {
   buttons: CustomButtonItem[];
@@ -62,35 +66,30 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
   }
 
   return (
-    <div className="mt-4 space-y-3 border-t border-hairline pt-4">
-      <div>
-        <h4 className="text-body-sm text-ink">Buttons</h4>
-        <p className="mt-1 text-caption text-muted-soft">
-          Shown above the chat input on the widget and help page. Link buttons open a URL;
-          message buttons send preset text as the user.
-        </p>
-      </div>
-
+    <ActionSheetSection
+      title="Buttons"
+      description="Shown above the chat input. Link buttons open a URL; message buttons send preset text."
+    >
       {buttons.length === 0 ? (
-        <p className="py-2 text-center text-body-sm text-muted-soft">No buttons yet</p>
+        <p className="text-body-sm text-muted-soft">No buttons yet</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="flex flex-col gap-2">
           {buttons.map((btn, index) => (
             <li
               key={index}
-              className="space-y-2 rounded-lg border border-hairline bg-canvas-soft/50 p-3"
+              className="space-y-2 rounded-md border border-hairline bg-surface-card p-3"
             >
               <div className="flex items-center justify-between gap-2">
-                <div className="inline-flex rounded-lg border border-hairline bg-surface-card p-0.5">
+                <div className="inline-flex rounded-md border border-hairline bg-canvas p-0.5">
                   {(["link", "message"] as const).map((kind) => (
                     <button
                       key={kind}
                       type="button"
                       onClick={() => updateButton(index, { kind })}
                       className={cn(
-                        "rounded-md px-2 py-0.5 text-caption transition-colors",
+                        "rounded-sm px-2 py-0.5 text-caption transition-colors",
                         btn.kind === kind
-                          ? "bg-surface-strong font-medium text-ink"
+                          ? "bg-surface-card font-medium text-ink shadow-sm"
                           : "text-muted hover:text-ink",
                       )}
                     >
@@ -108,7 +107,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     onClick={() => moveButton(index, -1)}
                     aria-label="Move up"
                   >
-                    <ChevronUp className="size-4" />
+                    <AppIcon icon={ChevronUp} size={16} className="size-4" />
                   </Button>
                   <Button
                     type="button"
@@ -119,7 +118,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     onClick={() => moveButton(index, 1)}
                     aria-label="Move down"
                   >
-                    <ChevronDown className="size-4" />
+                    <AppIcon icon={ChevronDown} size={16} className="size-4" />
                   </Button>
                   <Button
                     type="button"
@@ -129,7 +128,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     onClick={() => removeButton(index)}
                     aria-label="Remove button"
                   >
-                    <Trash2 className="size-4" />
+                    <AppIcon icon={Trash2Icon} size={16} className="size-4" />
                   </Button>
                 </div>
               </div>
@@ -138,7 +137,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                 value={btn.label}
                 onChange={(e) => updateButton(index, { label: e.target.value })}
                 placeholder="Button label"
-                className={chatWidgetFieldInputClass}
+                className={actionSheetInputClass}
               />
 
               {btn.kind === "link" ? (
@@ -147,15 +146,9 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     value={btn.href ?? ""}
                     onChange={(e) => updateButton(index, { href: e.target.value })}
                     placeholder="https://example.com"
-                    className={chatWidgetFieldInputClass}
+                    className={actionSheetInputClass}
                   />
-                  <div className="flex items-center justify-between gap-3">
-                    <Label
-                      htmlFor={`custom-btn-new-tab-${index}`}
-                      className="text-body-sm text-muted"
-                    >
-                      Open in new tab
-                    </Label>
+                  <ActionSheetToggleRow label="Open in new tab">
                     <Switch
                       id={`custom-btn-new-tab-${index}`}
                       checked={btn.openInNewTab !== false}
@@ -163,14 +156,14 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                         updateButton(index, { openInNewTab })
                       }
                     />
-                  </div>
+                  </ActionSheetToggleRow>
                 </>
               ) : (
                 <Input
                   value={btn.message ?? ""}
                   onChange={(e) => updateButton(index, { message: e.target.value })}
                   placeholder="Message sent when clicked"
-                  className={chatWidgetFieldInputClass}
+                  className={actionSheetInputClass}
                 />
               )}
             </li>
@@ -181,13 +174,13 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
       <Button
         type="button"
         variant="outline"
-        className="h-10 w-full rounded-lg border-hairline bg-surface-card text-body-sm"
+        className="h-9 w-full rounded-md border-hairline bg-surface-card text-body-sm font-medium shadow-none hover:bg-canvas-soft"
         onClick={addButton}
         disabled={buttons.length >= MAX_CUSTOM_BUTTONS}
       >
-        <Plus className="mr-1.5 size-4" />
+        <AppIcon icon={PlusIcon} size={16} className="mr-1.5 size-4" />
         Add button
       </Button>
-    </div>
+    </ActionSheetSection>
   );
 }

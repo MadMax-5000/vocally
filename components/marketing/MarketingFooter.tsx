@@ -71,7 +71,7 @@ export function MarketingFooter() {
                   className={[
                     "inline-flex h-12 w-12 items-center justify-center rounded-full",
                     "text-ink transition hover:bg-surface-strong hover:text-primary",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                   ].join(" ")}
                   aria-label={item.label}
                   rel={item.href.startsWith("http") ? "noreferrer" : undefined}
@@ -105,19 +105,19 @@ export function MarketingFooter() {
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm text-muted">
             <Link
               href="/terms"
-              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               Terms of Service
             </Link>
             <Link
               href="/privacy"
-              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               Privacy Notice
             </Link>
             <Link
               href="/cookies"
-              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
               Cookie Notice
             </Link>

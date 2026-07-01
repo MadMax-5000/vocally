@@ -42,8 +42,8 @@ export function HelpCenterChat({
 
   const initialSuggestedMessages = useMemo(() => {
     if (!actionEnabled) return [];
-    return getInitialSuggestedMessages(action, settings.suggestedMessages);
-  }, [action, actionEnabled, settings.suggestedMessages]);
+    return getInitialSuggestedMessages(action);
+  }, [action, actionEnabled]);
 
   const {
     messages,
@@ -125,13 +125,9 @@ export function HelpCenterChat({
     };
   }, [isDark, settings]);
 
-  const displaySuggestions = actionEnabled
-    ? liveSuggestedMessages
-    : settings.suggestedMessages;
+  const displaySuggestions = actionEnabled ? liveSuggestedMessages : [];
 
-  const keepShowing = actionEnabled
-    ? action.keepShowingAfterFirst
-    : settings.keepShowingSuggested;
+  const keepShowing = action.keepShowingAfterFirst;
 
   const visibleSuggestions = displaySuggestions.filter((s) => s.trim());
   const showSuggestions =

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./lib/**/*.{ts,tsx}"],
@@ -29,7 +30,9 @@ const config: Config = {
         "on-primary": "#ffffff",
         "on-secondary": "#0c0a09",
         "semantic-success": "#16a34a",
-        "semantic-error": "#dc2626"
+        "semantic-error": "#dc2626",
+        popover: "var(--popover)",
+        "popover-foreground": "var(--popover-foreground)"
       },
       fontFamily: {
         // Nimbus Sans L isn't on Google Fonts; we use a local/system fallback.
@@ -82,8 +85,25 @@ const config: Config = {
       }
     }
   },
-   safelist: ["text-on-primary", "text-on-secondary", "bg-on-primary", "bg-on-secondary"]
-  };
+  safelist: ["text-on-primary", "text-on-secondary", "bg-on-primary", "bg-on-secondary"],
+  plugins: [
+    // shadcn/tailwind.css uses Tailwind v4 @custom-variant; mirror the variants we use on v3.
+    plugin(({ addVariant }) => {
+      addVariant(
+        "data-open",
+        '&:where([data-state="open"], [data-open]:not([data-open="false"]))'
+      );
+      addVariant(
+        "data-closed",
+        '&:where([data-state="closed"], [data-closed]:not([data-closed="false"]))'
+      );
+      addVariant(
+        "data-checked",
+        '&:where([data-state="checked"], [data-checked]:not([data-checked="false"]))'
+      );
+    }),
+  ],
+};
 
 export default config;
 

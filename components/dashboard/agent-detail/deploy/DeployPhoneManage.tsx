@@ -6,9 +6,9 @@ import { toast } from "sonner";
 
 import { updateAgentDeployment } from "@/lib/actions/agents";
 import {
-  getAgentPhoneSettings,
-  type AgentPhoneSettings,
-} from "@/lib/actions/vapi-phone";
+  getPhoneConnectionSettings,
+  type PhoneConnectionSettings,
+} from "@/lib/actions/phone-connection";
 
 import type { AgentDetailWithRelations } from "../agent-detail-types";
 import {
@@ -20,7 +20,7 @@ import { PhoneManageHeader } from "./phone/PhoneManageHeader";
 
 type Props = {
   agent: AgentDetailWithRelations;
-  initialSettings: AgentPhoneSettings;
+  initialSettings: PhoneConnectionSettings;
 };
 
 function isPhoneDeploymentEnabled(
@@ -53,8 +53,8 @@ export function DeployPhoneManage({ agent, initialSettings }: Props) {
   }, [phoneEnabled, activeTab]);
 
   async function refreshSettings() {
-    const refreshed = await getAgentPhoneSettings(agent.id);
-    if (refreshed.success && refreshed.data) {
+    const refreshed = await getPhoneConnectionSettings(agent.id);
+    if (refreshed.success) {
       setSettings(refreshed.data);
     }
   }

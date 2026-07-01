@@ -9,8 +9,6 @@ import { parseCollectLeadsActionConfig } from "@/lib/deploy/collect-leads-action
 import { parseCustomFormActionConfig } from "@/lib/deploy/custom-form-action";
 import {
   getWebChatChannel,
-  getWebChatHelpPageConfig,
-  getWebChatWidgetConfig,
   parseWebChatConfig,
   type WebChatChannelConfig,
 } from "@/lib/deploy/web-chat-config";
@@ -114,33 +112,12 @@ export function resolveSuggestedMessagesAction(
   };
 }
 
-export function resolveDeploymentStaticStarters(
-  channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
-  deployment: "widget" | "help",
-): string[] {
-  if (deployment === "help") {
-    return getWebChatHelpPageConfig(channels).suggestedMessages ?? [];
-  }
-  return getWebChatWidgetConfig(channels).suggestedMessages ?? [];
-}
-
-function resolveStaticStarters(
-  action: ResolvedSuggestedMessagesAction,
-  deploymentStatic: string[],
-): string[] {
-  if (action.staticStarters.length > 0) {
-    return action.staticStarters;
-  }
-  return deploymentStatic;
-}
-
 /** Chips shown on first paint before any chat messages. */
 export function getInitialSuggestedMessages(
   action: ResolvedSuggestedMessagesAction,
-  deploymentStatic: string[],
 ): string[] {
   if (!action.enabled) return [];
-  return resolveStaticStarters(action, deploymentStatic);
+  return action.staticStarters;
 }
 
 export function shouldShowSuggestedMessages(input: {
@@ -154,7 +131,6 @@ export function shouldShowSuggestedMessages(input: {
 
 export type MergeSuggestedMessagesInput = {
   action: ResolvedSuggestedMessagesAction;
-  deploymentStatic: string[];
   userMessageCount: number;
   dynamicSuggestions: string[];
 };
@@ -163,12 +139,11 @@ export type MergeSuggestedMessagesInput = {
 export function mergeSuggestedMessagesForResponse(
   input: MergeSuggestedMessagesInput,
 ): string[] {
-  const { action, deploymentStatic, userMessageCount, dynamicSuggestions } =
-    input;
+  const { action, userMessageCount, dynamicSuggestions } = input;
 
   if (!action.enabled) return [];
 
-  const staticStarters = resolveStaticStarters(action, deploymentStatic);
+  const staticStarters = action.staticStarters;
   const dynamic = dynamicSuggestions.filter((s) => s.trim());
 
   if (action.dynamicEnabled && dynamic.length > 0) {

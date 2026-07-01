@@ -49,7 +49,11 @@ export function AgentDetailShell({ agent }: AgentDetailShellProps) {
 
   return (
     <div className="flex flex-col gap-0">
-      <AgentDetailTopbar agent={agent} />
+      <AgentDetailTopbar
+        agent={agent}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
       <AgentDetailTabs
         agent={agent}
         activeTab={activeTab}

@@ -46,6 +46,7 @@ export type CustomFormActionConfig = {
   fields?: CustomFormField[];
   showAfterUserMessages?: number | null;
   allowLlmTrigger?: boolean;
+  notifyEmail?: string;
 };
 
 export type ResolvedCustomFormAction = {
@@ -57,6 +58,7 @@ export type ResolvedCustomFormAction = {
   fields: CustomFormField[];
   showAfterUserMessages: number | null;
   allowLlmTrigger: boolean;
+  notifyEmail: string | null;
 };
 
 function parseFieldType(value: unknown): CustomFormFieldType | undefined {
@@ -181,6 +183,10 @@ export function parseCustomFormActionConfig(
   if (typeof raw.allowLlmTrigger === "boolean") {
     result.allowLlmTrigger = raw.allowLlmTrigger;
   }
+  if (typeof raw.notifyEmail === "string") {
+    const email = raw.notifyEmail.trim();
+    result.notifyEmail = email || undefined;
+  }
 
   return result;
 }
@@ -204,6 +210,7 @@ export function resolveCustomFormAction(
         ? null
         : action.showAfterUserMessages,
     allowLlmTrigger: action.allowLlmTrigger ?? true,
+    notifyEmail: action.notifyEmail?.trim() || null,
   };
 }
 

@@ -16,6 +16,7 @@ export type CustomFormActionDraft = {
   fields: CustomFormField[];
   showAfterUserMessages: number | null;
   allowLlmTrigger: boolean;
+  notifyEmail: string;
 };
 
 export function buildCustomFormActionDraft(
@@ -31,6 +32,7 @@ export function buildCustomFormActionDraft(
     fields: resolved.fields.map((f) => ({ ...f })),
     showAfterUserMessages: resolved.showAfterUserMessages,
     allowLlmTrigger: resolved.allowLlmTrigger,
+    notifyEmail: resolved.notifyEmail ?? "",
   };
 }
 
@@ -58,6 +60,7 @@ export function draftsEqual(a: CustomFormActionDraft, b: CustomFormActionDraft):
     a.submitLabel === b.submitLabel &&
     a.showAfterUserMessages === b.showAfterUserMessages &&
     a.allowLlmTrigger === b.allowLlmTrigger &&
+    a.notifyEmail === b.notifyEmail &&
     fieldsEqual(a.fields, b.fields)
   );
 }

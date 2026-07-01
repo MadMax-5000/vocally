@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Inbox, SearchIcon, SlidersHorizontal } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import Image from "next/image";
-import { Inbox, Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InboxSession } from "@/lib/actions/sessions";
 import {
@@ -635,7 +636,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
           {pageHeader}
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
-              <Inbox className="h-6 w-6 text-ink" strokeWidth={1.5} />
+              <AppIcon icon={Inbox} className="h-6 w-6 text-ink" strokeWidth={1.5} />
             </div>
             <h2 className="text-title-sm font-medium text-ink">
               No conversations yet
@@ -657,7 +658,9 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
 
         {/* Search */}
         <div className="relative">
-          <Search
+          <AppIcon
+            icon={SearchIcon}
+            size={14}
             className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
             aria-hidden
           />
@@ -666,7 +669,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
             placeholder="Search conversations…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-full rounded-lg border-hairline pl-8 pr-16 text-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+            className="h-9 w-full rounded-lg border-hairline pl-8 pr-16 text-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
           />
           <div className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
             <kbd className="rounded border border-hairline bg-surface-strong px-1.5 py-0.5 font-sans text-[11px] leading-none text-muted">
@@ -752,7 +755,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                 className="h-6 w-7 shrink-0 rounded-md border-hairline bg-surface-card shadow-none"
                 aria-label="Filter actions"
               >
-                <SlidersHorizontal className="h-4 w-4 text-muted" />
+                <AppIcon icon={SlidersHorizontal} className="h-4 w-4 text-muted" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -777,7 +780,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
         {/* Table */}
         {filteredSessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <Search className="mb-3 h-6 w-6 text-muted-soft" />
+            <AppIcon icon={SearchIcon} className="mb-3 h-6 w-6 text-muted-soft" />
             <p className="text-body-sm text-muted">
               No matching conversations
             </p>

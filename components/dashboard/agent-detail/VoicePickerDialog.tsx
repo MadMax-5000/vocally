@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, Pause, Play, SearchIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Pause, Play, Search } from "lucide-react";
 
 import {
   Dialog,
@@ -82,7 +83,7 @@ function VoicePickerRow({
             className="absolute -right-0.5 -top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-ink text-surface-card ring-2 ring-surface-card"
             aria-hidden
           >
-            <Check className="h-2.5 w-2.5 stroke-[3]" />
+            <AppIcon icon={CheckIcon} className="h-2.5 w-2.5 stroke-[3]" />
           </span>
         ) : null}
       </div>
@@ -100,12 +101,12 @@ function VoicePickerRow({
         disabled={disabled}
         aria-label={previewing ? `Stop preview for ${persona.name}` : `Preview ${persona.name}`}
         onClick={onPreview}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-surface-card"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-surface-card"
       >
         {previewing ? (
-          <Pause className="h-4 w-4 fill-current" />
+          <AppIcon icon={Pause} className="h-4 w-4 fill-current" />
         ) : (
-          <Play className="h-4 w-4 fill-current" />
+          <AppIcon icon={Play} className="h-4 w-4 fill-current" />
         )}
       </button>
     </div>
@@ -184,7 +185,7 @@ export function VoicePickerDialog({
 
         <div className="shrink-0 px-4 pb-3">
           <div className="flex items-center gap-2 border border-hairline-strong bg-canvas-soft px-3 py-2.5">
-            <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+            <AppIcon icon={SearchIcon} className="h-4 w-4 shrink-0 text-muted" aria-hidden />
             <input
               type="search"
               value={query}

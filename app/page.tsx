@@ -1,5 +1,6 @@
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Zap } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Zap } from "@/lib/icons/app-icons"
 
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { RotatingWord } from "@/components/marketing/RotatingWord";

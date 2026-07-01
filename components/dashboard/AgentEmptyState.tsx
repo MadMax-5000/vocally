@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppIcon } from "@/components/ui/app-icon"
+import { PlusIcon } from "@/lib/icons/app-icons"
 
 export function AgentEmptyState() {
   return (
@@ -17,7 +18,7 @@ export function AgentEmptyState() {
 
         <Link href="/dashboard/agents/new" className="mt-8">
           <Button variant="primary">
-            <Plus className="mr-1.5 h-4 w-4" />
+            <AppIcon icon={PlusIcon} className="mr-1.5 h-4 w-4" />
             Create Agent
           </Button>
         </Link>

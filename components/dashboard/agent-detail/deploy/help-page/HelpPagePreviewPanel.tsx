@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { HelpPagePreviewFrame } from "@/components/chat/HelpPagePreviewFrame";
+import { getInitialSuggestedMessages } from "@/lib/deploy/suggested-messages-action";
+import type { ResolvedSuggestedMessagesAction } from "@/lib/deploy/web-chat-config";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
 
 import type { HelpPageDraft } from "./help-page-draft";
@@ -10,9 +12,14 @@ import type { HelpPageDraft } from "./help-page-draft";
 type HelpPagePreviewPanelProps = {
   draft: HelpPageDraft;
   agentName: string;
+  suggestedMessagesAction: ResolvedSuggestedMessagesAction;
 };
 
-export function HelpPagePreviewPanel({ draft, agentName }: HelpPagePreviewPanelProps) {
+export function HelpPagePreviewPanel({
+  draft,
+  agentName,
+  suggestedMessagesAction,
+}: HelpPagePreviewPanelProps) {
   const hp = draft.helpPage;
   const [previewTheme, setPreviewTheme] = useState<WebChatHelpPageTheme>(hp.defaultTheme);
 
@@ -30,6 +37,11 @@ export function HelpPagePreviewPanel({ draft, agentName }: HelpPagePreviewPanelP
       primaryColor: isDark ? hp.primaryColorDark : hp.primaryColorLight,
     };
   }, [activeTheme, hp]);
+
+  const previewSuggestions = useMemo(
+    () => getInitialSuggestedMessages(suggestedMessagesAction),
+    [suggestedMessagesAction],
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -56,7 +68,8 @@ export function HelpPagePreviewPanel({ draft, agentName }: HelpPagePreviewPanelP
               placeholder={hp.placeholder}
               voiceToTextEnabled={hp.voiceToTextEnabled}
               themeSwitchEnabled={hp.themeSwitchEnabled}
-              suggestedMessages={hp.suggestedMessages}
+              suggestedMessages={previewSuggestions}
+              showSuggestions={suggestedMessagesAction.enabled}
               navLinks={hp.navLinks}
               onThemeChange={hp.themeSwitchEnabled ? setPreviewTheme : undefined}
               staticPreview

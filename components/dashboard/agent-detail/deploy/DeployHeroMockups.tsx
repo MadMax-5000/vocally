@@ -1,6 +1,6 @@
 "use client";
-
-import { ArrowUp } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowUpIcon } from "@/lib/icons/app-icons"
 
 /** Chat widget card hero — tall panel anchored to the bottom, clipped at the card edge. */
 export function ChatWidgetHeroPreview() {
@@ -47,7 +47,7 @@ export function HelpPageHeroPreview() {
               Ask a question...
             </span>
             <span className="flex size-8 shrink-0 items-center justify-center text-muted">
-              <ArrowUp className="size-[18px]" strokeWidth={2} />
+              <AppIcon icon={ArrowUpIcon} className="size-[18px]" strokeWidth={2} />
             </span>
           </div>
         </div>

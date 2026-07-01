@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { ArrowLeftIcon } from "@/lib/icons/app-icons";
 
 import {
   DashboardTabBar,
@@ -30,10 +31,12 @@ export function WhatsAppManageHeader({
   onWhatsappEnabledChange,
 }: WhatsAppManageHeaderProps) {
   const tabs = useMemo((): DashboardTabItem<WhatsAppConfigTabId>[] => {
-    if (!whatsappEnabled) return [{ id: "setup", label: "Setup" }];
+    if (!whatsappEnabled) {
+      return [{ id: "connect", label: "Connect" }];
+    }
     return [
-      { id: "setup", label: "Setup" },
       { id: "connect", label: "Connect" },
+      { id: "settings", label: "Settings" },
       { id: "test", label: "Test" },
     ];
   }, [whatsappEnabled]);
@@ -45,7 +48,7 @@ export function WhatsAppManageHeader({
           href={`/dashboard/agents/${agentId}?tab=deploy`}
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
-          <ArrowLeft className="size-3.5" />
+          <AppIcon icon={ArrowLeftIcon} size={14} className="size-3.5" />
           Back to Deploy
         </Link>
 
@@ -55,7 +58,7 @@ export function WhatsAppManageHeader({
               WhatsApp
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">
-              Connect a WhatsApp sender and auto-reply via Twilio
+              Connect your WhatsApp Business number — we handle Twilio and webhooks for you
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">

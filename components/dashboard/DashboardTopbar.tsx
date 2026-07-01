@@ -2,9 +2,10 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { MessageCircle, Bell } from "lucide-react"
-import { VocallyLogo } from "@/components/brand/VocallyLogo"
+
+import { AppIcon } from "@/components/ui/app-icon"
 import { KnowledgeIcon } from "@/components/ui/icons"
+import { Bell, MessageCircle } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,11 +18,6 @@ import { UserAvatarMenu } from "./UserAvatarMenu"
 export function DashboardTopbar() {
   return (
     <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center border-b border-hairline bg-surface-card px-3">
-      {/* Left: wordmark */}
-      <div className="flex items-center gap-2">
-        <VocallyLogo variant="black" size="sm" href="/dashboard" />
-      </div>
-
       {/* Right cluster */}
       <div className="ml-auto flex items-center gap-1">
         <Tooltip>
@@ -32,7 +28,7 @@ export function DashboardTopbar() {
               aria-label="Feedback"
               className="text-muted hover:text-ink"
             >
-              <MessageCircle className="h-4 w-4" />
+              <AppIcon icon={MessageCircle} size={16} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Feedback</TooltipContent>
@@ -66,7 +62,7 @@ export function DashboardTopbar() {
               aria-label="Notifications"
               className="relative text-muted hover:text-ink"
             >
-              <Bell className="h-4 w-4" />
+              <AppIcon icon={Bell} size={16} />
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-semantic-error" />
             </Button>
           </TooltipTrigger>

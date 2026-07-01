@@ -1,11 +1,19 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon";
+import { ChevronDown, ChevronUp, PlusIcon, Trash2Icon } from "@/lib/icons/app-icons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   CUSTOM_FORM_FIELD_TYPES,
   MAX_FORM_FIELDS,
@@ -14,7 +22,13 @@ import {
 } from "@/lib/deploy/custom-form-action";
 import { cn } from "@/lib/utils";
 
-import { chatWidgetFieldInputClass } from "../deploy/chat-widget/ChatWidgetSettingRow";
+import {
+  ActionSheetField,
+  ActionSheetSection,
+  ActionSheetToggleRow,
+  actionSheetInputClass,
+  actionSheetTextareaClass,
+} from "./ActionSheetShell";
 import { emptyFormField } from "./custom-form-action-draft";
 
 type CustomFormFieldsEditorProps = {
@@ -67,18 +81,20 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
   }
 
   return (
-    <div className="mt-4 space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <Label className="text-body-sm text-ink">Fields</Label>
+    <ActionSheetSection
+      title="Fields"
+      description="Add inputs customers will fill in the form."
+    >
+      <div className="flex justify-end">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 gap-1 px-2 text-body-sm text-ink hover:bg-canvas-soft"
+          className="h-8 gap-1 px-2 text-body-sm font-medium text-ink hover:bg-canvas-soft"
           onClick={addField}
           disabled={fields.length >= MAX_FORM_FIELDS}
         >
-          <Plus className="h-4 w-4" aria-hidden />
+          <AppIcon icon={PlusIcon} size={16} className="h-4 w-4" aria-hidden />
           Add field
         </Button>
       </div>
@@ -90,10 +106,10 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
       {fields.map((field, index) => (
         <div
           key={field.id}
-          className="space-y-2 rounded-xl border border-hairline bg-surface-strong p-3"
+          className="space-y-3 rounded-md border border-hairline bg-surface-card p-3"
         >
           <div className="flex items-start justify-between gap-2">
-            <span className="text-caption text-muted">Field {index + 1}</span>
+            <span className="text-body-sm font-medium text-ink">Field {index + 1}</span>
             <div className="flex items-center gap-0.5">
               <Button
                 type="button"
@@ -104,7 +120,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 disabled={index === 0}
                 aria-label="Move up"
               >
-                <ChevronUp className="h-4 w-4" />
+                <AppIcon icon={ChevronUp} size={16} className="h-4 w-4" />
               </Button>
               <Button
                 type="button"
@@ -115,7 +131,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 disabled={index === fields.length - 1}
                 aria-label="Move down"
               >
-                <ChevronDown className="h-4 w-4" />
+                <AppIcon icon={ChevronDown} size={16} className="h-4 w-4" />
               </Button>
               <Button
                 type="button"
@@ -125,39 +141,42 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 onClick={() => removeField(index)}
                 aria-label="Remove field"
               >
-                <Trash2 className="h-4 w-4" />
+                <AppIcon icon={Trash2Icon} size={16} className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <div>
-              <Label className="text-caption text-muted">Type</Label>
-              <select
+          <div className="grid gap-3">
+            <ActionSheetField label="Type">
+              <Select
                 value={field.type}
-                onChange={(e) =>
-                  updateField(index, { type: e.target.value as CustomFormFieldType })
+                onValueChange={(type) =>
+                  updateField(index, { type: type as CustomFormFieldType })
                 }
-                className={cn(chatWidgetFieldInputClass, "mt-1 w-full")}
               >
-                {CUSTOM_FORM_FIELD_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {FIELD_TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label className="text-caption text-muted">Label</Label>
+                <SelectTrigger className={actionSheetInputClass}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CUSTOM_FORM_FIELD_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {FIELD_TYPE_LABELS[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </ActionSheetField>
+
+            <ActionSheetField label="Label">
               <Input
                 value={field.label}
                 onChange={(e) => updateField(index, { label: e.target.value })}
-                className={cn(chatWidgetFieldInputClass, "mt-1")}
+                className={actionSheetInputClass}
                 placeholder="e.g. Email address"
               />
-            </div>
-            <div>
-              <Label className="text-caption text-muted">Placeholder (optional)</Label>
+            </ActionSheetField>
+
+            <ActionSheetField label="Placeholder" description="Optional">
               <Input
                 value={field.placeholder ?? ""}
                 onChange={(e) =>
@@ -165,13 +184,13 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                     placeholder: e.target.value || undefined,
                   })
                 }
-                className={cn(chatWidgetFieldInputClass, "mt-1")}
+                className={actionSheetInputClass}
               />
-            </div>
+            </ActionSheetField>
+
             {field.type === "select" ? (
-              <div>
-                <Label className="text-caption text-muted">Options (one per line)</Label>
-                <textarea
+              <ActionSheetField label="Options" description="One per line">
+                <Textarea
                   value={(field.options ?? []).join("\n")}
                   onChange={(e) => {
                     const options = e.target.value
@@ -181,26 +200,21 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                     updateField(index, { options });
                   }}
                   rows={3}
-                  className={cn(
-                    chatWidgetFieldInputClass,
-                    "mt-1 w-full resize-y min-h-[72px]",
-                  )}
+                  className={cn(actionSheetTextareaClass, "min-h-[72px]")}
                 />
-              </div>
+              </ActionSheetField>
             ) : null}
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <Label htmlFor={`required-${field.id}`} className="text-body-sm text-ink">
-                Required
-              </Label>
+
+            <ActionSheetToggleRow label="Required">
               <Switch
                 id={`required-${field.id}`}
                 checked={field.required}
                 onCheckedChange={(required) => updateField(index, { required })}
               />
-            </div>
+            </ActionSheetToggleRow>
           </div>
         </div>
       ))}
-    </div>
+    </ActionSheetSection>
   );
 }

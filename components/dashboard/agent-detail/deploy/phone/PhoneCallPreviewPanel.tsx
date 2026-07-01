@@ -1,12 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Mic, MicOff, PhoneOff, Volume2 } from "@/lib/icons/app-icons"
 
 import { useEffect, useRef, useState } from "react";
-import {
-  Mic,
-  MicOff,
-  PhoneOff,
-  Volume2,
-} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -165,7 +161,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
               <div className="mt-auto mb-8">
                 {callState === "speaking" && (
                   <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
-                    <Volume2 className="size-3.5 text-primary" />
+                    <AppIcon icon={Volume2} className="size-3.5 text-primary" />
                     <span className="text-[12px] text-white/70">
                       AI is speaking…
                     </span>
@@ -173,7 +169,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                 )}
                 {callState === "listening" && (
                   <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
-                    <Mic className="size-3.5 text-emerald-400" />
+                    <AppIcon icon={Mic} className="size-3.5 text-emerald-400" />
                     <span className="text-[12px] text-white/70">
                       Listening for your response…
                     </span>
@@ -198,9 +194,9 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                 aria-label={muted ? "Unmute" : "Mute"}
               >
                 {muted ? (
-                  <MicOff className="size-5 text-red-400" />
+                  <AppIcon icon={MicOff} className="size-5 text-red-400" />
                 ) : (
-                  <Mic className="size-5 text-white/80" />
+                  <AppIcon icon={Mic} size={20} className="size-5 text-white/80" />
                 )}
               </button>
               <button
@@ -208,7 +204,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                 className="flex size-14 items-center justify-center rounded-full bg-red-500 shadow-lg transition-colors hover:bg-red-600"
                 aria-label="End call"
               >
-                <PhoneOff className="size-6 text-white" />
+                <AppIcon icon={PhoneOff} className="size-6 text-white" />
               </button>
               <div className="size-12" />
             </div>

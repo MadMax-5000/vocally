@@ -1,8 +1,9 @@
 "use client"
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, ChevronsUpDown } from "@/lib/icons/app-icons"
 
 import * as React from "react"
 import { useOrganizationList, useOrganization } from "@clerk/nextjs"
-import { Check, ChevronsUpDown } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -65,7 +66,7 @@ export function OrgSwitcher() {
                 {currentName}
               </span>
               <span className="ml-auto shrink-0 text-muted group-data-[collapsible=icon]:ml-0">
-                <ChevronsUpDown className="size-4" />
+                <AppIcon icon={ChevronsUpDown} className="size-4" />
               </span>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -80,7 +81,7 @@ export function OrgSwitcher() {
               >
                 <span className="truncate">{organization.name}</span>
                 {organization.id === activeOrg?.id && (
-                  <Check className="ml-auto size-4 shrink-0" />
+                  <AppIcon icon={CheckIcon} className="ml-auto size-4 shrink-0" />
                 )}
               </DropdownMenuItem>
             ))}

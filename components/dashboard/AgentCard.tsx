@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowUpRightIcon } from "@/lib/icons/app-icons"
 
 interface AgentCardProps {
   id: string;
@@ -42,7 +43,7 @@ export function AgentCard({ id, name, title, field, createdAt, className }: Agen
             {name.charAt(0).toUpperCase()}
           </span>
         </div>
-        <ArrowUpRight className="h-4 w-4 text-muted opacity-0 transition-all group-hover:opacity-100" />
+        <AppIcon icon={ArrowUpRightIcon} className="h-4 w-4 text-muted opacity-0 transition-all group-hover:opacity-100" />
       </div>
 
       <div className="mt-4 space-y-1">

@@ -20,6 +20,9 @@ vi.mock("@/lib/db/prisma", () => ({
       findUnique: vi.fn(),
       findFirst: vi.fn(),
     },
+    agentChannel: {
+      findUnique: vi.fn(),
+    },
   },
 }));
 
@@ -138,6 +141,7 @@ describe("WhatsApp Service", () => {
     vi.mocked(prisma.session.create).mockResolvedValue(mockSession("session-new-1"));
     vi.mocked(prisma.message.create).mockResolvedValue({} as any);
     vi.mocked(prisma.agent.findFirst).mockResolvedValue({ id: "agent-1" } as any);
+    vi.mocked(prisma.agentChannel.findUnique).mockResolvedValue({ config: {} } as any);
     vi.mocked(processMessage).mockResolvedValue({
       botContent: "Hello! How can I help you?",
       sessionId: "session-new-1",

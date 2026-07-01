@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { updateAgentDeployment, updateHelpPageSettings } from "@/lib/actions/agents";
 import { isHelpPageEnabled } from "@/lib/deploy/web-chat-config";
+import { resolveSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
 
 import type { AgentDetailWithRelations } from "../agent-detail-types";
 import {
@@ -124,7 +125,11 @@ export function DeployHelpPageManage({ agent }: Props) {
         </div>
 
         <div className="flex min-h-0 flex-col overflow-hidden bg-canvas-soft/40">
-          <HelpPagePreviewPanel draft={draft} agentName={agent.name} />
+          <HelpPagePreviewPanel
+            draft={draft}
+            agentName={agent.name}
+            suggestedMessagesAction={resolveSuggestedMessagesAction(agent.channels)}
+          />
         </div>
       </div>
     </div>

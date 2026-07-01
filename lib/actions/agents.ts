@@ -385,6 +385,20 @@ export async function getAIAgentById(
       };
     }
 
+    const { ensureSuggestedMessagesMigrated } = await import(
+      "@/lib/deploy/migrate-suggested-messages"
+    );
+    const migrated = await ensureSuggestedMessagesMigrated(agentId);
+    if (migrated) {
+      const refreshed = await prisma.agent.findFirst({
+        where: { id: agentId, orgId: dbOrgId },
+        include: agentDetailInclude,
+      });
+      if (refreshed) {
+        return { success: true, data: refreshed };
+      }
+    }
+
     return { success: true, data: agent };
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
@@ -602,8 +616,6 @@ const updateChatWidgetSettingsSchema = z.object({
       autoShowWelcomePopup: z.boolean().optional(),
       welcomePopupDelaySec: z.number().int().min(1).max(60).optional(),
       autoShowWelcomePopupMobile: z.boolean().optional(),
-      suggestedMessages: z.array(z.string().max(200)).max(20).optional(),
-      keepShowingSuggested: z.boolean().optional(),
       placeholder: z.string().max(120).nullable().optional(),
       voiceToTextEnabled: z.boolean().optional(),
       attachmentsEnabled: z.boolean().optional(),
@@ -680,14 +692,6 @@ export async function updateChatWidgetSettings(
       }
       if (incoming.autoShowWelcomePopupMobile !== undefined) {
         nextWidget.autoShowWelcomePopupMobile = incoming.autoShowWelcomePopupMobile;
-      }
-      if (incoming.suggestedMessages !== undefined) {
-        nextWidget.suggestedMessages = incoming.suggestedMessages
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-      if (incoming.keepShowingSuggested !== undefined) {
-        nextWidget.keepShowingSuggested = incoming.keepShowingSuggested;
       }
       if (incoming.placeholder !== undefined) {
         nextWidget.placeholder = incoming.placeholder?.trim() || undefined;
@@ -961,6 +965,7 @@ export async function updateCollectLeadsActionSettings(
     });
 
     revalidatePath(`/dashboard/agents/${agentId}`);
+    revalidatePath("/dashboard/leads");
 
     const updated = await prisma.agent.findFirst({
       where: { id: agentId, orgId: dbOrgId },
@@ -1226,6 +1231,7 @@ const updateCustomFormActionSettingsSchema = z.object({
   fields: z.array(customFormFieldSchema).max(MAX_FORM_FIELDS).optional(),
   showAfterUserMessages: z.number().int().min(1).max(100).nullable().optional(),
   allowLlmTrigger: z.boolean().optional(),
+  notifyEmail: z.union([z.string().email().max(320), z.literal("")]).optional(),
 });
 
 const updateCustomButtonActionSettingsSchema = z.object({
@@ -1424,6 +1430,9 @@ export async function updateCustomFormActionSettings(
     if (incoming.allowLlmTrigger !== undefined) {
       nextAction.allowLlmTrigger = incoming.allowLlmTrigger;
     }
+    if (incoming.notifyEmail !== undefined) {
+      nextAction.notifyEmail = incoming.notifyEmail?.trim() || undefined;
+    }
 
     const nextConfig = {
       ...existingConfig,
@@ -1449,6 +1458,7 @@ export async function updateCustomFormActionSettings(
     revalidatePath(`/dashboard/agents/${agentId}`);
     revalidatePath(`/widget/${agentId}`);
     revalidatePath(`/help/${agentId}`);
+    revalidatePath("/dashboard/leads");
 
     const updated = await prisma.agent.findFirst({
       where: { id: agentId, orgId: dbOrgId },
@@ -1554,8 +1564,6 @@ const updateHelpPageSettingsSchema = z.object({
       logoDarkUrl: urlSchema,
       heroUrl: urlSchema,
       heroDarkUrl: urlSchema,
-      suggestedMessages: z.array(z.string().max(200)).max(20).optional(),
-      keepShowingSuggested: z.boolean().optional(),
       placeholder: z.string().max(120).nullable().optional(),
       navLinks: z
         .array(
@@ -1654,14 +1662,6 @@ export async function updateHelpPageSettings(
       }
       if (incoming.heroDarkUrl !== undefined) {
         nextHelpPage.heroDarkUrl = incoming.heroDarkUrl?.trim() || undefined;
-      }
-      if (incoming.suggestedMessages !== undefined) {
-        nextHelpPage.suggestedMessages = incoming.suggestedMessages
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-      if (incoming.keepShowingSuggested !== undefined) {
-        nextHelpPage.keepShowingSuggested = incoming.keepShowingSuggested;
       }
       if (incoming.placeholder !== undefined) {
         nextHelpPage.placeholder = incoming.placeholder?.trim() || undefined;

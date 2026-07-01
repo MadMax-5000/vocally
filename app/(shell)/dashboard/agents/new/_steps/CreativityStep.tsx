@@ -1,30 +1,30 @@
 "use client";
 
+import type { IconSvgElement } from "@/components/ui/app-icon";
 import { CreativityLevel } from "@prisma/client";
-import { Scale, Sparkles, Target } from "lucide-react";
+import { Lightbulb, LockIcon, ScalesIcon } from "@/lib/icons/app-icons";
 
 import { SelectableCard } from "@/components/onboarding/SelectableCard";
-import { LightbulbIcon, LockKeyIcon, ScalesIcon } from "@phosphor-icons/react";
 
 const LEVELS: {
   value: CreativityLevel;
   label: string;
-  Icon: typeof Target;
+  icon: IconSvgElement;
 }[] = [
   {
     value: "STRICT",
     label: "Strict",
-    Icon: LockKeyIcon,
+    icon: LockIcon,
   },
   {
     value: "BALANCED",
     label: "Balanced",
-    Icon: ScalesIcon,
+    icon: ScalesIcon,
   },
   {
     value: "CREATIVE",
     label: "Creative",
-    Icon: LightbulbIcon ,
+    icon: Lightbulb,
   },
 ];
 
@@ -50,7 +50,7 @@ export function CreativityStep({ creativity, onPick }: CreativityStepProps) {
           <SelectableCard
             key={opt.value}
             title={opt.label}
-            icon={opt.Icon}
+            icon={opt.icon}
             selected={creativity === opt.value}
             onClick={() => onPick(opt.value)}
           />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -10,23 +11,26 @@ import {
   updateCustomFormActionSettings,
   type FormSubmissionListItem,
 } from "@/lib/actions/agents";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { chatWidgetFieldInputClass } from "../deploy/chat-widget/ChatWidgetSettingRow";
 import { CustomFormFieldsEditor } from "./CustomFormFieldsEditor";
 import { CustomFormPreview } from "./CustomFormPreview";
+import {
+  ActionSheetEmpty,
+  ActionSheetEnableRow,
+  ActionSheetField,
+  ActionSheetList,
+  ActionSheetListItem,
+  ActionSheetSection,
+  ActionSheetSettingsGroup,
+  ActionSheetShell,
+  ActionSheetToggleRow,
+  actionSheetInputClass,
+  actionSheetTextareaClass,
+} from "./ActionSheetShell";
 import {
   buildCustomFormActionDraft,
   draftsEqual,
@@ -112,6 +116,7 @@ export function CustomFormActionSheet({
           : undefined,
         showAfterUserMessages: draft.showAfterUserMessages,
         allowLlmTrigger: draft.allowLlmTrigger,
+        notifyEmail: draft.notifyEmail.trim() || undefined,
       });
       if (!result.success) {
         toast.error(result.error ?? "Save failed");
@@ -127,170 +132,157 @@ export function CustomFormActionSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex w-full flex-col border-hairline bg-surface-card sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle className="font-display text-title-md font-normal tracking-tight text-ink">
-            Custom form
-          </SheetTitle>
-          <SheetDescription className="text-body-sm text-muted">
-            Build a form customers fill in chat. Show it automatically after a number of
-            messages or let the AI offer it with a tool.
-          </SheetDescription>
-        </SheetHeader>
+    <ActionSheetShell
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Custom form"
+      description="Build a form customers fill in chat. Show it automatically after a number of messages or let the AI offer it with a tool."
+      size="wide"
+      pending={pending}
+      isDirty={isDirty}
+      saveDisabled={Boolean(validationError)}
+      onSave={handleSave}
+    >
+      <ActionSheetEnableRow label="Enable custom form">
+        <Switch
+          id="custom-form-enabled"
+          checked={draft.enabled}
+          onCheckedChange={(enabled) => setDraft((d) => ({ ...d, enabled }))}
+        />
+      </ActionSheetEnableRow>
 
-        <div className="flex-1 overflow-y-auto px-1">
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface-strong px-3 py-2.5">
-            <Label htmlFor="custom-form-enabled" className="text-body-sm text-ink">
-              Enable custom form
-            </Label>
-            <Switch
-              id="custom-form-enabled"
-              checked={draft.enabled}
-              onCheckedChange={(enabled) => setDraft((d) => ({ ...d, enabled }))}
+      {draft.enabled ? (
+        <>
+          <ActionSheetField label="Form title">
+            <Input
+              value={draft.title}
+              onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+              className={actionSheetInputClass}
             />
-          </div>
+          </ActionSheetField>
 
-          {draft.enabled ? (
-            <>
-              <div className="mt-4 space-y-3">
-                <div>
-                  <Label className="text-body-sm text-ink">Form title</Label>
-                  <Input
-                    value={draft.title}
-                    onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-                    className={cn(chatWidgetFieldInputClass, "mt-1")}
-                  />
-                </div>
-                <div>
-                  <Label className="text-body-sm text-ink">Description (optional)</Label>
-                  <textarea
-                    value={draft.description}
-                    onChange={(e) =>
-                      setDraft((d) => ({ ...d, description: e.target.value }))
-                    }
-                    rows={2}
-                    className={cn(
-                      chatWidgetFieldInputClass,
-                      "mt-1 w-full resize-y min-h-[56px]",
-                    )}
-                  />
-                </div>
-                <div>
-                  <Label className="text-body-sm text-ink">Submit button label</Label>
-                  <Input
-                    value={draft.submitLabel}
-                    onChange={(e) =>
-                      setDraft((d) => ({ ...d, submitLabel: e.target.value }))
-                    }
-                    className={cn(chatWidgetFieldInputClass, "mt-1")}
-                  />
-                </div>
-              </div>
+          <ActionSheetField label="Description" description="Optional helper text shown above the form.">
+            <Textarea
+              value={draft.description}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, description: e.target.value }))
+              }
+              rows={2}
+              className={cn(actionSheetTextareaClass, "min-h-[56px]")}
+            />
+          </ActionSheetField>
 
-              <div className="mt-4 space-y-2 rounded-xl border border-hairline bg-surface-strong p-3">
-                <Label className="text-body-sm text-ink">When to show</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={1}
-                    max={100}
-                    value={draft.showAfterUserMessages ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      setDraft((d) => ({
-                        ...d,
-                        showAfterUserMessages: raw
-                          ? Math.min(100, Math.max(1, parseInt(raw, 10) || 1))
-                          : null,
-                      }));
-                    }}
-                    placeholder="Off"
-                    className={cn(chatWidgetFieldInputClass, "w-24")}
-                  />
-                  <span className="text-body-sm text-muted">
-                    user messages (leave empty for AI-only)
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <Label htmlFor="allow-llm-form" className="text-body-sm text-ink">
-                    Allow AI to show form (tool)
-                  </Label>
-                  <Switch
-                    id="allow-llm-form"
-                    checked={draft.allowLlmTrigger}
-                    onCheckedChange={(allowLlmTrigger) =>
-                      setDraft((d) => ({ ...d, allowLlmTrigger }))
-                    }
-                  />
-                </div>
-              </div>
+          <ActionSheetField label="Submit button label">
+            <Input
+              value={draft.submitLabel}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, submitLabel: e.target.value }))
+              }
+              className={actionSheetInputClass}
+            />
+          </ActionSheetField>
 
-              <CustomFormFieldsEditor
-                fields={draft.fields}
-                onChange={(fields) => setDraft((d) => ({ ...d, fields }))}
-              />
-
-              <CustomFormPreview
-                formId={draft.formId}
-                title={draft.title}
-                description={draft.description}
-                submitLabel={draft.submitLabel}
-                fields={draft.fields}
-              />
-
-              <div className="mt-6 border-t border-hairline pt-4">
-                <h3 className="text-body-sm font-medium text-ink">Recent submissions</h3>
-                {submissionsLoading ? (
-                  <p className="mt-2 text-body-sm text-muted-soft">Loading…</p>
-                ) : submissions.length === 0 ? (
-                  <p className="mt-2 text-body-sm text-muted-soft">No submissions yet.</p>
-                ) : (
-                  <ul className="mt-2 divide-y divide-hairline rounded-lg border border-hairline">
-                    {submissions.map((row) => (
-                      <li
-                        key={row.id}
-                        className="flex flex-col gap-0.5 px-3 py-2 text-body-sm"
-                      >
-                        <span className="text-caption text-muted">
-                          {new Date(row.createdAt).toLocaleString()}
-                        </span>
-                        <span className="text-ink line-clamp-2">
-                          {formatSubmissionValues(row.values)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </>
-          ) : (
-            <p className="py-8 text-center text-body-sm text-muted-soft">
-              Turn on to configure a form for web chat.
-            </p>
-          )}
-        </div>
-
-        <SheetFooter className="gap-2 border-t border-hairline pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="border-hairline"
-            onClick={() => onOpenChange(false)}
-            disabled={pending}
+          <ActionSheetSection
+            title="When to show"
+            description="Control timing and whether the AI can offer the form."
           >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            className="bg-primary text-on-primary hover:bg-primary-active"
-            onClick={handleSave}
-            disabled={pending || !isDirty || Boolean(validationError)}
+            <ActionSheetSettingsGroup>
+              <div className="flex items-center gap-3 py-2.5">
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={draft.showAfterUserMessages ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    setDraft((d) => ({
+                      ...d,
+                      showAfterUserMessages: raw
+                        ? Math.min(100, Math.max(1, parseInt(raw, 10) || 1))
+                        : null,
+                    }));
+                  }}
+                  placeholder="Off"
+                  className={cn(actionSheetInputClass, "w-24")}
+                />
+                <span className="text-body-sm text-muted">
+                  user messages (leave empty for AI-only)
+                </span>
+              </div>
+
+              <ActionSheetToggleRow label="Allow AI to show form (tool)">
+                <Switch
+                  id="allow-llm-form"
+                  checked={draft.allowLlmTrigger}
+                  onCheckedChange={(allowLlmTrigger) =>
+                    setDraft((d) => ({ ...d, allowLlmTrigger }))
+                  }
+                />
+              </ActionSheetToggleRow>
+            </ActionSheetSettingsGroup>
+          </ActionSheetSection>
+
+          <CustomFormFieldsEditor
+            fields={draft.fields}
+            onChange={(fields) => setDraft((d) => ({ ...d, fields }))}
+          />
+
+          <CustomFormPreview
+            formId={draft.formId}
+            title={draft.title}
+            description={draft.description}
+            submitLabel={draft.submitLabel}
+            fields={draft.fields}
+          />
+
+          <ActionSheetField
+            label="Notify email"
+            description="Optional — get an email when a customer submits the form."
           >
-            {pending ? "Saving…" : "Save"}
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+            <Input
+              id="custom-form-notify"
+              type="email"
+              placeholder="team@company.com"
+              value={draft.notifyEmail}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, notifyEmail: e.target.value }))
+              }
+              className={actionSheetInputClass}
+            />
+          </ActionSheetField>
+
+          <ActionSheetSection title="Recent submissions">
+            <div className="mb-2 flex justify-end">
+              <Link
+                href={`/dashboard/leads?agentId=${agent.id}&captureType=custom_form`}
+                className="text-caption text-muted hover:text-ink"
+              >
+                View all in Leads
+              </Link>
+            </div>
+            {submissionsLoading ? (
+              <ActionSheetEmpty>Loading…</ActionSheetEmpty>
+            ) : submissions.length === 0 ? (
+              <ActionSheetEmpty>No submissions yet.</ActionSheetEmpty>
+            ) : (
+              <ActionSheetList>
+                {submissions.map((row) => (
+                  <ActionSheetListItem key={row.id}>
+                    <span className="text-caption text-muted">
+                      {new Date(row.createdAt).toLocaleString()}
+                    </span>
+                    <span className="line-clamp-2 text-body-sm text-ink">
+                      {formatSubmissionValues(row.values)}
+                    </span>
+                  </ActionSheetListItem>
+                ))}
+              </ActionSheetList>
+            )}
+          </ActionSheetSection>
+        </>
+      ) : (
+        <ActionSheetEmpty>Turn on to configure a form for web chat.</ActionSheetEmpty>
+      )}
+    </ActionSheetShell>
   );
 }

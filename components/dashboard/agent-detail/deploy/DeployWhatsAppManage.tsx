@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AgentStatus, AgentVisibility } from "@prisma/client";
 
 import { updateAgentDeployment } from "@/lib/actions/agents";
 import {
@@ -33,7 +32,7 @@ function isWhatsAppDeploymentEnabled(
 export function DeployWhatsAppManage({ agent, initialSettings }: Props) {
   const router = useRouter();
   const [togglePending, startToggleTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState<WhatsAppConfigTabId>("setup");
+  const [activeTab, setActiveTab] = useState<WhatsAppConfigTabId>("connect");
   const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("mobile");
   const [settings, setSettings] = useState(initialSettings);
   const [whatsappEnabled, setWhatsappEnabled] = useState(() =>
@@ -49,8 +48,8 @@ export function DeployWhatsAppManage({ agent, initialSettings }: Props) {
   }, [agent.channels]);
 
   useEffect(() => {
-    if (!whatsappEnabled && activeTab !== "setup") {
-      setActiveTab("setup");
+    if (!whatsappEnabled && activeTab !== "connect") {
+      setActiveTab("connect");
     }
   }, [whatsappEnabled, activeTab]);
 
@@ -80,8 +79,6 @@ export function DeployWhatsAppManage({ agent, initialSettings }: Props) {
   }
 
   const previewBusinessName = useMemo(() => agent.name, [agent.name]);
-  const isPublic = agent.visibility === AgentVisibility.PUBLIC;
-  const isActive = agent.status === AgentStatus.ACTIVE;
 
   return (
     <div className="-mx-4 -my-3 flex h-[calc(100dvh-3rem)] min-h-0 overflow-hidden bg-surface-card">
@@ -102,8 +99,6 @@ export function DeployWhatsAppManage({ agent, initialSettings }: Props) {
               agentId={agent.id}
               agentName={agent.name}
               whatsappEnabled={whatsappEnabled}
-              isPublic={isPublic}
-              isActive={isActive}
               settings={settings}
               onSettingsRefresh={refreshSettings}
             />

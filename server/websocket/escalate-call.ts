@@ -4,27 +4,27 @@ import { logServerError } from "../../lib/logger";
 const TWILIO_API = "https://api.twilio.com/2010-04-01";
 
 export async function getHandoffPhoneNumber(agentId: string | null): Promise<string> {
-  const envVar = process.env.HANDOFF_PHONE_NUMBER;
-  if (envVar) return envVar;
-
   if (agentId) {
     try {
       const { prisma } = await import("../../lib/db/prisma");
       const channel = await prisma.agentChannel.findFirst({
-        where: { agentId, channel: "VOICE_CALLS", enabled: true },
+        where: { agentId, channel: "VOICE_CALLS" },
         select: { config: true },
       });
       if (channel?.config && typeof channel.config === "object") {
         const cfg = channel.config as Record<string, unknown>;
-        if (cfg.handoffPhone && typeof cfg.handoffPhone === "string") {
-          return cfg.handoffPhone;
+        if (typeof cfg.handoffPhone === "string" && cfg.handoffPhone.trim().length > 0) {
+          return cfg.handoffPhone.trim();
         }
       }
     } catch { /* ignore */ }
   }
 
+  const envVar = process.env.HANDOFF_PHONE_NUMBER?.trim();
+  if (envVar) return envVar;
+
   throw new Error(
-    "No handoff phone number configured. Set HANDOFF_PHONE_NUMBER env var or configure handoffPhone in the agent's VOICE_CALLS channel config.",
+    "No handoff phone number configured. Set handoffPhone in Phone settings or HANDOFF_PHONE_NUMBER env var.",
   );
 }
 

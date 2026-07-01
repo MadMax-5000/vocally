@@ -23,8 +23,6 @@ export function AgentDetailPreviewTab({ agent }: Props) {
         agentId={agent.id}
         agentName={agent.name}
         welcomeMessage={welcomeMessage}
-        suggestedMessages={widgetSettings.suggestedMessages}
-        keepShowingSuggested={widgetSettings.keepShowingSuggested}
         suggestedMessagesAction={widgetSettings.suggestedMessagesAction}
         customButtonsAction={widgetSettings.customButtonsAction}
         deployment="widget"

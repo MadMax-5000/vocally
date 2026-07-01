@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { DeployPhoneManage } from "@/components/dashboard/agent-detail/deploy/DeployPhoneManage";
 import { getAIAgentById } from "@/lib/actions/agents";
-import { getAgentPhoneSettings } from "@/lib/actions/vapi-phone";
+import { getPhoneConnectionSettings } from "@/lib/actions/phone-connection";
 
 export default async function DeployPhonePage({
   params,
@@ -16,12 +16,12 @@ export default async function DeployPhonePage({
     throw new Error(result.error || "Failed to load agent");
   }
 
-  const settings = await getAgentPhoneSettings(params.agentId);
+  const settings = await getPhoneConnectionSettings(params.agentId);
   if (!settings.success) {
     throw new Error(settings.error || "Failed to load phone settings");
   }
 
   return (
-    <DeployPhoneManage agent={result.data} initialSettings={settings.data!} />
+    <DeployPhoneManage agent={result.data} initialSettings={settings.data} />
   );
 }

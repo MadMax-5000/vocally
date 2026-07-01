@@ -1,6 +1,8 @@
 import Image from "next/image";
-import { CheckCircle, FlaskConical, Hand, Workflow } from "lucide-react";
-import type { ElementType } from "react";
+
+import type { IconSvgElement } from "@/components/ui/app-icon";
+import { AppIcon } from "@/components/ui/app-icon";
+import { CheckCircle, FlaskConical, Hand, Workflow } from "@/lib/icons/app-icons";
 
 import { SuccessRateChart } from "@/components/marketing/SuccessRateChart";
 
@@ -16,7 +18,7 @@ const logos = [
 
 type Feature = {
   key: string;
-  icon: ElementType;
+  icon: IconSvgElement;
   label: string;
   body: string;
 };
@@ -123,7 +125,7 @@ Configure, deploy and monitor AI agents in 70+ languages that resolve up to 80% 
                 {/* Status pill */}
                 <div className="flex justify-start">
                   <div className="mt-1 flex items-center gap-2 rounded-md bg-primary px-4 py-1.5 text-on-primary">
-                    <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <AppIcon icon={CheckCircle} size={16} className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span className="text-[14px] font-medium">Refund completed</span>
                   </div>
                 </div>
@@ -161,14 +163,14 @@ Track resolution rates, customer satisfaction, and optimize your AI agents over 
 
         {/* ── Features bento: 3 equal columns ── */}
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {features.map(({ key, icon: Icon, label, body }) => (
+          {features.map(({ key, icon, label, body }) => (
             <div
               key={key}
               className="flex flex-col rounded-xxl border border-hairline bg-surface-card p-6"
             >
               {/* Icon plate */}
               <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-surface-card">
-                <Icon className="h-4 w-4 text-ink" aria-hidden="true" />
+                <AppIcon icon={icon} size={16} className="text-ink" aria-hidden="true" />
               </div>
 
               {/* Eyebrow */}

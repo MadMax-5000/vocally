@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CopyIcon, DownloadIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { WordPressPluginDefaults } from "@/lib/deploy/wordpress-config";
@@ -77,7 +78,7 @@ function CopyField({
           onClick={handleCopy}
           aria-label={`Copy ${label}`}
         >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
         </Button>
       </div>
     </ChatWidgetSettingRow>
@@ -174,7 +175,7 @@ export function WordPressSetupTab({
             asChild
           >
             <a href={WORDPRESS_PLUGIN_DOWNLOAD_PATH} download>
-              <Download className="size-4" />
+              <AppIcon icon={DownloadIcon} className="size-4" />
               Download plugin (.zip)
             </a>
           </Button>

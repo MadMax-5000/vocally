@@ -1,8 +1,5 @@
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
-import {
-  resolveDeploymentStaticStarters,
-  resolveSuggestedMessagesAction,
-} from "@/lib/deploy/suggested-messages-action";
+import { resolveSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
 
 export type SuggestedMessagesActionDraft = {
   enabled: boolean;
@@ -15,18 +12,10 @@ export function buildSuggestedMessagesActionDraft(
   agent: AgentDetailWithRelations,
 ): SuggestedMessagesActionDraft {
   const resolved = resolveSuggestedMessagesAction(agent.channels);
-  const widgetStatic = resolveDeploymentStaticStarters(agent.channels, "widget");
-
-  const staticStarters =
-    resolved.staticStarters.length > 0
-      ? [...resolved.staticStarters]
-      : widgetStatic.length > 0
-        ? [...widgetStatic]
-        : [];
 
   return {
     enabled: resolved.enabled,
-    staticStarters,
+    staticStarters: [...resolved.staticStarters],
     keepShowingAfterFirst: resolved.keepShowingAfterFirst,
     dynamicEnabled: resolved.dynamicEnabled,
   };

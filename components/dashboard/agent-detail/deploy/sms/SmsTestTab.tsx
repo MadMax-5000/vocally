@@ -1,6 +1,6 @@
 "use client";
-
-import { Check, Circle } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CircleIcon } from "@/lib/icons/app-icons"
 
 import type { AgentSmsSettings } from "@/lib/actions/sms-connection";
 import { isSmsReady } from "@/lib/deploy/sms-config";
@@ -15,9 +15,9 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
   return (
     <li className="flex items-start gap-2.5 text-body-sm">
       {done ? (
-        <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden />
+        <AppIcon icon={CheckIcon} className="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden />
       ) : (
-        <Circle className="mt-0.5 size-4 shrink-0 text-muted-soft" aria-hidden />
+        <AppIcon icon={CircleIcon} className="mt-0.5 size-4 shrink-0 text-muted-soft" aria-hidden />
       )}
       <span className={cn(done ? "text-ink" : "text-muted")}>{label}</span>
     </li>

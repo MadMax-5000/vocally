@@ -18,7 +18,6 @@ export type ChatWidgetDraft = {
       | "autoShowWelcomePopup"
       | "welcomePopupDelaySec"
       | "autoShowWelcomePopupMobile"
-      | "keepShowingSuggested"
       | "voiceToTextEnabled"
       | "attachmentsEnabled"
     >
@@ -26,7 +25,6 @@ export type ChatWidgetDraft = {
     WebChatWidgetConfig & {
       displayName: string;
       welcomeMessageMobile: string;
-      suggestedMessages: string[];
       placeholder: string;
       appearance: WebChatWidgetAppearance;
       primaryColor: string;
@@ -51,8 +49,6 @@ export function buildChatWidgetDraft(agent: AgentDetailWithRelations): ChatWidge
       autoShowWelcomePopup: stored.autoShowWelcomePopup ?? false,
       welcomePopupDelaySec: stored.welcomePopupDelaySec ?? WIDGET_POPUP_DELAY_DEFAULT,
       autoShowWelcomePopupMobile: stored.autoShowWelcomePopupMobile ?? false,
-      suggestedMessages: stored.suggestedMessages ?? [],
-      keepShowingSuggested: stored.keepShowingSuggested ?? false,
       placeholder: stored.placeholder?.trim() || WIDGET_PLACEHOLDER_DEFAULT,
       voiceToTextEnabled: stored.voiceToTextEnabled ?? false,
       attachmentsEnabled: stored.attachmentsEnabled ?? false,
@@ -78,8 +74,6 @@ export function draftToSavePayload(draft: ChatWidgetDraft) {
       autoShowWelcomePopup: w.autoShowWelcomePopup,
       welcomePopupDelaySec: w.welcomePopupDelaySec,
       autoShowWelcomePopupMobile: w.autoShowWelcomePopupMobile,
-      suggestedMessages: w.suggestedMessages.map((s) => s.trim()).filter(Boolean),
-      keepShowingSuggested: w.keepShowingSuggested,
       placeholder: w.placeholder.trim() || null,
       voiceToTextEnabled: w.voiceToTextEnabled,
       attachmentsEnabled: w.attachmentsEnabled,

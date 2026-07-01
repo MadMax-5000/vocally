@@ -26,18 +26,29 @@ export async function loadPublicHelpPageData(
 
   if (!agent) return null;
 
+  const { ensureSuggestedMessagesMigrated } = await import(
+    "@/lib/deploy/migrate-suggested-messages"
+  );
+  await ensureSuggestedMessagesMigrated(agentId);
+
+  const refreshed = await prisma.agent.findUnique({
+    where: { id: agentId },
+    include: { channels: true },
+  });
+  if (!refreshed) return null;
+
   const token = options?.widgetToken?.trim();
-  if (token && agent.widgetToken && agent.widgetToken !== token) {
+  if (token && refreshed.widgetToken && refreshed.widgetToken !== token) {
     return null;
   }
 
-  const settings = resolveWebChatHelpPageSettings(agent.name, agent.channels);
+  const settings = resolveWebChatHelpPageSettings(refreshed.name, refreshed.channels);
   const pageTitle = options?.titleOverride?.trim() || settings.pageTitle;
   const headline = options?.headlineOverride?.trim() || settings.headline;
 
   return {
-    agentId: agent.id,
-    agentName: agent.name,
+    agentId: refreshed.id,
+    agentName: refreshed.name,
     widgetToken: token || undefined,
     settings: {
       ...settings,

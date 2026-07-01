@@ -1,6 +1,6 @@
 "use client";
-
-import { Info } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { InfoIcon } from "@/lib/icons/app-icons"
 
 import {
   Tooltip,
@@ -12,10 +12,10 @@ import { cn } from "@/lib/utils";
 
 /** Shared styles for configuration inputs (stacked fields). */
 export const chatWidgetFieldInputClass =
-  "h-10 w-full rounded-lg border-hairline bg-surface-card text-body-sm shadow-none focus-visible:border-ink focus-visible:ring-0";
+  "h-10 w-full rounded-lg border-hairline bg-surface-card text-body-sm shadow-none focus-visible:border-muted-soft focus-visible:ring-0";
 
 export const chatWidgetFieldTextareaClass =
-  "min-h-[88px] w-full resize-y rounded-lg border-hairline bg-surface-card text-body-sm shadow-none focus-visible:border-ink focus-visible:ring-0";
+  "min-h-[88px] w-full resize-y rounded-lg border-hairline bg-surface-card text-body-sm shadow-none focus-visible:border-muted-soft focus-visible:ring-0";
 
 type ChatWidgetSettingRowProps = {
   label: string;
@@ -57,7 +57,7 @@ export function ChatWidgetSettingRow({
                 className="text-muted-soft hover:text-muted"
                 aria-label="More information"
               >
-                <Info className="size-3.5" />
+                <AppIcon icon={InfoIcon} className="size-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-xs text-body-sm">

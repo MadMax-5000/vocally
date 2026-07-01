@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ChevronDown, RefreshCwIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useRef, FormEvent, useMemo, useState } from "react";
-import { ChevronDown, RefreshCw } from "lucide-react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
@@ -46,8 +47,6 @@ type ChatWidgetProps = {
   appearance?: WebChatWidgetAppearance;
   primaryColor?: string;
   placeholder?: string;
-  suggestedMessages?: string[];
-  keepShowingSuggested?: boolean;
   suggestedMessagesAction?: ResolvedSuggestedMessagesAction;
   customButtonsAction?: ResolvedCustomButtonAction;
   deployment?: "widget" | "help";
@@ -70,8 +69,6 @@ export function ChatWidget({
   appearance = "light",
   primaryColor,
   placeholder = "Message...",
-  suggestedMessages = [],
-  keepShowingSuggested = false,
   suggestedMessagesAction,
   customButtonsAction,
   deployment = "widget",
@@ -83,8 +80,8 @@ export function ChatWidget({
 
   const initialSuggestedMessages = useMemo(() => {
     if (!actionEnabled || !suggestedMessagesAction) return [];
-    return getInitialSuggestedMessages(suggestedMessagesAction, suggestedMessages);
-  }, [actionEnabled, suggestedMessagesAction, suggestedMessages]);
+    return getInitialSuggestedMessages(suggestedMessagesAction);
+  }, [actionEnabled, suggestedMessagesAction]);
 
   const {
     messages,
@@ -170,13 +167,9 @@ export function ChatWidget({
         }
       : undefined;
 
-  const displaySuggestions = actionEnabled
-    ? liveSuggestedMessages
-    : suggestedMessages;
+  const displaySuggestions = actionEnabled ? liveSuggestedMessages : [];
 
-  const keepShowing = actionEnabled
-    ? (suggestedMessagesAction?.keepShowingAfterFirst ?? false)
-    : keepShowingSuggested;
+  const keepShowing = suggestedMessagesAction?.keepShowingAfterFirst ?? false;
 
   const visibleSuggestions = displaySuggestions.filter((s) => s.trim());
   const showSuggestionChips =
@@ -258,7 +251,7 @@ export function ChatWidget({
                     : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
                 )}
               >
-                <ChevronDown className="size-4" strokeWidth={2} />
+                <AppIcon icon={ChevronDown} className="size-4" strokeWidth={2} />
               </button>
             ) : null}
             {showClearButton ? (
@@ -276,7 +269,7 @@ export function ChatWidget({
                           : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
                       )}
                     >
-                      <RefreshCw className="size-3.5" strokeWidth={2} />
+                      <AppIcon icon={RefreshCwIcon} className="size-3.5" strokeWidth={2} />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="top">Clear messages</TooltipContent>

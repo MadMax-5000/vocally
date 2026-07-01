@@ -1,6 +1,6 @@
 "use client";
-
-import { RotateCcw } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { RotateCcw } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +58,7 @@ export function ChatWidgetColorField({
         onClick={() => onChange(defaultValue)}
         aria-label="Reset color"
       >
-        <RotateCcw className="size-3.5" />
+        <AppIcon icon={RotateCcw} className="size-3.5" />
       </Button>
     </div>
   );

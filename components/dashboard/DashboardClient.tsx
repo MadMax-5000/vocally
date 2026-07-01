@@ -1,4 +1,6 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { BarChart2Icon, DownloadIcon, ExternalLink, TrendingUp } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import {
@@ -12,7 +14,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { BarChart2, Download, ExternalLink, TrendingUp } from "lucide-react";
 
 import type { DashboardStats } from "@/lib/actions/sessions";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -256,7 +257,7 @@ function StatCard({
                 type="button"
                 className="flex items-center gap-1.5 rounded-md border border-hairline bg-surface-card px-2 py-1 text-caption font-medium text-body shadow-none transition-colors hover:bg-canvas-soft"
               >
-                <TrendingUp className="h-3 w-3 text-muted" aria-hidden />
+                <AppIcon icon={TrendingUp} className="h-3 w-3 text-muted" aria-hidden />
                 Linear scale
               </button>
             )}
@@ -265,7 +266,7 @@ function StatCard({
               aria-label="Download"
               className="flex h-7 w-7 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted shadow-none transition-colors hover:bg-canvas-soft hover:text-ink"
             >
-              <Download className="h-3.5 w-3.5" aria-hidden />
+              <AppIcon icon={DownloadIcon} className="h-3.5 w-3.5" aria-hidden />
             </button>
           </div>
         </div>
@@ -278,7 +279,7 @@ function StatCard({
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <BarChart2
+            <AppIcon icon={BarChart2Icon}
               className="h-12 w-12 text-muted-soft"
               aria-hidden
               strokeWidth={1.25}
@@ -330,7 +331,7 @@ function StatCard({
               className="h-7 gap-1 rounded-md border-hairline bg-surface-card px-2.5 text-caption font-medium text-body shadow-none hover:bg-canvas-soft"
             >
               Filtered call history
-              <ExternalLink className="h-3 w-3 text-muted" aria-hidden />
+              <AppIcon icon={ExternalLink} className="h-3 w-3 text-muted" aria-hidden />
             </Button>
           </div>
         )}
@@ -545,7 +546,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
             type="button"
             className="flex items-center gap-1.5 rounded-md border border-hairline bg-surface-card px-2.5 py-1 text-caption font-medium text-body shadow-none transition-colors hover:bg-canvas-soft"
           >
-            <TrendingUp className="h-3 w-3 text-muted" aria-hidden />
+            <AppIcon icon={TrendingUp} className="h-3 w-3 text-muted" aria-hidden />
             Linear scale
           </button>
           <div className="flex items-center gap-1.5">
@@ -554,7 +555,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
               aria-label="Download"
               className="flex h-7 w-7 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted shadow-none transition-colors hover:bg-canvas-soft hover:text-ink"
             >
-              <Download className="h-3.5 w-3.5" aria-hidden />
+              <AppIcon icon={DownloadIcon} className="h-3.5 w-3.5" aria-hidden />
             </button>
             <Button
               variant="outline"
@@ -562,7 +563,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
               className="h-7 gap-1 rounded-md border-hairline bg-surface-card px-2.5 text-caption font-medium text-body shadow-none hover:bg-canvas-soft"
             >
               Filtered call history
-              <ExternalLink className="h-3 w-3 text-muted" aria-hidden />
+              <AppIcon icon={ExternalLink} className="h-3 w-3 text-muted" aria-hidden />
             </Button>
           </div>
         </div>
@@ -683,7 +684,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
             </ChartContainer>
           ) : (
             <div className="flex flex-col items-center justify-center py-10">
-              <BarChart2
+              <AppIcon icon={BarChart2Icon}
                 className="h-12 w-12 text-muted-soft"
                 aria-hidden
                 strokeWidth={1.25}

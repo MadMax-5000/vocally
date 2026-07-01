@@ -16,6 +16,9 @@ model Organization {
   /// Lemon Squeezy subscription id (stringified); used for idempotent webhook updates and portal links.
   lemonSqueezySubscriptionId String?               @unique
   lemonSqueezyCustomerId     String?
+  /// Twilio ISV subaccount for this org's WhatsApp WABA (one subaccount per customer WABA).
+  twilioSubaccountSid        String?               @unique
+  twilioSubaccountAuthTokenEnc String?
   createdAt                  DateTime              @default(now())
   calls                      CallLog[]
   sessions                   Session[]
@@ -291,8 +294,9 @@ model AgentLead {
   notes   String? @db.Text
   source  Channel
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  notifiedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([agentId, sessionId])
   @@index([orgId])
@@ -509,6 +513,14 @@ enum LlmProvider {
   GOOGLE
 }
 
+enum WhatsappConnectionStatus {
+  PENDING
+  CREATING
+  VERIFYING_OTP
+  ONLINE
+  FAILED
+}
+
 model WhatsappPhoneNumber {
   id      String       @id @default(cuid())
   orgId   String
@@ -516,14 +528,21 @@ model WhatsappPhoneNumber {
   agentId String?
   agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
-  twilioNumber String   @unique
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  twilioNumber    String                   @unique
+  twilioSenderSid String?                  @unique
+  wabaId          String?
+  status          WhatsappConnectionStatus @default(PENDING)
+  statusMessage   String?
+  qualityRating   String?
+  messagingLimit  String?
+  isActive        Boolean                  @default(true)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
 
   @@index([orgId])
   @@index([twilioNumber])
   @@index([orgId, agentId])
+  @@index([status])
 }
 
 model WhatsappMessageDedupe {
@@ -541,7 +560,8 @@ model TwilioPhoneNumber {
   agentId String?
   agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
-  twilioNumber String   @unique
+  twilioNumber  String   @unique
+  customerNumber String? /// The customer's own phone number (e.g. +2126XXXXXXXX) that forwards to this Twilio number
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

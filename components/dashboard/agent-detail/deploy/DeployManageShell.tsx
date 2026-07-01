@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowLeftIcon } from "@/lib/icons/app-icons"
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 type DeployManageShellProps = {
   agentId: string;
@@ -33,7 +34,7 @@ export function DeployManageShell({
           href={`/dashboard/agents/${agentId}?tab=deploy`}
           className="mb-4 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
-          <ArrowLeft className="size-3.5" />
+          <AppIcon icon={ArrowLeftIcon} className="size-3.5" />
           Back to Deploy
         </Link>
         <h2 className="font-display text-display-sm font-normal tracking-tight text-ink">

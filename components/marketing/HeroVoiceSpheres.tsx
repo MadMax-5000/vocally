@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ChevronLeft, ChevronRight, Pause, Play } from "@/lib/icons/app-icons"
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -154,7 +155,7 @@ export function HeroVoiceSpheres() {
         aria-roledescription="carousel"
         aria-label="AI voice personas"
         tabIndex={0}
-        className="relative h-[350px] w-full overflow-visible rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2"
+        className="relative h-[350px] w-full overflow-visible rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong/20 focus-visible:ring-offset-2"
       >
         {SPHERES.map((sphere, i) => {
           const offset = activeIndex - i;
@@ -214,8 +215,8 @@ export function HeroVoiceSpheres() {
                       className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card/90 text-ink shadow-[0_2px_14px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
                     >
                       {isPlaying
-                        ? <Pause  className="h-5 w-5 fill-current" />
-                        : <Play   className="h-5 w-5 translate-x-[1px] fill-current" />}
+                        ? <AppIcon icon={Pause}  className="h-5 w-5 fill-current" />
+                        : <AppIcon icon={Play}   className="h-5 w-5 translate-x-[1px] fill-current" />}
                     </button>
                   </div>
                 )}
@@ -233,7 +234,7 @@ export function HeroVoiceSpheres() {
           onClick={() => navigate(-1)}
           className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-strong hover:text-body-strong"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <AppIcon icon={ChevronLeft} className="h-5 w-5" />
         </button>
 
         <div className="min-w-[220px] text-center">
@@ -261,7 +262,7 @@ export function HeroVoiceSpheres() {
           onClick={() => navigate(1)}
           className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-strong hover:text-body-strong"
         >
-          <ChevronRight className="h-5 w-5" />
+          <AppIcon icon={ChevronRight} className="h-5 w-5" />
         </button>
       </div>
     </div>

@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { ArrowUpIcon, Mic, XIcon } from "@/lib/icons/app-icons"
 
 import { FormEvent } from "react";
-import { ArrowUp, Mic, X } from "lucide-react";
 
 import type { WebChatWidgetAppearance } from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
@@ -151,7 +152,7 @@ export function ChatMessageComposer({
               : "text-muted hover:bg-surface-strong hover:text-ink",
           )}
         >
-          <X className="size-4" strokeWidth={2} />
+          <AppIcon icon={XIcon} className="size-4" strokeWidth={2} />
         </button>
       ) : null}
 
@@ -217,7 +218,7 @@ export function ChatMessageComposer({
             {voice.isPlaying ? (
               <span className="text-[10px] font-medium">▮▮</span>
             ) : (
-              <Mic className="size-4" strokeWidth={1.75} />
+              <AppIcon icon={Mic} className="size-4" strokeWidth={1.75} />
             )}
           </button>
         ) : null}
@@ -245,7 +246,7 @@ export function ChatMessageComposer({
           {isBusy ? (
             <ComposerDots />
           ) : (
-            <ArrowUp className="size-4" strokeWidth={2} />
+            <AppIcon icon={ArrowUpIcon} className="size-4" strokeWidth={2} />
           )}
         </button>
       </div>

@@ -44,7 +44,6 @@ export function ChatWidgetPreviewPanel({
       ? w.welcomeMessageMobile.trim() || draft.welcomeMessage
       : draft.welcomeMessage;
 
-  const suggestedMessages = w.suggestedMessages.filter((s) => s.trim());
   const previewKey = `${previewMode}-${viewport}-${displayName}-${welcomeMessage}-${w.appearance}-${w.primaryColor}-${w.bubbleColor}`;
 
   const sharedChatProps = {
@@ -55,8 +54,6 @@ export function ChatWidgetPreviewPanel({
     appearance: w.appearance,
     primaryColor: w.primaryColor,
     placeholder: w.placeholder,
-    suggestedMessages,
-    keepShowingSuggested: w.keepShowingSuggested,
     suggestedMessagesAction,
     customButtonsAction,
     deployment: "widget" as const,

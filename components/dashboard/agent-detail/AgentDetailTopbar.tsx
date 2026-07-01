@@ -1,115 +1,103 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
+import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { ArrowLeftIcon, Eye } from "@/lib/icons/app-icons";
+import { cn } from "@/lib/utils";
 
-import type { AgentDetailWithRelations } from "./agent-detail-types";
+import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentMoreActionsMenu } from "./AgentMoreActionsMenu";
 import { AgentPublishButton } from "./AgentPublishButton";
 import { AgentVariablesSheet } from "./AgentVariablesSheet";
 import { AgentVisibilityPill } from "./AgentVisibilityPill";
 
+const groupedToolBtn =
+  "group h-7 gap-1.5 rounded-none border-0 px-2.5 text-body-sm font-medium text-ink shadow-none hover:bg-surface-strong focus-visible:ring-0 focus-visible:ring-offset-0";
+
 type AgentDetailTopbarProps = {
   agent: AgentDetailWithRelations;
+  activeTab: AgentDetailTabId;
+  onTabChange: (tab: AgentDetailTabId) => void;
 };
 
-export function AgentDetailTopbar({ agent }: AgentDetailTopbarProps) {
+export function AgentDetailTopbar({
+  agent,
+  activeTab,
+  onTabChange,
+}: AgentDetailTopbarProps) {
+  const isPreviewActive = activeTab === "preview";
+
   return (
-    <div
-      className="-mx-4 px-4"
-      style={{
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <div className="-mx-4 bg-surface-card px-4">
       <div className="flex h-12 items-center justify-between gap-3">
-
-        {/* Left — back chevron + agent name */}
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <Link href="/dashboard/agents">
-            <button
-              aria-label="Back to agents"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                border: "none",
-                background: "none",
-                cursor: "pointer",
-                color: "#9ca3af",
-                flexShrink: 0,
-                transition: "background 0.15s, color 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "#f3f4f6";
-                (e.currentTarget as HTMLButtonElement).style.color = "#111827";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "none";
-                (e.currentTarget as HTMLButtonElement).style.color = "#9ca3af";
-              }}
-            >
-              <ArrowLeft style={{ width: 15, height: 15 }} />
-            </button>
-          </Link>
-
-          <h1
-            className="truncate"
-            style={{
-              fontSize: "13.5px",
-              fontWeight: 500,
-              color: "#111827",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.4,
-            }}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 text-muted hover:text-ink"
+            aria-label="Back to agents"
+            asChild
           >
-            {agent.name}
-          </h1>
+            <Link href="/dashboard/agents">
+              <AppIcon icon={ArrowLeftIcon} size={15} />
+            </Link>
+          </Button>
+
+          <h1 className="truncate text-body-sm font-medium text-ink">{agent.name}</h1>
         </div>
 
-        {/* Right — action row */}
         <div className="flex items-center gap-1.5">
-          <AgentVisibilityPill agentId={agent.id} visibility={agent.visibility} />
-
           <div
-            style={{
-              width: 1,
-              height: 16,
-              backgroundColor: "#e5e7eb",
-              margin: "0 2px",
-              flexShrink: 0,
-            }}
-          />
-
-          <AgentVariablesSheet agent={agent} />
-
-          {/* Preview — muted ghost */}
-          <button
-            type="button"
-            disabled
-            style={{
-              height: 28,
-              padding: "0 10px",
-              borderRadius: 8,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              fontSize: 13,
-              fontWeight: 400,
-              color: "#9ca3af",
-              cursor: "not-allowed",
-              letterSpacing: "-0.01em",
-              lineHeight: 1,
-              opacity: 0.7,
-            }}
+            className="flex items-center overflow-hidden rounded-md border border-hairline-strong bg-surface-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+            role="group"
+            aria-label="Agent tools"
           >
-            Preview
-          </button>
+            <AgentVisibilityPill agentId={agent.id} visibility={agent.visibility} />
 
-          <AgentPublishButton agentId={agent.id} />
+            <div className="h-4 w-px shrink-0 bg-hairline" aria-hidden />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    groupedToolBtn,
+                    isPreviewActive && "bg-surface-strong",
+                  )}
+                  aria-pressed={isPreviewActive}
+                  onClick={() => onTabChange("preview")}
+                >
+                  <AppIcon
+                    icon={Eye}
+                    className={cn(
+                      "h-3.5 w-3.5 transition-colors",
+                      isPreviewActive ? "text-ink" : "text-muted group-hover:text-ink",
+                    )}
+                  />
+                  Preview
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Open live chat preview</TooltipContent>
+            </Tooltip>
+
+            <div className="h-4 w-px shrink-0 bg-hairline" aria-hidden />
+
+            <AgentVariablesSheet agent={agent} />
+          </div>
+
+          <div className="mx-0.5 h-5 w-px shrink-0 bg-hairline" aria-hidden />
+
+          <AgentPublishButton />
+
           <AgentMoreActionsMenu agentId={agent.id} />
         </div>
       </div>

@@ -1,8 +1,9 @@
 "use client"
+import { AppIcon } from "@/components/ui/app-icon"
+import { UserIcon, SettingsIcon, Command, Sun, LogOutIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react"
 import { useUser, SignOutButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
-import { User, Settings, Command, Sun, LogOut } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -35,7 +36,7 @@ export function UserAvatarMenu() {
       <SignedIn>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex h-7 w-7 items-center justify-center rounded-full outline-none ring-offset-canvas transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ink">
+            <button className="flex h-7 w-7 items-center justify-center rounded-full outline-none ring-offset-canvas transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-hairline-strong">
               <Avatar className="h-7 w-7">
                 <AvatarImage src={user?.imageUrl} alt={user?.fullName || "User avatar"} />
                 <AvatarFallback className="text-[11px]">{initials}</AvatarFallback>
@@ -56,30 +57,30 @@ export function UserAvatarMenu() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
+                <AppIcon icon={UserIcon} className="mr-2 h-4 w-4" />
                 <span>Profile</span>
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
+                <AppIcon icon={SettingsIcon} className="mr-2 h-4 w-4" />
                 <span>Account settings</span>
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Command className="mr-2 h-4 w-4" />
+                <AppIcon icon={Command} className="mr-2 h-4 w-4" />
                 <span>Keyboard shortcuts</span>
                 <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled>
-              <Sun className="mr-2 h-4 w-4" />
+              <AppIcon icon={Sun} className="mr-2 h-4 w-4" />
               <span>Light Theme</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <SignOutButton redirectUrl="/">
               <DropdownMenuItem className="text-semantic-error focus:text-semantic-error [&>svg]:text-semantic-error">
-                <LogOut className="mr-2 h-4 w-4" />
+                <AppIcon icon={LogOutIcon} className="mr-2 h-4 w-4" />
                 <span>Sign out</span>
               </DropdownMenuItem>
             </SignOutButton>

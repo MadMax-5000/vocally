@@ -1,17 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { FileText, Globe, Library, LoaderIcon, MoreHorizontal, SearchIcon, TypeIcon, UploadIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  FileText,
-  Globe,
-  Library,
-  Loader2,
-  MoreHorizontal,
-  Search,
-  Type,
-  Upload,
-} from "lucide-react";
 import { toast } from "sonner";
 
 import type { KnowledgeSourceKind } from "@prisma/client";
@@ -89,9 +81,9 @@ function formatRowDate(iso: string): string {
 }
 
 function sourceIcon(kind: KnowledgeSourceKind) {
-  if (kind === "URL") return <Globe className="h-5 w-5 text-ink" aria-hidden />;
-  if (kind === "FILE") return <FileText className="h-5 w-5 text-ink" aria-hidden />;
-  return <Type className="h-5 w-5 text-ink" aria-hidden />;
+  if (kind === "URL") return <AppIcon icon={Globe} className="h-5 w-5 text-ink" aria-hidden />;
+  if (kind === "FILE") return <AppIcon icon={FileText} className="h-5 w-5 text-ink" aria-hidden />;
+  return <AppIcon icon={TypeIcon} className="h-5 w-5 text-ink" aria-hidden />;
 }
 
 function DocRowActions({
@@ -122,7 +114,7 @@ function DocRowActions({
           aria-label="Document actions"
           className="h-8 w-8 text-muted transition-all hover:bg-surface-strong hover:text-ink"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <AppIcon icon={MoreHorizontal} className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -196,7 +188,7 @@ function UrlDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-        <ModalHeader icon={<Globe className="h-5 w-5" aria-hidden />} title="Add URL" />
+        <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title="Add URL" />
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="agent-kb-url" className="text-body-sm font-medium text-body-strong">
@@ -214,7 +206,7 @@ function UrlDialog({
           <div className="border-t border-hairline pt-3">
             <div className="flex justify-end">
               <Button type="submit" disabled={busy || !url} className={kbModalPrimaryClass}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
                 {busy ? "Fetching…" : "Add URL"}
               </Button>
             </div>
@@ -284,7 +276,7 @@ function FilesDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-        <ModalHeader icon={<Upload className="h-5 w-5" aria-hidden />} title="Add Files" />
+        <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title="Add Files" />
         <form onSubmit={onSubmit} className="space-y-4">
           <div
             role="presentation"
@@ -310,7 +302,7 @@ function FilesDialog({
                 : "hover:border-hairline-strong hover:bg-canvas-soft",
             )}
           >
-            <Upload className="mb-3 h-8 w-8 text-muted" aria-hidden />
+            <AppIcon icon={UploadIcon} className="mb-3 h-8 w-8 text-muted" aria-hidden />
             <p className="text-body-sm text-body">Drag and drop files here</p>
             <p className="mt-1 text-caption text-muted">
               or{" "}
@@ -340,7 +332,7 @@ function FilesDialog({
                   key={`${f.name}-${f.size}-${i}`}
                   className="group flex items-center gap-2 rounded-lg px-2 py-1.5 text-body-sm"
                 >
-                  <FileText className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+                  <AppIcon icon={FileText} className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
                   <span className="min-w-0 flex-1 truncate font-medium text-ink">
                     {f.name}
                   </span>
@@ -370,7 +362,7 @@ function FilesDialog({
                 disabled={busy || !files.length}
                 className={kbModalPrimaryClass}
               >
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
                 {busy ? "Uploading…" : `Upload${files.length ? ` (${files.length})` : ""}`}
               </Button>
             </div>
@@ -425,7 +417,7 @@ function TextDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[520px]">
-        <ModalHeader icon={<Type className="h-5 w-5" aria-hidden />} title="Create Text" />
+        <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title="Create Text" />
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="agent-kb-text-title" className="text-body-sm font-medium text-body-strong">
@@ -450,13 +442,13 @@ function TextDialog({
               required
               rows={8}
               placeholder="Write or paste your knowledge text here…"
-              className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+              className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
             />
           </div>
           <div className="border-t border-hairline pt-3">
             <div className="flex justify-end">
               <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
                 {busy ? "Saving…" : "Save Document"}
               </Button>
             </div>
@@ -588,7 +580,7 @@ function AddDocumentMenuContent({
       <div className="px-0.5 py-1">
         {orgDocsBusy ? (
           <div className="flex items-center justify-center py-6 text-body-sm text-muted">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
             Loading…
           </div>
         ) : displayDocs.length === 0 ? (
@@ -606,11 +598,11 @@ function AddDocumentMenuContent({
               >
                 <span className="shrink-0 text-ink">
                   {d.sourceKind === "URL" ? (
-                    <Globe className="h-5 w-5" aria-hidden />
+                    <AppIcon icon={Globe} className="h-5 w-5" aria-hidden />
                   ) : d.sourceKind === "FILE" ? (
-                    <FileText className="h-5 w-5" aria-hidden />
+                    <AppIcon icon={FileText} className="h-5 w-5" aria-hidden />
                   ) : (
-                    <Type className="h-5 w-5" aria-hidden />
+                    <AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -636,7 +628,7 @@ function AddDocumentMenuContent({
           className="h-8 flex-1 justify-center rounded-md border-hairline bg-surface-card px-2 text-[13px] font-medium text-body shadow-none hover:bg-canvas-soft"
           onClick={onAddUrl}
         >
-          <Globe className="mr-2 h-4 w-4 text-muted" aria-hidden />
+          <AppIcon icon={Globe} className="mr-2 h-4 w-4 text-muted" aria-hidden />
           Add URL
         </Button>
         <Button
@@ -646,7 +638,7 @@ function AddDocumentMenuContent({
           className="h-8 flex-1 justify-center rounded-md border-hairline bg-surface-card px-2 text-[13px] font-medium text-body shadow-none hover:bg-canvas-soft"
           onClick={onAddFiles}
         >
-          <Upload className="mr-2 h-4 w-4 text-muted" aria-hidden />
+          <AppIcon icon={UploadIcon} className="mr-2 h-4 w-4 text-muted" aria-hidden />
           Add Files
         </Button>
         <Button
@@ -656,7 +648,7 @@ function AddDocumentMenuContent({
           className="h-8 flex-1 justify-center rounded-md border-hairline bg-surface-card px-2 text-[13px] font-medium text-body shadow-none hover:bg-canvas-soft"
           onClick={onAddText}
         >
-          <Type className="mr-2 h-4 w-4 text-muted" aria-hidden />
+          <AppIcon icon={TypeIcon} className="mr-2 h-4 w-4 text-muted" aria-hidden />
           Create Text
         </Button>
       </div>
@@ -815,7 +807,9 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
       </div>
 
       <div className="relative">
-        <Search
+        <AppIcon
+          icon={SearchIcon}
+          size={16}
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
           aria-hidden
         />
@@ -823,7 +817,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
           placeholder="Search Knowledge Base..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+          className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
         />
       </div>
 
@@ -880,13 +874,13 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
       <div className="rounded-xl bg-surface-card">
         {busy ? (
           <div className="flex items-center justify-center py-20 text-body-sm text-muted">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
             Loading…
           </div>
         ) : filteredRows.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
-              <Library className="h-6 w-6 text-ink" aria-hidden />
+              <AppIcon icon={Library} className="h-6 w-6 text-ink" aria-hidden />
             </div>
             <h3 className="text-base font-semibold text-ink">No documents found</h3>
             <p className="mt-1 max-w-sm text-body-sm text-muted">

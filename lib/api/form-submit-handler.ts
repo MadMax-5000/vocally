@@ -10,6 +10,10 @@ import {
   validateFormValues,
 } from "@/lib/deploy/custom-form-action";
 import { prisma } from "@/lib/db/prisma";
+import {
+  formatCustomFormEmailLines,
+  notifyLeadCaptured,
+} from "@/lib/leads/notify-lead";
 
 type HandleFormSubmitInput = {
   orgId: string;
@@ -118,6 +122,23 @@ export async function handleFormSubmit(
       };
     }
     throw err;
+  }
+
+  if (formAction.notifyEmail) {
+    const detail: Record<string, string> = {};
+    for (const field of formAction.fields) {
+      const val = validated.values[field.id]?.trim();
+      if (val) detail[field.label] = val;
+    }
+    void notifyLeadCaptured({
+      notifyEmail: formAction.notifyEmail,
+      subject: `New form submission for ${agent.name}`,
+      lines: formatCustomFormEmailLines({
+        agentName: agent.name,
+        formTitle: formAction.title,
+        detail,
+      }),
+    });
   }
 
   const summary = formatFormSubmissionSummary(formAction, validated.values);

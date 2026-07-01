@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CopyIcon, Eye, EyeOff, RefreshCwIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -131,7 +132,7 @@ export function ApiSetupTab({
             onClick={() => setShowToken((v) => !v)}
             aria-label={showToken ? "Hide API key" : "Show API key"}
           >
-            {showToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showToken ? <AppIcon icon={EyeOff} className="size-4" /> : <AppIcon icon={Eye} className="size-4" />}
           </Button>
           <Button
             type="button"
@@ -141,7 +142,7 @@ export function ApiSetupTab({
             onClick={handleCopyToken}
             aria-label="Copy API key"
           >
-            {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+            {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
           </Button>
         </div>
         <div className="mt-2">
@@ -153,7 +154,7 @@ export function ApiSetupTab({
             disabled={regenerating}
             onClick={() => setConfirmOpen(true)}
           >
-            <RefreshCw className={cn("size-3.5", regenerating && "animate-spin")} />
+            <AppIcon icon={RefreshCwIcon} className={cn("size-3.5", regenerating && "animate-spin")} />
             {regenerating ? "Regenerating…" : "Regenerate key"}
           </Button>
         </div>

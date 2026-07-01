@@ -1,6 +1,6 @@
 "use client";
-
-import { Upload } from "lucide-react";
+import { AppIcon } from "@/components/ui/app-icon"
+import { UploadIcon } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,6 @@ import {
   ChatWidgetSettingRow,
   chatWidgetFieldInputClass,
 } from "../chat-widget/ChatWidgetSettingRow";
-import { ChatWidgetSuggestedMessages } from "../chat-widget/ChatWidgetSuggestedMessages";
 import { HelpPageNavLinksEditor } from "./HelpPageNavLinksEditor";
 import type { HelpPageDraft } from "./help-page-draft";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
@@ -77,7 +76,7 @@ function UploadStubField({
         disabled
         className="h-10 w-fit gap-1.5 rounded-lg border-hairline bg-surface-card text-body-sm"
       >
-        <Upload className="size-3.5" />
+        <AppIcon icon={UploadIcon} className="size-3.5" />
         Upload
       </Button>
     </ChatWidgetSettingRow>
@@ -126,15 +125,6 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
       <UploadStubField
         label="Favicon"
         description="ICO, PNG, or SVG up to 1MB. Shown in the browser tab."
-      />
-
-      <ChatWidgetSuggestedMessages
-        messages={hp.suggestedMessages}
-        keepShowing={hp.keepShowingSuggested}
-        onMessagesChange={(suggestedMessages) => patchHelpPage({ suggestedMessages })}
-        onKeepShowingChange={(keepShowingSuggested) =>
-          patchHelpPage({ keepShowingSuggested })
-        }
       />
 
       <ChatWidgetSettingRow label="Message placeholder">

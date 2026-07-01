@@ -1,10 +1,11 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { MoreHorizontal } from "@/lib/icons/app-icons"
 
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import {
   AgentChannelType,
@@ -124,7 +125,7 @@ function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
           className="-mr-1 -mt-1 h-8 w-8 shrink-0 text-muted transition-all hover:bg-surface-strong hover:text-ink"
           onClick={(e) => e.stopPropagation()}
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <AppIcon icon={MoreHorizontal} className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">

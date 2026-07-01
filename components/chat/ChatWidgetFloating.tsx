@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { MessageCircle, XIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useState, type ComponentProps } from "react";
-import { MessageCircle, X } from "lucide-react";
 
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { ChatWidget } from "@/components/chat/ChatWidget";
@@ -166,9 +167,9 @@ export function ChatWidgetFloating({
         aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? (
-          <X className="size-5" strokeWidth={2} />
+          <AppIcon icon={XIcon} className="size-5" strokeWidth={2} />
         ) : (
-          <MessageCircle className="size-5" strokeWidth={2} />
+          <AppIcon icon={MessageCircle} className="size-5" strokeWidth={2} />
         )}
       </button>
     </div>

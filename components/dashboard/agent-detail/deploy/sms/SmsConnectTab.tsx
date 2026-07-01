@@ -1,8 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { Loader2, Unplug } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,7 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
           >
             {connectPending ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
                 Connecting\u2026
               </>
             ) : (
@@ -173,9 +174,9 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
         onClick={handleDisconnect}
       >
         {disconnectPending ? (
-          <Loader2 className="mr-2 size-4 animate-spin" />
+          <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
         ) : (
-          <Unplug className="mr-2 size-4" />
+          <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
         )}
         Disconnect
       </Button>

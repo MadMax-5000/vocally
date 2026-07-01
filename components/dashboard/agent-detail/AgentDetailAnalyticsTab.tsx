@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { BarChart2Icon, TrendingUp } from "@/lib/icons/app-icons"
 
 import * as React from "react";
-import { BarChart2, TrendingUp } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -77,7 +78,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
   if (!data) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <BarChart2 className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
+        <AppIcon icon={BarChart2Icon} className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
         <p className="text-body-sm text-muted">Could not load analytics</p>
       </div>
     );
@@ -88,7 +89,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
   if (!hasData) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <BarChart2 className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
+        <AppIcon icon={BarChart2Icon} className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
         <p className="text-body-sm text-muted">No sessions handled yet</p>
       </div>
     );

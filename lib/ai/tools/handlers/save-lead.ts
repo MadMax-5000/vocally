@@ -8,8 +8,10 @@ import {
   type ResolvedCollectLeadsAction,
 } from "@/lib/deploy/collect-leads-action";
 import { prisma } from "@/lib/db/prisma";
-import { sendEmail } from "@/lib/email/send";
-import { logServerWarning } from "@/lib/logger";
+import {
+  formatCollectLeadEmailLines,
+  notifyLeadCaptured,
+} from "@/lib/leads/notify-lead";
 import type { ToolContext } from "@/lib/ai/tools/types";
 
 const saveLeadArgsSchema = z.object({
@@ -44,9 +46,14 @@ function computeMissingRequired(
   });
 }
 
-async function resolveSourceChannel(
-  ctx: ToolContext,
-): Promise<Channel> {
+function isLeadComplete(
+  action: ResolvedCollectLeadsAction,
+  lead: Record<LeadFieldKey, string | null | undefined>,
+): boolean {
+  return computeMissingRequired(action, lead).length === 0;
+}
+
+async function resolveSourceChannel(ctx: ToolContext): Promise<Channel> {
   if (ctx.channel) return ctx.channel;
   const session = await prisma.session.findFirst({
     where: { id: ctx.sessionId, orgId: ctx.orgId },
@@ -55,29 +62,30 @@ async function resolveSourceChannel(
   return session?.channel ?? "CHAT";
 }
 
-async function maybeNotifyNewLead(input: {
+async function maybeNotifyCompleteLead(input: {
   notifyEmail: string;
   agentName: string;
   leadId: string;
-  savedFields: LeadFieldKey[];
+  channel: Channel;
+  lead: Record<LeadFieldKey, string | null>;
 }): Promise<void> {
-  if (!process.env.RESEND_API_KEY) return;
-  try {
-    await sendEmail({
-      to: input.notifyEmail,
-      subject: `New lead for ${input.agentName}`,
-      body: [
-        `A new lead was captured for agent "${input.agentName}".`,
-        `Lead ID: ${input.leadId}`,
-        `Fields provided: ${input.savedFields.join(", ") || "none yet"}`,
-      ].join("\n"),
-    });
-  } catch {
-    logServerWarning("collect_leads_notify_email_failed", {
-      leadId: input.leadId,
-      agentNameLength: input.agentName.length,
-    });
-  }
+  await notifyLeadCaptured({
+    notifyEmail: input.notifyEmail,
+    subject: `New lead for ${input.agentName}`,
+    lines: formatCollectLeadEmailLines({
+      agentName: input.agentName,
+      channel: input.channel,
+      name: input.lead.name,
+      email: input.lead.email,
+      phone: input.lead.phone,
+      company: input.lead.company,
+      notes: input.lead.notes,
+    }),
+  });
+  await prisma.agentLead.update({
+    where: { id: input.leadId },
+    data: { notifiedAt: new Date() },
+  });
 }
 
 export async function handleSaveLead(
@@ -104,7 +112,7 @@ export async function handleSaveLead(
   for (const key of LEAD_FIELD_KEYS) {
     if (parsed.data[key] !== undefined) {
       if (action.fields[key] === "off") {
-        return JSON.stringify({ error: `Field "${key}" is not collected for this agent` });
+        continue;
       }
       incoming[key] = trimOrNull(parsed.data[key]);
     }
@@ -144,6 +152,16 @@ export async function handleSaveLead(
     }
   }
 
+  const wasPreviouslyComplete = existing
+    ? isLeadComplete(action, {
+        name: existing.name,
+        email: existing.email,
+        phone: existing.phone,
+        company: existing.company,
+        notes: existing.notes,
+      })
+    : false;
+
   const missingRequired = computeMissingRequired(action, merged);
   const isComplete = missingRequired.length === 0;
 
@@ -175,16 +193,22 @@ export async function handleSaveLead(
     },
   });
 
-  if (!existing && action.notifyEmail) {
+  if (
+    isComplete &&
+    !wasPreviouslyComplete &&
+    action.notifyEmail &&
+    !existing?.notifiedAt
+  ) {
     const agent = await prisma.agent.findFirst({
       where: { id: ctx.agentId, orgId: ctx.orgId },
       select: { name: true },
     });
-    void maybeNotifyNewLead({
+    void maybeNotifyCompleteLead({
       notifyEmail: action.notifyEmail,
       agentName: agent?.name ?? "Agent",
       leadId: lead.id,
-      savedFields,
+      channel: source,
+      lead: merged,
     });
   }
 

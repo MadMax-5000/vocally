@@ -62,12 +62,12 @@ export function WhatsAppDmPreviewPanel({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
-        <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl bg-canvas-soft/80 p-6">
+        <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl bg-canvas-soft/80">
           <div
-            className={cn(
-              "flex flex-col overflow-hidden rounded-[28px] border border-hairline shadow-[0_2px_8px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.08)]",
-              viewport === "mobile" ? "h-[640px] w-[320px]" : "h-[720px] w-[420px]",
-            )}
+            className="flex h-full max-h-full w-auto max-w-full flex-col overflow-hidden rounded-[28px] border border-hairline shadow-[0_2px_8px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.08)]"
+            style={{
+              aspectRatio: viewport === "mobile" ? "320 / 640" : "420 / 720",
+            }}
           >
             <div className="flex items-center gap-3 bg-[#075E54] px-4 py-3 text-white">
               <div className="size-9 rounded-full bg-white/20" />

@@ -4,19 +4,17 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import type { AgentWhatsAppSettings } from "@/lib/actions/whatsapp-connection";
 
-import { WhatsAppConnectTab } from "./WhatsAppConnectTab";
-import { WhatsAppSetupTab } from "./WhatsAppSetupTab";
+import { WhatsAppConnectFlow } from "./WhatsAppConnectFlow";
+import { WhatsAppSettingsTab } from "./WhatsAppSettingsTab";
 import { WhatsAppTestTab } from "./WhatsAppTestTab";
 
-export type WhatsAppConfigTabId = "setup" | "connect" | "test";
+export type WhatsAppConfigTabId = "connect" | "settings" | "test";
 
 type WhatsAppConfigTabsProps = {
   activeTab: WhatsAppConfigTabId;
   agentId: string;
   agentName: string;
   whatsappEnabled: boolean;
-  isPublic: boolean;
-  isActive: boolean;
   settings: AgentWhatsAppSettings;
   onSettingsRefresh: () => Promise<void>;
 };
@@ -26,8 +24,6 @@ export function WhatsAppConfigTabs({
   agentId,
   agentName,
   whatsappEnabled,
-  isPublic,
-  isActive,
   settings,
   onSettingsRefresh,
 }: WhatsAppConfigTabsProps) {
@@ -41,19 +37,14 @@ export function WhatsAppConfigTabs({
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.14 }}
         >
-          {activeTab === "setup" ? (
-            <WhatsAppSetupTab
-              whatsappEnabled={whatsappEnabled}
-              isPublic={isPublic}
-              isActive={isActive}
-              settings={settings}
-            />
-          ) : activeTab === "connect" ? (
-            <WhatsAppConnectTab
+          {activeTab === "connect" ? (
+            <WhatsAppConnectFlow
               agentId={agentId}
               settings={settings}
               onSettingsRefresh={onSettingsRefresh}
             />
+          ) : activeTab === "settings" ? (
+            <WhatsAppSettingsTab agentId={agentId} whatsappEnabled={whatsappEnabled} />
           ) : (
             <WhatsAppTestTab agentName={agentName} settings={settings} />
           )}

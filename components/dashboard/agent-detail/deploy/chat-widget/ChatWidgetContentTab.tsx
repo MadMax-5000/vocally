@@ -9,7 +9,6 @@ import {
   chatWidgetFieldInputClass,
   chatWidgetFieldTextareaClass,
 } from "./ChatWidgetSettingRow";
-import { ChatWidgetSuggestedMessages } from "./ChatWidgetSuggestedMessages";
 import type { ChatWidgetDraft } from "./chat-widget-draft";
 
 type ChatWidgetContentTabProps = {
@@ -108,15 +107,6 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
           }
         />
       </ChatWidgetSettingRow>
-
-      <ChatWidgetSuggestedMessages
-        messages={w.suggestedMessages}
-        keepShowing={w.keepShowingSuggested}
-        onMessagesChange={(suggestedMessages) => patchWidget({ suggestedMessages })}
-        onKeepShowingChange={(keepShowingSuggested) =>
-          patchWidget({ keepShowingSuggested })
-        }
-      />
 
       <ChatWidgetSettingRow label="Message placeholder">
         <Input

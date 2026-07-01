@@ -1,29 +1,21 @@
 "use client";
 
+import type { IconSvgElement } from "@/components/ui/app-icon";
 import { AgentTone } from "@prisma/client";
 import {
-  Feather,
-  Gem,
-  PenLine,
-  Rocket,
-  Shield,
-  Smile,
-  Zap,
-} from "lucide-react";
-import {
-  Briefcase,
-  HandWaving,
+  BriefcaseIcon,
   Crown,
+  HandHeart,
+  HandWavingIcon,
+  HeartStraightIcon,
   Lightning,
-  HeartStraight,
-  Sparkle,
-  MoonStars,
+  MessageCircle,
+  MoonStar,
+  PenLineIcon,
+  ScalesIcon,
   ShieldCheck,
-  ChatCenteredText,
-  Scales,
-  LifebuoyIcon,
-  HandHeartIcon,
-} from "@phosphor-icons/react";
+  Sparkle,
+} from "@/lib/icons/app-icons";
 
 import { CustomCard } from "@/components/onboarding/CustomCard";
 import { SelectableCard } from "@/components/onboarding/SelectableCard";
@@ -32,62 +24,62 @@ import { InlineCustomForm } from "@/components/onboarding/InlineCustomForm";
 const TONE_OPTIONS: {
   value: AgentTone;
   label: string;
-  Icon: typeof Shield;
+  icon: IconSvgElement;
 }[] = [
   {
     value: "PROFESSIONAL",
     label: "Professional",
-    Icon: Briefcase,
+    icon: BriefcaseIcon,
   },
   {
     value: "FRIENDLY",
     label: "Friendly",
-    Icon: HandWaving,
+    icon: HandWavingIcon,
   },
   {
     value: "LUXURY",
     label: "Luxury",
-    Icon: Crown,
+    icon: Crown,
   },
   {
     value: "FAST_CONCISE",
     label: "Fast & concise",
-    Icon: Lightning,
+    icon: Lightning,
   },
   {
     value: "EMPATHETIC",
     label: "Empathetic",
-    Icon: HeartStraight,
+    icon: HeartStraightIcon,
   },
   {
     value: "ENERGETIC",
     label: "Energetic",
-    Icon: Sparkle,
+    icon: Sparkle,
   },
   {
     value: "CALM",
     label: "Calm",
-    Icon: MoonStars,
+    icon: MoonStar,
   },
   {
     value: "CONFIDENT",
     label: "Confident",
-    Icon: ShieldCheck,
+    icon: ShieldCheck,
   },
   {
     value: "CONVERSATIONAL",
     label: "Conversational",
-    Icon: ChatCenteredText,
+    icon: MessageCircle,
   },
   {
     value: "FORMAL",
     label: "Formal",
-    Icon: Scales,
+    icon: ScalesIcon,
   },
   {
     value: "SUPPORTIVE",
     label: "Supportive",
-    Icon: HandHeartIcon,
+    icon: HandHeart,
   },
 ];
 
@@ -126,14 +118,14 @@ export function ToneStep({
           <SelectableCard
             key={opt.value}
             title={opt.label}
-            icon={opt.Icon}
+            icon={opt.icon}
             selected={!toneIsCustom && tone === opt.value}
             onClick={() => onPickPreset(opt.value)}
           />
         ))}
         <CustomCard
           title="Custom"
-          icon={PenLine}
+          icon={PenLineIcon}
           selected={toneIsCustom}
           onSelect={onPickCustom}
         />

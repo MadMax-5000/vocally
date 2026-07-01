@@ -21,8 +21,6 @@ export function WidgetPageClient({ data, layout = "inline" }: WidgetPageClientPr
     appearance: settings.appearance,
     primaryColor: settings.primaryColor,
     placeholder: settings.placeholder,
-    suggestedMessages: settings.suggestedMessages,
-    keepShowingSuggested: settings.keepShowingSuggested,
     suggestedMessagesAction: settings.suggestedMessagesAction,
     customButtonsAction: settings.customButtonsAction,
     deployment: "widget" as const,

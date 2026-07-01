@@ -1,20 +1,9 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { Library, Globe, LoaderIcon, SearchIcon, TypeIcon, UploadIcon, FolderPlus, FileText, FolderOpen, FolderIcon, MoreHorizontal } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-    Library,
-    Globe,
-    Loader2,
-    Search,
-    Type,
-    Upload,
-    FolderPlus,
-    FileText,
-    FolderOpen,
-    Folder,
-    MoreHorizontal,
-} from "lucide-react";
 import { toast } from "sonner";
 
 import type {
@@ -119,9 +108,9 @@ function DocActionsSelect({
                 <button
                     type="button"
                     aria-label="Document actions"
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent p-0 shadow-none hover:bg-canvas-soft focus-visible:ring-2 focus-visible:ring-ink/10"
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent p-0 shadow-none hover:bg-canvas-soft focus-visible:ring-2 focus-visible:ring-hairline-strong/10"
                 >
-                    <MoreHorizontal className="h-5 w-5 text-muted" aria-hidden />
+                    <AppIcon icon={MoreHorizontal} className="h-5 w-5 text-muted" aria-hidden />
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[10rem] rounded-xl border-hairline">
@@ -264,22 +253,22 @@ export function KnowledgeBaseClient({
             {/* Action Cards */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 max-w-xl">
                 <ActionCard
-                    icon={<Globe className="h-5 w-5 text-ink" />}
+                    icon={<AppIcon icon={Globe} className="h-5 w-5 text-ink" />}
                     label="Add URL"
                     onClick={() => setOpenUrl(true)}
                 />
                 <ActionCard
-                    icon={<FileText className="h-5 w-5 text-ink" />}
+                    icon={<AppIcon icon={FileText} className="h-5 w-5 text-ink" />}
                     label="Add Files"
                     onClick={() => setOpenFiles(true)}
                 />
                 <ActionCard
-                    icon={<Type className="h-5 w-5 text-ink" />}
+                    icon={<AppIcon icon={TypeIcon} className="h-5 w-5 text-ink" />}
                     label="Create Text"
                     onClick={() => setOpenText(true)}
                 />
                 <ActionCard
-                    icon={<FolderPlus className="h-5 w-5 text-ink" />}
+                    icon={<AppIcon icon={FolderPlus} className="h-5 w-5 text-ink" />}
                     label="Create Folder"
                     onClick={() => setOpenFolder(true)}
                 />
@@ -287,7 +276,9 @@ export function KnowledgeBaseClient({
 
             {/* Search */}
             <div className="relative">
-                <Search
+                <AppIcon
+                    icon={SearchIcon}
+                    size={16}
                     className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
                     aria-hidden
                 />
@@ -295,7 +286,7 @@ export function KnowledgeBaseClient({
                     placeholder="Search Knowledge Base..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+                    className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
                 />
             </div>
 
@@ -352,7 +343,7 @@ export function KnowledgeBaseClient({
             {filteredRows.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-hairline bg-surface-card py-16 text-center">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
-                        <Library className="h-6 w-6 text-ink" aria-hidden />
+                        <AppIcon icon={Library} className="h-6 w-6 text-ink" aria-hidden />
                     </div>
                     <h3 className="text-base font-semibold text-ink">No documents found</h3>
                     <p className="mt-1 max-w-sm text-body-sm text-muted">
@@ -401,7 +392,7 @@ export function KnowledgeBaseClient({
                                 <TableCell className="px-3 py-2" />
                                 <TableCell className="px-3 py-2">
                                     <div className="flex items-center gap-2">
-                                        <FolderOpen className="h-5 w-5 text-ink" aria-hidden />
+                                        <AppIcon icon={FolderOpen} className="h-5 w-5 text-ink" aria-hidden />
                                         <span className="text-body-sm font-medium text-ink">{row.name}</span>
                                     </div>
                                 </TableCell>
@@ -437,11 +428,11 @@ export function KnowledgeBaseClient({
                                 <TableCell className="px-3 py-2">
                                     <div className="flex items-center gap-2">
                                         {row.sourceKind === "URL" ? (
-                                            <Globe className="h-5 w-5 text-ink" aria-hidden />
+                                            <AppIcon icon={Globe} className="h-5 w-5 text-ink" aria-hidden />
                                         ) : row.sourceKind === "FILE" ? (
-                                            <FileText className="h-5 w-5 text-ink" aria-hidden />
+                                            <AppIcon icon={FileText} className="h-5 w-5 text-ink" aria-hidden />
                                         ) : (
-                                            <Type className="h-5 w-5 text-ink" aria-hidden />
+                                            <AppIcon icon={TypeIcon} className="h-5 w-5 text-ink" aria-hidden />
                                         )}
                                         <div className="min-w-0">
                                             <div className="truncate text-body-sm font-medium text-muted">
@@ -518,7 +509,7 @@ function ActionCard({
             className={cn(
                 "flex h-[76px] flex-col justify-between rounded-xl border border-hairline bg-surface-card px-4 py-3 text-left transition-all",
                 "hover:border-hairline-strong hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
             )}
         >
             <span className="text-ink">{icon}</span>
@@ -547,7 +538,7 @@ function FolderSelect({
     if (folders.length === 0) {
         return (
             <div className="flex h-8 items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground">
-                <Folder className="size-4 shrink-0 text-muted" aria-hidden />
+                <AppIcon icon={FolderIcon} className="size-4 shrink-0 text-muted" aria-hidden />
                 <span>{rootLabel}</span>
                 <span className="rounded-xs bg-accent px-1.5 py-0.5 text-xs text-muted-foreground">
                     Current
@@ -562,7 +553,7 @@ function FolderSelect({
         <Select value={resolved} onValueChange={onChange}>
             <SelectTrigger id={id} className="w-full">
                 <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <Folder className="size-4 shrink-0 text-muted" aria-hidden />
+                    <AppIcon icon={FolderIcon} className="size-4 shrink-0 text-muted" aria-hidden />
                     <SelectValue placeholder={rootLabel} />
                     {resolved === "__none__" ? (
                         <span className="rounded-xs bg-accent px-1.5 py-0.5 text-xs text-muted-foreground">
@@ -672,7 +663,7 @@ function UrlDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-                <ModalHeader icon={<Globe className="h-5 w-5" aria-hidden />} title="Add URL" />
+                <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title="Add URL" />
                 <div
                     className="mb-4 inline-flex h-10 items-center rounded-lg bg-surface-strong p-1"
                     role="tablist"
@@ -701,7 +692,7 @@ function UrlDialog({
                                 setTab(next);
                             }}
                             className={cn(
-                                "flex-1 rounded-md px-3 py-0.5 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2",
+                                "flex-1 rounded-md px-3 py-0.5 text-body-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2",
                                 tab === id
                                     ? "bg-surface-card text-ink shadow-sm"
                                     : "text-muted hover:text-body-strong",
@@ -832,7 +823,7 @@ function UrlDialog({
                                 disabled={busy || !url}
                                 className={kbModalPrimaryClass}
                             >
-                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
                                 {busyLabel}
                             </Button>
                         </div>
@@ -899,7 +890,7 @@ function FilesDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-                <ModalHeader icon={<Upload className="h-5 w-5" aria-hidden />} title="Add Files" />
+                <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title="Add Files" />
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
@@ -936,7 +927,7 @@ function FilesDialog({
                             drag ? "border-ink/25 bg-surface-strong" : "hover:border-hairline-strong hover:bg-canvas-soft",
                         )}
                     >
-                        <Upload className="mb-3 h-8 w-8 text-muted" aria-hidden />
+                        <AppIcon icon={UploadIcon} className="mb-3 h-8 w-8 text-muted" aria-hidden />
                         <p className="text-body-sm text-body">
                             Drag and drop files here
                         </p>
@@ -967,7 +958,7 @@ function FilesDialog({
                                     key={`${f.name}-${f.size}-${i}`}
                                     className="group flex items-center gap-2 rounded-lg px-2 py-1.5 text-body-sm"
                                 >
-                                    <FileText className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+                                    <AppIcon icon={FileText} className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
                                     <span className="min-w-0 flex-1 truncate font-medium text-ink">{f.name}</span>
                                     <span className="shrink-0 text-caption text-muted">
                                         {formatStorageBytes(f.size)}
@@ -996,7 +987,7 @@ function FilesDialog({
                                 className={kbModalPrimaryClass}
                             >
                                 {busy ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" />
                                 ) : (
                                     `Upload${files.length ? ` (${files.length})` : ""}`
                                 )}
@@ -1061,7 +1052,7 @@ function TextDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[520px]">
-                <ModalHeader icon={<Type className="h-5 w-5" aria-hidden />} title="Create Text" />
+                <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title="Create Text" />
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
@@ -1098,14 +1089,14 @@ function TextDialog({
                             required
                             rows={8}
                             placeholder="Write or paste your knowledge text here…"
-                            className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+                            className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
                         />
                     </div>
 
                     <div className="border-t border-hairline pt-3">
                         <div className="flex justify-end">
                             <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
-                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Document"}
+                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : "Save Document"}
                             </Button>
                         </div>
                     </div>
@@ -1164,7 +1155,7 @@ function FolderDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
                 <ModalHeader
-                    icon={<FolderPlus className="h-5 w-5" aria-hidden />}
+                    icon={<AppIcon icon={FolderPlus} className="h-5 w-5" aria-hidden />}
                     title="Create Folder"
                 />
 
@@ -1196,7 +1187,7 @@ function FolderDialog({
                     <div className="border-t border-hairline pt-3">
                         <div className="flex justify-end">
                             <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
-                                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Folder"}
+                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : "Create Folder"}
                             </Button>
                         </div>
                     </div>

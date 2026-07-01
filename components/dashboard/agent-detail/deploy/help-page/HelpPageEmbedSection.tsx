@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { CheckIcon, CopyIcon, ExternalLink } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import { Check, Copy, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { buildHelpEmbedUrl, buildHelpPageUrl, useEmbedOrigin } from "@/lib/deploy/embed-urls";
@@ -69,11 +70,11 @@ export function HelpPageEmbedSection({
           >
             {copied === "page" ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Copied
+                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5" /> Copy link
+                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy link
               </>
             )}
           </Button>
@@ -84,7 +85,7 @@ export function HelpPageEmbedSection({
             className="inline-flex shrink-0 items-center gap-1 text-body-sm text-primary hover:underline"
           >
             Open
-            <ExternalLink className="h-3 w-3" />
+            <AppIcon icon={ExternalLink} className="h-3 w-3" />
           </a>
         </div>
       </div>
@@ -131,11 +132,11 @@ export function HelpPageEmbedSection({
           >
             {copied === "snippet" ? (
               <>
-                <Check className="h-3.5 w-3.5" /> Copied
+                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5" /> Copy code
+                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy code
               </>
             )}
           </Button>

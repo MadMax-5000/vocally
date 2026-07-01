@@ -1,9 +1,10 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { LoaderIcon, MessageCircle, SendIcon, Handshake } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, MessageCircle, Send, Handshake } from "lucide-react";
 
 import { buildTriggerLabels } from "@/lib/ai/escalation-service";
 import { cn } from "@/lib/utils";
@@ -165,7 +166,7 @@ function ChatMessagesView({ messages }: { messages: InboxMessage[] }) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong">
-          <MessageCircle className="h-5 w-5 text-muted" strokeWidth={1.5} />
+          <AppIcon icon={MessageCircle} className="h-5 w-5 text-muted" strokeWidth={1.5} />
         </div>
         <p className="text-body-sm text-muted">No messages yet</p>
       </div>
@@ -295,7 +296,7 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
 function LoadingSkeleton() {
   return (
     <div className="flex flex-col items-center justify-center py-20">
-      <Loader2 className="h-6 w-6 animate-spin text-muted" />
+      <AppIcon icon={LoaderIcon} className="h-6 w-6 animate-spin text-muted" />
       <p className="mt-3 text-body-sm text-muted">Loading conversation…</p>
     </div>
   );
@@ -615,9 +616,9 @@ export function ConversationDetailSheet({
               className="w-full rounded-xl"
             >
               {claiming ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Handshake className="mr-2 h-4 w-4" />
+                <AppIcon icon={Handshake} className="mr-2 h-4 w-4" />
               )}
               Claim this conversation
             </Button>
@@ -642,7 +643,7 @@ export function ConversationDetailSheet({
                 disabled={!replyText.trim() || sending}
                 className="h-10 w-10 shrink-0 rounded-xl p-0"
               >
-                <Send className="h-4 w-4" />
+                <AppIcon icon={SendIcon} className="h-4 w-4" />
               </Button>
             </form>
           </div>

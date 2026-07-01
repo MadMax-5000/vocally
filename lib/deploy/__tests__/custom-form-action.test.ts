@@ -31,6 +31,13 @@ describe("parseCustomFormActionConfig", () => {
     expect(parsed.showAfterUserMessages).toBe(3);
   });
 
+  it("parses notifyEmail", () => {
+    const parsed = parseCustomFormActionConfig({
+      notifyEmail: "team@company.com",
+    });
+    expect(parsed.notifyEmail).toBe("team@company.com");
+  });
+
   it("rejects invalid select without options", () => {
     const parsed = parseCustomFormActionConfig({
       fields: [{ id: "x", type: "select", label: "Pick", required: false }],
@@ -44,6 +51,7 @@ describe("resolveCustomFormAction", () => {
     const resolved = resolveCustomFormAction([]);
     expect(resolved.enabled).toBe(false);
     expect(resolved.title).toBeTruthy();
+    expect(resolved.notifyEmail).toBeNull();
   });
 });
 
@@ -59,6 +67,7 @@ describe("buildFormUiPayload", () => {
         fields: [{ id: "a", type: "text", label: "A", required: true }],
         showAfterUserMessages: null,
         allowLlmTrigger: true,
+        notifyEmail: null,
       }),
     ).toBeNull();
   });
@@ -73,6 +82,7 @@ describe("buildFormUiPayload", () => {
       fields: [{ id: "name", type: "text", label: "Name", required: true }],
       showAfterUserMessages: null,
       allowLlmTrigger: true,
+      notifyEmail: null,
     });
     expect(ui?.type).toBe("form");
     expect(ui?.fields).toHaveLength(1);
@@ -92,6 +102,7 @@ describe("validateFormValues", () => {
     ],
     showAfterUserMessages: null,
     allowLlmTrigger: true,
+    notifyEmail: null,
   };
 
   it("requires email when marked required", () => {

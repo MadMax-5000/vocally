@@ -1,7 +1,8 @@
 "use client";
+import { AppIcon } from "@/components/ui/app-icon"
+import { PlusIcon, SearchIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
-import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -140,14 +141,16 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
             className="h-8 gap-1.5 px-2 text-body-sm font-medium text-ink hover:bg-canvas-soft"
             onClick={() => toast.message("Coming soon")}
           >
-            <Plus className="h-4 w-4" aria-hidden />
+            <AppIcon icon={PlusIcon} className="h-4 w-4" aria-hidden />
             Create action
           </Button>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="relative min-w-0 w-full flex-1">
-            <Search
+            <AppIcon
+              icon={SearchIcon}
+              size={16}
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
               aria-hidden
             />
@@ -155,7 +158,7 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
               placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-10 w-full rounded-md border border-hairline bg-surface-card pl-9 pr-3 text-body-sm text-ink shadow-none placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-ink/10"
+              className="h-10 w-full rounded-md border border-hairline bg-surface-card pl-9 pr-3 text-body-sm text-ink shadow-none placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
             />
           </div>
 
