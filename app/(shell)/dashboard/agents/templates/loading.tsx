@@ -8,8 +8,8 @@ export default function TemplatesLoading() {
         <SkeletonBlock className="h-6 w-32" />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 9 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </div>

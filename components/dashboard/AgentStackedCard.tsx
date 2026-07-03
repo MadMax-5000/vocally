@@ -2,9 +2,7 @@
 import { AppIcon } from "@/components/ui/app-icon"
 import { MoreHorizontal } from "@/lib/icons/app-icons"
 
-import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -16,7 +14,6 @@ import {
 } from "@prisma/client";
 import { archiveAgent, deleteAgent, duplicateAgent } from "@/lib/actions/agents";
 
-import { CHANNEL_META } from "@/lib/constants/agent-channels";
 import { getEnabledAgentChannelTypes } from "@/lib/deploy/web-chat-config";
 import { formatRelativeCreated } from "@/lib/format/relative-created";
 import { Button } from "@/components/ui/button";
@@ -28,48 +25,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SidebarAgentAvatar } from "@/components/dashboard/sidebar/SidebarAgentAvatar";
 import {
-  ArabicFlag,
-  DarijaFlag,
-  EnglishFlag,
-  FrenchFlag,
-} from "@/utils/flags";
-
-const CARD_AVATAR_SIZE = 36;
-
-const LANGUAGE_ORDER: SupportedLanguage[] = [
-  "ARABIC",
-  "DARIJA",
-  "FRENCH",
-  "ENGLISH",
-];
-
-const LANGUAGE_FLAG: Record<SupportedLanguage, ComponentType<SVGProps<SVGSVGElement>>> = {
-  ARABIC: ArabicFlag,
-  DARIJA: DarijaFlag,
-  FRENCH: FrenchFlag,
-  ENGLISH: EnglishFlag,
-};
-
-const LANGUAGE_LABEL: Record<SupportedLanguage, string> = {
-  ARABIC: "Arabic",
-  DARIJA: "Darija",
-  FRENCH: "French",
-  ENGLISH: "English",
-};
-
-function humanizeEnum(value: string) {
-  return value
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-}
+  AgentCardMetaFooter,
+  CARD_AVATAR_SIZE,
+  humanizeEnum,
+} from "@/components/dashboard/agent-card-shared";
 
 export type AgentCardData = {
   id: string;
@@ -205,19 +168,8 @@ export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
 
   const displayTone = humanizeEnum(agent.tone);
 
-  const enabledChannels = getEnabledAgentChannelTypes(agent.channels)
-    .map((channel) => CHANNEL_META.find((m) => m.value === channel))
-    .filter((m): m is NonNullable<typeof m> => m !== undefined);
-
-  const selectedLanguages = new Set(
-    agent.languages.map((entry) => entry.language),
-  );
-  const orderedLanguages = LANGUAGE_ORDER.filter((lang) =>
-    selectedLanguages.has(lang),
-  );
-
-  const hasChannels = enabledChannels.length > 0;
-  const hasLanguages = orderedLanguages.length > 0;
+  const enabledChannelTypes = getEnabledAgentChannelTypes(agent.channels);
+  const agentLanguages = agent.languages.map((entry) => entry.language);
 
   return (
     <div
@@ -240,64 +192,10 @@ export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
         <AgentActionsMenu agent={agent} />
       </div>
 
-      {hasChannels || hasLanguages ? (
-        <div className="mt-3 flex items-center justify-between border-t border-hairline-soft pt-3">
-          {hasChannels ? (
-            <div className="flex items-center gap-1.5">
-              {enabledChannels.map((channel) => (
-                <Tooltip key={channel.value}>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="group/icon flex h-7 w-7 items-center justify-center rounded-full border border-hairline bg-surface-card transition-transform hover:scale-105"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Image
-                        src={channel.iconSrc}
-                        alt={channel.label}
-                        width={14}
-                        height={14}
-                        className="rounded-[2px] grayscale opacity-50 transition-all duration-200 group-hover/icon:grayscale-0 group-hover/icon:opacity-100"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">{channel.label}</TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          ) : (
-            <span className="text-caption text-muted">No channels</span>
-          )}
-
-          {hasLanguages ? (
-            <div className="ml-auto flex items-center gap-1.5">
-              {orderedLanguages.map((lang) => {
-                const Flag = LANGUAGE_FLAG[lang];
-                const label = LANGUAGE_LABEL[lang];
-                return (
-                  <Tooltip key={lang}>
-                    <TooltipTrigger asChild>
-                      <div
-                        className="group/icon flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-hairline bg-surface-card transition-transform hover:scale-105"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Flag
-                          className="h-4 w-4 grayscale opacity-50 transition-all duration-200 group-hover/icon:grayscale-0 group-hover/icon:opacity-100"
-                          aria-hidden
-                        />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">{label}</TooltipContent>
-                  </Tooltip>
-                );
-              })}
-            </div>
-          ) : null}
-        </div>
-      ) : (
-        <p className="mt-3 border-t border-hairline-soft pt-3 text-caption text-muted">
-          No channels
-        </p>
-      )}
+      <AgentCardMetaFooter
+        channelTypes={enabledChannelTypes}
+        languages={agentLanguages}
+      />
     </div>
   );
 }

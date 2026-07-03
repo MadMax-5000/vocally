@@ -14,7 +14,7 @@ import { OnboardingShell } from "@/components/onboarding/OnboardingShell";
 import { useClickSound } from "@/lib/hooks/useClickSound";
 
 import {
-  initialWizardState,
+  getInitialWizardState,
   ONBOARDING_STEP_ORDER,
   type OnboardingStep,
   type WizardFormState,
@@ -51,10 +51,20 @@ function goToStep(step: OnboardingStep): WizardAction {
 
 type KnowledgeDocRow = { id: string; title: string };
 
-export function NewAgentWizard({ knowledgeDocs }: { knowledgeDocs: KnowledgeDocRow[] }) {
+export function NewAgentWizard({
+  knowledgeDocs,
+  templateId = null,
+}: {
+  knowledgeDocs: KnowledgeDocRow[];
+  templateId?: string | null;
+}) {
   const router = useRouter();
   const play = useClickSound();
-  const [state, dispatch] = useReducer(wizardReducer, initialWizardState);
+  const [state, dispatch] = useReducer(
+    wizardReducer,
+    templateId,
+    (id) => getInitialWizardState(id),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -107,6 +117,15 @@ export function NewAgentWizard({ knowledgeDocs }: { knowledgeDocs: KnowledgeDocR
       website: state.website.trim() || undefined,
       description: state.description.trim(),
       handoffEnabled: state.handoffEnabled,
+      ...(state.agentType ? { agentType: state.agentType } : {}),
+      ...(state.channels.length > 0 ? { channels: state.channels } : {}),
+      ...(state.defaultLanguage ? { defaultLanguage: state.defaultLanguage } : {}),
+      ...(state.instructions.trim()
+        ? { instructions: state.instructions.trim() }
+        : {}),
+      ...(state.welcomeMessage.trim()
+        ? { welcomeMessage: state.welcomeMessage.trim() }
+        : {}),
     };
   }, [state]);
 

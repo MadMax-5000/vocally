@@ -4,6 +4,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import {
   AgentChannelType,
   AgentTone,
+  AgentType,
   AgentVisibility,
   CreativityLevel,
   LlmProvider,
@@ -120,6 +121,11 @@ const createAgentFromOnboardingSchema = z
       .min(1, "Main goal is required")
       .max(500, "Main goal is too long"),
     handoffEnabled: z.boolean(),
+    agentType: z.nativeEnum(AgentType).optional(),
+    channels: z.array(z.nativeEnum(AgentChannelType)).optional(),
+    defaultLanguage: z.nativeEnum(SupportedLanguage).optional(),
+    instructions: z.string().max(20000).optional(),
+    welcomeMessage: z.string().max(4000).optional(),
   })
   .superRefine((data, ctx) => {
     const site = data.website?.trim();
@@ -163,18 +169,24 @@ export async function createAIAgentFromOnboarding(
 
     const validated = createAgentFromOnboardingSchema.parse(input);
     const websiteUrl = websiteToDb(validated.website);
+    const defaultLanguage =
+      validated.defaultLanguage ?? validated.languages[0] ?? SupportedLanguage.ENGLISH;
 
     const agent = await prisma.$transaction(async (tx) => {
       const created = await tx.agent.create({
         data: {
           orgId: dbOrgId,
           name: validated.name,
+          agentType: validated.agentType,
           tone: validated.tone,
           customTone: validated.customTone?.trim() || null,
           creativity: validated.creativity,
           description: validated.description,
+          instructions: validated.instructions?.trim() || null,
+          welcomeMessage: validated.welcomeMessage?.trim() || null,
           websiteUrl,
           handoffEnabled: validated.handoffEnabled,
+          defaultLanguage,
           widgetToken: crypto.randomUUID(),
           apiToken: crypto.randomUUID(),
         },
@@ -186,6 +198,16 @@ export async function createAIAgentFromOnboarding(
           language,
         })),
       });
+
+      if (validated.channels && validated.channels.length > 0) {
+        await tx.agentChannel.createMany({
+          data: validated.channels.map((channel) => ({
+            agentId: created.id,
+            channel,
+            enabled: true,
+          })),
+        });
+      }
 
       if (validated.knowledgeDocIds && validated.knowledgeDocIds.length > 0) {
         const docs = await tx.knowledgeDoc.findMany({
