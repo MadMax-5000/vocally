@@ -1,0 +1,23 @@
+name: Blue/Green Deploy
+on:
+  push:
+    branches: [main]
+concurrency:
+  group: production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 72.62.235.65
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            echo "=== Blue/Green deploy started: $(date) ==="
+            bash /var/www/deploy/blue-green.sh
+            echo "=== Deploy finished: $(date) ==="
