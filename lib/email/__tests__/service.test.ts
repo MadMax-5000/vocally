@@ -55,7 +55,7 @@ const mockEmailMapping = (overrides: Record<string, unknown> = {}) =>
     id: "ea-1",
     orgId: "org-1",
     agentId: "agent-1",
-    email: "support@test.vocally.app",
+    email: "support@test.anselio.com",
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -73,7 +73,7 @@ describe("Email Service", () => {
 
     const { emailService } = await import("../service");
 
-    const result = await emailService.resolveOrganization("support@test.vocally.app");
+    const result = await emailService.resolveOrganization("support@test.anselio.com");
     expect(result).toBeNull();
   });
 
@@ -82,7 +82,7 @@ describe("Email Service", () => {
 
     const { emailService } = await import("../service");
 
-    const result = await emailService.resolveOrganization("support@test.vocally.app");
+    const result = await emailService.resolveOrganization("support@test.anselio.com");
     expect(result).toEqual({
       sessionId: "",
       orgId: "org-1",
@@ -96,7 +96,7 @@ describe("Email Service", () => {
 
     const { emailService } = await import("../service");
 
-    const result = await emailService.resolveOrganization("support@test.vocally.app");
+    const result = await emailService.resolveOrganization("support@test.anselio.com");
     expect(result).toBeNull();
   });
 
@@ -158,12 +158,12 @@ describe("Email Service", () => {
     await emailService.handleInboundEmail({
       subject: "Order status",
       from: "customer@example.com",
-      to: ["support@test.vocally.app"],
+      to: ["support@test.anselio.com"],
       text: "Where is my order?",
     });
 
     expect(prisma.emailAddress.findUnique).toHaveBeenCalledWith({
-      where: { email: "support@test.vocally.app" },
+      where: { email: "support@test.anselio.com" },
       include: { org: { select: { id: true } } },
     });
     expect(prisma.session.create).toHaveBeenCalled();
@@ -176,7 +176,7 @@ describe("Email Service", () => {
       channel: "EMAIL",
     });
     expect(sendEmail).toHaveBeenCalledWith({
-      from: "support@test.vocally.app",
+      from: "support@test.anselio.com",
       to: "customer@example.com",
       subject: "Re: Order status",
       body: "Thanks for your message! Let me check your order status.",

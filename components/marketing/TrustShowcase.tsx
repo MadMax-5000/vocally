@@ -15,32 +15,16 @@ function WebWidgetMark() {
   );
 }
 
-function SlackMark() {
+function InstagramMark() {
   return (
-    <svg
-  viewBox="0 0 2447.6 2452.5"
-  className="w-5 h-5"
-  >
-  <g clipRule="evenodd" fillRule="evenodd">
-    <path
-      d="m897.4 0c-135.3.1-244.8 109.9-244.7 245.2-.1 135.3 109.5 245.1 244.8 245.2h244.8v-245.1c.1-135.3-109.5-245.1-244.9-245.3.1 0 .1 0 0 0m0 654h-652.6c-135.3.1-244.9 109.9-244.8 245.2-.2 135.3 109.4 245.1 244.7 245.3h652.7c135.3-.1 244.9-109.9 244.8-245.2.1-135.4-109.5-245.2-244.8-245.3z"
-      fill="#36c5f0"
+    <Image
+      src="/svg/instagram-icon.svg"
+      alt=""
+      width={20}
+      height={20}
+      className="h-5 w-5 object-contain"
+      aria-hidden
     />
-    <path
-      d="m2447.6 899.2c.1-135.3-109.5-245.1-244.8-245.2-135.3.1-244.9 109.9-244.8 245.2v245.3h244.8c135.3-.1 244.9-109.9 244.8-245.3zm-652.7 0v-654c.1-135.2-109.4-245-244.7-245.2-135.3.1-244.9 109.9-244.8 245.2v654c-.2 135.3 109.4 245.1 244.7 245.3 135.3-.1 244.9-109.9 244.8-245.3z"
-      fill="#2eb67d"
-    />
-    <path
-      d="m1550.1 2452.5c135.3-.1 244.9-109.9 244.8-245.2.1-135.3-109.5-245.1-244.8-245.2h-244.8v245.2c-.1 135.2 109.5 245 244.8 245.2zm0-654.1h652.7c135.3-.1 244.9-109.9 244.8-245.2.2-135.3-109.4-245.1-244.7-245.3h-652.7c-135.3.1-244.9 109.9-244.8 245.2-.1 135.4 109.4 245.2 244.7 245.3z"
-      fill="#ecb22e"
-    />
-    <path
-      d="m0 1553.2c-.1 135.3 109.5 245.1 244.8 245.2 135.3-.1 244.9-109.9 244.8-245.2v-245.2h-244.8c-135.3.1-244.9 109.9-244.8 245.2zm652.7 0v654c-.2 135.3 109.4 245.1 244.7 245.3 135.3-.1 244.9-109.9 244.8-245.2v-653.9c.2-135.3-109.4-245.1-244.7-245.3-135.4 0-244.9 109.8-244.8 245.1 0 0 0 .1 0 0"
-      fill="#e01e5a"
-    />
-  </g>
-</svg>
-
   );
 }
 
@@ -50,9 +34,16 @@ function WhatsAppMark() {
   );
 }
 
-function MessengerMark() {
+function PhoneMark() {
   return (
-    <svg className="w-5 h-5" viewBox="0 0 256 256" width="256" height="256" preserveAspectRatio="xMidYMid"><defs><radialGradient id="a" cx="19.247%" cy="99.465%" r="108.96%" fx="19.247%" fy="99.465%"><stop offset="0%" stopColor="#09F"/><stop offset="60.975%" stopColor="#A033FF"/><stop offset="93.482%" stopColor="#FF5280"/><stop offset="100%" stopColor="#FF7061"/></radialGradient></defs><path fill="url(#a)" d="M128 0C55.894 0 0 52.818 0 124.16c0 37.317 15.293 69.562 40.2 91.835 2.09 1.871 3.352 4.493 3.438 7.298l.697 22.77c.223 7.262 7.724 11.988 14.37 9.054L84.111 243.9a10.218 10.218 0 0 1 6.837-.501c11.675 3.21 24.1 4.92 37.052 4.92 72.106 0 128-52.818 128-124.16S200.106 0 128 0Z"/><path fill="#FFF" d="m51.137 160.47 37.6-59.653c5.98-9.49 18.788-11.853 27.762-5.123l29.905 22.43a7.68 7.68 0 0 0 9.252-.027l40.388-30.652c5.39-4.091 12.428 2.36 8.82 8.085l-37.6 59.654c-5.981 9.489-18.79 11.852-27.763 5.122l-29.906-22.43a7.68 7.68 0 0 0-9.25.027l-40.39 30.652c-5.39 4.09-12.427-2.36-8.818-8.085Z"/></svg>
+    <Image
+      src="/svg/call.svg"
+      alt=""
+      width={20}
+      height={20}
+      className="h-5 w-5 object-contain"
+      aria-hidden
+    />
   );
 }
 
@@ -87,9 +78,9 @@ function StatusPill({ icon, label }: StatusPillProps) {
 function OmnichannelOverlay() {
   const channels = [
     { mark: <WebWidgetMark />, name: "Web widget" },
-    { mark: <SlackMark />,     name: "Slack"      },
+    { mark: <InstagramMark />, name: "Instagram" },
     { mark: <WhatsAppMark />,  name: "WhatsApp"   },
-    { mark: <MessengerMark />, name: "Messenger"  },
+    { mark: <PhoneMark />,     name: "Phone"      },
   ];
 
   return (

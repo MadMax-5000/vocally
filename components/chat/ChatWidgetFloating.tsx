@@ -111,7 +111,7 @@ export function ChatWidgetFloating({
 
     window.parent.postMessage(
       {
-        type: "vocally-widget-resize",
+        type: "anselio-widget-resize",
         width: `${width}px`,
         height: `${height}px`,
       },

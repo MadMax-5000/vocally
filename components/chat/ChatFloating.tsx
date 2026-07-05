@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
-import { VocallyLogo } from "@/components/brand/VocallyLogo";
+import { AnselioLogo } from "@/components/brand/AnselioLogo";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
@@ -272,7 +272,7 @@ export function ChatFloating({
             <path d="M4 4l8 8M12 4l-8 8" />
           </svg>
         ) : (
-          <VocallyLogo variant="white" size="md" className="size-7" />
+          <AnselioLogo variant="white" size="md" className="size-7" />
         )}
       </button>
     </div>

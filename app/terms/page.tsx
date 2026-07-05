@@ -1,4 +1,5 @@
 import { LegalPageHeader } from "@/components/marketing/LegalPageHeader";
+import { BRAND_EMAILS } from "@/lib/constants/brand";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -13,13 +14,13 @@ export default function TermsPage() {
 
         <div className="mt-8 max-w-[70ch] space-y-6 text-body-md leading-relaxed text-body text-pretty">
           <p>
-            <strong className="text-ink">Effective date:</strong> By accessing or using Vocally (&quot;the Platform&quot;), you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.
+            <strong className="text-ink">Effective date:</strong> By accessing or using Anselio (&quot;the Platform&quot;), you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.
           </p>
 
           <section className="space-y-3">
             <h2 className="text-display-xs font-display tracking-tight text-ink">1. Service Description</h2>
             <p>
-              Vocally is an AI-powered Contact Center as a Service (CCaaS) platform that provides AI agents capable of handling customer interactions across voice, chat, email, SMS, WhatsApp, Messenger, and Instagram channels. Our platform is designed to deliver premium customer experiences by automating up to 80% of routine customer support inquiries, allowing you to focus on what matters most to your business.
+              Anselio is an AI-powered Contact Center as a Service (CCaaS) platform that provides AI agents capable of handling customer interactions across voice, chat, email, SMS, WhatsApp, Messenger, and Instagram channels. Our platform is designed to deliver premium customer experiences by automating up to 80% of routine customer support inquiries, allowing you to focus on what matters most to your business.
             </p>
           </section>
 
@@ -37,7 +38,7 @@ export default function TermsPage() {
               <li>Use the Platform for any illegal activity or in violation of any applicable laws, including Morocco Law 09-08 on data protection</li>
               <li>Abuse, harass, or misuse our AI agents in any way</li>
               <li>Attempt to reverse engineer, decompile, or extract the source code of the Platform</li>
-              <li>Resell or sublicense access to the Platform without a written agreement with Vocally</li>
+              <li>Resell or sublicense access to the Platform without a written agreement with Anselio</li>
               <li>Use the Platform to process sensitive information (credit card numbers, PINs, passwords) through voice channels — such information must be collected via DTMF keypad input only</li>
               <li>Interfere with the proper functioning of the Platform</li>
             </ul>
@@ -73,14 +74,14 @@ export default function TermsPage() {
           <section className="space-y-3">
             <h2 className="text-display-xs font-display tracking-tight text-ink">7. Intellectual Property</h2>
             <p>
-              The Vocally platform, including its software, design, branding, and AI models, is the intellectual property of Vocally. You retain all rights to your customer data, business information, and any content you upload to the Platform. You grant us a limited license to process your data as necessary to provide the service.
+              The Anselio platform, including its software, design, branding, and AI models, is the intellectual property of Anselio. You retain all rights to your customer data, business information, and any content you upload to the Platform. You grant us a limited license to process your data as necessary to provide the service.
             </p>
           </section>
 
           <section className="space-y-3">
             <h2 className="text-display-xs font-display tracking-tight text-ink">8. Limitation of Liability</h2>
             <p>
-              To the maximum extent permitted by applicable law, Vocally shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform. Our total liability for any claim shall not exceed the amount you have paid us in the twelve months preceding the claim.
+              To the maximum extent permitted by applicable law, Anselio shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform. Our total liability for any claim shall not exceed the amount you have paid us in the twelve months preceding the claim.
             </p>
           </section>
 
@@ -102,8 +103,8 @@ export default function TermsPage() {
             <h2 className="text-display-xs font-display tracking-tight text-ink">11. Contact</h2>
             <p>
               For questions about these Terms, contact us at:<br />
-              Email: legal@vocally.app<br />
-              Address: Vocally HQ, Morocco
+              Email: {BRAND_EMAILS.legal}<br />
+              Address: Anselio HQ, Morocco
             </p>
           </section>
 

@@ -1,4 +1,5 @@
 import { LegalPageHeader } from "@/components/marketing/LegalPageHeader";
+import { BRAND_EMAILS } from "@/lib/constants/brand";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -13,7 +14,7 @@ export default function PrivacyPage() {
 
         <div className="mt-8 max-w-[70ch] space-y-6 text-body-md leading-relaxed text-body text-pretty">
           <p>
-            <strong className="text-ink">Effective date:</strong> This Privacy Notice describes how Vocally (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) collects, uses, and protects your personal information when you use our AI-powered customer experience platform.
+            <strong className="text-ink">Effective date:</strong> This Privacy Notice describes how Anselio (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) collects, uses, and protects your personal information when you use our AI-powered customer experience platform.
           </p>
 
           <section className="space-y-3">
@@ -111,8 +112,8 @@ export default function PrivacyPage() {
             <h2 className="text-display-xs font-display tracking-tight text-ink">10. Contact</h2>
             <p>
               For privacy-related inquiries, please contact us at:<br />
-              Email: privacy@vocally.app<br />
-              Address: Vocally HQ, Morocco
+              Email: {BRAND_EMAILS.privacy}<br />
+              Address: Anselio HQ, Morocco
             </p>
           </section>
 

@@ -53,7 +53,7 @@ export function BentoShowcase() {
         <div className="grid gap-8 md:grid-cols-12">
           <div className="md:col-span-7">
             <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
-              Vocally Agents
+              Anselio Agents
             </div>
             <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
               Deploy AI agents that deliver premium customer<br className="hidden md:block" /> experiences across every channel

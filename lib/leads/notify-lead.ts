@@ -57,3 +57,28 @@ export function formatCustomFormEmailLines(input: {
   }
   return lines;
 }
+
+export function formatAppointmentEmailLines(input: {
+  agentName: string;
+  customerName: string;
+  customerEmail: string | null;
+  department: string;
+  date: string;
+  time: string;
+  notes: string | null;
+}): string[] {
+  const lines = [
+    `A new appointment was booked for agent "${input.agentName}".`,
+    `Customer: ${input.customerName}`,
+    `Department: ${input.department}`,
+    `Date: ${input.date}`,
+    `Time: ${input.time}`,
+  ];
+  if (input.customerEmail?.trim()) {
+    lines.push(`Email: ${input.customerEmail.trim()}`);
+  }
+  if (input.notes?.trim()) {
+    lines.push(`Notes: ${input.notes.trim()}`);
+  }
+  return lines;
+}

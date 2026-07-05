@@ -1,3 +1,4 @@
+import { BRAND_EMAILS } from "@/lib/constants/brand";
 import { Resend } from "resend";
 
 let resendClient: Resend | null = null;
@@ -18,7 +19,7 @@ export async function sendEmail(params: {
   from?: string;
 }): Promise<{ messageId: string }> {
   const client = getResendClient();
-  const from = params.from ?? process.env.RESEND_FROM_EMAIL ?? "noreply@vocally.app";
+  const from = params.from ?? process.env.RESEND_FROM_EMAIL ?? BRAND_EMAILS.noreply;
 
   const { data, error } = await client.emails.send({
     from,

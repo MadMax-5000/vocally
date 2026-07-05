@@ -1,4 +1,9 @@
 import type { ToolContext } from "./types";
+import {
+  formatAppointmentEmailLines,
+  notifyLeadCaptured,
+} from "@/lib/leads/notify-lead";
+import { isDepartmentAllowed } from "@/lib/deploy/book-appointment-action";
 
 function getMockOrder(orderId: string): string {
   const mockOrders: Record<string, unknown> = {
@@ -89,30 +94,88 @@ export async function handleBookAppointment(
   args: Record<string, unknown>,
   ctx: ToolContext,
 ): Promise<string> {
+  const action = ctx.bookAppointment;
+  if (!action?.enabled) {
+    return JSON.stringify({
+      error: "Appointment booking is not enabled for this agent.",
+    });
+  }
+
+  const department = String(args.department ?? "").trim();
+  if (!department) {
+    return JSON.stringify({ error: "Department is required." });
+  }
+  if (!isDepartmentAllowed(action, department)) {
+    return JSON.stringify({
+      error: `Department "${department}" is not available. Allowed: ${action.departments.join(", ")}.`,
+    });
+  }
+
+  const customerName = String(args.customerName ?? "").trim();
+  if (!customerName) {
+    return JSON.stringify({ error: "Customer name is required." });
+  }
+
+  const dateStr = String(args.date ?? "").trim();
+  const timeStr = String(args.time ?? "").trim();
+  if (!dateStr || !timeStr) {
+    return JSON.stringify({ error: "Date and time are required." });
+  }
+
+  const parsedDate = new Date(dateStr);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return JSON.stringify({ error: "Invalid date format. Use YYYY-MM-DD." });
+  }
+
   const { prisma } = await import("@/lib/db/prisma");
 
   const appointment = await prisma.appointment.create({
     data: {
       orgId: ctx.orgId,
       sessionId: ctx.sessionId,
-      customerName: String(args.customerName ?? ""),
-      customerEmail: args.customerEmail ? String(args.customerEmail) : null,
-      department: String(args.department ?? "general"),
-      date: new Date(String(args.date ?? "")),
-      time: String(args.time ?? ""),
-      notes: args.notes ? String(args.notes) : null,
+      customerName,
+      customerEmail: args.customerEmail ? String(args.customerEmail).trim() : null,
+      department: department.toLowerCase(),
+      date: parsedDate,
+      time: timeStr,
+      notes: args.notes ? String(args.notes).trim() : null,
     },
   });
+
+  if (action.notifyEmail) {
+    let agentName = "Agent";
+    if (ctx.agentId) {
+      const agent = await prisma.agent.findFirst({
+        where: { id: ctx.agentId, orgId: ctx.orgId },
+        select: { name: true },
+      });
+      if (agent?.name) agentName = agent.name;
+    }
+
+    await notifyLeadCaptured({
+      notifyEmail: action.notifyEmail,
+      subject: `New appointment booked — ${customerName}`,
+      lines: formatAppointmentEmailLines({
+        agentName,
+        customerName: appointment.customerName,
+        customerEmail: appointment.customerEmail,
+        department: appointment.department,
+        date: dateStr,
+        time: appointment.time,
+        notes: appointment.notes,
+      }),
+    });
+  }
 
   return JSON.stringify({
     success: true,
     appointmentId: appointment.id,
     customerName: appointment.customerName,
-    date: args.date,
-    time: args.time,
-    department: args.department,
+    date: dateStr,
+    time: timeStr,
+    department: appointment.department,
     status: "confirmed",
-    message: `Appointment confirmed for ${args.date} at ${args.time} with ${args.department}.`,
+    message: `Appointment confirmed for ${dateStr} at ${timeStr} with ${appointment.department}.`,
   });
 }
 

@@ -255,9 +255,9 @@ export async function sendGmailTestEmail(agentId: string): Promise<
     const { gmail } = await getGmailClientForAgent(agentId, orgId);
     const emailConfig = getEmailChannelConfig(agent.channels);
     const to = agent.gmailConnection.googleEmail;
-    const subject = "Vocally Gmail test";
+    const subject = "Anselio Gmail test";
     const body = appendSignature(
-      "This is a test message from your Vocally agent. Gmail send is working.",
+      "This is a test message from your Anselio agent. Gmail send is working.",
       emailConfig.signature,
     );
 

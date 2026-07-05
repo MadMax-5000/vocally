@@ -1,6 +1,7 @@
+import { BRAND_URL } from "@/lib/constants/brand";
 import { z } from "zod";
 
-const FALLBACK_ORIGIN = "https://app.vocally.ai";
+const FALLBACK_ORIGIN = BRAND_URL;
 
 export const e164PhoneSchema = z
   .string()

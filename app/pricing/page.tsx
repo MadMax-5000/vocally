@@ -1,3 +1,4 @@
+import { BRAND_EMAILS } from "@/lib/constants/brand";
 import Link from "next/link";
 import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, ArrowUpRightIcon } from "@/lib/icons/app-icons"
@@ -176,7 +177,7 @@ export default async function PricingPage() {
             </div>
           </div>
           <Link
-            href="mailto:sales@vocally.ma"
+            href={`mailto:${BRAND_EMAILS.sales}`}
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
           >
             Contact sales

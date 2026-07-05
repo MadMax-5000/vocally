@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND_NAME } from "@/lib/constants/brand";
 import { cn } from "@/lib/utils";
 
 const LOGO_SOURCES = {
@@ -26,30 +27,30 @@ const SIZE_CLASS = {
   lg: "size-10",
 } as const;
 
-export type VocallyLogoVariant = keyof typeof LOGO_SOURCES;
-export type VocallyLogoSize = keyof typeof SIZE_CLASS;
+export type AnselioLogoVariant = keyof typeof LOGO_SOURCES;
+export type AnselioLogoSize = keyof typeof SIZE_CLASS;
 
-type VocallyLogoProps = {
-  variant?: VocallyLogoVariant;
-  size?: VocallyLogoSize;
+type AnselioLogoProps = {
+  variant?: AnselioLogoVariant;
+  size?: AnselioLogoSize;
   href?: string;
   className?: string;
   priority?: boolean;
 };
 
-export function VocallyLogo({
+export function AnselioLogo({
   variant = "black",
   size = "md",
   href,
   className,
   priority = false,
-}: VocallyLogoProps) {
+}: AnselioLogoProps) {
   const asset = LOGO_SOURCES[variant];
 
   const image = (
     <Image
       src={asset.src}
-      alt="Vocally"
+      alt={BRAND_NAME}
       width={asset.width}
       height={asset.height}
       priority={priority}
@@ -65,7 +66,7 @@ export function VocallyLogo({
     <Link
       href={href}
       className="inline-flex shrink-0 items-center rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-      aria-label="Vocally"
+      aria-label={BRAND_NAME}
     >
       {image}
     </Link>

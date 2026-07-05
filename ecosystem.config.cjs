@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "vocally-blue",
+      name: "anselio-blue",
       script: "server/index.ts",
       interpreter: "tsx",
       cwd: "/var/www/blue",
@@ -10,7 +10,7 @@ module.exports = {
       stop_exit_codes: [0],
     },
     {
-      name: "vocally-green",
+      name: "anselio-green",
       script: "server/index.ts",
       interpreter: "tsx",
       cwd: "/var/www/green",

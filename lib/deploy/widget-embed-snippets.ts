@@ -9,7 +9,7 @@ export function buildWidgetIframeSnippet(embedUrl: string, title: string): strin
 }
 
 export function buildWidgetFloatingSnippet(embedUrl: string, title: string): string {
-  return `<div id="vocally-widget"></div>
+  return `<div id="anselio-widget"></div>
 <script>
   (function() {
     var iframe = document.createElement('iframe');
@@ -17,9 +17,9 @@ export function buildWidgetFloatingSnippet(embedUrl: string, title: string): str
     iframe.style.cssText = 'position:fixed;bottom:24px;right:24px;width:80px;height:80px;border:none;background:transparent;z-index:2147483647;overflow:hidden';
     iframe.title = "Chat with ${title}";
     iframe.setAttribute('allow', 'microphone');
-    document.getElementById('vocally-widget').appendChild(iframe);
+    document.getElementById('anselio-widget').appendChild(iframe);
     window.addEventListener('message', function(e) {
-      if (!e.data || e.data.type !== 'vocally-widget-resize') return;
+      if (!e.data || e.data.type !== 'anselio-widget-resize') return;
       iframe.style.width = e.data.width;
       iframe.style.height = e.data.height;
     });

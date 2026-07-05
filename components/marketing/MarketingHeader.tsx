@@ -1,4 +1,4 @@
-import { VocallyLogo } from "@/components/brand/VocallyLogo";
+import { AnselioLogo } from "@/components/brand/AnselioLogo";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -18,7 +18,7 @@ export function MarketingHeader({ children, sticky = false }: MarketingHeaderPro
         .join(" ")}
     >
       <div className={[container, "flex h-16 items-center justify-between"].join(" ")}>
-        <VocallyLogo variant="black" size="md" href="/" priority />
+        <AnselioLogo variant="black" size="md" href="/" priority />
         {children}
       </div>
     </header>

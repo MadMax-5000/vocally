@@ -21,7 +21,7 @@ export const PLAN_META: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", PlanMe
   FREE: {
     key: "free",
     name: "Free",
-    description: "Try Vocally with 50 minutes of AI call handling — no credit card required.",
+    description: "Try Anselio with 50 minutes of AI call handling — no credit card required.",
     blurb: "Get started with a 14-day free trial.",
     features: [
       { text: "1 AI agent", included: true },

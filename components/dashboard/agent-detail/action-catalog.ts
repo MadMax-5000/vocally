@@ -39,6 +39,7 @@ export const IMPLEMENTED_ACTION_IDS = [
   "custom-form",
   "collect-leads",
   "escalations",
+  "book-appointment",
 ] as const;
 
 export type ImplementedActionId = (typeof IMPLEMENTED_ACTION_IDS)[number];
@@ -172,6 +173,15 @@ export const ACTION_CATALOG: ActionCatalogEntry[] = [
     pills: ["Retrieve and book slots"],
     type: "scheduling",
     icon: "cal",
+  },
+  {
+    id: "book-appointment",
+    title: "Book appointment",
+    description:
+      "Let customers schedule appointments stored in Anselio — no external calendar required",
+    pills: ["Book appointment"],
+    type: "scheduling",
+    icon: "calendar",
   },
   {
     id: "calendly",

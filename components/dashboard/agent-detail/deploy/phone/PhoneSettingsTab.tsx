@@ -216,7 +216,7 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
         <h2 className="text-title-sm font-medium text-ink">Human handoff</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          When a call escalates, Vocally transfers the caller to this number.
+          When a call escalates, Anselio transfers the caller to this number.
         </p>
 
         <div className="mt-2 divide-y divide-hairline">

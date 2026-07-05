@@ -1,6 +1,6 @@
 # WordPress deployment
 
-Embed your Vocally AI agent on a WordPress site using the official plugin or manual embed code.
+Embed your Anselio AI agent on a WordPress site using the official plugin or manual embed code.
 
 ## Prerequisites
 
@@ -12,25 +12,25 @@ Copy credentials from **Deploy → WordPress → Setup**:
 
 | Field | Description |
 |-------|-------------|
-| Vocally App URL | Your dashboard origin, e.g. `https://app.vocally.ai` |
+| Anselio App URL | Your dashboard origin, e.g. `https://anselio.com` |
 | Agent ID | Unique agent identifier |
 | Widget token | Required only if your agent uses a widget access token |
 
 ## Option A: Official plugin (recommended)
 
-1. Download **vocally-wordpress.zip** from Setup (or run `npm run build:wordpress-plugin`).
+1. Download **anselio-wordpress.zip** from Setup (or run `npm run build:wordpress-plugin`).
 2. In WordPress: **Plugins → Add New → Upload Plugin** → choose the zip → **Activate**.
-3. Open **Settings → Vocally** and paste App URL, Agent ID, and token (if any).
+3. Open **Settings → Anselio** and paste App URL, Agent ID, and token (if any).
 4. Choose display mode:
    - **Floating bubble** — chat appears on every front-end page (footer injection).
-   - **Shortcode only** — add `[vocally_agent]` to pages or posts where you want chat.
+   - **Shortcode only** — add `[anselio_agent]` to pages or posts where you want chat.
 5. Save and view your site (not wp-admin).
 
 ### Shortcode
 
 ```
-[vocally_agent]
-[vocally_agent height="720"]
+[anselio_agent]
+[anselio_agent height="720"]
 ```
 
 ## Option B: Manual embed (no plugin)
@@ -45,7 +45,7 @@ From **Deploy → WordPress → Embed code**:
 | Issue | Check |
 |-------|--------|
 | Widget missing on site | App URL and Agent ID filled; agent public + active; chat widget enabled |
-| Widget works locally but not production | App URL must match your live Vocally origin (`NEXT_PUBLIC_APP_URL`) |
+| Widget works locally but not production | App URL must match your live Anselio origin (`NEXT_PUBLIC_APP_URL`) |
 | 401 / blank widget | Add widget token in plugin settings if the agent requires one |
 | Only shows on some pages | Floating mode uses `wp_footer`; theme must call `wp_footer()` |
 
@@ -55,4 +55,4 @@ From **Deploy → WordPress → Embed code**:
 npm run build:wordpress-plugin
 ```
 
-Output: `public/downloads/vocally-wordpress.zip`
+Output: `public/downloads/anselio-wordpress.zip`

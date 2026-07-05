@@ -48,7 +48,7 @@ function pickBestPage(pages: MetaPageRow[]): MetaPageRow | null {
 }
 
 function createVerifyToken(): string {
-  return `vocally_${crypto.randomUUID()}`;
+  return `anselio_${crypto.randomUUID()}`;
 }
 
 export async function connectMessengerForAgent(params: {

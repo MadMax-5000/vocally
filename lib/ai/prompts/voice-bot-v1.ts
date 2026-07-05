@@ -1,6 +1,8 @@
+import { buildBookAppointmentPromptSection } from "@/lib/ai/prompts/book-appointment-prompt";
 import { buildCollectLeadsPromptSection } from "@/lib/ai/prompts/collect-leads-prompt";
 import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
 import type { ToolDefinition } from "@/lib/ai/tools/types";
+import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 
 export type VoiceBotPromptInput = {
@@ -11,6 +13,7 @@ export type VoiceBotPromptInput = {
   language: string;
   toolDefinitions?: ToolDefinition[];
   collectLeads?: ResolvedCollectLeadsAction;
+  bookAppointment?: ResolvedBookAppointmentAction;
 };
 
 export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
@@ -52,6 +55,10 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
 
   if (input.collectLeads?.enabled) {
     sections.push(buildCollectLeadsPromptSection(input.collectLeads));
+  }
+
+  if (input.bookAppointment?.enabled) {
+    sections.push(buildBookAppointmentPromptSection(input.bookAppointment));
   }
 
   sections.push(

@@ -7,6 +7,7 @@ import {
 import { getToolDefinitionsForAgent } from "@/lib/ai/tools/registry";
 import { prisma } from "@/lib/db/prisma";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
+import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { getHandoffPhoneNumber } from "@/server/websocket/escalate-call";
 
@@ -74,6 +75,7 @@ export async function handleAssistantRequest(message: {
   }
 
   const escalationConfig = resolveEscalationAction(agent.channels);
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
   const handoffActive = agent.handoffEnabled && escalationConfig.enabled;
 
   let handoffAvailable = false;
@@ -90,6 +92,8 @@ export async function handleAssistantRequest(message: {
     allowCreateTicket: escalationConfig.allowCreateTicketTool,
     includeCollectLeads: false,
     includeCustomForm: false,
+    includeBookAppointment: bookAppointmentAction.enabled,
+    bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 
   if (handoffActive && handoffAvailable) {
@@ -126,6 +130,9 @@ export async function handleAssistantRequest(message: {
     knowledgeContext: "",
     language: agent.defaultLanguage,
     toolDefinitions: tools,
+    bookAppointment: bookAppointmentAction.enabled
+      ? bookAppointmentAction
+      : undefined,
   });
 
   const detectedLanguage: string = "en";

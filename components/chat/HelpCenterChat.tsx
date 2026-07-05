@@ -10,7 +10,7 @@ import {
   chatComposerFormatDuration,
 } from "@/components/chat/ChatMessageComposer";
 import { HelpPageShell } from "@/components/chat/HelpPageShell";
-import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
+import { PoweredByAnselio } from "@/components/chat/PoweredByAnselio";
 import { useChat } from "@/hooks/useChat";
 import { useVoiceToText } from "@/hooks/useVoiceToText";
 import type { ResolvedWebChatHelpPageSettings } from "@/lib/deploy/web-chat-config";
@@ -249,7 +249,7 @@ export function HelpCenterChat({
           voice={voiceProps}
         />
         <div className="mt-2">
-          <PoweredByVocally />
+          <PoweredByAnselio />
         </div>
       </div>
     </div>

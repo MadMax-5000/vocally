@@ -106,7 +106,7 @@ export function EscalationsActionSheet({
       open={open}
       onOpenChange={onOpenChange}
       title="Escalations"
-      description="Hand conversations to your team when customers need a human. Tickets are stored in Vocally for your inbox."
+      description="Hand conversations to your team when customers need a human. Tickets are stored in Anselio for your inbox."
       pending={pending}
       isDirty={isDirty}
       onSave={handleSave}
@@ -166,7 +166,7 @@ export function EscalationsActionSheet({
           </ActionSheetField>
 
           <ActionSheetSection
-            title="Vocally tickets"
+            title="Anselio tickets"
             description="Configure automatic ticket creation in your inbox."
           >
             <ActionSheetSettingsGroup>

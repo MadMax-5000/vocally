@@ -1,17 +1,17 @@
 import { SignIn } from "@clerk/nextjs";
 
-import { VocallyLogo } from "@/components/brand/VocallyLogo";
+import { AnselioLogo } from "@/components/brand/AnselioLogo";
 
 export default function SignInPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center bg-canvas px-6">
       <div className="flex w-full max-w-md flex-col items-center">
-        <VocallyLogo variant="black" size="lg" href="/" priority />
+        <AnselioLogo variant="black" size="lg" href="/" priority />
         <h1 className="mt-6 font-display text-display-md tracking-tight text-ink">
           Welcome back
         </h1>
         <p className="mt-2 text-body-md text-body">
-          Sign in to your Vocally workspace
+          Sign in to your Anselio workspace
         </p>
         <SignIn
           appearance={{

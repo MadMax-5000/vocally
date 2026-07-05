@@ -1,4 +1,5 @@
 import type { TranscriptionResult } from "@/lib/voice/types";
+import { BRAND_NAME, BRAND_URL } from "@/lib/constants/brand";
 import { logServerError } from "@/lib/logger";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
@@ -71,8 +72,8 @@ export async function transcribeAudio(
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://vocally.app",
-      "X-Title": "Vocally",
+      "HTTP-Referer": BRAND_URL,
+      "X-Title": BRAND_NAME,
     },
     body: JSON.stringify(body),
   });

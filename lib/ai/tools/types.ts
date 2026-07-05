@@ -39,6 +39,7 @@ export type ToolHandler = (
 
 import type { Channel } from "@prisma/client";
 
+import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import type { ResolvedCustomFormAction } from "@/lib/deploy/custom-form-action";
 
@@ -49,4 +50,5 @@ export type ToolContext = {
   channel?: Channel;
   collectLeads?: ResolvedCollectLeadsAction;
   customForm?: ResolvedCustomFormAction;
+  bookAppointment?: ResolvedBookAppointmentAction;
 };

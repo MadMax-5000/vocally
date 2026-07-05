@@ -13,7 +13,7 @@ const STEPS = [
           download
           className="font-medium text-primary hover:underline"
         >
-          vocally-wordpress.zip
+          anselio-wordpress.zip
         </a>{" "}
         from the Setup tab.
       </>
@@ -32,11 +32,11 @@ const STEPS = [
     title: "Configure credentials",
     body: (
       <>
-        Open <strong>Settings → Vocally</strong>. Paste your Vocally App URL, Agent ID, and
+        Open <strong>Settings → Anselio</strong>. Paste your Anselio App URL, Agent ID, and
         widget token (if shown on Setup). Choose <strong>Floating</strong> for a site-wide
         bubble or <strong>Shortcode only</strong> to place chat with{" "}
         <code className="rounded bg-surface-strong px-1 py-0.5 font-mono text-caption">
-          [vocally_agent]
+          [anselio_agent]
         </code>
         .
       </>
@@ -53,7 +53,7 @@ export function WordPressInstallTab() {
     <div className="space-y-6">
       <div>
         <p className="text-body-sm text-muted">
-          Follow these steps to connect WordPress using the official Vocally plugin. For manual
+          Follow these steps to connect WordPress using the official Anselio plugin. For manual
           embed without the plugin, use the Embed code tab.
         </p>
       </div>
@@ -89,7 +89,7 @@ export function WordPressInstallTab() {
         </p>
         <p className="mt-2 text-caption text-muted">
           See <code className="rounded bg-surface-strong px-1 py-0.5 font-mono text-caption">docs/wordpress-deploy.md</code>{" "}
-          in the Vocally repository for troubleshooting.
+          in the Anselio repository for troubleshooting.
         </p>
       </div>
     </div>

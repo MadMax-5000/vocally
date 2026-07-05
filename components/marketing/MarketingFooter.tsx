@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { BRAND_LEGAL_NAME } from "@/lib/constants/brand";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -91,7 +92,7 @@ export function MarketingFooter() {
             className="select-none font-display font-normal leading-[0.75] tracking-[-0.04em] text-ink w-full text-center"
             style={{ fontSize: "clamp(60px, 18.5vw, 290px)" }}
           >
-            vocally
+            anselio
           </div>
         </div>
       </div>
@@ -99,7 +100,7 @@ export function MarketingFooter() {
       <div className="border-t border-hairline">
         <div className={[container, "flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between"].join(" ")}>
           <div className="text-body-sm text-muted">
-            © {new Date().getFullYear()} Vocally, Inc.
+            © {new Date().getFullYear()} {BRAND_LEGAL_NAME}
           </div>
 
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm text-muted">

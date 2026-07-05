@@ -1,5 +1,6 @@
 "use server";
 
+import { BRAND_URL } from "@/lib/constants/brand";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { getTwilioVoiceNumber } from "@/lib/twilio/env";
@@ -12,7 +13,7 @@ export type AgentPhoneSettings = {
   }>;
   /** The customer's own phone number that forwards to this Twilio number */
   customerNumber?: string | null;
-  /** The Vocally forwarding number */
+  /** The Anselio forwarding number */
   forwardingNumber?: string;
 };
 
@@ -72,7 +73,7 @@ export async function importTwilioNumberToVapi(agentId: string, number: string):
   }
 
   try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.vocally.ma";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || BRAND_URL;
     const response = await fetch("https://api.vapi.ai/phone-number", {
       method: "POST",
       headers: {

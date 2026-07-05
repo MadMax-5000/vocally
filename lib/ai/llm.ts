@@ -1,4 +1,5 @@
 import type { ToolCall, ToolDefinition } from "@/lib/ai/tools/types";
+import { BRAND_NAME, BRAND_URL } from "@/lib/constants/brand";
 
 export type LLMMessage = {
   role: "system" | "user" | "assistant" | "tool";
@@ -68,8 +69,8 @@ export async function callLLM(options: CallLLMOptions): Promise<CallLLMResult> {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://vocally.app",
-      "X-Title": "Vocally",
+      "HTTP-Referer": BRAND_URL,
+      "X-Title": BRAND_NAME,
     },
     body: JSON.stringify(body),
   });

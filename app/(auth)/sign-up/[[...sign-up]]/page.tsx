@@ -1,16 +1,16 @@
 import { SignUp } from "@clerk/nextjs";
 
-import { VocallyLogo } from "@/components/brand/VocallyLogo";
+import { AnselioLogo } from "@/components/brand/AnselioLogo";
 
 export default function SignUpPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6">
-      <VocallyLogo variant="black" size="lg" href="/" priority />
+      <AnselioLogo variant="black" size="lg" href="/" priority />
       <h1 className="mt-6 font-display text-display-md tracking-tight text-ink text-center">
         Create your workspace
       </h1>
       <p className="mt-2 text-body-md text-body text-center">
-        Get started with Vocally AI agents
+        Get started with Anselio AI agents
       </p>
       <SignUp
         appearance={{

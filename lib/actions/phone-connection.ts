@@ -7,7 +7,7 @@ import { getTwilioVoiceNumber } from "@/lib/twilio/env";
 export type PhoneConnectionSettings = {
   /** The customer's own phone number (the one they forward FROM), e.g. +2126XXXXXXXX */
   customerNumber: string | null;
-  /** The Vocally Twilio number that calls forward TO */
+  /** The Anselio Twilio number that calls forward TO */
   forwardingNumber: string;
   /** Whether the forwarding is active */
   isActive: boolean;
@@ -63,7 +63,7 @@ export async function setupPhoneForwarding(
 
     const forwardingNumber = getTwilioVoiceNumber();
 
-    // Ensure the Vocally forwarding number exists in the DB, upsert with customer number
+    // Ensure the Anselio forwarding number exists in the DB, upsert with customer number
     await prisma.twilioPhoneNumber.upsert({
       where: { twilioNumber: forwardingNumber },
       update: { agentId, orgId, isActive: true, customerNumber },

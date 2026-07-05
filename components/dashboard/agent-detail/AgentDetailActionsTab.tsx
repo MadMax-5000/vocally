@@ -13,12 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import { resolveCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import { resolveCustomButtonAction } from "@/lib/deploy/custom-button-action";
 import { resolveCustomFormAction } from "@/lib/deploy/custom-form-action";
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { resolveSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
 
+import { BookAppointmentActionSheet } from "./actions/BookAppointmentActionSheet";
 import { CollectLeadsActionSheet } from "./actions/CollectLeadsActionSheet";
 import { CustomButtonActionSheet } from "./actions/CustomButtonActionSheet";
 import { CustomFormActionSheet } from "./actions/CustomFormActionSheet";
@@ -56,6 +58,7 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
   const [collectLeadsOpen, setCollectLeadsOpen] = React.useState(false);
   const [escalationsOpen, setEscalationsOpen] = React.useState(false);
   const [customFormOpen, setCustomFormOpen] = React.useState(false);
+  const [bookAppointmentOpen, setBookAppointmentOpen] = React.useState(false);
 
   const suggestedMessagesAction = React.useMemo(
     () => resolveSuggestedMessagesAction(agent.channels),
@@ -79,6 +82,11 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
 
   const customFormAction = React.useMemo(
     () => resolveCustomFormAction(agent.channels),
+    [agent.channels],
+  );
+
+  const bookAppointmentAction = React.useMemo(
+    () => resolveBookAppointmentAction(agent.channels),
     [agent.channels],
   );
 
@@ -124,6 +132,9 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
     }
     if (entryId === "escalations") {
       setEscalationsOpen(true);
+    }
+    if (entryId === "book-appointment") {
+      setBookAppointmentOpen(true);
     }
   }
 
@@ -209,7 +220,8 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
                   (entry.id === "custom-button" && customButtonAction.enabled) ||
                   (entry.id === "custom-form" && customFormAction.enabled) ||
                   (entry.id === "collect-leads" && collectLeadsAction.enabled) ||
-                  (entry.id === "escalations" && escalationAction.enabled)
+                  (entry.id === "escalations" && escalationAction.enabled) ||
+                  (entry.id === "book-appointment" && bookAppointmentAction.enabled)
                 }
               />
             ))}
@@ -245,6 +257,12 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
         agent={agent}
         open={escalationsOpen}
         onOpenChange={setEscalationsOpen}
+      />
+
+      <BookAppointmentActionSheet
+        agent={agent}
+        open={bookAppointmentOpen}
+        onOpenChange={setBookAppointmentOpen}
       />
     </>
   );

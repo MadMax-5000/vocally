@@ -95,7 +95,7 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
     id: "wordpress",
     title: "WordPress",
     description:
-      "Install the official Vocally plugin or paste embed code to add your agent to WordPress.",
+      "Install the official Anselio plugin or paste embed code to add your agent to WordPress.",
     iconSrc: "/svg/wordpress.svg",
   },
   {

@@ -78,7 +78,7 @@ export function SmsSetupTab({
         <h2 className="text-title-sm font-medium text-ink">Prerequisites</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
           SMS messaging uses Twilio. You need an SMS-capable phone number and inbound
-          webhooks pointed at Vocally.
+          webhooks pointed at Anselio.
         </p>
 
         {blockingIssue ? (

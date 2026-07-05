@@ -79,7 +79,7 @@ export function EmailConnectionTab({
         <div className="max-w-sm space-y-1">
           <p className="text-body-sm font-medium text-ink">Connect Gmail</p>
           <p className="text-caption text-muted">
-            Authorize Vocally to read and send email on behalf of this agent. You will be
+            Authorize Anselio to read and send email on behalf of this agent. You will be
             redirected to Google to sign in.
           </p>
         </div>

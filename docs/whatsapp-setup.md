@@ -2,7 +2,7 @@
 
 ## Overview
 
-Vocally connects customer WhatsApp Business numbers via **Twilio ISV + Meta Embedded Signup**. Customers enter their number in the dashboard, verify with Meta in-app, and Vocally automatically:
+Anselio connects customer WhatsApp Business numbers via **Twilio ISV + Meta Embedded Signup**. Customers enter their number in the dashboard, verify with Meta in-app, and Anselio automatically:
 
 - Creates a Twilio subaccount per organization
 - Registers the WhatsApp sender via the Twilio Senders API
@@ -25,7 +25,7 @@ No Twilio Console access is required for customers.
 
 ---
 
-## For Vocally operators (one-time platform setup)
+## For Anselio operators (one-time platform setup)
 
 Before customers can connect production numbers:
 
@@ -59,7 +59,7 @@ NEXT_PUBLIC_META_PARTNER_SOLUTION_ID=
 META_APP_SECRET=
 
 # Public app URL (webhooks + OAuth)
-NEXT_PUBLIC_APP_URL=https://app.vocally.ai
+NEXT_PUBLIC_APP_URL=https://anselio.com
 
 # Optional: dev sandbox without Meta signup
 # WHATSAPP_SANDBOX_MODE=true
@@ -121,7 +121,7 @@ WHATSAPP_SANDBOX_MODE=true
 TWILIO_WHATSAPP_NUMBER=+14155238886
 ```
 
-Join the Twilio WhatsApp sandbox from your phone, then connect in the dashboard. Vocally maps your agent to the sandbox number.
+Join the Twilio WhatsApp sandbox from your phone, then connect in the dashboard. Anselio maps your agent to the sandbox number.
 
 ### Production Embedded Signup locally
 

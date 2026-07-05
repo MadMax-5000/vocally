@@ -1,4 +1,13 @@
-import { ALL_TOOL_DEFINITIONS, SAVE_LEAD, SHOW_CUSTOM_FORM } from "./definitions";
+import {
+  ALL_TOOL_DEFINITIONS,
+  buildBookAppointmentDefinition,
+  CHECK_ORDER_STATUS,
+  CREATE_TICKET,
+  LOOKUP_ACCOUNT,
+  REQUEST_SECURE_INPUT,
+  SAVE_LEAD,
+  SHOW_CUSTOM_FORM,
+} from "./definitions";
 import type { ToolDefinition, ToolHandler } from "./types";
 import {
   handleCheckOrderStatus,
@@ -9,6 +18,7 @@ import {
 } from "./handlers";
 import { handleSaveLead } from "./handlers/save-lead";
 import { handleShowCustomForm } from "./handlers/show-custom-form";
+import { DEFAULT_APPOINTMENT_DEPARTMENTS } from "@/lib/deploy/book-appointment-action";
 
 type ToolEntry = {
   definition: ToolDefinition;
@@ -17,23 +27,23 @@ type ToolEntry = {
 
 const registry: Record<string, ToolEntry> = {
   check_order_status: {
-    definition: ALL_TOOL_DEFINITIONS[0],
+    definition: CHECK_ORDER_STATUS,
     handler: handleCheckOrderStatus,
   },
   book_appointment: {
-    definition: ALL_TOOL_DEFINITIONS[1],
+    definition: buildBookAppointmentDefinition([...DEFAULT_APPOINTMENT_DEPARTMENTS]),
     handler: handleBookAppointment,
   },
   create_ticket: {
-    definition: ALL_TOOL_DEFINITIONS[2],
+    definition: CREATE_TICKET,
     handler: handleCreateTicket,
   },
   lookup_account: {
-    definition: ALL_TOOL_DEFINITIONS[3],
+    definition: LOOKUP_ACCOUNT,
     handler: handleLookupAccount,
   },
   request_secure_input: {
-    definition: ALL_TOOL_DEFINITIONS[4],
+    definition: REQUEST_SECURE_INPUT,
     handler: handleRequestSecureInput,
   },
   save_lead: {
@@ -62,6 +72,8 @@ export function getToolDefinitionsForAgent(options?: {
   allowCreateTicket?: boolean;
   includeCollectLeads?: boolean;
   includeCustomForm?: boolean;
+  includeBookAppointment?: boolean;
+  bookAppointmentDepartments?: string[];
 }): ToolDefinition[] {
   const allowCreateTicket = options?.allowCreateTicket ?? true;
   let tools = allowCreateTicket
@@ -74,6 +86,15 @@ export function getToolDefinitionsForAgent(options?: {
 
   if (options?.includeCustomForm) {
     tools = [...tools, SHOW_CUSTOM_FORM];
+  }
+
+  if (options?.includeBookAppointment) {
+    const departments =
+      options.bookAppointmentDepartments &&
+      options.bookAppointmentDepartments.length > 0
+        ? options.bookAppointmentDepartments
+        : [...DEFAULT_APPOINTMENT_DEPARTMENTS];
+    tools = [...tools, buildBookAppointmentDefinition(departments)];
   }
 
   return tools;

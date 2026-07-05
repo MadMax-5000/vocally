@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin settings for Vocally WordPress plugin.
+ * Admin settings for Anselio WordPress plugin.
  *
- * @package Vocally
+ * @package Anselio
  */
 
 if (!defined('ABSPATH')) {
@@ -10,11 +10,11 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Settings page under Settings → Vocally.
+ * Settings page under Settings → Anselio.
  */
-class Vocally_Settings {
-	public const OPTION_GROUP = 'vocally_options';
-	public const OPTION_NAME  = 'vocally_settings';
+class Anselio_Settings {
+	public const OPTION_GROUP = 'anselio_options';
+	public const OPTION_NAME  = 'anselio_settings';
 
 	/**
 	 * Register settings and admin page.
@@ -68,33 +68,33 @@ class Vocally_Settings {
 		);
 
 		add_settings_section(
-			'vocally_main',
-			__('Connection', 'vocally'),
+			'anselio_main',
+			__('Connection', 'anselio'),
 			static function (): void {
 				echo '<p>' . esc_html__(
-					'Copy these values from your Vocally dashboard: Agent → Deploy → WordPress → Setup.',
-					'vocally'
+					'Copy these values from your Anselio dashboard: Agent → Deploy → WordPress → Setup.',
+					'anselio'
 				) . '</p>';
 			},
-			'vocally'
+			'anselio'
 		);
 
 		$fields = array(
-			'app_url'         => array(__('Vocally App URL', 'vocally'), 'url'),
-			'agent_id'        => array(__('Agent ID', 'vocally'), 'text'),
-			'widget_token'    => array(__('Widget token (optional)', 'vocally'), 'text'),
-			'display_mode'    => array(__('Display mode', 'vocally'), 'select'),
-			'widget_title'    => array(__('Chat title', 'vocally'), 'text'),
-			'welcome_message' => array(__('Welcome message', 'vocally'), 'textarea'),
+			'app_url'         => array(__('Anselio App URL', 'anselio'), 'url'),
+			'agent_id'        => array(__('Agent ID', 'anselio'), 'text'),
+			'widget_token'    => array(__('Widget token (optional)', 'anselio'), 'text'),
+			'display_mode'    => array(__('Display mode', 'anselio'), 'select'),
+			'widget_title'    => array(__('Chat title', 'anselio'), 'text'),
+			'welcome_message' => array(__('Welcome message', 'anselio'), 'textarea'),
 		);
 
 		foreach ($fields as $key => $meta) {
 			add_settings_field(
-				'vocally_' . $key,
+				'anselio_' . $key,
 				$meta[0],
 				array(self::class, 'render_field'),
-				'vocally',
-				'vocally_main',
+				'anselio',
+				'anselio_main',
 				array(
 					'key'  => $key,
 					'type' => $meta[1],
@@ -151,10 +151,10 @@ class Vocally_Settings {
 	 */
 	public static function add_menu_page(): void {
 		add_options_page(
-			__('Vocally', 'vocally'),
-			__('Vocally', 'vocally'),
+			__('Anselio', 'anselio'),
+			__('Anselio', 'anselio'),
 			'manage_options',
-			'vocally',
+			'anselio',
 			array(self::class, 'render_page')
 		);
 	}
@@ -172,19 +172,19 @@ class Vocally_Settings {
 
 		if ($type === 'select') {
 			?>
-			<select name="<?php echo esc_attr(self::OPTION_NAME . '[' . $key . ']'); ?>" id="vocally_<?php echo esc_attr($key); ?>">
+			<select name="<?php echo esc_attr(self::OPTION_NAME . '[' . $key . ']'); ?>" id="anselio_<?php echo esc_attr($key); ?>">
 				<option value="floating" <?php selected($value, 'floating'); ?>>
-					<?php esc_html_e('Floating bubble (site-wide)', 'vocally'); ?>
+					<?php esc_html_e('Floating bubble (site-wide)', 'anselio'); ?>
 				</option>
 				<option value="shortcode_only" <?php selected($value, 'shortcode_only'); ?>>
-					<?php esc_html_e('Shortcode only', 'vocally'); ?>
+					<?php esc_html_e('Shortcode only', 'anselio'); ?>
 				</option>
 			</select>
 			<p class="description">
 				<?php
 				esc_html_e(
-					'Use [vocally_agent] in a page or post when shortcode only is selected.',
-					'vocally'
+					'Use [anselio_agent] in a page or post when shortcode only is selected.',
+					'anselio'
 				);
 				?>
 			</p>
@@ -196,7 +196,7 @@ class Vocally_Settings {
 			?>
 			<textarea
 				name="<?php echo esc_attr(self::OPTION_NAME . '[' . $key . ']'); ?>"
-				id="vocally_<?php echo esc_attr($key); ?>"
+				id="anselio_<?php echo esc_attr($key); ?>"
 				class="large-text"
 				rows="3"
 			><?php echo esc_textarea($value); ?></textarea>
@@ -209,7 +209,7 @@ class Vocally_Settings {
 		<input
 			type="<?php echo esc_attr($input_type); ?>"
 			name="<?php echo esc_attr(self::OPTION_NAME . '[' . $key . ']'); ?>"
-			id="vocally_<?php echo esc_attr($key); ?>"
+			id="anselio_<?php echo esc_attr($key); ?>"
 			value="<?php echo esc_attr($value); ?>"
 			class="regular-text"
 			<?php echo $key === 'widget_token' ? 'autocomplete="off"' : ''; ?>
@@ -217,8 +217,8 @@ class Vocally_Settings {
 		<?php
 		if ($key === 'agent_id') {
 			echo '<p class="description">' . esc_html__(
-				'Found in Vocally under Deploy → WordPress → Setup.',
-				'vocally'
+				'Found in Anselio under Deploy → WordPress → Setup.',
+				'anselio'
 			) . '</p>';
 		}
 	}
@@ -236,7 +236,7 @@ class Vocally_Settings {
 			<form action="options.php" method="post">
 				<?php
 				settings_fields(self::OPTION_GROUP);
-				do_settings_sections('vocally');
+				do_settings_sections('anselio');
 				submit_button();
 				?>
 			</form>

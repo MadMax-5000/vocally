@@ -1,4 +1,5 @@
 import { LegalPageHeader } from "@/components/marketing/LegalPageHeader";
+import { BRAND_EMAILS } from "@/lib/constants/brand";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -13,7 +14,7 @@ export default function CookiesPage() {
 
         <div className="mt-8 max-w-[70ch] space-y-6 text-body-md leading-relaxed text-body text-pretty">
           <p>
-            <strong className="text-ink">Effective date:</strong> This Cookie Notice explains how Vocally uses cookies and similar tracking technologies on our platform.
+            <strong className="text-ink">Effective date:</strong> This Cookie Notice explains how Anselio uses cookies and similar tracking technologies on our platform.
           </p>
 
           <section className="space-y-3">
@@ -62,7 +63,7 @@ export default function CookiesPage() {
             <h2 className="text-display-xs font-display tracking-tight text-ink">6. Contact</h2>
             <p>
               For questions about our use of cookies, contact us at:<br />
-              Email: privacy@vocally.app
+              Email: {BRAND_EMAILS.privacy}
             </p>
           </section>
 

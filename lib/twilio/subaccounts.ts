@@ -1,5 +1,6 @@
 import twilio from "twilio";
 
+import { BRAND_NAME } from "@/lib/constants/brand";
 import { encryptToken } from "@/lib/crypto/token-encryption";
 import { prisma } from "@/lib/db/prisma";
 import { getTwilioAccountSid, getTwilioAuthToken } from "@/lib/twilio/env";
@@ -66,7 +67,7 @@ export async function ensureOrgTwilioSubaccount(
   const client = twilio(parentSid, parentToken);
 
   const account = await client.api.v2010.accounts.create({
-    friendlyName: `Vocally — ${org.name}`.slice(0, 64),
+    friendlyName: `${BRAND_NAME} — ${org.name}`.slice(0, 64),
   });
 
   if (!account.sid || !account.authToken) {

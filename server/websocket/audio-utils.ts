@@ -1,5 +1,6 @@
 import g711 from "g711";
 import wav from "node-wav";
+import { BRAND_NAME, BRAND_URL } from "@/lib/constants/brand";
 
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
@@ -67,8 +68,8 @@ export async function synthesizeSpeechWav(
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://vocally.app",
-      "X-Title": "Vocally",
+      "HTTP-Referer": BRAND_URL,
+      "X-Title": BRAND_NAME,
     },
     body: JSON.stringify({
       model,

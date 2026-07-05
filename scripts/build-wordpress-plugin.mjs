@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const pluginDir = path.join(root, "integrations", "wordpress-plugin", "vocally");
+const pluginDir = path.join(root, "integrations", "wordpress-plugin", "anselio");
 const outDir = path.join(root, "public", "downloads");
-const outFile = path.join(outDir, "vocally-wordpress.zip");
+const outFile = path.join(outDir, "anselio-wordpress.zip");
 
 await mkdir(outDir, { recursive: true });
 
@@ -19,7 +19,7 @@ if (process.platform === "win32") {
     { stdio: "inherit" },
   );
 } else {
-  execSync(`zip -r "${outFile}" vocally`, {
+  execSync(`zip -r "${outFile}" anselio`, {
     cwd: path.join(root, "integrations", "wordpress-plugin"),
     stdio: "inherit",
   });

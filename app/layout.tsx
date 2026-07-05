@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { BRAND_NAME } from "@/lib/constants/brand";
 
 import "./globals.css";
 import { inter } from "./fonts";
 
 export const metadata: Metadata = {
-  title: "Vocally",
+  title: BRAND_NAME,
   description: "AI-first Contact Center as a Service (CCaaS)",
   icons: {
     icon: [{ url: "/images/favicon.ico", sizes: "any" }],
     apple: [{ url: "/images/favicon.ico" }],
   },
   openGraph: {
-    title: "Vocally",
+    title: BRAND_NAME,
     description: "AI-first Contact Center as a Service (CCaaS)",
-    images: [{ url: "/images/logo-primary-color.png", width: 1254, height: 1254, alt: "Vocally" }],
+    images: [{ url: "/images/logo-primary-color.png", width: 1254, height: 1254, alt: BRAND_NAME }],
   },
   twitter: {
     card: "summary",
-    title: "Vocally",
+    title: BRAND_NAME,
     description: "AI-first Contact Center as a Service (CCaaS)",
     images: ["/images/logo-primary-color.png"],
   },

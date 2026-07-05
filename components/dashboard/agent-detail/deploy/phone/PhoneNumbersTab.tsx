@@ -133,7 +133,7 @@ export function PhoneNumbersTab({
               <p className="text-title-sm font-medium text-ink">Connected</p>
               <p className="mt-1 text-body-sm text-muted">
                 Your number <span className="font-mono text-ink">{settings.customerNumber}</span>{" "}
-                forwards calls to Vocally.
+                forwards calls to Anselio.
               </p>
               <div className="mt-3 rounded-lg border border-hairline bg-canvas-soft/50 p-3">
                 <p className="text-caption font-medium text-ink">Forwarding destination</p>
@@ -224,7 +224,7 @@ export function PhoneNumbersTab({
               <p className="text-body-sm font-medium text-ink">Need to disable forwarding?</p>
               <p className="mt-0.5 text-caption text-muted">
                 Dial <code className="font-mono text-ink">##002#</code> from your phone to turn
-                off all forwarding. Or click Disconnect below to deactivate it from Vocally.
+                off all forwarding. Or click Disconnect below to deactivate it from Anselio.
               </p>
             </div>
           </div>

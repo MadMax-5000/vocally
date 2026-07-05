@@ -19,6 +19,7 @@ import {
   resolveEscalationTriggers,
 } from "@/lib/deploy/escalation-action";
 import { getWebChatChannel, parseWebChatConfig } from "@/lib/deploy/web-chat-config";
+import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import { resolveCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import {
   isCustomFormConfigured,
@@ -171,6 +172,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const webChatParsed = webChatRow ? parseWebChatConfig(webChatRow.config) : {};
   const hasEscalationConfig = webChatParsed.actions?.escalations !== undefined;
   const collectLeadsAction = resolveCollectLeadsAction(agent.channels);
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
   const customFormAction = resolveCustomFormAction(agent.channels);
   const customFormActive =
     customFormAction.enabled && isCustomFormConfigured(customFormAction);
@@ -190,6 +192,8 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     includeCollectLeads: collectLeadsAction.enabled,
     includeCustomForm:
       customFormActive && customFormAction.allowLlmTrigger,
+    includeBookAppointment: bookAppointmentAction.enabled,
+    bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 
   let escalationPromptExtra = "";
@@ -215,6 +219,9 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           language: promptLanguage,
           toolDefinitions,
           collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
+          bookAppointment: bookAppointmentAction.enabled
+            ? bookAppointmentAction
+            : undefined,
         })
       : chatBotSystemPromptV1({
           agentName: agent.name,
@@ -225,6 +232,9 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           toolDefinitions,
           collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
           customForm: customFormActive ? customFormAction : undefined,
+          bookAppointment: bookAppointmentAction.enabled
+            ? bookAppointmentAction
+            : undefined,
         });
 
   const llmMessages: LLMMessage[] = history
@@ -253,6 +263,9 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     channel: messageChannel,
     collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
     customForm: customFormActive ? customFormAction : undefined,
+    bookAppointment: bookAppointmentAction.enabled
+      ? bookAppointmentAction
+      : undefined,
   };
 
   try {

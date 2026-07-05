@@ -59,6 +59,29 @@ export const BOOK_APPOINTMENT: ToolDefinition = {
   },
 };
 
+export function buildBookAppointmentDefinition(
+  departments: string[],
+): ToolDefinition {
+  const allowed =
+    departments.length > 0 ? departments : ["support", "sales", "general"];
+  return {
+    type: "function",
+    function: {
+      ...BOOK_APPOINTMENT.function,
+      parameters: {
+        ...BOOK_APPOINTMENT.function.parameters,
+        properties: {
+          ...BOOK_APPOINTMENT.function.parameters.properties,
+          department: {
+            ...BOOK_APPOINTMENT.function.parameters.properties.department,
+            enum: allowed,
+          },
+        },
+      },
+    },
+  };
+}
+
 export const CREATE_TICKET: ToolDefinition = {
   type: "function",
   function: {
@@ -199,7 +222,6 @@ export const SHOW_CUSTOM_FORM: ToolDefinition = {
 
 export const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
   CHECK_ORDER_STATUS,
-  BOOK_APPOINTMENT,
   CREATE_TICKET,
   LOOKUP_ACCOUNT,
   REQUEST_SECURE_INPUT,

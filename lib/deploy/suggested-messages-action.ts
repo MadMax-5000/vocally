@@ -5,6 +5,7 @@ import {
   type CustomButtonActionConfig,
 } from "@/lib/deploy/custom-button-action";
 import { parseEscalationActionConfig } from "@/lib/deploy/escalation-action";
+import { parseBookAppointmentActionConfig } from "@/lib/deploy/book-appointment-action";
 import { parseCollectLeadsActionConfig } from "@/lib/deploy/collect-leads-action";
 import { parseCustomFormActionConfig } from "@/lib/deploy/custom-form-action";
 import {
@@ -74,6 +75,7 @@ export function parseWebChatActionsConfig(
   const escalations = raw.escalations;
   const collectLeads = raw.collectLeads;
   const customForm = raw.customForm;
+  const bookAppointment = raw.bookAppointment;
   const result: NonNullable<WebChatChannelConfig["actions"]> = {};
 
   if (suggested) {
@@ -90,6 +92,9 @@ export function parseWebChatActionsConfig(
   }
   if (customForm) {
     result.customForm = parseCustomFormActionConfig(customForm);
+  }
+  if (bookAppointment) {
+    result.bookAppointment = parseBookAppointmentActionConfig(bookAppointment);
   }
 
   return Object.keys(result).length > 0 ? result : undefined;

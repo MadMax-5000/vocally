@@ -8,7 +8,7 @@ export const VOICE_STACK_CONFIG = {
   FALLBACK_LANGUAGE: "ar",
   DARIJA_PRODUCTION_ENABLED: false, // flip only after real-world tests pass
   CRM_INTEGRATIONS: [
-    "vocally_internal", // Ticket, Appointment, AgentLead, FormSubmission (Postgres)
+    "anselio_internal", // Ticket, Appointment, AgentLead, FormSubmission (Postgres)
   ],
   LOGGING: true,
   TRANSCRIPTS: true,

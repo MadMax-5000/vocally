@@ -71,7 +71,7 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
         <div className="max-w-sm space-y-1">
           <p className="text-body-sm font-medium text-ink">Connect Messenger</p>
           <p className="text-caption text-muted">
-            Authorize Vocally to manage your Page messaging. You will be redirected to Meta to sign
+            Authorize Anselio to manage your Page messaging. You will be redirected to Meta to sign
             in.
           </p>
         </div>

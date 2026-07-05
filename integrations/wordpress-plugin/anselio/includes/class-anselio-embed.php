@@ -2,7 +2,7 @@
 /**
  * Front-end embed: floating widget and shortcode.
  *
- * @package Vocally
+ * @package Anselio
  */
 
 if (!defined('ABSPATH')) {
@@ -10,15 +10,15 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Renders Vocally chat widget iframes on the public site.
+ * Renders Anselio chat widget iframes on the public site.
  */
-class Vocally_Embed {
+class Anselio_Embed {
 	/**
 	 * Register hooks and shortcode.
 	 */
 	public static function register(): void {
 		add_action('wp_footer', array(self::class, 'render_floating'), 20);
-		add_shortcode('vocally_agent', array(self::class, 'shortcode'));
+		add_shortcode('anselio_agent', array(self::class, 'shortcode'));
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Vocally_Embed {
 			return;
 		}
 
-		$settings = Vocally_Settings::get_settings();
+		$settings = Anselio_Settings::get_settings();
 		if (($settings['display_mode'] ?? 'floating') !== 'floating') {
 			return;
 		}
@@ -73,13 +73,13 @@ class Vocally_Embed {
 	}
 
 	/**
-	 * Shortcode [vocally_agent] or [vocally_agent height="600"].
+	 * Shortcode [anselio_agent] or [anselio_agent height="600"].
 	 *
 	 * @param array<string, string>|string $atts Shortcode attributes.
 	 * @return string
 	 */
 	public static function shortcode($atts): string {
-		$settings = Vocally_Settings::get_settings();
+		$settings = Anselio_Settings::get_settings();
 		$embed_url = self::build_embed_url($settings);
 
 		if ($embed_url === null) {
@@ -91,7 +91,7 @@ class Vocally_Embed {
 				'height' => '600',
 			),
 			is_array($atts) ? $atts : array(),
-			'vocally_agent'
+			'anselio_agent'
 		);
 
 		$height = max(200, (int) $atts['height']);
@@ -113,21 +113,21 @@ class Vocally_Embed {
 			'<iframe src="%s" style="width:100%%;height:%dpx;border:none;border-radius:12px" title="%s" loading="lazy"></iframe>',
 			esc_url($embed_url),
 			$height,
-			esc_attr(sprintf(/* translators: %s: agent display name */ __('Chat with %s', 'vocally'), $title))
+			esc_attr(sprintf(/* translators: %s: agent display name */ __('Chat with %s', 'anselio'), $title))
 		);
 	}
 
 	/**
-	 * Floating bubble markup (matches Vocally dashboard embed snippet).
+	 * Floating bubble markup (matches Anselio dashboard embed snippet).
 	 *
 	 * @param string $embed_url Widget URL.
 	 * @param string $title     Accessible title.
 	 * @return string
 	 */
 	private static function floating_markup(string $embed_url, string $title): string {
-		$container_id = 'vocally-widget';
+		$container_id = 'anselio-widget';
 		$embed_js  = esc_js($embed_url);
-		$title_js  = esc_js(sprintf(/* translators: %s: agent display name */ __('Chat with %s', 'vocally'), $title));
+		$title_js  = esc_js(sprintf(/* translators: %s: agent display name */ __('Chat with %s', 'anselio'), $title));
 
 		return '<div id="' . esc_attr($container_id) . '"></div>
 <script>
@@ -136,10 +136,15 @@ class Vocally_Embed {
   if (!el) return;
   var iframe = document.createElement("iframe");
   iframe.src = "' . $embed_js . '";
-  iframe.style.cssText = "position:fixed;bottom:24px;right:24px;width:380px;height:540px;border:none;border-radius:16px;z-index:2147483647;box-shadow:0 8px 32px rgba(0,0,0,0.12)";
+  iframe.style.cssText = "position:fixed;bottom:24px;right:24px;width:80px;height:80px;border:none;background:transparent;z-index:2147483647;overflow:hidden";
   iframe.title = "' . $title_js . '";
-  iframe.setAttribute("loading", "lazy");
+  iframe.setAttribute("allow", "microphone");
   el.appendChild(iframe);
+  window.addEventListener("message", function(e) {
+    if (!e.data || e.data.type !== "anselio-widget-resize") return;
+    iframe.style.width = e.data.width;
+    iframe.style.height = e.data.height;
+  });
 })();
 </script>';
 	}

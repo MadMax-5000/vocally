@@ -32,6 +32,10 @@ import {
 import type { CustomButtonActionConfig } from "@/lib/deploy/custom-button-action";
 import type { EscalationActionConfig } from "@/lib/deploy/escalation-action";
 import type {
+  BookAppointmentActionConfig,
+  BookAppointmentWhenToOffer,
+} from "@/lib/deploy/book-appointment-action";
+import type {
   CollectLeadsActionConfig,
   CollectLeadsFieldsConfig,
   CollectLeadsWhenToAsk,
@@ -1074,6 +1078,198 @@ export async function listAgentLeads(
     };
   } catch {
     return { success: false, error: "Failed to load leads" };
+  }
+}
+
+const updateBookAppointmentActionSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  whenToOffer: z.enum(["proactive", "intent_only"]).optional(),
+  departments: z
+    .array(z.string().trim().min(1).max(80))
+    .max(12)
+    .optional(),
+  notifyEmail: z.union([z.string().email().max(320), z.literal("")]).optional(),
+});
+
+export async function updateBookAppointmentActionSettings(
+  agentId: string,
+  input: z.infer<typeof updateBookAppointmentActionSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateBookAppointmentActionSettingsSchema.parse(input);
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    const existing = await prisma.agentChannel.findUnique({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+    });
+
+    const existingConfig =
+      existing?.config &&
+      typeof existing.config === "object" &&
+      !Array.isArray(existing.config)
+        ? (existing.config as Record<string, unknown>)
+        : {};
+
+    const parsed = parseWebChatConfig(existingConfig);
+    const current = parsed.actions?.bookAppointment ?? {};
+    const incoming = validated;
+
+    const nextAction: BookAppointmentActionConfig = { ...current };
+
+    if (incoming.enabled !== undefined) {
+      nextAction.enabled = incoming.enabled;
+    }
+    if (incoming.whenToOffer !== undefined) {
+      nextAction.whenToOffer = incoming.whenToOffer as BookAppointmentWhenToOffer;
+    }
+    if (incoming.departments !== undefined) {
+      const normalized = incoming.departments
+        .map((d) => d.trim().toLowerCase())
+        .filter(Boolean);
+      nextAction.departments = Array.from(new Set(normalized));
+    }
+    if (incoming.notifyEmail !== undefined) {
+      const trimmed = incoming.notifyEmail.trim();
+      nextAction.notifyEmail = trimmed || undefined;
+    }
+
+    const nextConfig = {
+      ...existingConfig,
+      actions: {
+        ...(parsed.actions ?? {}),
+        bookAppointment: nextAction,
+      },
+    } as Prisma.InputJsonValue;
+
+    await prisma.agentChannel.upsert({
+      where: {
+        agentId_channel: { agentId, channel: "WEB_CHAT" },
+      },
+      create: {
+        agentId,
+        channel: "WEB_CHAT",
+        enabled: true,
+        config: nextConfig,
+      },
+      update: { config: nextConfig },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+
+    const updated = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      include: agentDetailInclude,
+    });
+
+    if (!updated) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    return { success: true as const, data: updated };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return {
+      success: false as const,
+      error: "Failed to update book appointment action",
+    };
+  }
+}
+
+export type AgentAppointmentListItem = {
+  id: string;
+  customerName: string;
+  customerEmail: string | null;
+  department: string;
+  date: string;
+  time: string;
+  status: string;
+  createdAt: string;
+};
+
+export async function listAgentAppointments(
+  agentId: string,
+  options?: { limit?: number },
+): Promise<
+  | { success: true; data: AgentAppointmentListItem[] }
+  | { success: false; error: string }
+> {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+
+    if (!agent) {
+      return { success: false, error: "Agent not found" };
+    }
+
+    const limit = Math.min(options?.limit ?? 20, 50);
+
+    const sessions = await prisma.session.findMany({
+      where: { agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    const sessionIds = sessions.map((s) => s.id);
+
+    if (sessionIds.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        orgId: dbOrgId,
+        sessionId: { in: sessionIds },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        customerName: true,
+        customerEmail: true,
+        department: true,
+        date: true,
+        time: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: appointments.map((item) => ({
+        id: item.id,
+        customerName: item.customerName,
+        customerEmail: item.customerEmail,
+        department: item.department,
+        date: item.date.toISOString(),
+        time: item.time,
+        status: item.status,
+        createdAt: item.createdAt.toISOString(),
+      })),
+    };
+  } catch {
+    return { success: false, error: "Failed to load appointments" };
   }
 }
 

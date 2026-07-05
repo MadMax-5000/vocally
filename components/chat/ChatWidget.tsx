@@ -10,7 +10,7 @@ import {
   ChatMessageComposer,
   chatComposerFormatDuration,
 } from "@/components/chat/ChatMessageComposer";
-import { PoweredByVocally } from "@/components/chat/PoweredByVocally";
+import { PoweredByAnselio } from "@/components/chat/PoweredByAnselio";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useVoiceToText } from "@/hooks/useVoiceToText";
 import { getVisibleCustomButtons } from "@/lib/deploy/custom-button-action";
@@ -362,7 +362,7 @@ export function ChatWidget({
           </div>
         ) : null}
 
-        {showPoweredBy && <PoweredByVocally />}
+        {showPoweredBy && <PoweredByAnselio />}
 
         <ChatCustomButtonsRow
           buttons={visibleCustomButtons}

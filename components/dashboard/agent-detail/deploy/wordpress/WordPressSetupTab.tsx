@@ -14,7 +14,7 @@ import {
   chatWidgetFieldInputClass,
 } from "../chat-widget/ChatWidgetSettingRow";
 
-export const WORDPRESS_PLUGIN_DOWNLOAD_PATH = "/downloads/vocally-wordpress.zip";
+export const WORDPRESS_PLUGIN_DOWNLOAD_PATH = "/downloads/anselio-wordpress.zip";
 
 type WordPressSetupTabProps = {
   agentId: string;
@@ -163,7 +163,7 @@ export function WordPressSetupTab({
       <div className="rounded-xl border border-hairline bg-canvas-soft/50 p-4">
         <h3 className="text-title-sm font-medium text-ink">Official plugin</h3>
         <p className="mt-1 text-body-sm text-muted">
-          Download the Vocally plugin, then paste these values under Settings → Vocally in
+          Download the Anselio plugin, then paste these values under Settings → Anselio in
           WordPress.
         </p>
         <div className="mt-3">
@@ -183,9 +183,9 @@ export function WordPressSetupTab({
       </div>
 
       <CopyField
-        label="Vocally App URL"
+        label="Anselio App URL"
         value={pluginDefaults.appUrl}
-        description="Your Vocally dashboard origin (no trailing slash)."
+        description="Your Anselio dashboard origin (no trailing slash)."
       />
       <CopyField label="Agent ID" value={pluginDefaults.agentId} />
       {pluginDefaults.widgetToken ? (

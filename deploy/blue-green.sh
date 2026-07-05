@@ -4,7 +4,7 @@ set -euo pipefail
 ACTIVE_FILE=/var/www/.active
 BLUE_DIR=/var/www/blue
 GREEN_DIR=/var/www/green
-NGINX_SITE=/etc/nginx/sites-available/vocally
+NGINX_SITE=/etc/nginx/sites-available/anselio
 
 # ---- Detect active / inactive ----
 ACTIVE=$(cat $ACTIVE_FILE 2>/dev/null || echo "blue")
@@ -29,7 +29,7 @@ npx prisma db push
 npm run build
 
 # ---- Start inactive PM2 instance ----
-pm2 start ecosystem.config.cjs --only "vocally-$INACTIVE" --update-env
+pm2 start ecosystem.config.cjs --only "anselio-$INACTIVE" --update-env
 
 # ---- Health check ----
 echo "Health check: http://127.0.0.1:$INACTIVE_PORT"
@@ -46,8 +46,8 @@ done
 # Final verification
 if ! curl -sf http://127.0.0.1:$INACTIVE_PORT > /dev/null 2>&1; then
   echo "✗ Health check FAILED — rolling back"
-  pm2 stop "vocally-$INACTIVE" 2>/dev/null || true
-  pm2 delete "vocally-$INACTIVE" 2>/dev/null || true
+  pm2 stop "anselio-$INACTIVE" 2>/dev/null || true
+  pm2 delete "anselio-$INACTIVE" 2>/dev/null || true
   exit 1
 fi
 
@@ -59,8 +59,8 @@ nginx -t && systemctl reload nginx
 echo "$INACTIVE" > "$ACTIVE_FILE"
 
 # ---- Stop old instance ----
-pm2 stop "vocally-$ACTIVE" 2>/dev/null || true
-pm2 delete "vocally-$ACTIVE" 2>/dev/null || true
+pm2 stop "anselio-$ACTIVE" 2>/dev/null || true
+pm2 delete "anselio-$ACTIVE" 2>/dev/null || true
 
 pm2 save
 

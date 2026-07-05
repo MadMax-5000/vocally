@@ -30,7 +30,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { VocallyLogo } from "@/components/brand/VocallyLogo"
+import { AnselioLogo } from "@/components/brand/AnselioLogo"
+import { BRAND_NAME } from "@/lib/constants/brand"
 import { cn } from "@/lib/utils"
 import { OrgSwitcher } from "./OrgSwitcher"
 import { getEscalationCount } from "@/lib/actions/sessions"
@@ -79,17 +80,17 @@ function SidebarBrand() {
     >
       <Link
         href="/dashboard"
-        aria-label="Vocally"
+        aria-label={BRAND_NAME}
         className={cn(
           "inline-flex shrink-0 items-center gap-2 rounded-md transition-opacity hover:opacity-80",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas-soft",
           !isExpanded && "justify-center",
         )}
       >
-        <VocallyLogo variant="black" size="sm" />
+        <AnselioLogo variant="black" size="sm" />
         {isExpanded ? (
           <span className="font-display text-title-md tracking-tight text-ink whitespace-nowrap">
-            Vocally
+            {BRAND_NAME}
           </span>
         ) : null}
       </Link>

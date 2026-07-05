@@ -10,6 +10,7 @@ import type {
   EscalationActionConfig,
   ResolvedEscalationAction,
 } from "@/lib/deploy/escalation-action";
+import type { BookAppointmentActionConfig } from "@/lib/deploy/book-appointment-action";
 import type { CollectLeadsActionConfig } from "@/lib/deploy/collect-leads-action";
 import type {
   CustomFormActionConfig,
@@ -107,6 +108,7 @@ export type WebChatChannelActionsConfig = {
   customForm?: CustomFormActionConfig;
   escalations?: EscalationActionConfig;
   collectLeads?: CollectLeadsActionConfig;
+  bookAppointment?: BookAppointmentActionConfig;
 };
 
 export type WebChatChannelConfig = {

@@ -1,7 +1,9 @@
+import { buildBookAppointmentPromptSection } from "@/lib/ai/prompts/book-appointment-prompt";
 import { buildCollectLeadsPromptSection } from "@/lib/ai/prompts/collect-leads-prompt";
 import { buildCustomFormPromptSection } from "@/lib/ai/prompts/custom-form-prompt";
 import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
 import type { ToolDefinition } from "@/lib/ai/tools/types";
+import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import type { ResolvedCustomFormAction } from "@/lib/deploy/custom-form-action";
 
@@ -14,6 +16,7 @@ export type ChatBotPromptInput = {
   toolDefinitions?: ToolDefinition[];
   collectLeads?: ResolvedCollectLeadsAction;
   customForm?: ResolvedCustomFormAction;
+  bookAppointment?: ResolvedBookAppointmentAction;
 };
 
 export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
@@ -59,6 +62,10 @@ export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
 
   if (input.customForm?.enabled && input.customForm.fields.length > 0) {
     sections.push(buildCustomFormPromptSection(input.customForm));
+  }
+
+  if (input.bookAppointment?.enabled) {
+    sections.push(buildBookAppointmentPromptSection(input.bookAppointment));
   }
 
   sections.push(
