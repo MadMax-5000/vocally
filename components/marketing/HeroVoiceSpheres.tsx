@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "@/lib/icons/app-icons"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const BASE_SPHERES = [
   {
@@ -76,6 +77,7 @@ function slotValues(dist: number): SlotValues {
 }
 
 export function HeroVoiceSpheres() {
+  const t = useTranslations("landing.voiceSpheres");
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [activeIndex, setActiveIndex] = useState(0); // Grows infinitely
   const [isPlaying, setIsPlaying] = useState(false);
@@ -148,6 +150,14 @@ export function HeroVoiceSpheres() {
 
   return (
     <div className="mt-10 w-full">
+      <div className="flex flex-col items-center gap-2 mb-8 text-center">
+        <h3 className="font-display text-display-sm tracking-tighter text-ink">
+          {t("title")}
+        </h3>
+        <p className="text-body-sm text-muted text-balance max-w-[42ch]">
+          {t("description")}
+        </p>
+      </div>
       {/* ── Carousel track ── */}
       <div
         ref={containerRef}
@@ -247,10 +257,10 @@ export function HeroVoiceSpheres() {
               transition={{ duration: shouldReduceMotion ? 0.1 : 0.25, ease: "easeOut" }}
             >
               <p className="font-display text-title-sm text-ink">
-                {SPHERES[((activeIndex % COUNT) + COUNT) % COUNT].title}
+                {t(`spheres.${SPHERES[((activeIndex % COUNT) + COUNT) % COUNT].id}.title`)}
               </p>
               <p className="mx-auto mt-1 max-w-[200px] text-pretty text-body-sm text-muted">
-                {SPHERES[((activeIndex % COUNT) + COUNT) % COUNT].description}
+                {t(`spheres.${SPHERES[((activeIndex % COUNT) + COUNT) % COUNT].id}.description`)}
               </p>
             </motion.div>
           </AnimatePresence>

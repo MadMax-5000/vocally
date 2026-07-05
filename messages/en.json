@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "description": "AI-first Contact Center as a Service (CCaaS)"
+  },
+  "common": {
+    "getStarted": "Get started",
+    "signIn": "Sign in",
+    "dashboard": "Dashboard",
+    "contactUs": "Contact us.",
+    "howCanWeHelp": "How can we help?",
+    "termsOfService": "Terms of Service",
+    "privacyNotice": "Privacy Notice",
+    "cookieNotice": "Cookie Notice",
+    "allPricesMad": "All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.",
+    "learnMore": "Learn more",
+    "viewAllPlans": "View all plans"
+  },
+  "landing": {
+    "hero": {
+      "titlePart1": "AI Agents that take care of your",
+      "subtitle": "Replace rigid IVR menus with conversational AI that actually resolves issues. Available in French, Arabic, and Darija.",
+      "tryForFree": "Try for free",
+      "noCreditCard": "No credit card required"
+    },
+    "rotatingWords": {
+      "bakery": "bakery",
+      "clinic": "clinic",
+      "agency": "agency",
+      "salons": "salons",
+      "lawyer": "lawyer",
+      "stores": "stores"
+    },
+    "voiceSpheres": {
+      "title": "Voice AI that sounds human",
+      "description": "Our AI agents sound indistinguishable from humans and handle interruptions naturally.",
+      "spheres": {
+        "abstract-1": {
+          "title": "Arabic Support",
+          "description": "Natural Darija voice for your Moroccan customers."
+        },
+        "abstract-2": {
+          "title": "French Pro",
+          "description": "Smooth French voice for enterprise calls."
+        },
+        "abstract-3": {
+          "title": "English Agent",
+          "description": "Crisp English voice for international clients."
+        },
+        "abstract-4": {
+          "title": "Multilingual",
+          "description": "Seamlessly switches language mid-conversation."
+        },
+        "abstract-5": {
+          "title": "Always On",
+          "description": "Answers instantly — day, night, weekends."
+        },
+        "abstract-6": {
+          "title": "Fast Escalation",
+          "description": "Hands off to a human when needed."
+        }
+      }
+    },
+    "bento": {
+      "title": "Omnichannel by default",
+      "subtitle": "Meet your customers wherever they are.",
+      "features": {
+        "testing": {
+          "label": "Testing",
+          "body": "Simulate real-world conversations to validate agents behave as expected before deployment."
+        },
+        "guardrails": {
+          "label": "Guardrails",
+          "body": "Establish clear behavioral and compliance rules that keep agent responses aligned with policy."
+        },
+        "workflows": {
+          "label": "Workflows",
+          "body": "Handle complex conversation flows, apply business logic and connect securely to systems."
+        }
+      },
+      "headerLabel": "Anselio Agents",
+      "headerTitle": "Deploy AI agents that deliver premium customer experiences across every channel"
+    },
+    "trust": {
+      "title": "Trusted by modern teams",
+      "subtitle": "Join thousands of businesses that automate support with Anselio."
+    }
+  },
+  "pricing": {
+    "title": "Simple plans for premium AI-powered customer experiences",
+    "overage": "+ {rate} DH/min after plan limit",
+    "startFreeTrial": "Start free trial",
+    "contactSales": "Contact sales",
+    "recommended": "Recommended",
+    "perMonth": "per month, billed monthly",
+    "free": "Free"
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "description": "Try Anselio with 50 minutes of AI call handling — no credit card required.",
+      "blurb": "Get started with a 14-day free trial.",
+      "features": {
+        "0": "1 AI agent",
+        "1": "50 call minutes / mo",
+        "2": "Chat channel only",
+        "3": "Basic analytics dashboard",
+        "4": "Knowledge base (RAG)",
+        "5": "Email support"
+      }
+    },
+    "starter": {
+      "name": "Starter",
+      "description": "For small businesses getting started with AI-powered customer support.",
+      "blurb": "Growing teams that need more knowledge capacity and channels.",
+      "features": {
+        "0": "Up to 3 AI agents",
+        "1": "2,000 call minutes / mo",
+        "2": "2 channels (phone + chat)",
+        "3": "Knowledge base (50MB storage)",
+        "4": "Basic analytics dashboard",
+        "5": "Email support",
+        "6": "AI Co-pilot for live agents",
+        "7": "Priority support"
+      }
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For scaling teams that need advanced routing and deeper integrations.",
+      "blurb": "Professional teams scaling their support operations.",
+      "features": {
+        "0": "Unlimited AI agents",
+        "1": "10,000 call minutes / mo",
+        "2": "All channels (Voice, Chat, SMS, WA)",
+        "3": "Knowledge base (250MB storage)",
+        "4": "Advanced analytics & QA scoring",
+        "5": "AI Co-pilot for live agents",
+        "6": "Priority support",
+        "7": "Custom CRM integrations"
+      }
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "Custom limits, volume discounts, and dedicated account management.",
+      "blurb": "Custom deployment for large organizations.",
+      "features": {
+        "0": "Custom call volume",
+        "1": "Volume discounts on minutes",
+        "2": "Dedicated account manager",
+        "3": "Custom models & fine-tuning",
+        "4": "SLA & 99.99% uptime guarantee",
+        "5": "On-premise deployment options"
+      }
+    }
+  },
+  "auth": {
+    "signInTitle": "Welcome back",
+    "signInSubtitle": "Sign in to your Anselio workspace",
+    "signUpTitle": "Create your workspace",
+    "signUpSubtitle": "Get started with Anselio AI agents"
+  },
+  "onboarding": {
+    "title": "Set up your workspace",
+    "description": "Create an organization to start building your AI contact center."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Notice",
+      "lastUpdated": "Last updated: July 5, 2026",
+      "sections": {
+        "0": {
+          "title": "1. Introduction",
+          "content": "This Privacy Notice explains how Anselio collects, uses, and discloses information about you when you access or use our websites, mobile applications, and other online products and services."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: July 5, 2026",
+      "sections": {
+        "0": {
+          "title": "1. Agreement to Terms",
+          "content": "By accessing or using our Services, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Services."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookie Notice",
+      "lastUpdated": "Last updated: July 5, 2026",
+      "sections": {
+        "0": {
+          "title": "1. What are cookies?",
+          "content": "Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used in order to make websites work, or work more efficiently, as well as to provide information to the owners of the site."
+        }
+      }
+    }
+  }
+}

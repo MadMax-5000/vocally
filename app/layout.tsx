@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { frFR, arSA, enUS } from "@clerk/localizations";
 import { Toaster } from "sonner";
 import { BRAND_NAME } from "@/lib/constants/brand";
+import { getLocale } from "next-intl/server";
 
 import "./globals.css";
 import { inter } from "./fonts";
@@ -26,11 +28,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
+  let localization = enUS;
+  if (locale === "fr") localization = frFR;
+  if (locale === "ar") localization = arSA;
+
   return (
-    <html lang="en" className={`${inter.variable} antialiased`}>
+    <html lang={locale} dir={dir} className={`${inter.variable} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider localization={localization}>{children}</ClerkProvider>
         <Toaster
           position="top-right"
           richColors

@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/routing";
 
 import type { IconSvgElement } from "@/components/ui/app-icon";
 import { AppIcon } from "@/components/ui/app-icon";
@@ -16,58 +18,52 @@ const logos = [
   { key: "inwi",  label: "inwi" },
 ];
 
-type Feature = {
-  key: string;
-  icon: IconSvgElement;
-  label: string;
-  body: string;
-};
+export async function BentoShowcase() {
+  const t = await getTranslations("landing.bento");
+  const tc = await getTranslations("common");
 
-const features: Feature[] = [
-  {
-    key: "testing",
-    icon: FlaskConical,
-    label: "Testing",
-    body: "Simulate real-world conversations to validate agents behave as expected before deployment.",
-  },
-  {
-    key: "guardrails",
-    icon: Hand,
-    label: "Guardrails",
-    body: "Establish clear behavioral and compliance rules that keep agent responses aligned with policy.",
-  },
-  {
-    key: "workflows",
-    icon: Workflow,
-    label: "Workflows",
-    body: "Handle complex conversation flows, apply business logic and connect securely to systems.",
-  },
-];
+  const features = [
+    {
+      key: "testing",
+      icon: FlaskConical,
+      label: t("features.testing.label"),
+      body: t("features.testing.body"),
+    },
+    {
+      key: "guardrails",
+      icon: Hand,
+      label: t("features.guardrails.label"),
+      body: t("features.guardrails.body"),
+    },
+    {
+      key: "workflows",
+      icon: Workflow,
+      label: t("features.workflows.label"),
+      body: t("features.workflows.body"),
+    },
+  ];
 
-export function BentoShowcase() {
   return (
     <section className="border-t border-hairline bg-canvas py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}
-        <div className="grid gap-8 md:grid-cols-12">
-          <div className="md:col-span-7">
-            <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
-              Anselio Agents
-            </div>
-            <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-              Deploy AI agents that deliver premium customer<br className="hidden md:block" /> experiences across every channel
-            </h2>
-            <a
-              href="/dashboard"
-              className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
-            >
-              Learn more
-            </a>
+        <div className="max-w-[800px]">
+          <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
+            {t("headerLabel")}
           </div>
-          <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-Configure, deploy and monitor AI agents in 70+ languages that resolve up to 80% of inquiries automatically — across voice, chat, email, and more.
+          <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
+            {t("title")}
+          </h2>
+          <p className="mt-4 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
+            {t("subtitle")}
           </p>
+          <Link
+            href="/dashboard"
+            className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
+          >
+            {tc("learnMore")}
+          </Link>
         </div>
 
         {/* ── Main bento: 2 equal columns ── */}

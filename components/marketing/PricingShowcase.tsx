@@ -1,10 +1,12 @@
 import "server-only";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { auth } from "@clerk/nextjs/server";
+import { getTranslations } from "next-intl/server";
 import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, ArrowUpRightIcon } from "@/lib/icons/app-icons"
 
-import { PLAN_META, PLAN_PRICES } from "@/lib/billing/plan-features";
+import { PLAN_PRICES } from "@/lib/billing/plan-features";
+import { getLocalizedPlanMeta } from "@/lib/billing/get-plan-meta";
 import { formatPrice } from "@/lib/billing/currency";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
@@ -12,18 +14,23 @@ const container = "mx-auto w-full max-w-[1200px] px-6";
 export async function PricingShowcase() {
   const { userId } = await auth();
   const signedIn = !!userId;
+  const t = await getTranslations("pricing");
+  const tp = await getTranslations("plans");
+  const tc = await getTranslations("common");
+
+  const localizedPlanMeta = getLocalizedPlanMeta(tp);
 
   const plans = [
     {
-      ...PLAN_META.FREE,
+      ...localizedPlanMeta.FREE,
       price: PLAN_PRICES.FREE,
     },
     {
-      ...PLAN_META.STARTER,
+      ...localizedPlanMeta.STARTER,
       price: PLAN_PRICES.STARTER,
     },
     {
-      ...PLAN_META.PRO,
+      ...localizedPlanMeta.PRO,
       price: PLAN_PRICES.PRO,
     },
   ];
@@ -33,22 +40,20 @@ export async function PricingShowcase() {
   return (
     <section className="border-t border-hairline bg-canvas py-section">
       <div className={container}>
-        <div className="grid gap-8 md:grid-cols-12">
-          <div className="md:col-span-7">
-            <div className="text-caption-uppercase text-muted">Pricing</div>
-            <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-              Simple, transparent&nbsp;pricing
-            </h2>
-            <Link
-              href="/pricing"
-              className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
-            >
-              View all plans
-            </Link>
-          </div>
-          <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-            All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.
+        <div className="max-w-[800px]">
+          <div className="text-caption-uppercase text-muted">Pricing</div>
+          <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
+            {t("title")}
+          </h2>
+          <p className="mt-4 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
+            {tc("allPricesMad")}
           </p>
+          <Link
+            href="/pricing"
+            className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
+          >
+            {tc("viewAllPlans")}
+          </Link>
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -56,7 +61,7 @@ export async function PricingShowcase() {
             const isPro = plan.key === "pro";
             const isFree = plan.key === "free";
             const rawPrice = plan.price !== null ? plan.price.madCents : null;
-            const showPrice = isFree ? "Free" : (
+            const showPrice = isFree ? t("free") : (
               rawPrice !== null ? formatPrice(rawPrice) : null
             );
 
@@ -71,7 +76,7 @@ export async function PricingShowcase() {
               >
                 {isPro && (
                   <span className="mb-4 inline-flex self-start items-center rounded-full bg-white/90 px-3 py-[2px] text-xs font-semibold text-primary ring-1 ring-inset ring-white/20">
-                    Recommended
+                    {t("recommended")}
                   </span>
                 )}
 
@@ -87,13 +92,13 @@ export async function PricingShowcase() {
                 </p>
                 {!isFree && (
                   <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>
-                    per month, billed monthly
+                    {t("perMonth")}
                   </p>
                 )}
 
                 <div className="mt-8 flex-1">
                   <ul className="space-y-3">
-                    {plan.features.map((feature) => (
+                    {plan.features.map((feature: any) => (
                       <li key={feature.text} className="flex items-start gap-3">
                         <span
                           className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
@@ -134,7 +139,7 @@ export async function PricingShowcase() {
                       : "bg-ink text-on-primary hover:bg-body-strong"
                   }`}
                 >
-                  {isFree ? "Start free trial" : "Get started"}
+                  {isFree ? t("startFreeTrial") : tc("getStarted")}
                 </Link>
               </div>
             );
@@ -143,23 +148,17 @@ export async function PricingShowcase() {
 
         <div className="mt-8 flex flex-col items-start gap-6 rounded-xxl border border-hairline bg-surface-card p-8 md:flex-row md:items-center md:justify-between md:p-10">
           <div>
-            <h3 className="font-display text-display-sm tracking-tighter text-ink">Enterprise</h3>
+            <h3 className="font-display text-display-sm tracking-tighter text-ink">{localizedPlanMeta.ENTERPRISE.name}</h3>
             <p className="mt-1 text-body-sm leading-relaxed text-body">
-              Custom plan for your organization.
+              {localizedPlanMeta.ENTERPRISE.blurb}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                "Unlimited agents",
-                "Custom call volume",
-                "On-premise",
-                "Law 09-08 compliance",
-                "Dedicated manager",
-              ].map((tag) => (
+              {localizedPlanMeta.ENTERPRISE.features.slice(0, 5).map((feature: any) => (
                 <span
-                  key={tag}
+                  key={feature.text}
                   className="rounded-full border border-hairline bg-surface-strong px-3 py-1 text-caption text-ink"
                 >
-                  {tag}
+                  {feature.text}
                 </span>
               ))}
             </div>
@@ -168,7 +167,7 @@ export async function PricingShowcase() {
             href="/pricing"
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
           >
-            Contact sales
+            {t("contactSales")}
             <AppIcon icon={ArrowUpRightIcon} className="h-4 w-4" />
           </Link>
         </div>

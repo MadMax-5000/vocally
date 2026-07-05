@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "description": "Centre de contact IA en tant que service (CCaaS)"
+  },
+  "common": {
+    "getStarted": "Commencer",
+    "signIn": "Se connecter",
+    "dashboard": "Tableau de bord",
+    "contactUs": "Contactez-nous.",
+    "howCanWeHelp": "Comment pouvons-nous vous aider ?",
+    "termsOfService": "Conditions d'utilisation",
+    "privacyNotice": "Politique de confidentialité",
+    "cookieNotice": "Politique des cookies",
+    "allPricesMad": "Tous les prix sont en Dirham Marocain (MAD). Comprend un essai gratuit de 14 jours — sans carte de crédit.",
+    "learnMore": "En savoir plus",
+    "viewAllPlans": "Voir tous les plans"
+  },
+  "landing": {
+    "hero": {
+      "titlePart1": "Des agents IA qui s'occupent de votre",
+      "subtitle": "Remplacez les menus SVI rigides par une IA conversationnelle qui résout vraiment les problèmes. Disponible en français, arabe et darija.",
+      "tryForFree": "Essayer gratuitement",
+      "noCreditCard": "Sans carte de crédit"
+    },
+    "rotatingWords": {
+      "bakery": "boulangerie",
+      "clinic": "clinique",
+      "agency": "agence",
+      "salons": "salon",
+      "lawyer": "cabinet",
+      "stores": "magasin"
+    },
+    "voiceSpheres": {
+      "title": "Une IA vocale qui semble humaine",
+      "description": "Nos agents IA sont indiscernables des humains et gèrent les interruptions de manière naturelle.",
+      "spheres": {
+        "abstract-1": {
+          "title": "Support Arabe",
+          "description": "Voix Darija naturelle pour vos clients marocains."
+        },
+        "abstract-2": {
+          "title": "Français Pro",
+          "description": "Voix française fluide pour les appels professionnels."
+        },
+        "abstract-3": {
+          "title": "Agent Anglais",
+          "description": "Voix anglaise claire pour les clients internationaux."
+        },
+        "abstract-4": {
+          "title": "Multilingue",
+          "description": "Change de langue en cours de conversation sans effort."
+        },
+        "abstract-5": {
+          "title": "Toujours Disponible",
+          "description": "Répond instantanément — jour, nuit, week-ends."
+        },
+        "abstract-6": {
+          "title": "Escalade Rapide",
+          "description": "Transfère à un humain quand nécessaire."
+        }
+      }
+    },
+    "bento": {
+      "title": "Omnicanal par défaut",
+      "subtitle": "Rencontrez vos clients là où ils se trouvent.",
+      "features": {
+        "testing": {
+          "label": "Tests",
+          "body": "Simulez des conversations réelles pour valider le comportement des agents avant le déploiement."
+        },
+        "guardrails": {
+          "label": "Garde-fous",
+          "body": "Établissez des règles de comportement et de conformité claires."
+        },
+        "workflows": {
+          "label": "Flux de travail",
+          "body": "Gérez des flux de conversation complexes et connectez-vous aux systèmes en toute sécurité."
+        }
+      },
+      "headerLabel": "Agents Anselio",
+      "headerTitle": "Déployez des agents IA qui offrent des expériences client premium sur tous les canaux"
+    },
+    "trust": {
+      "title": "Fait confiance par les équipes modernes",
+      "subtitle": "Rejoignez des milliers d'entreprises qui automatisent leur support avec Anselio."
+    }
+  },
+  "pricing": {
+    "title": "Des plans simples pour des expériences client premium basées sur l'IA",
+    "overage": "+ {rate} DH/min après la limite du plan",
+    "startFreeTrial": "Commencer l'essai gratuit",
+    "contactSales": "Contacter les ventes",
+    "recommended": "Recommandé",
+    "perMonth": "par mois, facturé mensuellement",
+    "free": "Gratuit"
+  },
+  "plans": {
+    "free": {
+      "name": "Gratuit",
+      "description": "Essayez Anselio avec 50 minutes d'IA vocale — sans carte de crédit.",
+      "blurb": "Commencez avec un essai gratuit de 14 jours.",
+      "features": {
+        "0": "1 agent IA",
+        "1": "50 minutes d'appels / mois",
+        "2": "Canal de chat uniquement",
+        "3": "Tableau de bord analytique basique",
+        "4": "Base de connaissances (RAG)",
+        "5": "Support par email"
+      }
+    },
+    "starter": {
+      "name": "Starter",
+      "description": "Pour les petites entreprises qui se lancent dans le support client par IA.",
+      "blurb": "Équipes en croissance nécessitant plus de capacité et de canaux.",
+      "features": {
+        "0": "Jusqu'à 3 agents IA",
+        "1": "2 000 minutes d'appels / mois",
+        "2": "2 canaux (téléphone + chat)",
+        "3": "Base de connaissances (50 Mo)",
+        "4": "Tableau de bord analytique basique",
+        "5": "Support par email",
+        "6": "Co-pilote IA pour agents humains",
+        "7": "Support prioritaire"
+      }
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "Pour les équipes en croissance qui ont besoin de routage avancé et d'intégrations.",
+      "blurb": "Équipes professionnelles qui développent leurs opérations de support.",
+      "features": {
+        "0": "Agents IA illimités",
+        "1": "10 000 minutes d'appels / mois",
+        "2": "Tous les canaux (Voix, Chat, SMS, WA)",
+        "3": "Base de connaissances (250 Mo)",
+        "4": "Analytiques avancées & score QA",
+        "5": "Co-pilote IA pour agents humains",
+        "6": "Support prioritaire",
+        "7": "Intégrations CRM personnalisées"
+      }
+    },
+    "enterprise": {
+      "name": "Entreprise",
+      "description": "Limites personnalisées, remises sur volume et gestionnaire de compte dédié.",
+      "blurb": "Déploiement sur mesure pour les grandes organisations.",
+      "features": {
+        "0": "Volume d'appels personnalisé",
+        "1": "Remises sur volume de minutes",
+        "2": "Gestionnaire de compte dédié",
+        "3": "Modèles personnalisés & fine-tuning",
+        "4": "SLA & garantie de disponibilité 99,99%",
+        "5": "Options de déploiement sur site"
+      }
+    }
+  },
+  "auth": {
+    "signInTitle": "Bon retour",
+    "signInSubtitle": "Connectez-vous à votre espace Anselio",
+    "signUpTitle": "Créez votre espace",
+    "signUpSubtitle": "Commencez avec les agents IA Anselio"
+  },
+  "onboarding": {
+    "title": "Configurez votre espace de travail",
+    "description": "Créez une organisation pour commencer à construire votre centre de contact IA."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "sections": {
+        "0": {
+          "title": "1. Introduction",
+          "content": "Cette politique de confidentialité explique comment Anselio collecte, utilise et divulgue des informations vous concernant lorsque vous accédez ou utilisez nos sites web, applications mobiles et autres produits et services en ligne."
+        }
+      }
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "sections": {
+        "0": {
+          "title": "1. Accord aux conditions",
+          "content": "En accédant ou en utilisant nos services, vous acceptez d'être lié par ces conditions. Si vous n'acceptez pas ces conditions, vous ne pouvez pas accéder ni utiliser les services."
+        }
+      }
+    },
+    "cookies": {
+      "title": "Politique des cookies",
+      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "sections": {
+        "0": {
+          "title": "1. Que sont les cookies ?",
+          "content": "Les cookies sont de petits fichiers texte qui sont placés sur votre ordinateur ou appareil mobile lorsque vous visitez un site web. Ils sont largement utilisés pour faire fonctionner les sites web, ou les faire fonctionner plus efficacement."
+        }
+      }
+    }
+  }
+}

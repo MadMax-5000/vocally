@@ -17,6 +17,7 @@ export const PLAN_PRICES: Record<string, { madCents: number }> = {
   PRO: { madCents: 399999 },
 };
 
+// Original hardcoded data (used for fallbacks or unlocalized contexts)
 export const PLAN_META: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", PlanMeta> = {
   FREE: {
     key: "free",

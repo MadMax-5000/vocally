@@ -9,10 +9,10 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { KnowledgeIcon } from "@/components/ui/icons"
 import { SidebarAgentsSection } from "@/components/dashboard/sidebar/SidebarAgentsSection"
 import {
+  BarChart2Icon,
   BriefcaseIcon,
   CreditCard,
   Inbox,
-  LayoutDashboard,
   Radio,
 } from "@/lib/icons/app-icons"
 
@@ -46,16 +46,11 @@ function SidebarNavIcon({ icon }: { icon: SidebarIcon }) {
   return <AppIcon icon={icon as IconSvgElement} size={16} />
 }
 
-const homeItem = {
-  title: "Home",
-  url: "/dashboard",
-  icon: LayoutDashboard,
-} as const
-
 const operationsItems: { title: string; url: string; icon: IconSvgElement }[] = [
   { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
   { title: "Leads", url: "/dashboard/leads", icon: BriefcaseIcon },
   { title: "Live monitor", url: "/dashboard/live", icon: Radio },
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart2Icon },
 ]
 
 const workspaceItems: { title: string; url: string; icon: SidebarIcon }[] = [
@@ -79,7 +74,7 @@ function SidebarBrand() {
       )}
     >
       <Link
-        href="/dashboard"
+        href="/dashboard/agents"
         aria-label={BRAND_NAME}
         className={cn(
           "inline-flex shrink-0 items-center gap-2 rounded-md transition-opacity hover:opacity-80",
@@ -139,25 +134,6 @@ export function AppSidebar() {
     <Sidebar collapsible="overlay">
       <SidebarBrand />
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === homeItem.url}
-                  tooltip={homeItem.title}
-                >
-                  <Link href={homeItem.url}>
-                    <SidebarNavIcon icon={homeItem.icon} />
-                    <span>{homeItem.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         <SidebarAgentsSection />
 
         <SidebarGroup>

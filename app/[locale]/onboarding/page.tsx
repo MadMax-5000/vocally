@@ -1,19 +1,19 @@
 import { CreateOrganization } from "@clerk/nextjs";
-
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
+import { getTranslations } from "next-intl/server";
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const t = await getTranslations("onboarding");
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-6">
       <div className="flex flex-col items-center text-center">
         <AnselioLogo variant="black" size="lg" href="/" priority />
         <h1 className="mt-6 text-display-sm font-display tracking-tight text-ink">
-          Set up your workspace
+          {t("title")}
         </h1>
 
         <p className="mt-3 max-w-md text-body-md leading-relaxed text-body">
-          Create an organization to get started. This is where you will manage your AI agents,
-          conversations, and team members.
+          {t("description")}
         </p>
 
         <div className="mt-8 w-full max-w-md">
@@ -37,7 +37,7 @@ export default function OnboardingPage() {
                 alertText: "text-body-sm text-semantic-error",
               },
             }}
-            afterCreateOrganizationUrl="/dashboard"
+            afterCreateOrganizationUrl="/dashboard/agents"
           />
         </div>
       </div>

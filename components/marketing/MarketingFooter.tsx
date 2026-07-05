@@ -1,6 +1,7 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { BRAND_LEGAL_NAME } from "@/lib/constants/brand";
+import { useTranslations } from "next-intl";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
@@ -48,17 +49,18 @@ const socials: SocialLink[] = [
 ];
 
 export function MarketingFooter() {
+  const t = useTranslations("common");
   return (
     <footer className="bg-canvas text-ink">
       <div className="border-t border-hairline">
         <div className={[container, "flex flex-col gap-6 py-10 md:flex-row md:items-end md:justify-between"].join(" ")}>
           <div className="font-display text-[clamp(32px,5vw,56px)] font-normal leading-[1.1] tracking-tighter text-ink">
-            How can we help?{" "}
+            {t("howCanWeHelp")}{" "}
             <Link
               href="/dashboard"
               className="text-ink underline decoration-primary decoration-[4px] underline-offset-[8px] transition-colors hover:text-primary"
             >
-              Contact us.
+              {t("contactUs")}
             </Link>
           </div>
 
@@ -108,19 +110,19 @@ export function MarketingFooter() {
               href="/terms"
               className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
-              Terms of Service
+              {t("termsOfService")}
             </Link>
             <Link
               href="/privacy"
               className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
-              Privacy Notice
+              {t("privacyNotice")}
             </Link>
             <Link
               href="/cookies"
               className="underline decoration-hairline-strong underline-offset-4 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             >
-              Cookie Notice
+              {t("cookieNotice")}
             </Link>
           </nav>
         </div>

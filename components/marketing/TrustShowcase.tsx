@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 import { AppIcon } from "@/components/ui/app-icon";
 import { PhoneCall, ShieldAlert, ShieldCheck, Sparkles } from "@/lib/icons/app-icons";
@@ -227,30 +228,30 @@ function TrustCard({ bgSrc, bgAlt, overlay, eyebrow, body }: TrustCardProps) {
 
 /* ─── Section ─── */
 
-export function TrustShowcase() {
+export async function TrustShowcase() {
+  const t = await getTranslations("landing.trust");
+  const tc = await getTranslations("common");
   return (
     <section className="border-t border-hairline bg-canvas py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}
-        <div className="grid gap-8 md:grid-cols-12">
-          <div className="md:col-span-7">
-            <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
-              Trust &amp; security
-            </div>
-            <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-              Premium experiences<br className="hidden md:block" /> your customers will love
-            </h2>
-            <a
-              href="/dashboard"
-              className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
-            >
-              Learn more
-            </a>
+        <div className="max-w-[800px]">
+          <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
+            Trust &amp; security
           </div>
-          <p className="md:col-span-5 md:pt-14 max-w-[44ch] text-body-md leading-relaxed text-body text-pretty">
-Cut support volume by up to 80% while delivering faster, more consistent customer experiences across every channel your customers use — from voice and chat to WhatsApp, Messenger, and Instagram.
+          <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
+            {t("title")}
+          </h2>
+          <p className="mt-4 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
+            {t("subtitle")}
           </p>
+          <a
+            href="/dashboard"
+            className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
+          >
+            {tc("learnMore")}
+          </a>
         </div>
 
         {/* ── 3-up cards ── */}

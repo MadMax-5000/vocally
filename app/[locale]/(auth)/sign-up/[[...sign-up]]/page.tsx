@@ -1,16 +1,17 @@
 import { SignUp } from "@clerk/nextjs";
-
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
+import { getTranslations } from "next-intl/server";
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  const t = await getTranslations("auth");
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6">
       <AnselioLogo variant="black" size="lg" href="/" priority />
       <h1 className="mt-6 font-display text-display-md tracking-tight text-ink text-center">
-        Create your workspace
+        {t("signUpTitle")}
       </h1>
       <p className="mt-2 text-body-md text-body text-center">
-        Get started with Anselio AI agents
+        {t("signUpSubtitle")}
       </p>
       <SignUp
         appearance={{

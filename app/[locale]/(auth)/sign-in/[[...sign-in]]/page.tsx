@@ -1,17 +1,18 @@
 import { SignIn } from "@clerk/nextjs";
-
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
+import { getTranslations } from "next-intl/server";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const t = await getTranslations("auth");
   return (
     <main className="flex min-h-dvh items-center justify-center bg-canvas px-6">
       <div className="flex w-full max-w-md flex-col items-center">
         <AnselioLogo variant="black" size="lg" href="/" priority />
         <h1 className="mt-6 font-display text-display-md tracking-tight text-ink">
-          Welcome back
+          {t("signInTitle")}
         </h1>
         <p className="mt-2 text-body-md text-body">
-          Sign in to your Anselio workspace
+          {t("signInSubtitle")}
         </p>
         <SignIn
           appearance={{
@@ -41,7 +42,7 @@ export default function SignInPage() {
               formFieldErrorText: "text-caption text-semantic-error",
             },
           }}
-          afterSignInUrl="/dashboard"
+          afterSignInUrl="/dashboard/agents"
           signUpUrl="/sign-up"
         />
       </div>

@@ -1,10 +1,12 @@
 import { BRAND_EMAILS } from "@/lib/constants/brand";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, ArrowUpRightIcon } from "@/lib/icons/app-icons"
 
 import { auth } from "@clerk/nextjs/server";
-import { PLAN_META, PLAN_PRICES } from "@/lib/billing/plan-features";
+import { getTranslations } from "next-intl/server";
+import { PLAN_PRICES } from "@/lib/billing/plan-features";
+import { getLocalizedPlanMeta } from "@/lib/billing/get-plan-meta";
 import { formatPrice } from "@/lib/billing/currency";
 import { getOverageRate } from "@/lib/billing/overage";
 import { HeaderAuth } from "@/components/marketing/HeaderAuth";
@@ -16,17 +18,23 @@ export default async function PricingPage() {
   const { userId, orgId } = await auth();
   const signedIn = !!userId;
 
+  const t = await getTranslations("pricing");
+  const tc = await getTranslations("common");
+  const tp = await getTranslations("plans");
+
+  const localizedPlanMeta = getLocalizedPlanMeta(tp);
+
   const plans = [
     {
-      ...PLAN_META.FREE,
+      ...localizedPlanMeta.FREE,
       price: PLAN_PRICES.FREE,
     },
     {
-      ...PLAN_META.STARTER,
+      ...localizedPlanMeta.STARTER,
       price: PLAN_PRICES.STARTER,
     },
     {
-      ...PLAN_META.PRO,
+      ...localizedPlanMeta.PRO,
       price: PLAN_PRICES.PRO,
     },
   ];
@@ -34,7 +42,7 @@ export default async function PricingPage() {
   function overageDisplay(planKey: string): string | null {
     const rate = getOverageRate(planKey);
     if (rate === 0) return null;
-    return `+ ${rate} DH/min after plan limit`;
+    return t("overage", { rate });
   }
 
   function ctaHref(): string {
@@ -51,10 +59,10 @@ export default async function PricingPage() {
       <div className={[container, "py-section"].join(" ")}>
         <p className="text-caption-uppercase text-muted">Pricing</p>
         <h1 className="mt-4 font-display text-display-xl tracking-tighter text-balance text-ink md:text-display-mega">
-          Simple plans for premium AI-powered customer experiences
+          {t("title")}
         </h1>
-        <p className="mt-6 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
-          All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.
+        <p className="mt-6 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty rtl:text-start ltr:text-left">
+          {tc("allPricesMad")}
         </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -62,7 +70,7 @@ export default async function PricingPage() {
             const isPro = plan.key === "pro";
             const isFree = plan.key === "free";
             const rawPrice = plan.price !== null ? plan.price.madCents : null;
-            const showPrice = isFree ? "Free" : (
+            const showPrice = isFree ? t("free") : (
               rawPrice !== null ? formatPrice(rawPrice) : null
             );
 
@@ -77,7 +85,7 @@ export default async function PricingPage() {
               >
                 {isPro && (
                   <span className="mb-4 inline-flex self-start items-center rounded-full bg-white/90 px-3 py-[2px] text-xs font-semibold text-primary ring-1 ring-inset ring-white/20">
-                    Recommended
+                    {t("recommended")}
                   </span>
                 )}
 
@@ -93,13 +101,13 @@ export default async function PricingPage() {
                 </p>
                 {!isFree && (
                   <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>
-                    per month, billed monthly
+                    {t("perMonth")}
                   </p>
                 )}
 
                 <div className="mt-8 flex-1">
                   <ul className="space-y-3">
-                    {plan.features.map((feature) => (
+                    {plan.features.map((feature: any) => (
                       <li key={feature.text} className="flex items-start gap-3">
                         <span
                           className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
@@ -146,7 +154,7 @@ export default async function PricingPage() {
                       : "bg-ink text-on-primary hover:bg-body-strong"
                   }`}
                 >
-                  {isFree ? "Start free trial" : "Get started"}
+                  {isFree ? t("startFreeTrial") : tc("getStarted")}
                 </Link>
               </article>
             );
@@ -155,23 +163,17 @@ export default async function PricingPage() {
 
         <section className="mt-12 flex flex-col items-start gap-6 rounded-xxl border border-hairline bg-surface-card p-8 md:flex-row md:items-center md:justify-between md:p-10">
           <div>
-            <h2 className="font-display text-display-sm tracking-tighter text-ink">Enterprise</h2>
+            <h2 className="font-display text-display-sm tracking-tighter text-ink">{localizedPlanMeta.ENTERPRISE.name}</h2>
             <p className="mt-1 text-body-sm leading-relaxed text-body">
-              Custom plan for your organization.
+              {localizedPlanMeta.ENTERPRISE.blurb}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                "Unlimited agents",
-                "Custom call volume",
-                "On-premise",
-                "Law 09-08 compliance",
-                "Dedicated manager",
-              ].map((tag) => (
+              {localizedPlanMeta.ENTERPRISE.features.slice(0, 5).map((feature: any) => (
                 <span
-                  key={tag}
+                  key={feature.text}
                   className="rounded-full border border-hairline bg-surface-strong px-3 py-1 text-caption text-ink"
                 >
-                  {tag}
+                  {feature.text}
                 </span>
               ))}
             </div>
@@ -180,7 +182,7 @@ export default async function PricingPage() {
             href={`mailto:${BRAND_EMAILS.sales}`}
             className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
           >
-            Contact sales
+            {t("contactSales")}
             <AppIcon icon={ArrowUpRightIcon} className="h-4 w-4" />
           </Link>
         </section>

@@ -1,29 +1,55 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+
+const handleI18nRouting = createMiddleware(routing);
 
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
-const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
+const isOnboardingRoute = createRouteMatcher(["/(fr|en|ar)/onboarding", "/onboarding"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)", "/api/cron(.*)"]);
-const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)", "/privacy", "/terms", "/cookies", "/pricing"]);
+
+const isI18nRoute = createRouteMatcher([
+  '/',
+  '/(fr|en|ar)(.*)',
+  '/pricing',
+  '/privacy',
+  '/terms',
+  '/cookies',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/onboarding'
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isWebhookRoute(req)) return;
-  if (isPublicRoute(req)) return;
-
-  if (!isProtectedRoute(req) && !isOnboardingRoute(req)) return;
 
   const session = await auth();
 
-  if (!session.userId) {
-    return session.redirectToSignIn({ returnBackUrl: req.url });
+  if (isProtectedRoute(req)) {
+    if (!session.userId) {
+      return session.redirectToSignIn({ returnBackUrl: req.url });
+    }
+    if (!session.orgId) {
+      return Response.redirect(new URL("/fr/onboarding", req.url));
+    }
+    return;
   }
 
-  if (!session.orgId && !isOnboardingRoute(req)) {
-    return Response.redirect(new URL("/onboarding", req.url));
+  if (isOnboardingRoute(req)) {
+    if (!session.userId) {
+      return session.redirectToSignIn({ returnBackUrl: req.url });
+    }
+    if (session.orgId) {
+      return Response.redirect(new URL("/dashboard", req.url));
+    }
+    return handleI18nRouting(req);
   }
 
-  if (session.orgId && isOnboardingRoute(req)) {
-    return Response.redirect(new URL("/dashboard", req.url));
+  if (isI18nRoute(req)) {
+    return handleI18nRouting(req);
   }
+
+  return;
 });
 
 export const config = {

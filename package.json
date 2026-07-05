@@ -22,6 +22,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@clerk/localizations": "^4.12.0",
     "@clerk/nextjs": "^6.33.0",
     "@deepgram/sdk": "^5.2.0",
     "@hugeicons/core-free-icons": "^4.1.2",
@@ -53,6 +54,7 @@
     "googleapis": "^172.0.0",
     "mammoth": "^1.12.0",
     "next": "^14.2.32",
+    "next-intl": "^4.13.1",
     "node-wav": "^0.0.2",
     "react": "^18.3.1",
     "react-day-picker": "^10.0.0",
