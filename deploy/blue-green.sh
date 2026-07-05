@@ -26,6 +26,7 @@ cd "$INACTIVE_DIR"
 git pull origin main
 npm install
 npx prisma db push
+export NODE_OPTIONS="--max-old-space-size=3072"
 npm run build
 
 # ---- Start inactive PM2 instance ----
