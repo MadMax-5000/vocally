@@ -31,8 +31,6 @@
       "stores": "stores"
     },
     "voiceSpheres": {
-      "title": "Voice AI that sounds human",
-      "description": "Our AI agents sound indistinguishable from humans and handle interruptions naturally.",
       "spheres": {
         "abstract-1": {
           "title": "Arabic Support",

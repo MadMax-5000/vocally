@@ -150,14 +150,6 @@ export function HeroVoiceSpheres() {
 
   return (
     <div className="mt-10 w-full">
-      <div className="flex flex-col items-center gap-2 mb-8 text-center">
-        <h3 className="font-display text-display-sm tracking-tighter text-ink">
-          {t("title")}
-        </h3>
-        <p className="text-body-sm text-muted text-balance max-w-[42ch]">
-          {t("description")}
-        </p>
-      </div>
       {/* ── Carousel track ── */}
       <div
         ref={containerRef}

@@ -31,8 +31,6 @@
       "stores": "magasin"
     },
     "voiceSpheres": {
-      "title": "Une IA vocale qui semble humaine",
-      "description": "Nos agents IA sont indiscernables des humains et gèrent les interruptions de manière naturelle.",
       "spheres": {
         "abstract-1": {
           "title": "Support Arabe",
