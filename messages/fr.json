@@ -165,31 +165,278 @@
   "legal": {
     "privacy": {
       "title": "Politique de confidentialité",
-      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "lastUpdated": "Dernière mise à jour : 7 juillet 2026",
       "sections": {
         "0": {
           "title": "1. Introduction",
-          "content": "Cette politique de confidentialité explique comment Anselio collecte, utilise et divulgue des informations vous concernant lorsque vous accédez ou utilisez nos sites web, applications mobiles et autres produits et services en ligne."
+          "content": "Anselio (\u00abenous\u00bb, \u00abnotre\u00bb ou \u00abnos\u00bb) fournit une plateforme de centre de contact en tant que service (CCaaS) pilot\u00e9e par intelligence artificielle qui permet aux entreprises de d\u00e9ployer des agents IA sur les canaux vocaux, chat, email, SMS, WhatsApp, Instagram et Messenger. La pr\u00e9sente politique de confidentialit\u00e9 explique comment nous collectons, utilisons, divulguons et prot\u00e9geons les informations vous concernant lorsque vous acc\u00e9dez \u00e0 notre site web, notre plateforme et nos services connexes."
+        },
+        "1": {
+          "title": "2. Informations que nous collectons",
+          "content": {
+            "intro": "Nous collectons les informations que vous nous fournissez directement, les informations collect\u00e9es automatiquement lorsque vous utilisez nos services, et les informations provenant de tiers. Les cat\u00e9gories d\u2019informations que nous collectons comprennent\u00a0:",
+            "list": [
+              "Informations de compte\u00a0: lors de votre inscription, nous collectons votre nom, adresse email, photo de profil et les d\u00e9tails de votre organisation via notre fournisseur d\u2019authentification, Clerk.",
+              "Informations d\u2019organisation\u00a0: nom de l\u2019organisation, d\u00e9tails de facturation, type de plan et param\u00e8tres de configuration de vos agents IA.",
+              "Communications clients\u00a0: tous les messages, enregistrements d\u2019appels, transcriptions et m\u00e9tadonn\u00e9es \u00e9chang\u00e9s entre vos clients finaux et les agents IA sur tous les canaux.",
+              "Donn\u00e9es d\u2019appels\u00a0: identifiants d\u2019appels Twilio, dur\u00e9e des appels, URLs d\u2019enregistrement, transcriptions, audio vocal trait\u00e9 via notre pipeline IA par OpenRouter et Vapi.",
+              "Donn\u00e9es de prospects\u00a0: noms, adresses email, num\u00e9ros de t\u00e9l\u00e9phone, noms d\u2019entreprise et notes captur\u00e9s via les conversations des agents IA.",
+              "Contenu de la base de connaissances\u00a0: documents, textes et fichiers que vous t\u00e9l\u00e9chargez pour former et configurer vos agents IA.",
+              "Identifiants d\u2019int\u00e9gration\u00a0: jetons OAuth et identifiants de connexion pour les services tiers que vous connectez.",
+              "Donn\u00e9es d\u2019utilisation\u00a0: analyses sur le nombre de sessions, taux de r\u00e9solution, dur\u00e9es de traitement et utilisation des fonctionnalit\u00e9s.",
+              "Donn\u00e9es d\u2019erreur\u00a0: rapports d\u2019erreur et traces de pile collect\u00e9es via Sentry en cas de plantage.",
+              "Donn\u00e9es de communication\u00a0: demandes que vous envoyez \u00e0 notre \u00e9quipe d\u2019assistance par email ou chat."
+            ],
+            "outro": "Nous ne collectons pas les informations de carte de paiement. Tout le traitement des paiements est g\u00e9r\u00e9 par notre processeur de paiement, LemonSqueezy."
+          }
+        },
+        "2": {
+          "title": "3. Comment nous utilisons vos informations",
+          "content": {
+            "intro": "Nous utilisons les informations que nous collectons aux fins suivantes\u00a0:",
+            "list": [
+              "Fournir, exploiter et maintenir la plateforme Anselio et ses fonctionnalit\u00e9s.",
+              "Traiter et r\u00e9pondre aux demandes des clients via les agents IA sur tous les canaux int\u00e9gr\u00e9s.",
+              "Transcrire et analyser les appels vocaux et messages via la reconnaissance vocale et le traitement du langage naturel par OpenRouter.",
+              "G\u00e9n\u00e9rer des r\u00e9sum\u00e9s, des scores de sentiment et des scores d\u2019assurance qualit\u00e9 pour chaque session.",
+              "G\u00e9rer la facturation et les abonnements via LemonSqueezy.",
+              "Envoyer des emails transactionnels via Resend.",
+              "Am\u00e9liorer notre plateforme, d\u00e9velopper de nouvelles fonctionnalit\u00e9s et mener des analyses de donn\u00e9es.",
+              "D\u00e9tecter, pr\u00e9venir et traiter les probl\u00e8mes techniques, la fraude et les abus.",
+              "Se conformer aux obligations l\u00e9gales et appliquer nos conditions d\u2019utilisation."
+            ]
+          }
+        },
+        "3": {
+          "title": "4. Base juridique du traitement (RGPD & Loi 09-08)",
+          "content": "Nous traitons vos donn\u00e9es personnelles sur les bases juridiques suivantes\u00a0: (a) N\u00e9cessit\u00e9 contractuelle \u2014 le traitement est n\u00e9cessaire \u00e0 l\u2019ex\u00e9cution de notre contrat avec vous et \u00e0 la fourniture des services demand\u00e9s\u00a0; (b) Int\u00e9r\u00eats l\u00e9gitimes \u2014 le traitement pour l\u2019am\u00e9lioration du service, la s\u00e9curit\u00e9 et les analyses sert nos int\u00e9r\u00eats commerciaux l\u00e9gitimes\u00a0; (c) Consentement \u2014 lorsque vous avez explicitement consenti, comme pour la connexion d\u2019int\u00e9grations tierces via OAuth\u00a0; (d) Obligation l\u00e9gale \u2014 traitement requis pour se conformer aux lois applicables, notamment la Loi marocaine 09-08 relative \u00e0 la protection des personnes physiques \u00e0 l\u2019\u00e9gard du traitement des donn\u00e9es \u00e0 caract\u00e8re personnel."
+        },
+        "4": {
+          "title": "5. Partage des informations",
+          "content": {
+            "intro": "Nous ne vendons pas vos informations personnelles. Nous partageons vos informations uniquement avec des prestataires de services tiers de confiance qui nous aident \u00e0 exploiter notre plateforme, sous r\u00e9serve d\u2019obligations contractuelles garantissant la protection de vos donn\u00e9es. Ces prestataires comprennent\u00a0:",
+            "list": [
+              "Clerk \u2014 Authentification et gestion d\u2019organisations multi-locataires. Clerk re\u00e7oit votre nom, email et identifiants d\u2019authentification.",
+              "Supabase \u2014 H\u00e9bergement de base de donn\u00e9es (Postgres) et synchronisation en temps r\u00e9el. Toutes les donn\u00e9es applicatives sont stock\u00e9es sur l\u2019infrastructure Supabase.",
+              "OpenRouter \u2014 Traitement par mod\u00e8le de langage IA, reconnaissance vocale (Whisper) et synth\u00e8se vocale. Le contenu complet des messages, transcriptions d\u2019appels et audio sont envoy\u00e9s \u00e0 OpenRouter.",
+              "Twilio \u2014 Infrastructure t\u00e9l\u00e9phonique pour les appels vocaux, SMS et WhatsApp. L\u2019audio des appels, num\u00e9ros de t\u00e9l\u00e9phone et contenu des messages sont trait\u00e9s via Twilio.",
+              "Vapi \u2014 Pipeline vocal IA pour le traitement des conversations vocales. L\u2019audio des appels, transcriptions et m\u00e9tadonn\u00e9es sont partag\u00e9s avec Vapi.",
+              "Resend \u2014 Livraison d\u2019emails transactionnels et entrants. Le contenu des emails et les adresses sont trait\u00e9s par Resend.",
+              "LemonSqueezy \u2014 Traitement des paiements et gestion des abonnements. Votre identifiant d\u2019organisation, identifiant utilisateur, email et nom sont partag\u00e9s.",
+              "Google (API Gmail) \u2014 Int\u00e9gration email. Si vous connectez votre compte Gmail, le contenu et les m\u00e9tadonn\u00e9es de vos emails sont accessibles via l\u2019API Gmail.",
+              "Meta (Facebook/Instagram) \u2014 Int\u00e9gration Messenger et Instagram DM. Le contenu des messages et les informations de l\u2019exp\u00e9diteur sont trait\u00e9s.",
+              "Sentry \u2014 Suivi des erreurs et surveillance des performances. Les traces d\u2019erreur et donn\u00e9es de performance sont collect\u00e9es lorsqu\u2019activ\u00e9."
+            ],
+            "outro": "Nous pouvons \u00e9galement divulguer vos informations si requis par la loi, une ordonnance judiciaire ou une r\u00e9glementation gouvernementale."
+          }
+        },
+        "5": {
+          "title": "6. Transferts internationaux de donn\u00e9es",
+          "content": "Vos informations peuvent \u00eatre transf\u00e9r\u00e9es et trait\u00e9es dans des pays autres que le v\u00f4tre, notamment aux \u00c9tats-Unis, dans l\u2019Union europ\u00e9enne et au Maroc, o\u00f9 nos prestataires de services op\u00e8rent. Lorsque nous transf\u00e9rons des donn\u00e9es au-del\u00e0 des fronti\u00e8res, nous mettons en \u0153uvre des garanties appropri\u00e9es, y compris les clauses contractuelles types (CCT) lorsque requis, pour assurer \u00e0 vos donn\u00e9es un niveau de protection ad\u00e9quat conform\u00e9ment \u00e0 la Loi 09-08 et au RGPD."
+        },
+        "6": {
+          "title": "7. Conservation des donn\u00e9es",
+          "content": "Nous conservons vos informations aussi longtemps que votre compte est actif ou que cela est n\u00e9cessaire pour vous fournir les services. Lorsque vous supprimez votre compte ou demandez la suppression de donn\u00e9es, nous supprimons ou anonymisons vos donn\u00e9es personnelles dans un d\u00e9lai raisonnable, sous r\u00e9serve des exigences l\u00e9gales de conservation. Les donn\u00e9es de session, enregistrements d\u2019appels, transcriptions et messages sont conserv\u00e9s pendant la dur\u00e9e de votre abonnement et peuvent \u00eatre conserv\u00e9s sous forme anonymis\u00e9e \u00e0 des fins d\u2019analyse."
+        },
+        "7": {
+          "title": "8. Vos droits",
+          "content": {
+            "intro": "En vertu de la Loi marocaine 09-08 et du RGPD, vous disposez des droits suivants concernant vos donn\u00e9es personnelles\u00a0:",
+            "list": [
+              "Droit d\u2019acc\u00e8s\u00a0: vous pouvez demander une copie des donn\u00e9es personnelles que nous d\u00e9tenons vous concernant.",
+              "Droit de rectification\u00a0: vous pouvez demander la correction de donn\u00e9es inexactes ou incompl\u00e8tes.",
+              "Droit \u00e0 l\u2019effacement (\u00abdroit \u00e0 l\u2019oubli\u00bb)\u00a0: vous pouvez demander la suppression de vos donn\u00e9es personnelles.",
+              "Droit \u00e0 la limitation du traitement\u00a0: vous pouvez demander de limiter la fa\u00e7on dont nous traitons vos donn\u00e9es.",
+              "Droit \u00e0 la portabilit\u00e9 des donn\u00e9es\u00a0: vous pouvez demander une copie de vos donn\u00e9es dans un format structur\u00e9 et lisible par machine.",
+              "Droit d\u2019opposition\u00a0: vous pouvez vous opposer au traitement fond\u00e9 sur des int\u00e9r\u00eats l\u00e9gitimes.",
+              "Droit de retirer votre consentement\u00a0: lorsque le traitement est bas\u00e9 sur le consentement, vous pouvez le retirer \u00e0 tout moment."
+            ],
+            "outro": "Pour exercer ces droits, contactez-nous \u00e0 privacy@anselio.com. Nous r\u00e9pondrons \u00e0 votre demande dans un d\u00e9lai de 30 jours comme requis par la loi applicable."
+          }
+        },
+        "8": {
+          "title": "9. S\u00e9curit\u00e9",
+          "content": "Nous mettons en \u0153uvre des mesures techniques et organisationnelles appropri\u00e9es pour prot\u00e9ger vos donn\u00e9es personnelles, notamment\u00a0: le chiffrement des donn\u00e9es en transit (TLS) et au repos (via Supabase)\u00a0; des politiques de s\u00e9curit\u00e9 au niveau des lignes limitant toutes les donn\u00e9es \u00e0 votre organisation\u00a0; le stockage chiffr\u00e9 des jetons OAuth et identifiants\u00a0; la v\u00e9rification des signatures de webhooks entrants\u00a0; et la limitation de d\u00e9bit sur les endpoints publics. Malgr\u00e9 ces mesures, aucune m\u00e9thode de transmission ou de stockage n\u2019est s\u00e9curis\u00e9e \u00e0 100%."
+        },
+        "9": {
+          "title": "10. Modifications de cette politique",
+          "content": "Nous pouvons mettre \u00e0 jour cette politique de confidentialit\u00e9 de temps \u00e0 autre. En cas de modifications importantes, nous vous en informerons par email ou via un avis sur notre plateforme. Votre utilisation continue des services apr\u00e8s la date d\u2019entr\u00e9e en vigueur des modifications constitue votre acceptation de la politique mise \u00e0 jour."
+        },
+        "10": {
+          "title": "11. Contact",
+          "content": "Si vous avez des questions, pr\u00e9occupations ou demandes concernant cette politique de confidentialit\u00e9 ou nos pratiques en mati\u00e8re de donn\u00e9es, veuillez nous contacter \u00e0 privacy@anselio.com ou par courrier \u00e0 Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Maroc."
         }
       }
     },
     "terms": {
       "title": "Conditions d'utilisation",
-      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "lastUpdated": "Derni\u00e8re mise \u00e0 jour : 7 juillet 2026",
       "sections": {
         "0": {
           "title": "1. Accord aux conditions",
-          "content": "En accédant ou en utilisant nos services, vous acceptez d'être lié par ces conditions. Si vous n'acceptez pas ces conditions, vous ne pouvez pas accéder ni utiliser les services."
+          "content": "En acc\u00e9dant ou en utilisant la plateforme Anselio, son site web ou ses services connexes (\u00abServices\u00bb), vous acceptez d\u2019\u00eatre li\u00e9 par les pr\u00e9sentes Conditions d\u2019utilisation (\u00abConditions\u00bb). Si vous n\u2019acceptez pas ces Conditions, vous ne pouvez pas acc\u00e9der ni utiliser les Services. Si vous utilisez les Services au nom d\u2019une organisation, vous d\u00e9clarez et garantissez avoir l\u2019autorit\u00e9 de lier cette organisation aux pr\u00e9sentes Conditions."
+        },
+        "1": {
+          "title": "2. Description du service",
+          "content": {
+            "intro": "Anselio fournit une plateforme de centre de contact en tant que service (CCaaS) pilot\u00e9e par intelligence artificielle qui permet aux organisations de d\u00e9ployer des agents conversationnels IA sur plusieurs canaux de communication, notamment la voix (t\u00e9l\u00e9phone), le chat en direct, l\u2019email, les SMS, WhatsApp, Instagram et Facebook Messenger. La plateforme comprend\u00a0:",
+            "list": [
+              "Outils de configuration, de d\u00e9ploiement et de gestion des agents IA.",
+              "Traitement du langage naturel via des fournisseurs IA tiers (OpenAI, Anthropic et Google via OpenRouter).",
+              "Capacit\u00e9s de reconnaissance et de synth\u00e8se vocales pour les interactions vocales.",
+              "Gestion de base de connaissances et g\u00e9n\u00e9ration augment\u00e9e par r\u00e9cup\u00e9ration (RAG).",
+              "Tableau de bord des agents avec assistance IA co-pilote.",
+              "Analytiques, rapports et scoring d\u2019assurance qualit\u00e9.",
+              "Int\u00e9gration avec des plateformes tierces (Gmail, Google Calendar, Facebook, Instagram, WhatsApp, Twilio, CRM).",
+              "API REST pour les int\u00e9grations personnalis\u00e9es."
+            ],
+            "outro": "Les Services sont fournis sur la base d\u2019un abonnement avec des plans \u00e0 plusieurs niveaux offrant diff\u00e9rents ensembles de fonctionnalit\u00e9s et limites d\u2019utilisation."
+          }
+        },
+        "2": {
+          "title": "3. Inscription et s\u00e9curit\u00e9 du compte",
+          "content": {
+            "list": [
+              "Vous devez cr\u00e9er un compte pour utiliser les Services. L\u2019inscription requiert des informations exactes, \u00e0 jour et compl\u00e8tes.",
+              "Vous \u00eates responsable de la confidentialit\u00e9 de vos identifiants de compte et de toutes les activit\u00e9s sous votre compte.",
+              "Vous devez nous informer imm\u00e9diatement de toute utilisation non autoris\u00e9e de votre compte ou de toute autre violation de s\u00e9curit\u00e9.",
+              "Vous pouvez cr\u00e9er et g\u00e9rer des organisations (espaces de travail) au sein de la plateforme.",
+              "Nous nous r\u00e9servons le droit de suspendre ou r\u00e9silier les comptes qui violent ces Conditions ou les lois applicables."
+            ]
+          }
+        },
+        "3": {
+          "title": "4. Abonnements, facturation et paiement",
+          "content": {
+            "intro": "La plateforme est propos\u00e9e sur la base d\u2019un abonnement avec les plans suivants\u00a0: Gratuit, Starter, Pro et Entreprise.",
+            "list": [
+              "Les frais d\u2019abonnement sont factur\u00e9s mensuellement d\u2019avance en Dirham Marocain (MAD) via LemonSqueezy.",
+              "Plan Gratuit\u00a0: 50 minutes d\u2019appels par mois avec 1 agent IA et canal chat uniquement.",
+              "Plan Starter (999,99 MAD/mois)\u00a0: jusqu\u2019\u00e0 3 agents IA, 2 000 minutes d\u2019appels et 2 canaux.",
+              "Plan Pro (3 999,99 MAD/mois)\u00a0: jusqu\u2019\u00e0 8 agents IA, 10 000 minutes d\u2019appels et tous les canaux.",
+              "Plan Entreprise\u00a0: tarifs, limites et fonctionnalit\u00e9s personnalis\u00e9s.",
+              "Le d\u00e9passement des limites du plan est factur\u00e9 au tarif de d\u00e9passement applicable.",
+              "Tous les frais sont non remboursables sauf si requis par la loi. Le passage \u00e0 un plan inf\u00e9rieur prend effet au prochain cycle de facturation.",
+              "Nous pouvons modifier nos frais moyennant un pr\u00e9avis de 30 jours.",
+              "Les retards de paiement peuvent entra\u00eener la suspension ou la r\u00e9siliation de l\u2019acc\u00e8s aux Services."
+            ]
+          }
+        },
+        "4": {
+          "title": "5. Essai gratuit",
+          "content": "Nous offrons un essai gratuit de 14 jours aux nouveaux clients. L\u2019essai comprend 50 minutes de traitement d\u2019appels IA sans carte de cr\u00e9dit requise. \u00c0 la fin de la p\u00e9riode d\u2019essai, votre compte sera converti au plan Gratuit sauf si vous avez souscrit \u00e0 un plan payant. Nous nous r\u00e9servons le droit de modifier ou d\u2019annuler les essais gratuits \u00e0 tout moment sans pr\u00e9avis."
+        },
+        "5": {
+          "title": "6. Utilisation acceptable",
+          "content": {
+            "intro": "Vous acceptez d\u2019utiliser les Services uniquement \u00e0 des fins licites et conform\u00e9ment aux pr\u00e9sentes Conditions. Vous acceptez de ne pas\u00a0:",
+            "list": [
+              "Utiliser les Services \u00e0 des fins illicites ou en violation de toute loi applicable, notamment la Loi marocaine 09-08.",
+              "Utiliser les Services pour transmettre du contenu diffamatoire, obsc\u00e8ne, abusif ou frauduleux.",
+              "Utiliser les Services pour porter atteinte aux droits de propri\u00e9t\u00e9 intellectuelle ou \u00e0 la vie priv\u00e9e d\u2019autrui.",
+              "Tenter d\u2019obtenir un acc\u00e8s non autoris\u00e9 \u00e0 toute partie des Services.",
+              "Interf\u00e9rer avec l\u2019int\u00e9grit\u00e9 ou la performance des Services.",
+              "D\u00e9compiler, d\u00e9sassembler ou faire de l\u2019ing\u00e9nierie inverse sur la plateforme.",
+              "Utiliser des scripts automatis\u00e9s, robots ou scrapers sans notre autorisation \u00e9crite expresse.",
+              "Utiliser les donn\u00e9es de la plateforme pour entra\u00eener des mod\u00e8les IA externes sans consentement explicite."
+            ]
+          }
+        },
+        "6": {
+          "title": "7. Contenu et donn\u00e9es utilisateur",
+          "content": {
+            "intro": "Vous conservez tous les droits de propri\u00e9t\u00e9 sur le contenu, les donn\u00e9es et les documents que vous t\u00e9l\u00e9chargez, soumettez ou affichez via les Services (\u00abContenu utilisateur\u00bb). Cela inclut les documents de la base de connaissances, les configurations d\u2019agents, les messages clients et toute autre donn\u00e9e.",
+            "list": [
+              "Vous accordez \u00e0 Anselio une licence mondiale, non exclusive, libre de redevance pour acc\u00e9der, utiliser, traiter, copier, stocker et transmettre votre Contenu utilisateur uniquement dans le but de fournir, maintenir et am\u00e9liorer les Services.",
+              "Vous d\u00e9clarez et garantissez que vous poss\u00e9dez ou avez obtenu tous les droits, licences et consentements n\u00e9cessaires pour votre Contenu utilisateur.",
+              "Vous \u00eates responsable de garantir que votre collecte et traitement des donn\u00e9es de vos clients finaux via les Services respectent toutes les lois applicables sur la protection des donn\u00e9es.",
+              "Nous prenons des mesures raisonnables pour prot\u00e9ger votre Contenu utilisateur mais ne sommes pas responsables des pertes de donn\u00e9es."
+            ]
+          }
+        },
+        "7": {
+          "title": "8. Services et int\u00e9grations tiers",
+          "content": "Les Services s\u2019int\u00e8grent avec des plateformes et services tiers, notamment Twilio, OpenRouter, Vapi, Google (Gmail), Meta (Facebook/Instagram), Clerk, Supabase, Resend, LemonSqueezy et Sentry. Nous ne contr\u00f4lons pas et ne sommes pas responsables des pratiques, de la disponibilit\u00e9 ou de la s\u00e9curit\u00e9 de ces services tiers. Votre utilisation des services tiers int\u00e9gr\u00e9s est soumise \u00e0 leurs conditions d\u2019utilisation et politiques de confidentialit\u00e9 respectives."
+        },
+        "8": {
+          "title": "9. Propri\u00e9t\u00e9 intellectuelle",
+          "content": {
+            "intro": "La plateforme Anselio, y compris son logiciel, code, design, marques, logos et documentation, est la propri\u00e9t\u00e9 d\u2019Anselio et prot\u00e9g\u00e9e par le droit d\u2019auteur, les marques d\u00e9pos\u00e9es et autres lois sur la propri\u00e9t\u00e9 intellectuelle.",
+            "list": [
+              "Sous r\u00e9serve des pr\u00e9sentes Conditions, nous vous accordons une licence limit\u00e9e, non exclusive, non transf\u00e9rable et r\u00e9vocable pour utiliser les Services \u00e0 des fins commerciales internes.",
+              "Vous ne pouvez pas copier, modifier, distribuer, vendre ou louer les Services sans notre consentement \u00e9crit pr\u00e9alable.",
+              "Les commentaires, suggestions et id\u00e9es que vous fournissez peuvent \u00eatre utilis\u00e9s par Anselio sans compensation."
+            ]
+          }
+        },
+        "9": {
+          "title": "10. Limitation de responsabilit\u00e9",
+          "content": "Dans toute la mesure permise par la loi applicable, Anselio et ses dirigeants, employ\u00e9s et mandataires ne peuvent \u00eatre tenus responsables des dommages indirects, accessoires, sp\u00e9ciaux, cons\u00e9cutifs ou punitifs, y compris la perte de profits, de donn\u00e9es, d\u2019usage ou de client\u00e8le, r\u00e9sultant (i) de votre acc\u00e8s ou utilisation ou incapacit\u00e9 d\u2019acc\u00e9der ou d\u2019utiliser les Services\u00a0; (ii) de tout comportement ou contenu d\u2019un tiers sur les Services\u00a0; (iii) de tout contenu obtenu des Services\u00a0; ou (iv) de tout acc\u00e8s, utilisation ou modification non autoris\u00e9s de vos transmissions ou contenus. Notre responsabilit\u00e9 totale pour toute r\u00e9clamation au titre des pr\u00e9sentes Conditions ne d\u00e9passera pas le montant que vous nous avez pay\u00e9 au cours des douze (12) mois pr\u00e9c\u00e9dant la r\u00e9clamation."
+        },
+        "10": {
+          "title": "11. R\u00e9siliation",
+          "content": {
+            "list": [
+              "Vous pouvez r\u00e9silier votre compte \u00e0 tout moment en contactant le support ou via les param\u00e8tres de votre compte.",
+              "Nous pouvons suspendre ou r\u00e9silier votre acc\u00e8s aux Services imm\u00e9diatement en cas de violation substantielle des pr\u00e9sentes Conditions.",
+              "Lors de la r\u00e9siliation, votre droit d\u2019utiliser les Services cesse. Nous supprimerons ou anonymiserons vos donn\u00e9es dans un d\u00e9lai raisonnable.",
+              "Les sections 6, 7, 9, 10 et 12 survivent \u00e0 la r\u00e9siliation."
+            ]
+          }
+        },
+        "11": {
+          "title": "12. Droit applicable et r\u00e8glement des litiges",
+          "content": "Les pr\u00e9sentes Conditions sont r\u00e9gies par et interpr\u00e9t\u00e9es conform\u00e9ment au droit du Royaume du Maroc. Tout litige d\u00e9coulant des pr\u00e9sentes Conditions ou des Services fera l\u2019objet d\u2019une tentative de r\u00e9solution par n\u00e9gociation de bonne foi. Si le litige ne peut \u00eatre r\u00e9solu dans les 30 jours, il sera soumis aux tribunaux comp\u00e9tents de Casablanca, Maroc."
+        },
+        "12": {
+          "title": "13. Modifications des conditions",
+          "content": "Nous nous r\u00e9servons le droit de modifier les pr\u00e9sentes Conditions \u00e0 tout moment. En cas de modifications importantes, nous vous en informerons par email ou via un avis sur notre plateforme. Votre utilisation continue des Services apr\u00e8s la date d\u2019entr\u00e9e en vigueur des modifications constitue votre acceptation des Conditions modifi\u00e9es."
+        },
+        "13": {
+          "title": "14. Coordonn\u00e9es",
+          "content": "Pour toute question concernant les pr\u00e9sentes Conditions, veuillez nous contacter \u00e0 legal@anselio.com ou par courrier \u00e0 Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Maroc."
         }
       }
     },
     "cookies": {
       "title": "Politique des cookies",
-      "lastUpdated": "Dernière mise à jour : 5 juillet 2026",
+      "lastUpdated": "Derni\u00e8re mise \u00e0 jour : 7 juillet 2026",
       "sections": {
         "0": {
           "title": "1. Que sont les cookies ?",
-          "content": "Les cookies sont de petits fichiers texte qui sont placés sur votre ordinateur ou appareil mobile lorsque vous visitez un site web. Ils sont largement utilisés pour faire fonctionner les sites web, ou les faire fonctionner plus efficacement."
+          "content": "Les cookies sont de petits fichiers texte qui sont plac\u00e9s sur votre ordinateur ou appareil mobile lorsque vous visitez un site web. Ils sont largement utilis\u00e9s pour faire fonctionner les sites web plus efficacement, am\u00e9liorer l\u2019exp\u00e9rience utilisateur et fournir des informations aux propri\u00e9taires du site. La pr\u00e9sente politique explique comment Anselio utilise les cookies et technologies similaires."
+        },
+        "1": {
+          "title": "2. Comment nous utilisons les cookies",
+          "content": {
+            "intro": "Nous utilisons uniquement un ensemble limit\u00e9 de cookies et d\u2019\u00e9l\u00e9ments de stockage local pour faire fonctionner notre plateforme\u00a0:",
+            "list": [
+              "sidebar:state (localStorage)\u00a0: stocke votre pr\u00e9f\u00e9rence de menu lat\u00e9ral (ouvert/ferm\u00e9) pour une exp\u00e9rience utilisateur coh\u00e9rente.",
+              "Cookies de session Clerk\u00a0: notre fournisseur d\u2019authentification d\u00e9finit des cookies de session et jetons CSRF essentiels.",
+              "Cookies de session\u00a0: cookies de session c\u00f4t\u00e9 serveur n\u00e9cessaires au fonctionnement de la plateforme."
+            ],
+            "outro": "Nous n\u2019utilisons aucun cookie \u00e0 des fins publicitaires, de suivi ou d\u2019analyse."
+          }
+        },
+        "2": {
+          "title": "3. Cookies tiers",
+          "content": {
+            "intro": "Certains services tiers que nous int\u00e9grons peuvent d\u00e9finir leurs propres cookies\u00a0:",
+            "list": [
+              "Clerk\u00a0: cookies d\u2019authentification et de session n\u00e9cessaires \u00e0 la connexion utilisateur.",
+              "LemonSqueezy\u00a0: cookies sur leurs pages de paiement pour le traitement et la pr\u00e9vention de la fraude.",
+              "Sentry\u00a0: cookie de session pour le suivi des erreurs, uniquement si activ\u00e9."
+            ],
+            "outro": "Nous ne contr\u00f4lons pas ces cookies tiers. Consultez leurs politiques de confidentialit\u00e9 pour plus d\u2019informations."
+          }
+        },
+        "3": {
+          "title": "4. Vos choix",
+          "content": "\u00c9tant donn\u00e9 que nous utilisons uniquement des cookies strictement n\u00e9cessaires et un stockage local fonctionnel, ceux-ci ne peuvent pas \u00eatre d\u00e9sactiv\u00e9s sans affecter le fonctionnement de la plateforme. Vous pouvez g\u00e9rer ou supprimer les cookies via les param\u00e8tres de votre navigateur."
+        },
+        "4": {
+          "title": "5. Modifications et contact",
+          "content": "Nous pouvons mettre \u00e0 jour la pr\u00e9sente politique des cookies de temps \u00e0 autre. Les modifications seront publi\u00e9es sur cette page avec une date de r\u00e9vision mise \u00e0 jour. Pour toute question, contactez-nous \u00e0 privacy@anselio.com ou Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Maroc."
         }
       }
     }

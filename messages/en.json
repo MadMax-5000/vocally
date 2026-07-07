@@ -165,31 +165,278 @@
   "legal": {
     "privacy": {
       "title": "Privacy Notice",
-      "lastUpdated": "Last updated: July 5, 2026",
+      "lastUpdated": "Last updated: July 7, 2026",
       "sections": {
         "0": {
           "title": "1. Introduction",
-          "content": "This Privacy Notice explains how Anselio collects, uses, and discloses information about you when you access or use our websites, mobile applications, and other online products and services."
+          "content": "Anselio (\u201cwe,\u201d \u201cus,\u201d or \u201cour\u201d) provides an AI-first Contact Center as a Service (CCaaS) platform that enables businesses to deploy AI-powered agents across voice, chat, email, SMS, WhatsApp, Instagram, and Messenger channels. This Privacy Notice explains how we collect, use, disclose, and protect information about you when you access or use our website, platform, and related services."
+        },
+        "1": {
+          "title": "2. Information We Collect",
+          "content": {
+            "intro": "We collect information you provide directly to us, information automatically collected when you use our services, and information from third parties. The categories of information we collect include:",
+            "list": [
+              "Account Information: When you register for an account, we collect your name, email address, profile picture, and organization details through our authentication provider, Clerk.",
+              "Organization Information: Organization name, billing details, plan type, and configuration settings for your AI agents.",
+              "Customer Communications: All messages, call recordings, transcripts, and metadata exchanged between your end customers and AI agents across all channels (voice, chat, email, SMS, WhatsApp, Instagram, Messenger).",
+              "Call Data: Twilio call SIDs, call duration, recording URLs, transcripts, voice input and output audio processed through our AI pipeline via OpenRouter and Vapi.",
+              "Lead Data: Customer names, email addresses, phone numbers, company names, and notes captured through AI agent conversations.",
+              "Knowledge Base Content: Documents, text, and files you upload to train and configure your AI agents.",
+              "Integration Credentials: OAuth tokens and connection credentials for third-party services you connect (Gmail, Meta/Instagram, Messenger, WhatsApp).",
+              "Usage Data: Analytics on session counts, resolution rates, handle times, and feature usage for service improvement.",
+              "Error Data: Error reports and stack traces collected via Sentry when crashes occur.",
+              "Communication Data: Inquiries you send to our support team via email or chat."
+            ],
+            "outro": "We do not collect payment card information. All payment processing is handled by our payment processor, LemonSqueezy."
+          }
+        },
+        "2": {
+          "title": "3. How We Use Your Information",
+          "content": {
+            "intro": "We use the information we collect for the following purposes:",
+            "list": [
+              "To provide, operate, and maintain the Anselio platform and its features.",
+              "To process and respond to customer inquiries through AI agents across all integrated channels.",
+              "To transcribe and analyze voice calls and messages using AI-powered speech recognition and natural language processing via OpenRouter.",
+              "To generate summaries, sentiment scores, and quality assurance scores for each session.",
+              "To process billing and subscription management via LemonSqueezy.",
+              "To send transactional emails (agent invitations, lead alerts, appointment reminders, billing notifications) via Resend.",
+              "To improve our platform, develop new features, and conduct data analysis and research.",
+              "To detect, prevent, and address technical issues, fraud, and abuse.",
+              "To comply with legal obligations and enforce our Terms of Service."
+            ]
+          }
+        },
+        "3": {
+          "title": "4. Legal Basis for Processing (GDPR & Law 09-08)",
+          "content": "We process your personal data on the following legal bases: (a) Contractual Necessity \u2014 processing is necessary to perform our contract with you and provide the services you requested; (b) Legitimate Interests \u2014 processing for service improvement, security, and analytics serves our legitimate business interests; (c) Consent \u2014 where you have explicitly consented, such as connecting third-party integrations via OAuth; (d) Legal Obligation \u2014 processing required to comply with applicable laws, including Morocco\u2019s Law 09-08 on protection of individuals with regard to the processing of personal data."
+        },
+        "4": {
+          "title": "5. Sharing of Information",
+          "content": {
+            "intro": "We do not sell your personal information. We share your information only with trusted third-party service providers who help us operate our platform, subject to contractual obligations that ensure your data is protected. These providers include:",
+            "list": [
+              "Clerk \u2014 Authentication and multi-tenant organization management. Clerk receives your name, email, and authentication credentials.",
+              "Supabase \u2014 Database hosting (Postgres) and real-time data synchronization. All application data is stored on Supabase infrastructure.",
+              "OpenRouter \u2014 AI language model processing, speech-to-text (Whisper), and text-to-speech. Full message content, call transcripts, and audio are sent to OpenRouter for processing. OpenRouter operates as a proxy to AI providers including OpenAI, Anthropic, Google, and others.",
+              "Twilio \u2014 Telephony infrastructure for voice calls, SMS, and WhatsApp messaging. Call audio, phone numbers, and message content are processed through Twilio.",
+              "Vapi \u2014 Voice AI pipeline for processing voice conversations. Call audio, transcripts, and conversation metadata are shared with Vapi.",
+              "Resend \u2014 Transactional and inbound email delivery. Email content and addresses are processed by Resend.",
+              "LemonSqueezy \u2014 Payment processing and subscription management. Your organization ID, user ID, email, and name are shared; no payment card data passes through our systems.",
+              "Google (Gmail API) \u2014 Email integration. If you connect your Gmail account, your email content and metadata are accessed via the Gmail API.",
+              "Meta (Facebook/Instagram) \u2014 Messenger and Instagram DM integration. Message content and sender information are processed when you connect these channels.",
+              "Sentry \u2014 Error tracking and performance monitoring. Error stack traces and performance data are collected when enabled."
+            ],
+            "outro": "We may also disclose your information if required by law, court order, or governmental regulation, or to protect our rights, property, or safety."
+          }
+        },
+        "5": {
+          "title": "6. International Data Transfers",
+          "content": "Your information may be transferred to and processed in countries other than your own, including the United States, the European Union, and Morocco, where our service providers operate. When we transfer data across borders, we implement appropriate safeguards, including Standard Contractual Clauses (SCCs) where required, to ensure your data receives an adequate level of protection in accordance with applicable data protection laws including Morocco\u2019s Law 09-08 and the GDPR."
+        },
+        "6": {
+          "title": "7. Data Retention",
+          "content": "We retain your information for as long as your account is active or as needed to provide you with the services. When you delete your account or request data deletion, we will delete or anonymize your personal data within a reasonable period, subject to legal retention requirements. Session data, call recordings, transcripts, and messages are retained for the duration of your subscription and may be retained in anonymized form for analytics purposes."
+        },
+        "7": {
+          "title": "8. Your Rights",
+          "content": {
+            "intro": "Under Morocco\u2019s Law 09-08 and the GDPR, you have the following rights regarding your personal data:",
+            "list": [
+              "Right of Access: You may request a copy of the personal data we hold about you.",
+              "Right to Rectification: You may request correction of inaccurate or incomplete data.",
+              "Right to Erasure (\u201cRight to be Forgotten\u201d): You may request deletion of your personal data, subject to legal obligations.",
+              "Right to Restriction of Processing: You may request that we limit how we process your data.",
+              "Right to Data Portability: You may request a copy of your data in a structured, machine-readable format.",
+              "Right to Object: You may object to processing based on legitimate interests, including for direct marketing.",
+              "Right to Withdraw Consent: Where processing is based on consent, you may withdraw it at any time without affecting the lawfulness of processing before withdrawal."
+            ],
+            "outro": "To exercise these rights, contact us at privacy@anselio.com. We will respond to your request within 30 days as required by applicable law."
+          }
+        },
+        "8": {
+          "title": "9. Security",
+          "content": "We implement appropriate technical and organizational measures to protect your personal data, including: encryption of data in transit (TLS) and at rest (via Supabase); row-level security policies scoping all data to your organization; encrypted storage of OAuth tokens and credentials; webhook signature verification on all incoming third-party webhooks; and rate limiting on public endpoints. Despite these measures, no method of transmission or storage is 100% secure, and we cannot guarantee absolute security."
+        },
+        "9": {
+          "title": "10. Changes to This Notice",
+          "content": "We may update this Privacy Notice from time to time. If we make material changes, we will notify you by email (sent to the address on your account) or through a notice on our platform. Your continued use of the services after the effective date of the changes constitutes your acceptance of the updated notice."
+        },
+        "10": {
+          "title": "11. Contact",
+          "content": "If you have questions, concerns, or requests regarding this Privacy Notice or our data practices, please contact us at privacy@anselio.com or by mail at Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Morocco."
         }
       }
     },
     "terms": {
       "title": "Terms of Service",
-      "lastUpdated": "Last updated: July 5, 2026",
+      "lastUpdated": "Last updated: July 7, 2026",
       "sections": {
         "0": {
           "title": "1. Agreement to Terms",
-          "content": "By accessing or using our Services, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Services."
+          "content": "By accessing or using the Anselio platform, website, or related services (\u201cServices\u201d), you agree to be bound by these Terms of Service (\u201cTerms\u201d). If you do not agree to these Terms, you may not access or use the Services. If you are using the Services on behalf of an organization, you represent and warrant that you have the authority to bind that organization to these Terms."
+        },
+        "1": {
+          "title": "2. Description of Service",
+          "content": {
+            "intro": "Anselio provides an AI-first Contact Center as a Service (CCaaS) platform that enables organizations to deploy AI-powered conversational agents across multiple communication channels, including voice (telephone), live chat, email, SMS, WhatsApp, Instagram, and Facebook Messenger. The platform includes:",
+            "list": [
+              "AI agent configuration, deployment, and management tools.",
+              "Natural language processing via third-party AI providers (including OpenAI, Anthropic, and Google through OpenRouter).",
+              "Speech-to-text and text-to-speech capabilities for voice interactions.",
+              "Knowledge base management and retrieval-augmented generation (RAG).",
+              "Live agent dashboard with AI co-pilot assistance.",
+              "Analytics, reporting, and quality assurance scoring.",
+              "Integration with third-party platforms including Gmail, Google Calendar, Facebook, Instagram, WhatsApp, Twilio, and custom CRM systems.",
+              "REST API for custom integrations."
+            ],
+            "outro": "The Services are provided on a subscription basis with tiered plans offering different feature sets and usage limits."
+          }
+        },
+        "2": {
+          "title": "3. Account Registration and Security",
+          "content": {
+            "list": [
+              "You must create an account to use the Services. Account registration requires accurate, current, and complete information.",
+              "You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.",
+              "You must notify us immediately of any unauthorized use of your account or any other security breach.",
+              "You may create and manage organizations (workspaces) within the platform. As an organization administrator, you are responsible for managing user access and permissions.",
+              "We reserve the right to suspend or terminate accounts that violate these Terms or applicable laws."
+            ]
+          }
+        },
+        "3": {
+          "title": "4. Subscriptions, Billing, and Payment",
+          "content": {
+            "intro": "The platform is offered on a subscription basis with the following plans: Free, Starter, Pro, and Enterprise.",
+            "list": [
+              "Subscription fees are billed monthly in advance in Moroccan Dirham (MAD) through our payment processor, LemonSqueezy.",
+              "Free Plan: Includes 50 call minutes per month with 1 AI agent and chat channel only.",
+              "Starter Plan (999.99 MAD/month): Includes up to 3 AI agents, 2,000 call minutes, and 2 channels.",
+              "Pro Plan (3,999.99 MAD/month): Includes up to 8 AI agents, 10,000 call minutes, and all channels.",
+              "Enterprise Plan: Custom pricing, limits, and features negotiated by agreement.",
+              "Usage exceeding plan limits is billed at the applicable overage rate as displayed on the pricing page.",
+              "All fees are non-refundable except as required by applicable law. Downgrading your plan will take effect at the next billing cycle.",
+              "We may change our fees upon 30 days\u2019 notice. Continued use after the fee change constitutes acceptance of the new fees.",
+              "Late payments may result in suspension or termination of access to the Services."
+            ]
+          }
+        },
+        "4": {
+          "title": "5. Free Trial",
+          "content": "We offer a 14-day free trial for new customers. The trial includes 50 minutes of AI call handling with no credit card required. At the end of the trial period, your account will be converted to the Free Plan unless you have subscribed to a paid plan. We reserve the right to modify or cancel free trials at any time without notice."
+        },
+        "5": {
+          "title": "6. Acceptable Use",
+          "content": {
+            "intro": "You agree to use the Services only for lawful purposes and in accordance with these Terms. You agree not to:",
+            "list": [
+              "Use the Services for any unlawful purpose or in violation of any applicable law or regulation, including Morocco\u2019s Law 09-08.",
+              "Use the Services to transmit any material that is defamatory, obscene, abusive, or fraudulent.",
+              "Use the Services to infringe upon the intellectual property rights or privacy of others.",
+              "Attempt to gain unauthorized access to any part of the Services, other accounts, or computer systems.",
+              "Interfere with or disrupt the integrity or performance of the Services or third-party systems.",
+              "Reverse engineer, decompile, or disassemble any aspect of the platform.",
+              "Use automated scripts, bots, or scrapers without our express written permission.",
+              "Use platform data to train external AI models without explicit consent."
+            ]
+          }
+        },
+        "6": {
+          "title": "7. User Content and Data",
+          "content": {
+            "intro": "You retain all ownership rights to the content, data, and materials you upload, submit, or display through the Services (\u201cUser Content\u201d). This includes knowledge base documents, agent configurations, customer messages and data, and any other materials.",
+            "list": [
+              "You grant Anselio a worldwide, non-exclusive, royalty-free license to access, use, process, copy, store, and transmit your User Content solely for the purpose of providing, maintaining, and improving the Services.",
+              "You represent and warrant that you own or have obtained all necessary rights, licenses, and consents to your User Content and that it does not violate any applicable laws or third-party rights.",
+              "You are responsible for ensuring that your collection and processing of your end customers\u2019 data through the Services complies with all applicable data protection laws, including obtaining necessary consents and providing adequate privacy notices.",
+              "We take reasonable measures to protect your User Content but are not responsible for data loss. We recommend maintaining backup copies of your data."
+            ]
+          }
+        },
+        "7": {
+          "title": "8. Third-Party Services and Integrations",
+          "content": "The Services integrate with third-party platforms and services, including Twilio, OpenRouter, Vapi, Google (Gmail), Meta (Facebook/Instagram), Clerk, Supabase, Resend, LemonSqueezy, and Sentry. We do not control and are not responsible for the practices, availability, or security of these third-party services. Your use of integrated third-party services is subject to their respective terms of service and privacy policies."
+        },
+        "8": {
+          "title": "9. Intellectual Property",
+          "content": {
+            "intro": "The Anselio platform, including its software, code, design, branding, logos, and documentation, is owned by Anselio and protected by copyright, trademark, and other intellectual property laws.",
+            "list": [
+              "Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to use the Services for your internal business purposes.",
+              "You may not copy, modify, distribute, sell, or lease any part of the Services or included software without our prior written consent.",
+              "Feedback, suggestions, and ideas you provide about the Services may be used by Anselio without compensation or obligation to you."
+            ]
+          }
+        },
+        "9": {
+          "title": "10. Limitation of Liability",
+          "content": "To the maximum extent permitted by applicable law, Anselio and its officers, directors, employees, and agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Services; (ii) any conduct or content of any third party on the Services; (iii) any content obtained from the Services; or (iv) unauthorized access, use, or alteration of your transmissions or content. Our total liability for any claims under these Terms shall not exceed the amount you have paid us in the twelve (12) months preceding the claim."
+        },
+        "10": {
+          "title": "11. Termination",
+          "content": {
+            "list": [
+              "You may terminate your account at any time by contacting support or through your account settings.",
+              "We may suspend or terminate your access to the Services immediately if you materially breach these Terms, violate applicable laws, or engage in fraudulent conduct.",
+              "Upon termination, your right to use the Services will cease. We will delete or anonymize your data within a reasonable period, subject to legal retention requirements.",
+              "Sections 6 (Acceptable Use), 7 (User Content and Data), 9 (Intellectual Property), 10 (Limitation of Liability), and 12 (Governing Law) shall survive termination."
+            ]
+          }
+        },
+        "11": {
+          "title": "12. Governing Law and Dispute Resolution",
+          "content": "These Terms shall be governed by and construed in accordance with the laws of the Kingdom of Morocco. Any dispute arising out of or relating to these Terms or the Services shall first be attempted to be resolved through good-faith negotiations. If the dispute cannot be resolved within 30 days, it shall be submitted to the competent courts of Casablanca, Morocco."
+        },
+        "12": {
+          "title": "13. Changes to These Terms",
+          "content": "We reserve the right to modify these Terms at any time. If we make material changes, we will notify you by email or through a notice on our platform. Your continued use of the Services after the effective date of the changes constitutes your acceptance of the modified Terms. If you do not agree to the modified Terms, you must stop using the Services and terminate your account."
+        },
+        "13": {
+          "title": "14. Contact Information",
+          "content": "For questions about these Terms, please contact us at legal@anselio.com or by mail at Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Morocco."
         }
       }
     },
     "cookies": {
       "title": "Cookie Notice",
-      "lastUpdated": "Last updated: July 5, 2026",
+      "lastUpdated": "Last updated: July 7, 2026",
       "sections": {
         "0": {
-          "title": "1. What are cookies?",
-          "content": "Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used in order to make websites work, or work more efficiently, as well as to provide information to the owners of the site."
+          "title": "1. What Are Cookies?",
+          "content": "Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently, enhance user experience, and provide information to the owners of the site. This Cookie Notice explains how Anselio uses cookies and similar technologies on our website and platform."
+        },
+        "1": {
+          "title": "2. How We Use Cookies",
+          "content": {
+            "intro": "We use only a limited set of cookies and local storage items to operate our platform:",
+            "list": [
+              "sidebar:state (localStorage): Stores your sidebar menu preference (open/closed) to maintain a consistent user experience across sessions.",
+              "Clerk Session Cookies: Our authentication provider, Clerk, sets essential session cookies and CSRF tokens to authenticate users and maintain secure sessions.",
+              "Session Cookies: Standard server-side session cookies required for platform functionality."
+            ],
+            "outro": "We do not use any cookies for advertising, tracking, or analytics purposes."
+          }
+        },
+        "2": {
+          "title": "3. Third-Party Cookies",
+          "content": {
+            "intro": "Some third-party services we integrate with may set their own cookies:",
+            "list": [
+              "Clerk: Sets authentication and session cookies necessary for user login and organization management.",
+              "LemonSqueezy: Sets cookies on their hosted checkout pages for payment processing and fraud prevention.",
+              "Sentry: Sets a session cookie for error tracking, only if error monitoring is enabled."
+            ],
+            "outro": "We do not control these third-party cookies. Review the privacy policies of these providers for more information."
+          }
+        },
+        "3": {
+          "title": "4. Your Choices",
+          "content": "Since we use only strictly necessary cookies and functional local storage for platform operation, these cannot be disabled without affecting platform functionality. You can manage or delete cookies and local storage through your browser settings. Most browsers allow you to control cookie acceptance, rejection, and deletion."
+        },
+        "4": {
+          "title": "5. Changes and Contact",
+          "content": "We may update this Cookie Notice from time to time. Changes will be posted on this page with an updated revision date. If you have questions about our use of cookies, please contact us at privacy@anselio.com or by mail at Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Morocco."
         }
       }
     }
