@@ -6,11 +6,7 @@ const container = "mx-auto w-full max-w-[1200px] px-6";
 export default async function CookiesPage() {
   const t = await getTranslations("legal.cookies");
 
-  // We loop over sections 0 to 5
-  const sections = Array.from({ length: 6 }).map((_, i) => ({
-    title: t(`sections.${i}.title`, { default: "" }),
-    content: t.raw(`sections.${i}.content`) 
-  })).filter(s => s.title !== "");
+  const sections = Object.values(t.raw("sections") as Record<string, { title: string; content: unknown }>);
   return (
     <main className="min-h-dvh bg-canvas text-ink">
       <LegalPageHeader />

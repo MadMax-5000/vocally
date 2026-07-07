@@ -6,11 +6,7 @@ const container = "mx-auto w-full max-w-[1200px] px-6";
 export default async function TermsPage() {
   const t = await getTranslations("legal.terms");
 
-  // We loop over sections 0 to 10 (11 sections)
-  const sections = Array.from({ length: 11 }).map((_, i) => ({
-    title: t(`sections.${i}.title`, { default: "" }),
-    content: t.raw(`sections.${i}.content`)
-  })).filter(s => s.title !== "");
+  const sections = Object.values(t.raw("sections") as Record<string, { title: string; content: unknown }>);
 
   return (
     <main className="min-h-dvh bg-canvas text-ink">
