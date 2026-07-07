@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server";
 
-import { decryptToken } from "@/lib/crypto/token-encryption";
-import { prisma } from "@/lib/db/prisma";
 import { verifyMetaWebhookSignature } from "@/lib/meta/webhook-signature";
 import { messengerService } from "@/lib/messaging/messenger/service";
 
@@ -15,34 +13,16 @@ export async function GET(req: NextRequest) {
   const mode = req.nextUrl.searchParams.get("hub.mode");
   const token = req.nextUrl.searchParams.get("hub.verify_token");
   const challenge = req.nextUrl.searchParams.get("hub.challenge");
-  const agentId = req.nextUrl.searchParams.get("agentId");
 
   if (!mode || !token || !challenge) {
     return new Response("Missing verification parameters", { status: 400 });
   }
 
-  if (mode !== "subscribe") {
-    return new Response("Unsupported mode", { status: 400 });
+  if (mode === "subscribe" && token === process.env.META_WEBHOOK_VERIFY_TOKEN) {
+    return new Response(challenge, { status: 200 });
   }
 
-  if (!agentId) {
-    return new Response("Missing agentId", { status: 400 });
-  }
-
-  const connection = await prisma.messengerConnection.findFirst({
-    where: { agentId },
-    select: { verifyTokenEnc: true },
-  });
-  if (!connection) {
-    return new Response("Not connected", { status: 404 });
-  }
-
-  const expected = decryptToken(connection.verifyTokenEnc);
-  if (token !== expected) {
-    return new Response("Forbidden", { status: 403 });
-  }
-
-  return new Response(challenge, { status: 200 });
+  return new Response("Forbidden", { status: 403 });
 }
 
 export async function POST(req: NextRequest) {

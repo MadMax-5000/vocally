@@ -8,9 +8,9 @@ export default async function PrivacyPage() {
 
   // We loop over sections 0 to 10
   const sections = Array.from({ length: 11 }).map((_, i) => ({
-    title: t(`sections.${i}.title`),
-    content: t.raw(`sections.${i}.content`) // Using raw to allow handling arrays/objects if needed, though simple string is fine
-  }));
+    title: t(`sections.${i}.title`, { default: "" }),
+    content: t.raw(`sections.${i}.content`)
+  })).filter(s => s.title !== "");
 
   return (
     <main className="min-h-dvh bg-canvas text-ink">
