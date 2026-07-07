@@ -83,6 +83,78 @@
     "trust": {
       "title": "Trusted by modern teams",
       "subtitle": "Join thousands of businesses that automate support with Anselio."
+    },
+    "nav": {
+      "labels": {
+        "solutions": "Solutions",
+        "resources": "Resources",
+        "customers": "Customers",
+        "enterprise": "Enterprise",
+        "pricing": "Pricing",
+        "menu": "Menu"
+      },
+      "sections": {
+        "useCase": "By use-case",
+        "features": "Features",
+        "industry": "By industry",
+        "quickLinks": "Quick links",
+        "recentUpdate": "Recent update"
+      },
+      "solutions": {
+        "customerSupport": {
+          "title": "Customer Support Agent",
+          "description": "Instant answers, lower volume, fewer escalations"
+        },
+        "salesAgent": {
+          "title": "Sales Agent",
+          "description": "Qualify leads, answer questions, and book meetings"
+        },
+        "helpdesk": {
+          "title": "HelpDesk",
+          "description": "Hand off complex issues to humans"
+        },
+        "industries": {
+          "ecommerce": {
+            "title": "Ecommerce & Retail",
+            "description": "Product questions, shipping, and returns"
+          },
+          "education": {
+            "title": "Education & Training",
+            "description": "Admissions, enrolment, and student questions"
+          },
+          "fitness": {
+            "title": "Fitness & Wellness",
+            "description": "Bookings, cancelations, and member support"
+          },
+          "travel": {
+            "title": "Travel & Hospitality",
+            "description": "Bookings, disruptions, and refunds"
+          }
+        }
+      },
+      "resources": {
+        "guide": {
+          "title": "Guide",
+          "description": "Find out everything on how to use Anselio"
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Product updates, tips, and insights from Anselio"
+        },
+        "docs": {
+          "title": "Docs",
+          "description": "API documentation and developer guides"
+        },
+        "changelog": {
+          "title": "Changelog",
+          "description": "Stay up to date with the latest updates and features"
+        },
+        "recentUpdate": {
+          "badge": "New",
+          "title": "Darija voice support is now available on Anselio",
+          "description": "Deploy AI agents that speak natural Moroccan Arabic across voice and chat channels."
+        }
+      }
     }
   },
   "pricing": {

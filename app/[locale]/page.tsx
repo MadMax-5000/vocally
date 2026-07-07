@@ -1,12 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Link } from "@/i18n/routing";
-import { AppIcon } from "@/components/ui/app-icon"
-import { Zap } from "@/lib/icons/app-icons"
 
-import { MarketingHeader } from "@/components/marketing/MarketingHeader";
-import { HeaderAuth } from "@/components/marketing/HeaderAuth";
-import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher";
+import { LandingHomeHeader } from "@/components/marketing/landing-nav/LandingHomeHeader";
 import { RotatingWord } from "@/components/marketing/RotatingWord";
 import { HeroVoiceSpheres } from "@/components/marketing/HeroVoiceSpheres";
 import { BentoShowcase } from "@/components/marketing/BentoShowcase";
@@ -64,12 +59,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-dvh overflow-x-clip bg-canvas text-ink">
-      <MarketingHeader sticky>
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher />
-          <HeaderAuth />
-        </div>
-      </MarketingHeader>
+      <LandingHomeHeader />
 
       <section className="min-h-[calc(100dvh-4rem)] py-12">
         <div className={[container, "relative flex min-h-[calc(100dvh-4rem-8rem)] items-center justify-center"].join(" ")}>

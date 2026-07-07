@@ -232,7 +232,7 @@ export async function TrustShowcase() {
   const t = await getTranslations("landing.trust");
   const tc = await getTranslations("common");
   return (
-    <section className="border-t border-hairline bg-canvas py-section">
+    <section id="trust" className="border-t border-hairline bg-canvas py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}

@@ -83,6 +83,78 @@
     "trust": {
       "title": "Fait confiance par les équipes modernes",
       "subtitle": "Rejoignez des milliers d'entreprises qui automatisent leur support avec Anselio."
+    },
+    "nav": {
+      "labels": {
+        "solutions": "Solutions",
+        "resources": "Ressources",
+        "customers": "Clients",
+        "enterprise": "Entreprise",
+        "pricing": "Tarifs",
+        "menu": "Menu"
+      },
+      "sections": {
+        "useCase": "Par cas d'usage",
+        "features": "Fonctionnalités",
+        "industry": "Par secteur",
+        "quickLinks": "Liens rapides",
+        "recentUpdate": "Mise à jour récente"
+      },
+      "solutions": {
+        "customerSupport": {
+          "title": "Agent support client",
+          "description": "Réponses instantanées, moins de volume, moins d'escalades"
+        },
+        "salesAgent": {
+          "title": "Agent commercial",
+          "description": "Qualifiez les leads, répondez aux questions et planifiez des rendez-vous"
+        },
+        "helpdesk": {
+          "title": "HelpDesk",
+          "description": "Transférez les problèmes complexes à des humains"
+        },
+        "industries": {
+          "ecommerce": {
+            "title": "E-commerce & Retail",
+            "description": "Questions produits, livraison et retours"
+          },
+          "education": {
+            "title": "Éducation & Formation",
+            "description": "Admissions, inscriptions et questions étudiantes"
+          },
+          "fitness": {
+            "title": "Fitness & Bien-être",
+            "description": "Réservations, annulations et support membres"
+          },
+          "travel": {
+            "title": "Voyage & Hôtellerie",
+            "description": "Réservations, perturbations et remboursements"
+          }
+        }
+      },
+      "resources": {
+        "guide": {
+          "title": "Guide",
+          "description": "Tout savoir sur l'utilisation d'Anselio"
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Mises à jour produit, conseils et insights d'Anselio"
+        },
+        "docs": {
+          "title": "Documentation",
+          "description": "Documentation API et guides développeur"
+        },
+        "changelog": {
+          "title": "Journal des modifications",
+          "description": "Restez à jour avec les dernières fonctionnalités"
+        },
+        "recentUpdate": {
+          "badge": "Nouveau",
+          "title": "Le support vocal Darija est disponible sur Anselio",
+          "description": "Déployez des agents IA qui parlent un darija marocain naturel sur la voix et le chat."
+        }
+      }
     }
   },
   "pricing": {
