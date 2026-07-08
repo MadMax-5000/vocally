@@ -11,6 +11,9 @@ import { inter } from "./fonts";
 export const metadata: Metadata = {
   title: BRAND_NAME,
   description: "AI-first Contact Center as a Service (CCaaS)",
+  verification: {
+    facebook: "qmpiaomgr6t1kzar7bomnz1kkve7yr",
+  },
   icons: {
     icon: [{ url: "/images/favicon.ico", sizes: "any" }],
     apple: [{ url: "/images/favicon.ico" }],
