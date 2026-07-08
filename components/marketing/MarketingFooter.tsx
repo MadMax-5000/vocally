@@ -57,7 +57,7 @@ export function MarketingFooter() {
           <div className="font-display text-[clamp(32px,5vw,56px)] font-normal leading-[1.1] tracking-tighter text-ink">
             {t("howCanWeHelp")}{" "}
             <Link
-              href="/dashboard"
+              href="/contact"
               className="text-ink underline decoration-primary decoration-[4px] underline-offset-[8px] transition-colors hover:text-primary"
             >
               {t("contactUs")}

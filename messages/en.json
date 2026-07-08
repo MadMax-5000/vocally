@@ -232,6 +232,25 @@
     "title": "Set up your workspace",
     "description": "Create an organization to start building your AI contact center."
   },
+  "contact": {
+    "title": "Contact",
+    "description": "We're here to help. Reach out to us through any of the channels below.",
+    "email": {
+      "title": "Email",
+      "support": "Support: support@anselio.com",
+      "privacy": "Privacy: privacy@anselio.com",
+      "legal": "Legal: legal@anselio.com"
+    },
+    "phone": {
+      "title": "Phone",
+      "number": "+212 6 09 08 02 57"
+    },
+    "address": {
+      "title": "Address",
+      "line1": "202 Boulevard Mohammed V",
+      "line2": "Casablanca 20000, Morocco"
+    }
+  },
   "legal": {
     "privacy": {
       "title": "Privacy Notice",

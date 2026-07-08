@@ -232,6 +232,25 @@
     "title": "Configurez votre espace de travail",
     "description": "Créez une organisation pour commencer à construire votre centre de contact IA."
   },
+  "contact": {
+    "title": "Contact",
+    "description": "Nous sommes là pour vous aider. Contactez-nous via l'un des canaux ci-dessous.",
+    "email": {
+      "title": "Email",
+      "support": "Support : support@anselio.com",
+      "privacy": "Confidentialité : privacy@anselio.com",
+      "legal": "Juridique : legal@anselio.com"
+    },
+    "phone": {
+      "title": "Téléphone",
+      "number": "+212 6 09 08 02 57"
+    },
+    "address": {
+      "title": "Adresse",
+      "line1": "202 Boulevard Mohammed V",
+      "line2": "Casablanca 20000, Maroc"
+    }
+  },
   "legal": {
     "privacy": {
       "title": "Politique de confidentialité",

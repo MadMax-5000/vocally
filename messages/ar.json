@@ -232,6 +232,25 @@
     "title": "قم بإعداد مساحة العمل الخاصة بك",
     "description": "أنشئ مؤسسة لتبدأ في بناء مركز الاتصال الخاص بك."
   },
+  "contact": {
+    "title": "اتصل بنا",
+    "description": "نحن هنا للمساعدة. تواصل معنا عبر أي من القنوات أدناه.",
+    "email": {
+      "title": "البريد الإلكتروني",
+      "support": "الدعم: support@anselio.com",
+      "privacy": "الخصوصية: privacy@anselio.com",
+      "legal": "القانوني: legal@anselio.com"
+    },
+    "phone": {
+      "title": "الهاتف",
+      "number": "+212 6 09 08 02 57"
+    },
+    "address": {
+      "title": "العنوان",
+      "line1": "202 شارع محمد الخامس",
+      "line2": "الدار البيضاء 20000، المغرب"
+    }
+  },
   "legal": {
     "privacy": {
       "title": "سياسة الخصوصية",
