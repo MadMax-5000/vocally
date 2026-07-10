@@ -17,6 +17,7 @@ export async function sendEmail(params: {
   subject: string;
   body: string;
   from?: string;
+  replyTo?: string;
 }): Promise<{ messageId: string }> {
   const client = getResendClient();
   const from = params.from ?? process.env.RESEND_FROM_EMAIL ?? BRAND_EMAILS.noreply;
@@ -26,6 +27,7 @@ export async function sendEmail(params: {
     to: [params.to],
     subject: params.subject,
     text: params.body,
+    ...(params.replyTo ? { reply_to: params.replyTo } : {}),
   });
 
   if (error || !data) {

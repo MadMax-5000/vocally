@@ -1,39 +1,36 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  type Transition,
-} from "framer-motion";
-import { useLayoutEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { AppIcon } from "@/components/ui/app-icon";
 import { Link } from "@/i18n/routing";
 
 import { useLandingNav } from "./LandingNavContext";
 import {
-  NAV_CONTENT_SWITCH,
-  NAV_PANEL_CLOSE,
-  NAV_PANEL_OPEN,
-  NAV_SPRING,
+  CONTENT_SWAP,
+  HEIGHT_MORPH,
+  PANEL_CLOSE,
+  PANEL_OPEN,
+  SLIDE_AMPLITUDE,
 } from "./landing-nav-motion";
 import {
   industrySection,
   recentUpdate,
   resourcesLinks,
   solutionsSections,
-  type MegaId,
   type NavLinkItem,
 } from "./landing-nav-data";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
-function NavIconPlate({ icon }: { icon: NavLinkItem["icon"] }) {
+// ─── Shared sub-components ───────────────────────────────────────────────────
+
+function IconPlate({ icon }: { icon: NavLinkItem["icon"] }) {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-strong">
-      <AppIcon icon={icon} size={18} className="text-muted" />
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-strong transition-colors duration-150 group-hover:border-hairline-strong">
+      <AppIcon icon={icon} size={17} strokeWidth={1.5} className="text-body" />
     </span>
   );
 }
@@ -46,32 +43,41 @@ function MegaLink({ item }: { item: NavLinkItem }) {
     <Link
       href={item.href}
       onClick={closeMega}
-      className="group flex gap-3 rounded-lg p-2 transition-colors duration-200 ease-out hover:bg-surface-strong/70"
+      className="group flex items-start gap-3 rounded-lg p-2.5 transition-colors duration-150 ease-out hover:bg-surface-strong/70"
     >
-      <NavIconPlate icon={item.icon} />
-      <span className="min-w-0 pt-0.5">
-        <span className="block text-title-sm font-medium text-ink transition-colors duration-200 ease-out group-hover:text-body-strong">
+      <IconPlate icon={item.icon} />
+      <span className="min-w-0">
+        <span className="block text-[14px] font-medium leading-tight text-ink">
           {t(item.titleKey)}
         </span>
-        <span className="mt-0.5 block text-body-sm text-muted">{t(item.descriptionKey)}</span>
+        <span className="mt-1 block text-[13px] leading-snug text-muted">
+          {t(item.descriptionKey)}
+        </span>
       </span>
     </Link>
   );
 }
 
-function SectionLabel({ labelKey }: { labelKey: string }) {
+function SectionHeader({ labelKey }: { labelKey: string }) {
   const t = useTranslations("landing.nav");
-  return <div className="px-2 text-caption-uppercase text-muted">{t(labelKey)}</div>;
+  return (
+    <p className="px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-soft">
+      {t(labelKey)}
+    </p>
+  );
 }
+
+// ─── Panel contents ───────────────────────────────────────────────────────────
 
 function SolutionsContent() {
   return (
-    <div className="grid gap-6 p-2 md:grid-cols-[1fr_auto_1fr] md:gap-0">
-      <div className="space-y-6">
+    <div className="grid grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)] p-3">
+      {/* Left column */}
+      <div className="space-y-6 pe-5">
         {solutionsSections.map((section) => (
-          <div key={section.id} className="space-y-2">
-            <SectionLabel labelKey={section.labelKey} />
-            <div className="space-y-1">
+          <div key={section.id}>
+            <SectionHeader labelKey={section.labelKey} />
+            <div className="space-y-0.5">
               {section.items.map((item) => (
                 <MegaLink key={item.id} item={item} />
               ))}
@@ -80,11 +86,13 @@ function SolutionsContent() {
         ))}
       </div>
 
-      <div className="hidden w-px bg-hairline md:block" aria-hidden />
+      {/* Divider */}
+      <div className="bg-hairline" aria-hidden />
 
-      <div className="space-y-2 md:ps-2">
-        <SectionLabel labelKey={industrySection.labelKey} />
-        <div className="space-y-1">
+      {/* Right column */}
+      <div className="ps-5">
+        <SectionHeader labelKey={industrySection.labelKey} />
+        <div className="space-y-0.5">
           {industrySection.items.map((item) => (
             <MegaLink key={item.id} item={item} />
           ))}
@@ -99,44 +107,53 @@ function ResourcesContent() {
   const { closeMega } = useLandingNav();
 
   return (
-    <div className="grid gap-4 p-2 md:grid-cols-2 md:gap-6">
-      <div className="space-y-2">
-        <SectionLabel labelKey="sections.quickLinks" />
-        <div className="space-y-1">
+    <div className="grid grid-cols-[minmax(0,1fr)_1px_minmax(0,0.9fr)] p-3">
+      {/* Left column: quick links */}
+      <div className="pe-5">
+        <SectionHeader labelKey="sections.quickLinks" />
+        <div className="space-y-0.5">
           {resourcesLinks.map((item) => (
             <MegaLink key={item.id} item={item} />
           ))}
         </div>
       </div>
 
-      <div className="rounded-xl bg-surface-strong p-4">
-        <SectionLabel labelKey="sections.recentUpdate" />
+      {/* Divider */}
+      <div className="bg-hairline" aria-hidden />
+
+      {/* Right column: recent update */}
+      <div className="ps-5">
+        <SectionHeader labelKey="sections.recentUpdate" />
         <Link
           href={recentUpdate.href}
           onClick={closeMega}
-          className="group mt-3 block overflow-hidden rounded-xl border border-hairline bg-surface-card transition-[box-shadow,background-color] duration-300 ease-out hover:bg-canvas-soft hover:shadow-[0_4px_20px_rgba(12,10,9,0.05)]"
+          className="group mx-2.5 block overflow-hidden rounded-xl border border-hairline bg-surface-card shadow-[0_1px_2px_rgba(12,10,9,0.04)] transition-shadow duration-200 hover:shadow-[0_6px_24px_rgba(12,10,9,0.08)]"
         >
-          <div className="relative flex h-28 items-center justify-between overflow-hidden bg-primary px-5">
+          {/* Gradient hero strip */}
+          <div className="relative flex h-[92px] items-center justify-between overflow-hidden bg-gradient-to-br from-primary to-primary-active px-4">
             <div
-              className="absolute inset-0 opacity-30"
+              className="absolute inset-0"
               style={{
                 backgroundImage:
-                  "repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255,255,255,0.15) 8px, rgba(255,255,255,0.15) 16px)",
+                  "repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(255,255,255,0.09) 11px, rgba(255,255,255,0.09) 22px)",
               }}
               aria-hidden
             />
-            <span className="relative font-display text-display-sm tracking-tight text-on-primary">
+            <span className="relative font-display text-[18px] tracking-tight text-on-primary">
               anselio
             </span>
-            <span className="relative rounded-md bg-on-primary/15 px-2 py-1 text-caption-uppercase text-on-primary backdrop-blur-sm">
+            <span className="relative rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-on-primary backdrop-blur-sm">
               {t(recentUpdate.badgeKey)}
             </span>
           </div>
-          <div className="space-y-2 bg-ink px-4 py-3">
-            <p className="text-title-sm font-medium text-on-primary">{t(recentUpdate.titleKey)}</p>
-          </div>
-          <div className="px-4 py-3">
-            <p className="text-body-sm text-muted">{t(recentUpdate.descriptionKey)}</p>
+          {/* Title + description */}
+          <div className="px-4 py-3.5">
+            <p className="text-[13px] font-medium leading-snug text-ink">
+              {t(recentUpdate.titleKey)}
+            </p>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-muted">
+              {t(recentUpdate.descriptionKey)}
+            </p>
           </div>
         </Link>
       </div>
@@ -144,141 +161,90 @@ function ResourcesContent() {
   );
 }
 
-function MegaPanelContent({ activeMega }: { activeMega: MegaId }) {
-  return activeMega === "solutions" ? <SolutionsContent /> : <ResourcesContent />;
-}
-
-function useSwitchDirection(activeMega: MegaId | null) {
-  const previous = useRef<MegaId | null>(null);
-  const [direction, setDirection] = useState(0);
-
-  useLayoutEffect(() => {
-    if (activeMega && previous.current && activeMega !== previous.current) {
-      setDirection(
-        activeMega === "resources" && previous.current === "solutions" ? 1 : -1,
-      );
-    } else {
-      setDirection(0);
-    }
-    previous.current = activeMega;
-  }, [activeMega]);
-
-  return direction;
-}
+// ─── Main panel ───────────────────────────────────────────────────────────────
 
 export function LandingNavMegaPanel() {
-  const { activeMega, cancelClose, scheduleClose } = useLandingNav();
-  const shouldReduceMotion = useReducedMotion();
+  const { isOpen, activeMega, direction, cancelClose, scheduleClose } = useLandingNav();
+  const reduced = useReducedMotion();
+
+  // Measure the active content's natural height so the container can animate
+  // its real `height` (no layout-transform scaling / distortion).
   const measureRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState(0);
-  const switchDirection = useSwitchDirection(activeMega);
-  const isOpen = activeMega !== null;
+  const [height, setHeight] = useState<number | null>(null);
 
   useLayoutEffect(() => {
-    const node = measureRef.current;
-    if (!node || !activeMega) return;
-
-    const update = () => {
-      setHeight(node.getBoundingClientRect().height);
-    };
-
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(node);
-    return () => observer.disconnect();
+    if (measureRef.current) {
+      setHeight(measureRef.current.offsetHeight);
+    }
   }, [activeMega]);
 
-  const shellTransition: Transition = shouldReduceMotion
-    ? { duration: 0.01 }
-    : NAV_PANEL_OPEN;
+  const slide = reduced ? 0 : SLIDE_AMPLITUDE;
 
-  const shellCloseTransition: Transition = shouldReduceMotion
-    ? { duration: 0.01 }
-    : NAV_PANEL_CLOSE;
-
-  const heightTransition: Transition = shouldReduceMotion
-    ? { duration: 0.01 }
-    : NAV_SPRING;
-
-  const contentTransition: Transition = shouldReduceMotion
-    ? { duration: 0.01 }
-    : NAV_CONTENT_SWITCH;
+  const contentVariants = {
+    enter: (dir: number) => ({ opacity: 0, x: dir * slide }),
+    center: { opacity: 1, x: 0 },
+    exit: (dir: number) => ({ opacity: 0, x: dir * -slide }),
+  };
 
   return (
     <div
       className={[
-        "absolute inset-x-0 top-full z-50 hidden lg:block",
+        "absolute inset-x-0 top-full z-40 hidden lg:block",
         isOpen ? "pointer-events-auto" : "pointer-events-none",
       ].join(" ")}
       onMouseEnter={cancelClose}
       onMouseLeave={scheduleClose}
     >
-      <div className={[container, "pointer-events-none pt-2"].join(" ")}>
-        <AnimatePresence initial={false}>
-          {isOpen ? (
-            <motion.div
-              key="mega-shell"
-              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={
-                shouldReduceMotion
-                  ? { opacity: 0 }
-                  : { opacity: 0, y: -8, transition: shellCloseTransition }
-              }
-              transition={shellTransition}
-              className="pointer-events-auto overflow-hidden rounded-xl border border-hairline bg-surface-card shadow-[0_8px_30px_rgba(12,10,9,0.06)] will-change-[opacity,transform]"
-            >
-              <motion.div
-                animate={{ height: height || "auto" }}
-                transition={heightTransition}
-                className="overflow-hidden"
-              >
-                <div className="relative">
-                  {/* Invisible sizer drives smooth height — no layout scale */}
-                  <div
-                    ref={measureRef}
-                    className="pointer-events-none invisible p-4"
-                    aria-hidden
-                  >
-                    <MegaPanelContent activeMega={activeMega!} />
-                  </div>
+      <div className={[container, "flex justify-center"].join(" ")}>
+        <div className="w-[660px] max-w-full">
+        {/* Invisible hover bridge between triggers and panel */}
+        <div className="h-2.5" aria-hidden />
 
-                  {/* Overlapping crossfade layer */}
-                  <div className="absolute inset-0 p-4">
-                    <AnimatePresence initial={false} mode="sync">
-                      <motion.div
-                        key={activeMega}
-                        initial={
-                          shouldReduceMotion
-                            ? { opacity: 0 }
-                            : {
-                                opacity: 0,
-                                x: switchDirection * 12,
-                                y: switchDirection === 0 ? 4 : 0,
-                              }
-                        }
-                        animate={{ opacity: 1, x: 0, y: 0 }}
-                        exit={
-                          shouldReduceMotion
-                            ? { opacity: 0 }
-                            : {
-                                opacity: 0,
-                                x: switchDirection * -8,
-                                y: 0,
-                              }
-                        }
-                        transition={contentTransition}
-                        className="w-full will-change-[opacity,transform]"
-                      >
-                        <MegaPanelContent activeMega={activeMega!} />
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                </div>
+        <AnimatePresence initial={false}>
+          {isOpen && activeMega ? (
+            <motion.div
+              key="shell"
+              initial={reduced ? { opacity: 0 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduced ? { opacity: 0 } : { opacity: 0, y: 4 }}
+              transition={isOpen ? PANEL_OPEN : PANEL_CLOSE}
+              className="w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card shadow-[0_16px_48px_-8px_rgba(12,10,9,0.12)]"
+            >
+              {/* Real-height morph — smooth, no distortion, no push-down */}
+              <motion.div
+                animate={{ height: height ?? "auto" }}
+                transition={reduced ? { duration: 0 } : HEIGHT_MORPH}
+                style={{ overflow: "hidden" }}
+              >
+                {/* popLayout keeps the exiting panel out of flow so the two
+                    never stack — they overlap and crossfade instead. */}
+                <AnimatePresence
+                  mode="popLayout"
+                  initial={false}
+                  custom={direction}
+                >
+                  <motion.div
+                    key={activeMega}
+                    ref={measureRef}
+                    custom={direction}
+                    variants={contentVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={reduced ? { duration: 0 } : CONTENT_SWAP}
+                  >
+                    {activeMega === "solutions" ? (
+                      <SolutionsContent />
+                    ) : (
+                      <ResourcesContent />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </motion.div>
             </motion.div>
           ) : null}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

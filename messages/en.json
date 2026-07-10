@@ -109,7 +109,7 @@
         },
         "helpdesk": {
           "title": "HelpDesk",
-          "description": "Hand off complex issues to humans"
+          "description": "Hand off complex issues to a human agent"
         },
         "industries": {
           "ecommerce": {
@@ -133,11 +133,11 @@
       "resources": {
         "guide": {
           "title": "Guide",
-          "description": "Find out everything on how to use Anselio"
+          "description": "Everything you need to get started with Anselio"
         },
         "blog": {
           "title": "Blog",
-          "description": "Product updates, tips, and insights from Anselio"
+          "description": "Product updates, tips, and insights from our team"
         },
         "docs": {
           "title": "Docs",
@@ -149,7 +149,7 @@
         },
         "recentUpdate": {
           "badge": "New",
-          "title": "Darija voice support is now available on Anselio",
+          "title": "Darija voice support is now live on Anselio",
           "description": "Deploy AI agents that speak natural Moroccan Arabic across voice and chat channels."
         }
       }
@@ -162,7 +162,14 @@
     "contactSales": "Contact sales",
     "recommended": "Recommended",
     "perMonth": "per month, billed monthly",
-    "free": "Free"
+    "free": "Free",
+    "currentPlan": "Current plan",
+    "upgrade": "Upgrade",
+    "redirecting": "Redirecting…",
+    "currentPlanBadge": "Current plan",
+    "checkout": "Checkout",
+    "customPricing": "Custom pricing",
+    "customPricingHint": "Tailored to your volume and compliance needs."
   },
   "plans": {
     "free": {
@@ -249,6 +256,46 @@
       "title": "Address",
       "line1": "202 Boulevard Mohammed V",
       "line2": "Casablanca 20000, Morocco"
+    },
+    "sales": {
+      "title": "Talk to our sales team",
+      "description": "Tell us about your contact center needs. Our enterprise team will respond within one business day.",
+      "form": {
+        "name": "Full name",
+        "namePlaceholder": "Jane Doe",
+        "email": "Work email",
+        "emailPlaceholder": "jane@company.com",
+        "company": "Company",
+        "companyPlaceholder": "Acme Inc.",
+        "phone": "Phone (optional)",
+        "phonePlaceholder": "+212 6 00 00 00 00",
+        "companySize": "Company size (optional)",
+        "companySizePlaceholder": "Select team size",
+        "companySizeOptions": {
+          "1-10": "1–10 employees",
+          "11-50": "11–50 employees",
+          "51-200": "51–200 employees",
+          "201-1000": "201–1,000 employees",
+          "1000+": "1,000+ employees"
+        },
+        "message": "How can we help?",
+        "messagePlaceholder": "Tell us about your call volume, channels, compliance requirements, or timeline.",
+        "submit": "Send message",
+        "submitting": "Sending…",
+        "success": "Thanks — our sales team will be in touch shortly.",
+        "error": "Could not send your message. Please try again or email contact@anselio.com."
+      },
+      "sidebar": {
+        "responseTitle": "What to expect",
+        "responseBody": "We typically respond within one business day with next steps for a tailored enterprise quote.",
+        "featuresTitle": "Enterprise includes",
+        "features": {
+          "0": "Custom call volume and volume discounts",
+          "1": "Dedicated account manager",
+          "2": "Custom models and fine-tuning",
+          "3": "SLA and 99.99% uptime guarantee"
+        }
+      }
     }
   },
   "legal": {

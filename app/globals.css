@@ -176,6 +176,10 @@
   }
 }
 
+/* Clerk auth card — force full-width centering that Tailwind classes alone cannot override */
+.cl-rootBox { width: 100% !important; }
+.cl-cardBox { width: 100% !important; margin-inline: auto !important; }
+
 @keyframes waveform-pulse {
   0% {
     opacity: 0.4;

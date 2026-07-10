@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export type BillingPlan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
+import { PlanCtaInlineButton } from "@/components/billing/PlanCtaButton";
+import { type PaidPlan, type PlanCtaLabelKey, resolvePlanCta } from "@/lib/billing/plan-cta";
 
-type PaidPlan = "STARTER" | "PRO" | "ENTERPRISE";
+export type BillingPlan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
 
 const PAID_PLANS: PaidPlan[] = ["STARTER", "PRO", "ENTERPRISE"];
 
@@ -40,6 +41,16 @@ export function BillingView({
   enterpriseCheckoutEnabled: boolean;
 }) {
   const [loading, setLoading] = useState<PaidPlan | null>(null);
+
+  const ctaLabels: Record<PlanCtaLabelKey, string> = {
+    startFreeTrial: "Start free trial",
+    getStarted: "Get started",
+    upgrade: "Upgrade",
+    currentPlan: "Current plan",
+    contactSales: "Contact sales",
+    checkout: "Checkout",
+    redirecting: "Redirecting…",
+  };
 
   useEffect(() => {
     if (checkoutSuccess) {
@@ -89,27 +100,37 @@ export function BillingView({
       <section className="rounded-xl border border-hairline bg-surface-card p-6 shadow-sm">
         <h2 className="font-display text-display-sm tracking-tighter text-ink">Upgrade</h2>
         <ul className="mt-4 space-y-4">
-          {plansToShow.map((plan) => (
-            <li
-              key={plan}
-              className="flex flex-col gap-3 border-b border-hairline-soft pb-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div>
-                <p className="text-title-sm text-ink">{planLabel(plan)}</p>
-                <p className="mt-1 text-body-sm leading-relaxed text-body text-pretty">
-                  {planDescription[plan]}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn-primary shrink-0 tracking-wide"
-                disabled={loading !== null || initialPlan === plan}
-                onClick={() => void startCheckout(plan)}
+          {plansToShow.map((plan) => {
+            const cta = resolvePlanCta({
+              targetPlan: plan,
+              currentPlan: initialPlan,
+              signedIn: true,
+              hasOrg: true,
+              enterpriseCheckoutEnabled,
+              context: "billing",
+            });
+
+            return (
+              <li
+                key={plan}
+                className="flex flex-col gap-3 border-b border-hairline-soft pb-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
-                {loading === plan ? "Redirecting…" : initialPlan === plan ? "Current plan" : "Checkout"}
-              </button>
-            </li>
-          ))}
+                <div>
+                  <p className="text-title-sm text-ink">{planLabel(plan)}</p>
+                  <p className="mt-1 text-body-sm leading-relaxed text-body text-pretty">
+                    {planDescription[plan]}
+                  </p>
+                </div>
+                <PlanCtaInlineButton
+                  cta={cta}
+                  labels={ctaLabels}
+                  loading={loading === plan}
+                  checkoutBlocked={loading !== null && loading !== plan}
+                  onCheckout={(checkoutPlan) => void startCheckout(checkoutPlan)}
+                />
+              </li>
+            );
+          })}
         </ul>
       </section>
     </div>

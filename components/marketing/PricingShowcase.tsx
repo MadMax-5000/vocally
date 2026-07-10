@@ -1,41 +1,66 @@
 import "server-only";
+
 import { Link } from "@/i18n/routing";
 import { auth } from "@clerk/nextjs/server";
 import { getTranslations } from "next-intl/server";
-import { AppIcon } from "@/components/ui/app-icon"
-import { CheckIcon, ArrowUpRightIcon } from "@/lib/icons/app-icons"
 
-import { PLAN_PRICES } from "@/lib/billing/plan-features";
-import { getLocalizedPlanMeta } from "@/lib/billing/get-plan-meta";
+import { PlanCtaButton } from "@/components/billing/PlanCtaButton";
+import { EnterprisePlanCard } from "@/components/marketing/EnterprisePlanCard";
+import { PlanPricingCard } from "@/components/marketing/PlanPricingCard";
+import { getViewerPlan } from "@/lib/billing/get-viewer-plan";
 import { formatPrice } from "@/lib/billing/currency";
+import { getLocalizedPlanMeta } from "@/lib/billing/get-plan-meta";
+import { variantIdForPlan } from "@/lib/billing/plan-map";
+import { type PlanCtaLabelKey, resolvePlanCta } from "@/lib/billing/plan-cta";
+import { PLAN_PRICES } from "@/lib/billing/plan-features";
+import { planFromMetaKey } from "@/lib/billing/plan-rank";
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
+const PAID_CARD_PLANS = ["FREE", "STARTER", "PRO"] as const;
+
+function buildCtaLabels(
+  t: Awaited<ReturnType<typeof getTranslations<"pricing">>>,
+  tc: Awaited<ReturnType<typeof getTranslations<"common">>>
+): Record<PlanCtaLabelKey, string> {
+  return {
+    startFreeTrial: t("startFreeTrial"),
+    getStarted: tc("getStarted"),
+    upgrade: t("upgrade"),
+    currentPlan: t("currentPlan"),
+    contactSales: t("contactSales"),
+    checkout: t("checkout"),
+    redirecting: t("redirecting"),
+  };
+}
+
 export async function PricingShowcase() {
-  const { userId } = await auth();
+  const { userId, orgId } = await auth();
   const signedIn = !!userId;
+  const hasOrg = !!orgId;
+  const currentPlan = await getViewerPlan();
+  const enterpriseCheckoutEnabled = variantIdForPlan("ENTERPRISE") !== null;
+
   const t = await getTranslations("pricing");
   const tp = await getTranslations("plans");
   const tc = await getTranslations("common");
 
   const localizedPlanMeta = getLocalizedPlanMeta(tp);
+  const ctaLabels = buildCtaLabels(t, tc);
 
-  const plans = [
-    {
-      ...localizedPlanMeta.FREE,
-      price: PLAN_PRICES.FREE,
-    },
-    {
-      ...localizedPlanMeta.STARTER,
-      price: PLAN_PRICES.STARTER,
-    },
-    {
-      ...localizedPlanMeta.PRO,
-      price: PLAN_PRICES.PRO,
-    },
-  ];
+  const plans = PAID_CARD_PLANS.map((planKey) => ({
+    planKey,
+    ...localizedPlanMeta[planKey],
+    price: PLAN_PRICES[planKey],
+  }));
 
-  const ctaHref = signedIn ? "/dashboard/billing" : "/sign-up";
+  const enterpriseCta = resolvePlanCta({
+    targetPlan: "ENTERPRISE",
+    currentPlan,
+    signedIn,
+    hasOrg,
+    enterpriseCheckoutEnabled,
+  });
 
   return (
     <section className="border-t border-hairline bg-canvas py-section">
@@ -58,119 +83,56 @@ export async function PricingShowcase() {
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {plans.map((plan) => {
+            const targetPlan = planFromMetaKey(plan.key);
+            if (!targetPlan) return null;
+
             const isPro = plan.key === "pro";
             const isFree = plan.key === "free";
+            const isCurrentPlan = currentPlan === targetPlan;
             const rawPrice = plan.price !== null ? plan.price.madCents : null;
-            const showPrice = isFree ? t("free") : (
-              rawPrice !== null ? formatPrice(rawPrice) : null
-            );
+            const showPrice = isFree ? t("free") : rawPrice !== null ? formatPrice(rawPrice) : null;
+            const cta = resolvePlanCta({
+              targetPlan,
+              currentPlan,
+              signedIn,
+              hasOrg,
+              enterpriseCheckoutEnabled,
+            });
 
             return (
-              <div
+              <PlanPricingCard
                 key={plan.key}
-                className={`flex flex-col rounded-xxl border p-8 ${
-                  isPro
-                    ? "border-2 border-white/20 bg-primary"
-                    : "border-hairline bg-surface-card"
-                }`}
+                name={plan.name}
+                description={plan.description}
+                showPrice={showPrice}
+                isFree={isFree}
+                isPro={isPro}
+                isCurrentPlan={isCurrentPlan}
+                recommendedLabel={t("recommended")}
+                currentPlanBadgeLabel={t("currentPlanBadge")}
+                perMonthLabel={t("perMonth")}
+                features={plan.features}
+                headingLevel="h3"
               >
-                {isPro && (
-                  <span className="mb-4 inline-flex self-start items-center rounded-full bg-white/90 px-3 py-[2px] text-xs font-semibold text-primary ring-1 ring-inset ring-white/20">
-                    {t("recommended")}
-                  </span>
-                )}
-
-                <h3 className={`font-display text-display-sm tracking-tighter ${isPro ? "text-on-primary" : "text-ink"}`}>
-                  {plan.name}
-                </h3>
-                <p className={`mt-2 text-body-sm leading-relaxed ${isPro ? "text-on-primary/80" : "text-body"}`}>
-                  {plan.description}
-                </p>
-
-                <p className={`mt-6 font-display text-display-md tracking-tighter ${isPro ? "text-on-primary" : "text-ink"}`}>
-                  {showPrice}
-                </p>
-                {!isFree && (
-                  <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>
-                    {t("perMonth")}
-                  </p>
-                )}
-
-                <div className="mt-8 flex-1">
-                  <ul className="space-y-3">
-                    {plan.features.map((feature: any) => (
-                      <li key={feature.text} className="flex items-start gap-3">
-                        <span
-                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
-                            isPro
-                              ? feature.included
-                                ? "bg-white/20 text-on-primary"
-                                : "bg-white/10 text-on-primary/40"
-                              : feature.included
-                                ? "bg-primary/10 text-primary"
-                                : "bg-surface-strong text-muted-soft"
-                          }`}
-                        >
-                          <AppIcon icon={CheckIcon} className="h-3 w-3" aria-hidden="true" />
-                        </span>
-                        <span
-                          className={`text-body-sm leading-snug ${
-                            isPro
-                              ? feature.included
-                                ? "text-on-primary/90"
-                                : "text-on-primary/50"
-                              : feature.included
-                                ? "text-body"
-                                : "text-muted-soft"
-                          }`}
-                        >
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Link
-                  href={ctaHref}
-                  className={`mt-8 block w-full rounded-md px-4 py-2.5 text-center text-button tracking-wide transition-colors ${
-                    isPro
-                      ? "bg-white text-primary hover:bg-white/90"
-                      : "bg-ink text-on-primary hover:bg-body-strong"
-                  }`}
-                >
-                  {isFree ? t("startFreeTrial") : tc("getStarted")}
-                </Link>
-              </div>
+                <PlanCtaButton cta={cta} labels={ctaLabels} variant={isPro ? "pro" : "default"} />
+              </PlanPricingCard>
             );
           })}
         </div>
 
-        <div className="mt-8 flex flex-col items-start gap-6 rounded-xxl border border-hairline bg-surface-card p-8 md:flex-row md:items-center md:justify-between md:p-10">
-          <div>
-            <h3 className="font-display text-display-sm tracking-tighter text-ink">{localizedPlanMeta.ENTERPRISE.name}</h3>
-            <p className="mt-1 text-body-sm leading-relaxed text-body">
-              {localizedPlanMeta.ENTERPRISE.blurb}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {localizedPlanMeta.ENTERPRISE.features.slice(0, 5).map((feature: any) => (
-                <span
-                  key={feature.text}
-                  className="rounded-full border border-hairline bg-surface-strong px-3 py-1 text-caption text-ink"
-                >
-                  {feature.text}
-                </span>
-              ))}
-            </div>
-          </div>
-          <Link
-            href="/pricing"
-            className="inline-flex shrink-0 items-center gap-2 rounded-md bg-ink px-6 py-3 text-button text-on-primary transition-colors hover:bg-body-strong"
-          >
-            {t("contactSales")}
-            <AppIcon icon={ArrowUpRightIcon} className="h-4 w-4" />
-          </Link>
-        </div>
+        <EnterprisePlanCard
+          className="mt-8"
+          name={localizedPlanMeta.ENTERPRISE.name}
+          blurb={localizedPlanMeta.ENTERPRISE.blurb}
+          features={localizedPlanMeta.ENTERPRISE.features}
+          customPricingLabel={t("customPricing")}
+          customPricingHint={t("customPricingHint")}
+          isCurrentPlan={currentPlan === "ENTERPRISE"}
+          currentPlanBadgeLabel={t("currentPlanBadge")}
+          cta={enterpriseCta}
+          ctaLabels={ctaLabels}
+          headingLevel="h3"
+        />
       </div>
     </section>
   );

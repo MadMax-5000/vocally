@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { AppIcon } from "@/components/ui/app-icon";
@@ -9,12 +8,12 @@ import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
 import { useLandingNav } from "./LandingNavContext";
-import { NAV_SPRING_SNAPPY } from "./landing-nav-motion";
+import { EASE_OUT } from "./landing-nav-motion";
 import { plainNavLinks, type MegaId } from "./landing-nav-data";
 
 function MegaTrigger({ id, label }: { id: MegaId; label: string }) {
-  const { activeMega, openMega } = useLandingNav();
-  const isActive = activeMega === id;
+  const { activeMega, isOpen, openMega, scheduleClose } = useLandingNav();
+  const isActive = isOpen && activeMega === id;
 
   return (
     <button
@@ -23,19 +22,23 @@ function MegaTrigger({ id, label }: { id: MegaId; label: string }) {
       aria-expanded={isActive}
       onMouseEnter={() => openMega(id)}
       onFocus={() => openMega(id)}
+      onBlur={scheduleClose}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-nav-link transition-colors duration-200 ease-out",
-        isActive ? "text-ink" : "text-ink hover:text-body-strong",
+        "inline-flex items-center gap-1 rounded-md px-3 py-2 text-nav-link transition-colors duration-150 ease-out",
+        isActive ? "text-ink" : "text-ink/70 hover:text-ink",
       )}
     >
       {label}
-      <motion.span
-        animate={{ rotate: isActive ? 180 : 0 }}
-        transition={NAV_SPRING_SNAPPY}
-        className="inline-flex"
+      <span
+        className={cn(
+          "inline-flex text-muted transition-transform duration-200",
+          isActive && "rotate-180",
+        )}
+        style={{ transitionTimingFunction: `cubic-bezier(${EASE_OUT.join(",")})` }}
+        aria-hidden
       >
-        <AppIcon icon={ChevronDown} size={14} className="text-muted" />
-      </motion.span>
+        <AppIcon icon={ChevronDown} size={13} strokeWidth={2} />
+      </span>
     </button>
   );
 }
@@ -46,18 +49,19 @@ export function LandingNavDesktop() {
 
   return (
     <nav
-      aria-label="Main"
+      aria-label="Main navigation"
       className="flex items-center gap-1"
       onMouseEnter={cancelClose}
       onMouseLeave={scheduleClose}
     >
       <MegaTrigger id="solutions" label={t("labels.solutions")} />
       <MegaTrigger id="resources" label={t("labels.resources")} />
+
       {plainNavLinks.map((link) => (
         <Link
           key={link.id}
           href={link.href}
-          className="rounded-md px-2.5 py-1.5 text-nav-link text-ink transition-colors duration-200 ease-out hover:text-body-strong"
+          className="rounded-md px-3 py-2 text-nav-link text-ink/70 transition-colors duration-150 ease-out hover:text-ink"
         >
           {t(`labels.${link.labelKey}`)}
         </Link>

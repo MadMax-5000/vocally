@@ -1,34 +1,34 @@
-/** Premium easing — soft deceleration, no bounce */
-export const NAV_EASE_OUT = [0.22, 1, 0.36, 1] as const;
+/**
+ * Centralized motion constants for the landing page mega menu.
+ * Single source of truth — tweak here to affect all transitions uniformly.
+ */
 
-/** Slightly quicker ease for exits */
-export const NAV_EASE_IN_OUT = [0.4, 0, 0.2, 1] as const;
+/** Silky deceleration ease: fast start, graceful float to rest. */
+export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-export const NAV_SPRING = {
-  type: "spring" as const,
-  stiffness: 260,
-  damping: 32,
-  mass: 0.85,
-};
+/** Panel shell fade + translate open */
+export const PANEL_OPEN = {
+  duration: 0.24,
+  ease: EASE_OUT,
+} as const;
 
-export const NAV_SPRING_SNAPPY = {
-  type: "spring" as const,
-  stiffness: 380,
-  damping: 36,
-  mass: 0.7,
-};
+/** Panel shell fade + translate close (slightly faster) */
+export const PANEL_CLOSE = {
+  duration: 0.16,
+  ease: EASE_OUT,
+} as const;
 
-export const NAV_PANEL_OPEN = {
-  duration: 0.38,
-  ease: NAV_EASE_OUT,
-};
+/** Inner content crossfade when switching Solutions ↔ Resources */
+export const CONTENT_SWAP = {
+  duration: 0.26,
+  ease: EASE_OUT,
+} as const;
 
-export const NAV_PANEL_CLOSE = {
-  duration: 0.28,
-  ease: NAV_EASE_IN_OUT,
-};
+/** Height morph animated on the container's real `height` (no transform distortion) */
+export const HEIGHT_MORPH = {
+  duration: 0.34,
+  ease: EASE_OUT,
+} as const;
 
-export const NAV_CONTENT_SWITCH = {
-  duration: 0.36,
-  ease: NAV_EASE_OUT,
-};
+/** Direction for content slide: +1 = left-to-right, -1 = right-to-left */
+export const SLIDE_AMPLITUDE = 18;

@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     const origin = new URL(req.url).origin;
-    const redirectUrl = `${origin}/dashboard/billing?checkout=success`;
+    const redirectUrl = `${origin}/dashboard`;
 
     const user = await currentUser();
     const email = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress;

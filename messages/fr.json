@@ -109,7 +109,7 @@
         },
         "helpdesk": {
           "title": "HelpDesk",
-          "description": "Transférez les problèmes complexes à des humains"
+          "description": "Transférez les problèmes complexes à un agent humain"
         },
         "industries": {
           "ecommerce": {
@@ -133,11 +133,11 @@
       "resources": {
         "guide": {
           "title": "Guide",
-          "description": "Tout savoir sur l'utilisation d'Anselio"
+          "description": "Tout ce dont vous avez besoin pour démarrer avec Anselio"
         },
         "blog": {
           "title": "Blog",
-          "description": "Mises à jour produit, conseils et insights d'Anselio"
+          "description": "Mises à jour produit, conseils et insights de notre équipe"
         },
         "docs": {
           "title": "Documentation",
@@ -145,11 +145,11 @@
         },
         "changelog": {
           "title": "Journal des modifications",
-          "description": "Restez à jour avec les dernières fonctionnalités"
+          "description": "Restez à jour avec les dernières mises à jour et fonctionnalités"
         },
         "recentUpdate": {
           "badge": "Nouveau",
-          "title": "Le support vocal Darija est disponible sur Anselio",
+          "title": "Le support vocal Darija est maintenant disponible",
           "description": "Déployez des agents IA qui parlent un darija marocain naturel sur la voix et le chat."
         }
       }
@@ -162,7 +162,14 @@
     "contactSales": "Contacter les ventes",
     "recommended": "Recommandé",
     "perMonth": "par mois, facturé mensuellement",
-    "free": "Gratuit"
+    "free": "Gratuit",
+    "currentPlan": "Plan actuel",
+    "upgrade": "Mettre à niveau",
+    "redirecting": "Redirection…",
+    "currentPlanBadge": "Plan actuel",
+    "checkout": "Paiement",
+    "customPricing": "Tarification sur mesure",
+    "customPricingHint": "Adaptée à votre volume et à vos exigences de conformité."
   },
   "plans": {
     "free": {
@@ -249,6 +256,46 @@
       "title": "Adresse",
       "line1": "202 Boulevard Mohammed V",
       "line2": "Casablanca 20000, Maroc"
+    },
+    "sales": {
+      "title": "Parlez à notre équipe commerciale",
+      "description": "Parlez-nous de vos besoins en centre de contact. Notre équipe entreprise vous répondra sous un jour ouvré.",
+      "form": {
+        "name": "Nom complet",
+        "namePlaceholder": "Jane Doe",
+        "email": "E-mail professionnel",
+        "emailPlaceholder": "jane@entreprise.com",
+        "company": "Entreprise",
+        "companyPlaceholder": "Acme Inc.",
+        "phone": "Téléphone (optionnel)",
+        "phonePlaceholder": "+212 6 00 00 00 00",
+        "companySize": "Taille de l'entreprise (optionnel)",
+        "companySizePlaceholder": "Sélectionner la taille",
+        "companySizeOptions": {
+          "1-10": "1–10 employés",
+          "11-50": "11–50 employés",
+          "51-200": "51–200 employés",
+          "201-1000": "201–1 000 employés",
+          "1000+": "Plus de 1 000 employés"
+        },
+        "message": "Comment pouvons-nous vous aider ?",
+        "messagePlaceholder": "Décrivez votre volume d'appels, vos canaux, vos exigences de conformité ou votre calendrier.",
+        "submit": "Envoyer le message",
+        "submitting": "Envoi…",
+        "success": "Merci — notre équipe commerciale vous contactera sous peu.",
+        "error": "Impossible d'envoyer votre message. Réessayez ou écrivez à contact@anselio.com."
+      },
+      "sidebar": {
+        "responseTitle": "À quoi s'attendre",
+        "responseBody": "Nous répondons généralement sous un jour ouvré avec les prochaines étapes pour un devis entreprise sur mesure.",
+        "featuresTitle": "L'offre Enterprise inclut",
+        "features": {
+          "0": "Volume d'appels personnalisé et remises sur volume",
+          "1": "Gestionnaire de compte dédié",
+          "2": "Modèles personnalisés et fine-tuning",
+          "3": "SLA et garantie de disponibilité 99,99 %"
+        }
+      }
     }
   },
   "legal": {

@@ -44,7 +44,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
-        <ClerkProvider localization={localization}>{children}</ClerkProvider>
+        <ClerkProvider
+          localization={localization}
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/onboarding"
+        >
+          {children}
+        </ClerkProvider>
         <Toaster
           position="top-right"
           richColors

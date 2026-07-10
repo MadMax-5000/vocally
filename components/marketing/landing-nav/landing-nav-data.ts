@@ -7,9 +7,9 @@ import {
   LifeBuoy,
   PhoneCall,
   RefreshCwIcon,
-  RocketIcon,
   Target,
   TrendingUp,
+  RocketIcon,
 } from "@/lib/icons/app-icons";
 
 export type MegaId = "solutions" | "resources";
