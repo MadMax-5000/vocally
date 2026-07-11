@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { buildHelpEmbedUrl, buildHelpPageUrl, useEmbedOrigin } from "@/lib/deploy/embed-urls";
 import { cn } from "@/lib/utils";
+import { useDeploySitesMessages } from "../useDeploySitesMessages";
 
 type HelpPageEmbedSectionProps = {
   agentId: string;
@@ -19,21 +20,22 @@ export function HelpPageEmbedSection({
   widgetToken,
   pageTitle,
 }: HelpPageEmbedSectionProps) {
+  const t = useDeploySitesMessages().helpPage.embed;
   const origin = useEmbedOrigin();
   const [copied, setCopied] = useState<"page" | "snippet" | null>(null);
   const [activeSnippet, setActiveSnippet] = useState<"iframe" | "link">("iframe");
 
   const pageUrl = buildHelpPageUrl(origin, agentId);
   const shareUrl = buildHelpEmbedUrl(origin, agentId, widgetToken);
-  const title = pageTitle.trim() || "Help center";
+  const title = pageTitle.trim() || t.fallbackTitle;
 
   const iframeSnippet = `<iframe
   src="${shareUrl}"
   style="width:100%;min-height:720px;border:none"
-  title="Help — ${title}"
+  title="${t.iframeTitle.replace("{title}", title)}"
 ></iframe>`;
 
-  const linkSnippet = `<a href="${shareUrl}">Open help center</a>`;
+  const linkSnippet = `<a href="${shareUrl}">${t.linkText}</a>`;
   const snippet = activeSnippet === "iframe" ? iframeSnippet : linkSnippet;
 
   async function handleCopy(text: string, kind: "page" | "snippet") {
@@ -50,13 +52,13 @@ export function HelpPageEmbedSection({
     <div className="space-y-6">
       <div className="space-y-3">
         <div>
-          <h4 className="text-body-sm font-medium text-ink">Page link</h4>
+          <h4 className="text-body-sm font-medium text-ink">{t.pageLink}</h4>
           <p className="mt-1 text-caption text-muted">
-            Share this URL so customers can open your standalone help page. Append{" "}
+            {t.pageLinkDescription}{" "}
             <code className="rounded bg-surface-strong px-1 py-0.5 text-[11px]">
               ?token=YOUR_TOKEN
             </code>{" "}
-            for public access.
+            {t.pageLinkDescriptionAfter}
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-hairline bg-canvas-soft p-3">
@@ -70,11 +72,11 @@ export function HelpPageEmbedSection({
           >
             {copied === "page" ? (
               <>
-                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
+                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> {t.copied}
               </>
             ) : (
               <>
-                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy link
+                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> {t.copyLink}
               </>
             )}
           </Button>
@@ -84,7 +86,7 @@ export function HelpPageEmbedSection({
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-1 text-body-sm text-primary hover:underline"
           >
-            Open
+            {t.open}
             <AppIcon icon={ExternalLink} className="h-3 w-3" />
           </a>
         </div>
@@ -92,7 +94,7 @@ export function HelpPageEmbedSection({
 
       <div className="space-y-4 border-t border-hairline pt-6">
         <p className="text-body-sm text-muted">
-          Or embed the help page on your site. Branding comes from your saved settings.
+          {t.embedDescription}
         </p>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -106,7 +108,7 @@ export function HelpPageEmbedSection({
                 : "bg-surface-strong text-muted hover:text-ink",
             )}
           >
-            Embed iframe
+            {t.embedIframe}
           </button>
           <button
             type="button"
@@ -118,7 +120,7 @@ export function HelpPageEmbedSection({
                 : "bg-surface-strong text-muted hover:text-ink",
             )}
           >
-            HTML link
+            {t.htmlLink}
           </button>
         </div>
 
@@ -132,11 +134,11 @@ export function HelpPageEmbedSection({
           >
             {copied === "snippet" ? (
               <>
-                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
+                <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> {t.copied}
               </>
             ) : (
               <>
-                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy code
+                <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> {t.copyCode}
               </>
             )}
           </Button>

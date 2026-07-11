@@ -3,8 +3,9 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { Braces, CopyIcon, Trash2Icon } from "@/lib/icons/app-icons"
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { deleteAgentVariable, upsertAgentVariable } from "@/lib/actions/agents";
 import { getEnabledAgentChannelTypes } from "@/lib/deploy/web-chat-config";
@@ -27,76 +28,83 @@ import {
 } from "@/components/ui/sheet";
 
 import type { AgentDetailWithRelations } from "./agent-detail-types";
-import { formatEnumLabel } from "./format-agent-labels";
 import { cn } from "@/lib/utils";
 
-function buildSystemVariableRows(agent: AgentDetailWithRelations) {
+function enumTranslationKey(value: string) {
+  return value.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
+
+function buildSystemVariableRows(
+  agent: AgentDetailWithRelations,
+  t: ReturnType<typeof useTranslations>,
+  agents: ReturnType<typeof useTranslations>,
+) {
   const toneDisplay = agent.customTone?.trim()
-    ? `${formatEnumLabel(agent.tone)} — ${agent.customTone}`
-    : formatEnumLabel(agent.tone);
+    ? `${agents(`wizard.${enumTranslationKey(agent.tone)}`)} — ${agent.customTone}`
+    : agents(`wizard.${enumTranslationKey(agent.tone)}`);
   const channels =
     getEnabledAgentChannelTypes(agent.channels)
-      .map((channel) => formatEnumLabel(channel))
+      .map((channel) => agents(`channels.${enumTranslationKey(channel)}`))
       .join(", ") || "—";
   const languages =
     agent.languages.length > 0
-      ? agent.languages.map((l) => formatEnumLabel(l.language)).join(", ")
+      ? agent.languages.map((l) => agents(l.language.toLowerCase())).join(", ")
       : "—";
 
   return [
-    { key: "name", label: "Name", token: "{{ name }}", value: agent.name },
-    { key: "tone", label: "Tone", token: "{{ tone }}", value: toneDisplay },
+    { key: "name", label: t("systemName"), token: "{{ name }}", value: agent.name },
+    { key: "tone", label: t("systemTone"), token: "{{ tone }}", value: toneDisplay },
     {
       key: "agent_type",
-      label: "Agent type",
+      label: t("systemAgentType"),
       token: "{{ agent_type }}",
-      value: formatEnumLabel(agent.agentType),
+      value: agents(`agentTypes.${enumTranslationKey(agent.agentType)}`),
     },
     {
       key: "creativity",
-      label: "Creativity",
+      label: t("systemCreativity"),
       token: "{{ creativity }}",
-      value: formatEnumLabel(agent.creativity),
+      value: agents(`wizard.${enumTranslationKey(agent.creativity)}`),
     },
     {
       key: "channels",
-      label: "Channels",
+      label: t("systemChannels"),
       token: "{{ channels }}",
       value: channels,
     },
     {
       key: "languages",
-      label: "Languages",
+      label: t("systemLanguages"),
       token: "{{ languages }}",
       value: languages,
     },
     {
       key: "custom_role",
-      label: "Custom role",
+      label: t("systemCustomRole"),
       token: "{{ custom_role }}",
       value: agent.customRole?.trim() || "—",
     },
     {
       key: "website",
-      label: "Website",
+      label: t("systemWebsite"),
       token: "{{ website }}",
       value: agent.websiteUrl?.trim() || "—",
     },
     {
       key: "handoff",
-      label: "Handoff",
+      label: t("systemHandoff"),
       token: "{{ handoff }}",
-      value: agent.handoffEnabled ? "On" : "Off",
+      value: agent.handoffEnabled ? t("on") : t("off"),
     },
   ] as const;
 }
 
-async function copyText(text: string) {
+async function copyText(text: string, t: ReturnType<typeof useTranslations>) {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success("Copied");
+    toast.success(t("copied"));
   } catch {
-    toast.error("Could not copy");
+    toast.error(t("couldNotCopy"));
   }
 }
 
@@ -106,10 +114,12 @@ type AgentVariablesSheetProps = {
 };
 
 export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesSheetProps) {
+  const t = useTranslations("dashboard.agentDetail.variablesSheet");
+  const agents = useTranslations("dashboard.agents");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const systemRows = buildSystemVariableRows(agent);
+  const systemRows = buildSystemVariableRows(agent, t, agents);
   const customVariableCount = agent.variables.length;
 
   const [newKey, setNewKey] = useState("");
@@ -131,7 +141,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
         description: description.trim() || undefined,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("saveFailed"));
         return;
       }
       setEdits((prev) => {
@@ -140,7 +150,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
         return next;
       });
       router.refresh();
-      toast.success("Variable saved");
+      toast.success(t("variableSaved"));
     });
   }
 
@@ -152,14 +162,14 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
         description: newDescription.trim() || undefined,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Could not add variable");
+        toast.error(result.error ?? t("couldNotAdd"));
         return;
       }
       setNewKey("");
       setNewValue("");
       setNewDescription("");
       router.refresh();
-      toast.success("Variable added");
+      toast.success(t("variableAdded"));
     });
   }
 
@@ -167,11 +177,11 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
     startTransition(async () => {
       const result = await deleteAgentVariable(id);
       if (!result.success) {
-        toast.error(result.error ?? "Delete failed");
+        toast.error(result.error ?? t("deleteFailed"));
         return;
       }
       router.refresh();
-      toast.success("Variable removed");
+      toast.success(t("variableRemoved"));
     });
   }
 
@@ -193,7 +203,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                 icon={Braces}
                 className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-ink"
               />
-              Variables
+              {t("title")}
               {customVariableCount > 0 ? (
                 <span className="ml-0.5 tabular-nums text-caption text-muted">
                   {customVariableCount}
@@ -202,22 +212,22 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
             </Button>
           </SheetTrigger>
         </TooltipTrigger>
-        <TooltipContent>Manage prompt variables</TooltipContent>
+        <TooltipContent>{t("manageVariables")}</TooltipContent>
       </Tooltip>
       <SheetContent
         side="right"
         className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-lg"
       >
         <SheetHeader className="border-b border-hairline pb-4 text-left">
-          <SheetTitle>Variables</SheetTitle>
+          <SheetTitle>{t("title")}</SheetTitle>
           <SheetDescription>
-            System fields and custom key/value pairs for prompts and integrations.
+            {t("description")}
           </SheetDescription>
         </SheetHeader>
 
         <div className="flex flex-1 flex-col gap-8 py-6">
           <section className="space-y-3">
-            <h3 className="text-caption-uppercase text-muted">System variables</h3>
+            <h3 className="text-caption-uppercase text-muted">{t("systemVariables")}</h3>
             <ul className="space-y-2">
               {systemRows.map((row) => (
                 <li
@@ -234,8 +244,8 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                     variant="ghost"
                     size="icon-sm"
                     className="shrink-0 text-muted hover:text-ink"
-                    aria-label={`Copy ${row.token}`}
-                    onClick={() => void copyText(row.token)}
+                    aria-label={t("copyToken", { token: row.token })}
+                    onClick={() => void copyText(row.token, t)}
                   >
                     <AppIcon icon={CopyIcon} className="h-4 w-4" />
                   </Button>
@@ -245,7 +255,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-caption-uppercase text-muted">Custom variables</h3>
+            <h3 className="text-caption-uppercase text-muted">{t("customVariables")}</h3>
             <ul className="space-y-3">
               {agent.variables.map((v) => {
                 const descDefault = v.description ?? "";
@@ -265,7 +275,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                         variant="ghost"
                         size="icon-sm"
                         className="text-muted hover:text-semantic-error"
-                        aria-label="Delete variable"
+                        aria-label={t("deleteVariable")}
                         disabled={pending}
                         onClick={() => handleDelete(v.id)}
                       >
@@ -274,7 +284,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor={`var-val-${v.id}`} className="text-caption text-muted">
-                        Value
+                        {t("value")}
                       </Label>
                       <Textarea
                         id={`var-val-${v.id}`}
@@ -294,7 +304,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor={`var-desc-${v.id}`} className="text-caption text-muted">
-                        Description (optional)
+                        {t("optionalDescription")}
                       </Label>
                       <Input
                         id={`var-desc-${v.id}`}
@@ -319,7 +329,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                       disabled={pending}
                       onClick={() => handleSaveCustom(v.id, v.key)}
                     >
-                      Save
+                      {t("save")}
                     </Button>
                   </li>
                 );
@@ -327,23 +337,23 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
             </ul>
 
             <div className="space-y-3 rounded-lg border border-dashed border-hairline-strong bg-canvas-soft p-3">
-              <p className="text-caption-uppercase text-muted">Add variable</p>
+              <p className="text-caption-uppercase text-muted">{t("addVariable")}</p>
               <div className="space-y-1.5">
                 <Label htmlFor="new-var-key" className="text-caption text-muted">
-                  Key (snake_case)
+                  {t("key")}
                 </Label>
                 <Input
                   id="new-var-key"
                   value={newKey}
                   onChange={(e) => setNewKey(e.target.value)}
-                  placeholder="e.g. brand_voice"
+                  placeholder={t("keyPlaceholder")}
                   className="font-mono text-body-sm"
                   disabled={pending}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="new-var-value" className="text-caption text-muted">
-                  Value
+                  {t("value")}
                 </Label>
                 <Textarea
                   id="new-var-value"
@@ -356,7 +366,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="new-var-desc" className="text-caption text-muted">
-                  Description (optional)
+                  {t("optionalDescription")}
                 </Label>
                 <Input
                   id="new-var-desc"
@@ -374,7 +384,7 @@ export function AgentVariablesSheet({ agent, triggerClassName }: AgentVariablesS
                 disabled={pending || !newKey.trim() || !newValue.trim()}
                 onClick={handleAdd}
               >
-                Add variable
+                {t("addVariable")}
               </Button>
             </div>
           </section>

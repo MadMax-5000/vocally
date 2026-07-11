@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import type { ActionCatalogEntry } from "./action-catalog";
 import { ActionCatalogIcon } from "./ActionCatalogIcon";
 
@@ -16,6 +17,8 @@ export function ActionCatalogCard({
   configured,
   comingSoon = false,
 }: ActionCatalogCardProps) {
+  const t = useTranslations("dashboard.actions");
+
   if (comingSoon) {
     return (
       <article
@@ -29,19 +32,19 @@ export function ActionCatalogCard({
           <div className="flex items-center gap-2.5">
             <ActionCatalogIcon icon={entry.icon} variant="muted" />
             <div className="flex min-w-0 flex-1 items-center gap-2">
-              <h3 className="text-title-sm font-medium text-muted">{entry.title}</h3>
+              <h3 className="text-title-sm font-medium text-muted">{t(entry.title)}</h3>
               <span className="shrink-0 rounded-pill bg-canvas-soft px-2 py-0.5 text-xs text-muted-soft">
-                Coming soon
+                {t("comingSoon")}
               </span>
             </div>
           </div>
 
           <p className="mt-2 flex-1 pl-[2.875rem] text-body-sm leading-relaxed text-muted-soft">
-            {entry.description}
+            {t(entry.description)}
           </p>
 
           <p className="mt-3 text-right text-caption text-muted-soft">
-            Not available yet
+            {t("notAvailableYet")}
           </p>
         </div>
       </article>
@@ -63,16 +66,16 @@ export function ActionCatalogCard({
         <ActionCatalogIcon icon={entry.icon} />
         {configured ? (
           <span className="shrink-0 rounded-full bg-surface-strong px-2 py-0.5 text-caption text-body ring-1 ring-inset ring-hairline">
-            Enabled
+            {t("enabled")}
           </span>
         ) : null}
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
         <h3 className="font-display text-title-sm font-normal tracking-tight text-ink">
-          {entry.title}
+          {t(entry.title)}
         </h3>
         <p className="text-pretty text-body-sm leading-relaxed text-muted">
-          {entry.description}
+          {t(entry.description)}
         </p>
       </div>
       <div className="flex flex-wrap gap-1.5">
@@ -81,7 +84,7 @@ export function ActionCatalogCard({
             key={pill}
             className="inline-flex items-center rounded-full bg-surface-strong px-2.5 py-1 text-caption text-body ring-1 ring-inset ring-hairline"
           >
-            {pill}
+            {t(pill)}
           </span>
         ))}
       </div>

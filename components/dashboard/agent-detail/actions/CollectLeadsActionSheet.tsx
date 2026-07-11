@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import {
@@ -42,43 +43,30 @@ import {
   type CollectLeadsActionDraft,
 } from "./collect-leads-action-draft";
 
-const FIELD_LABELS: Record<LeadFieldKey, string> = {
-  name: "Name",
-  email: "Email",
-  phone: "Phone",
-  company: "Company",
-  notes: "Notes",
-};
-
-const WHEN_TO_ASK_OPTIONS = [
-  { value: "proactive" as const, label: "Proactively" },
-  { value: "intent_only" as const, label: "Only when interested" },
-] as const;
-
 type CollectLeadsActionSheetProps = {
   agent: AgentDetailWithRelations;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-function formatLeadLabel(lead: AgentLeadListItem): string {
+function formatLeadLabel(lead: AgentLeadListItem, unknown: string): string {
   if (lead.name?.trim()) return lead.name.trim();
   if (lead.email?.trim()) return lead.email.trim();
   if (lead.phone?.trim()) return lead.phone.trim();
   if (lead.company?.trim()) return lead.company.trim();
-  return "Unknown";
+  return unknown;
 }
 
-function formatRelativeTime(iso: string): string {
+function formatRelativeTime(iso: string, t: ReturnType<typeof useTranslations>): string {
   const date = new Date(iso);
   const diffMs = Date.now() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("sheet.justNow");
+  if (diffMin < 60) return t("sheet.minutesAgo", { count: diffMin });
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return t("sheet.hoursAgo", { count: diffHr });
   const diffDay = Math.floor(diffHr / 24);
-  return `${diffDay}d ago`;
+  return t("sheet.daysAgo", { count: diffDay });
 }
 
 export function CollectLeadsActionSheet({
@@ -86,6 +74,7 @@ export function CollectLeadsActionSheet({
   open,
   onOpenChange,
 }: CollectLeadsActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [leadsLoading, setLeadsLoading] = useState(false);
@@ -124,14 +113,14 @@ export function CollectLeadsActionSheet({
         notifyEmail: draft.notifyEmail,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildCollectLeadsActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Collect leads saved");
+      toast.success(t("sheet.collectLeads.saved"));
       onOpenChange(false);
     });
   }
@@ -140,13 +129,13 @@ export function CollectLeadsActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Collect leads"
-      description="Let the agent capture contact details in conversation and save them as structured leads. Conversational only — no inline form UI (unlike Custom form)."
+      title={t("catalog.collectLeads.title")}
+      description={t("sheet.collectLeads.description")}
       pending={pending}
       isDirty={isDirty}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable collect leads">
+      <ActionSheetEnableRow label={t("sheet.collectLeads.enable")}>
         <Switch
           id="collect-leads-enabled"
           checked={draft.enabled}
@@ -157,8 +146,8 @@ export function CollectLeadsActionSheet({
       {draft.enabled ? (
         <>
           <ActionSheetSection
-            title="When to ask"
-            description="Choose when the agent should request contact details."
+            title={t("sheet.collectLeads.whenToAsk")}
+            description={t("sheet.collectLeads.whenToAskDescription")}
           >
             <RadioGroup
               value={draft.whenToAsk}
@@ -170,30 +159,32 @@ export function CollectLeadsActionSheet({
               }
               className="flex flex-col gap-2"
             >
-              {WHEN_TO_ASK_OPTIONS.map((opt) => (
+              {(["proactive", "intent_only"] as const).map((value) => (
                 <label
-                  key={opt.value}
-                  htmlFor={`when-to-ask-${opt.value}`}
+                  key={value}
+                  htmlFor={`when-to-ask-${value}`}
                   className={cn(
                     "flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2 transition-colors",
-                    draft.whenToAsk === opt.value
+                    draft.whenToAsk === value
                       ? "border-hairline-strong bg-surface-card"
                       : "border-hairline bg-surface-card hover:bg-canvas-soft",
                   )}
                 >
-                  <RadioGroupItem value={opt.value} id={`when-to-ask-${opt.value}`} />
-                  <span className="text-body-sm text-ink">{opt.label}</span>
+                  <RadioGroupItem value={value} id={`when-to-ask-${value}`} />
+                  <span className="text-body-sm text-ink">
+                    {t(`sheet.collectLeads.${value === "proactive" ? "proactively" : "whenInterested"}`)}
+                  </span>
                 </label>
               ))}
             </RadioGroup>
           </ActionSheetSection>
 
-          <ActionSheetSection title="Fields">
+          <ActionSheetSection title={t("sheet.collectLeads.fields")}>
             <ActionSheetList>
               {LEAD_FIELD_KEYS.map((fieldKey) => (
                 <ActionSheetListItem key={fieldKey}>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-body-sm text-ink">{FIELD_LABELS[fieldKey]}</span>
+                    <span className="text-body-sm text-ink">{t(`sheet.collectLeads.${fieldKey}`)}</span>
                     <Select
                       value={draft.fields[fieldKey]}
                       onValueChange={(value) =>
@@ -211,9 +202,9 @@ export function CollectLeadsActionSheet({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="required">Required</SelectItem>
-                        <SelectItem value="optional">Optional</SelectItem>
-                        <SelectItem value="off">Off</SelectItem>
+                        <SelectItem value="required">{t("sheet.collectLeads.required")}</SelectItem>
+                        <SelectItem value="optional">{t("sheet.collectLeads.optional")}</SelectItem>
+                        <SelectItem value="off">{t("sheet.collectLeads.off")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -222,7 +213,7 @@ export function CollectLeadsActionSheet({
             </ActionSheetList>
           </ActionSheetSection>
 
-          <ActionSheetField label="Consent / disclaimer">
+          <ActionSheetField label={t("sheet.collectLeads.consent")}>
             <Textarea
               id="collect-leads-consent"
               value={draft.consentText}
@@ -234,11 +225,11 @@ export function CollectLeadsActionSheet({
             />
           </ActionSheetField>
 
-          <ActionSheetField label="Notify email" description="Optional — get an email when all required fields are captured.">
+          <ActionSheetField label={t("sheet.collectLeads.notifyEmail")} description={t("sheet.collectLeads.notifyEmailDescription")}>
             <Input
               id="collect-leads-notify"
               type="email"
-              placeholder="team@company.com"
+              placeholder={t("emailPlaceholder")}
               value={draft.notifyEmail}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, notifyEmail: e.target.value }))
@@ -248,29 +239,29 @@ export function CollectLeadsActionSheet({
           </ActionSheetField>
         </>
       ) : (
-        <ActionSheetEmpty>Turn on to configure how the agent collects contact details.</ActionSheetEmpty>
+        <ActionSheetEmpty>{t("sheet.collectLeads.disabledDescription")}</ActionSheetEmpty>
       )}
 
-      <ActionSheetSection title="Recent leads">
+      <ActionSheetSection title={t("sheet.collectLeads.recentLeads")}>
         <div className="mb-2 flex justify-end">
           <Link
             href={`/dashboard/leads?agentId=${agent.id}`}
             className="text-caption text-muted hover:text-ink"
           >
-            View all in Leads
+            {t("sheet.collectLeads.viewAll")}
           </Link>
         </div>
         {leadsLoading ? (
-          <ActionSheetEmpty>Loading…</ActionSheetEmpty>
+          <ActionSheetEmpty>{t("sheet.collectLeads.loading")}</ActionSheetEmpty>
         ) : recentLeads.length === 0 ? (
-          <ActionSheetEmpty>No leads captured yet for this agent.</ActionSheetEmpty>
+          <ActionSheetEmpty>{t("sheet.collectLeads.noLeads")}</ActionSheetEmpty>
         ) : (
           <ActionSheetList>
             {recentLeads.map((lead) => (
               <ActionSheetListItem key={lead.id}>
-                <p className="truncate text-body-sm text-ink">{formatLeadLabel(lead)}</p>
+                <p className="truncate text-body-sm text-ink">{formatLeadLabel(lead, t("sheet.unknown"))}</p>
                 <p className="text-caption text-muted-soft">
-                  {lead.source} · {formatRelativeTime(lead.createdAt)}
+                  {lead.source} · {formatRelativeTime(lead.createdAt, t)}
                 </p>
               </ActionSheetListItem>
             ))}

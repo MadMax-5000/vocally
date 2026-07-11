@@ -18,6 +18,7 @@ import {
   type VoicePersonaDetail,
 } from "@/lib/voice/voice-catalog";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type VoicePickerDialogProps = {
   open: boolean;
@@ -56,6 +57,7 @@ function VoicePickerRow({
   onSelect: () => void;
   onPreview: (e: React.MouseEvent) => void;
 }) {
+  const t = useTranslations("dashboard.agentDetail.voicePicker");
   return (
     <div
       role="button"
@@ -99,7 +101,7 @@ function VoicePickerRow({
       <button
         type="button"
         disabled={disabled}
-        aria-label={previewing ? `Stop preview for ${persona.name}` : `Preview ${persona.name}`}
+        aria-label={previewing ? t("stopPreview", { name: persona.name }) : t("preview", { name: persona.name })}
         onClick={onPreview}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-surface-card"
       >
@@ -120,6 +122,7 @@ export function VoicePickerDialog({
   onSelect,
   disabled,
 }: VoicePickerDialogProps) {
+  const t = useTranslations("dashboard.agentDetail.voicePicker");
   const [query, setQuery] = useState("");
   const [previewingId, setPreviewingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -177,9 +180,9 @@ export function VoicePickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[min(640px,90vh)] max-w-lg flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="shrink-0 space-y-1 px-4 pb-2 pt-4">
-          <DialogTitle className="text-title-sm">Voices</DialogTitle>
+          <DialogTitle className="text-title-sm">{t("title")}</DialogTitle>
           <DialogDescription className="text-body-sm text-muted">
-            Choose a voice for this agent. Play a sample to hear the preview tone.
+            {t("description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,16 +193,16 @@ export function VoicePickerDialog({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search voices…"
+              placeholder={t("search")}
               className="h-5 w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-muted"
-              aria-label="Search voices"
+              aria-label={t("searchLabel")}
             />
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
           {filtered.length === 0 ? (
-            <p className="py-8 text-center text-body-sm text-muted">No voices found.</p>
+            <p className="py-8 text-center text-body-sm text-muted">{t("noResults")}</p>
           ) : (
             <div className="flex flex-col">
               {filtered.map((persona) => (

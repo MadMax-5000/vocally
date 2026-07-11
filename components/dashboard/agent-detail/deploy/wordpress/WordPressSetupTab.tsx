@@ -3,11 +3,12 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, CopyIcon, DownloadIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 import { Button } from "@/components/ui/button";
 import type { WordPressPluginDefaults } from "@/lib/deploy/wordpress-config";
 import { cn } from "@/lib/utils";
+import { useDeploySitesMessages } from "../useDeploySitesMessages";
 
 import {
   ChatWidgetSettingRow,
@@ -43,11 +44,13 @@ function CopyField({
   value,
   description,
   noBorder,
+  copyLabel,
 }: {
   label: string;
   value: string;
   description?: string;
   noBorder?: boolean;
+  copyLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -76,7 +79,7 @@ function CopyField({
           size="icon"
           className="size-10 shrink-0 rounded-lg border-hairline"
           onClick={handleCopy}
-          aria-label={`Copy ${label}`}
+          aria-label={copyLabel.replace("{label}", label)}
         >
           {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
         </Button>
@@ -93,12 +96,13 @@ export function WordPressSetupTab({
   isActive,
   pluginDefaults,
 }: WordPressSetupTabProps) {
+  const t = useDeploySitesMessages().wordpress.setup;
+
   if (!wordpressEnabled) {
     return (
       <div className="rounded-xl border border-dashed border-hairline bg-canvas-soft px-6 py-12 text-center">
         <p className="text-body-sm text-muted">
-          Enable WordPress deployment using the switch above to configure the plugin and embed
-          code.
+          {t.disabled}
         </p>
       </div>
     );
@@ -107,64 +111,62 @@ export function WordPressSetupTab({
   return (
     <div className="space-y-2">
       <div className="rounded-xl border border-hairline bg-canvas-soft/50 p-4">
-        <h3 className="text-title-sm font-medium text-ink">Prerequisites</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t.prerequisites}</h3>
         <p className="mt-1 text-body-sm text-muted">
-          WordPress embeds your hosted chat widget. Enable the chat widget and make the agent
-          public and active so visitors can chat.
+          {t.prerequisitesDescription}
         </p>
         <ul className="mt-4 space-y-3">
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">Chat widget enabled</span>
+            <span className="text-body-sm text-ink">{t.widgetEnabled}</span>
             <div className="flex items-center gap-2">
               {!webChatEnabled ? (
                 <Link
                   href={`/dashboard/agents/${agentId}/deploy/chat-widget`}
                   className="text-caption text-primary hover:underline"
                 >
-                  Enable widget
+                  {t.enableWidget}
                 </Link>
               ) : null}
-              <StatusPill ok={webChatEnabled} label={webChatEnabled ? "Enabled" : "Disabled"} />
+              <StatusPill ok={webChatEnabled} label={webChatEnabled ? t.enabled : t.disabledStatus} />
             </div>
           </li>
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">Agent is public</span>
+            <span className="text-body-sm text-ink">{t.agentPublic}</span>
             <div className="flex items-center gap-2">
               {!isPublic ? (
                 <Link
                   href={`/dashboard/agents/${agentId}?tab=agent`}
                   className="text-caption text-primary hover:underline"
                 >
-                  Set visibility
+                  {t.setVisibility}
                 </Link>
               ) : null}
-              <StatusPill ok={isPublic} label={isPublic ? "Public" : "Private"} />
+              <StatusPill ok={isPublic} label={isPublic ? t.public : t.private} />
             </div>
           </li>
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">Agent is active</span>
-            <StatusPill ok={isActive} label={isActive ? "Active" : "Draft / inactive"} />
+            <span className="text-body-sm text-ink">{t.agentActive}</span>
+            <StatusPill ok={isActive} label={isActive ? t.active : t.draftInactive} />
           </li>
         </ul>
       </div>
 
       {!webChatEnabled ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-body-sm text-amber-900">
-          Turn on the chat widget before embedding on WordPress.{" "}
+          {t.widgetWarning}{" "}
           <Link
             href={`/dashboard/agents/${agentId}/deploy/chat-widget`}
             className="font-medium text-primary hover:underline"
           >
-            Open chat widget settings
+            {t.openWidgetSettings}
           </Link>
         </div>
       ) : null}
 
       <div className="rounded-xl border border-hairline bg-canvas-soft/50 p-4">
-        <h3 className="text-title-sm font-medium text-ink">Official plugin</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t.officialPlugin}</h3>
         <p className="mt-1 text-body-sm text-muted">
-          Download the Anselio plugin, then paste these values under Settings → Anselio in
-          WordPress.
+          {t.officialPluginDescription}
         </p>
         <div className="mt-3">
           <Button
@@ -176,37 +178,40 @@ export function WordPressSetupTab({
           >
             <a href={WORDPRESS_PLUGIN_DOWNLOAD_PATH} download>
               <AppIcon icon={DownloadIcon} className="size-4" />
-              Download plugin (.zip)
+              {t.downloadPlugin}
             </a>
           </Button>
         </div>
       </div>
 
       <CopyField
-        label="Anselio App URL"
+        label={t.appUrl}
         value={pluginDefaults.appUrl}
-        description="Your Anselio dashboard origin (no trailing slash)."
+        description={t.appUrlDescription}
+        copyLabel={t.copy}
       />
-      <CopyField label="Agent ID" value={pluginDefaults.agentId} />
+      <CopyField label={t.agentId} value={pluginDefaults.agentId} copyLabel={t.copy} />
       {pluginDefaults.widgetToken ? (
         <CopyField
-          label="Widget token"
+          label={t.widgetToken}
           value={pluginDefaults.widgetToken}
-          description="Required for private agents — copy from your agent security settings if needed."
+          description={t.widgetTokenDescription}
+          copyLabel={t.copy}
         />
       ) : (
         <ChatWidgetSettingRow
-          label="Widget token"
-          description="Not required for public agents without a widget token."
+          label={t.widgetToken}
+          description={t.widgetTokenNotRequired}
         >
           <p className="text-body-sm text-muted">—</p>
         </ChatWidgetSettingRow>
       )}
       <CopyField
-        label="Widget embed URL"
+        label={t.embedUrl}
         value={pluginDefaults.embedUrl}
-        description="Full iframe URL — used by the plugin and manual embed snippets."
+        description={t.embedUrlDescription}
         noBorder
+        copyLabel={t.copy}
       />
     </div>
   );

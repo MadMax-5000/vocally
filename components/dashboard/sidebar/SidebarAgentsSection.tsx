@@ -3,8 +3,9 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { MoreHorizontal, PlusIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { usePathname, useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 import {
   Popover,
@@ -57,6 +58,7 @@ function AgentsMorePopover({
   agents: SidebarAgentListItem[];
   disabled?: boolean;
 }) {
+  const t = useTranslations("dashboard.sidebar");
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -118,7 +120,7 @@ function AgentsMorePopover({
           )}
         >
           <AppIcon icon={MoreHorizontal} className="h-4 w-4 shrink-0 text-muted" />
-          <span className="text-muted">More</span>
+          <span className="text-muted">{t("more")}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -133,18 +135,18 @@ function AgentsMorePopover({
           <div className="mb-1 px-0.5 pt-0.5">
             <Textarea
               ref={searchRef}
-              placeholder="Search agents…"
+              placeholder={t("searchAgents")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               rows={1}
-              aria-label="Search agents"
+              aria-label={t("searchAgents")}
               className="min-h-0 resize-none border-0 bg-transparent p-0 text-body-md placeholder:text-muted-soft shadow-none focus-visible:border-0 focus-visible:ring-0"
             />
           </div>
         </div>
         <ul className="max-h-[240px] overflow-y-auto py-0.5">
           {filtered.length === 0 ? (
-            <li className="px-2 py-4 text-center text-[12px] text-muted">No agents found.</li>
+            <li className="px-2 py-4 text-center text-[12px] text-muted">{t("noAgentsFound")}</li>
           ) : (
             filtered.map((agent) => {
               const active =
@@ -167,7 +169,7 @@ function AgentsMorePopover({
                     {agent.hasSessions ? (
                       <span
                         className="flex shrink-0 items-center gap-0.5 text-[11px] tabular-nums text-muted"
-                        aria-label={`${agent.activeSessionCount} active conversations`}
+                        aria-label={t("activeConversations", { count: agent.activeSessionCount })}
                       >
                         <ConversationIcon className="text-muted" />
                         <span>{agent.activeSessionCount}</span>
@@ -185,6 +187,7 @@ function AgentsMorePopover({
 }
 
 export function SidebarAgentsSection() {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const { state, isMobile, openMobile } = useSidebar();
   const [agents, setAgents] = React.useState<SidebarAgentListItem[]>([]);
@@ -209,15 +212,15 @@ export function SidebarAgentsSection() {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={agentsNavActive} tooltip="Agents">
+              <SidebarMenuButton asChild isActive={agentsNavActive} tooltip={t("nav.agents")}>
                 <Link href="/dashboard/agents">
                   <AgentIcon />
-                  <span>Agents</span>
+                  <span>{t("nav.agents")}</span>
                 </Link>
               </SidebarMenuButton>
               {isExpanded ? (
                 <SidebarMenuAction asChild>
-                  <Link href="/dashboard/agents/new" aria-label="Create agent">
+                  <Link href="/dashboard/agents/new" aria-label={t("sidebar.createAgent")}>
                     <AppIcon icon={PlusIcon} className="h-3.5 w-3.5" />
                   </Link>
                 </SidebarMenuAction>

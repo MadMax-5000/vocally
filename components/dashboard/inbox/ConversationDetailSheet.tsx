@@ -4,6 +4,7 @@ import { LoaderIcon, MessageCircle, SendIcon, Handshake } from "@/lib/icons/app-
 
 import * as React from "react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { buildTriggerLabels } from "@/lib/ai/escalation-service";
@@ -27,23 +28,23 @@ import { VoiceCallView } from "./VoiceCallView";
    Channel metadata (shared with InboxClient)
    ------------------------------------------------------------------ */
 
-const CHANNEL_META: Record<string, { src: string; label: string }> = {
-  VOICE:    { src: "/svg/call.svg",          label: "Voice" },
-  CHAT:     { src: "/svg/chat.svg",          label: "Chat" },
-  SMS:      { src: "/svg/send.svg",          label: "SMS" },
-  WHATSAPP: { src: "/svg/whatsapp-icon.svg", label: "WhatsApp" },
-  EMAIL:    { src: "/svg/gmail.svg",         label: "Email" },
+const CHANNEL_META: Record<string, { src: string; labelKey: string }> = {
+  VOICE:    { src: "/svg/call.svg",          labelKey: "channels.voice" },
+  CHAT:     { src: "/svg/chat.svg",          labelKey: "channels.chat" },
+  SMS:      { src: "/svg/send.svg",          labelKey: "channels.sms" },
+  WHATSAPP: { src: "/svg/whatsapp-icon.svg", labelKey: "channels.whatsApp" },
+  EMAIL:    { src: "/svg/gmail.svg",         labelKey: "channels.email" },
 };
 
-const STATUS_CFG: Record<string, { dot: string; label: string }> = {
-  ACTIVE:    { dot: "bg-emerald-500", label: "Active" },
-  WAITING:   { dot: "bg-amber-400",   label: "Waiting" },
-  BOT:       { dot: "bg-blue-400",    label: "Bot" },
-  HUMAN:     { dot: "bg-violet-400",  label: "Human" },
-  ESCALATED: { dot: "bg-red-500",     label: "Escalated" },
-  CLAIMED:   { dot: "bg-blue-500",    label: "Claimed" },
-  RESOLVED:  { dot: "bg-gray-300",    label: "Resolved" },
-  ABANDONED: { dot: "bg-red-400",     label: "Abandoned" },
+const STATUS_CFG: Record<string, { dot: string; labelKey: string }> = {
+  ACTIVE:    { dot: "bg-emerald-500", labelKey: "statuses.active" },
+  WAITING:   { dot: "bg-amber-400",   labelKey: "statuses.waiting" },
+  BOT:       { dot: "bg-blue-400",    labelKey: "statuses.bot" },
+  HUMAN:     { dot: "bg-violet-400",  labelKey: "statuses.human" },
+  ESCALATED: { dot: "bg-red-500",     labelKey: "statuses.escalated" },
+  CLAIMED:   { dot: "bg-blue-500",    labelKey: "statuses.claimed" },
+  RESOLVED:  { dot: "bg-gray-300",    labelKey: "statuses.resolved" },
+  ABANDONED: { dot: "bg-red-400",     labelKey: "statuses.abandoned" },
 };
 
 const AVATAR_PALETTE = [
@@ -74,7 +75,7 @@ function getInitials(
       ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
       : customerId.slice(0, 2).toUpperCase();
   }
-  return (CHANNEL_META[channel]?.label ?? "??").slice(0, 2).toUpperCase();
+  return (channel ?? "??").slice(0, 2).toUpperCase();
 }
 
 function ChannelIcon({
@@ -84,13 +85,14 @@ function ChannelIcon({
   channel: string;
   className?: string;
 }) {
+  const t = useTranslations("dashboard.inbox");
   const meta = CHANNEL_META[channel];
   if (!meta) return null;
   return (
     <Image
       src={meta.src}
-      alt={meta.label}
-      title={meta.label}
+      alt={t(meta.labelKey)}
+      title={t(meta.labelKey)}
       width={16}
       height={16}
       className={cn("shrink-0", className)}
@@ -98,8 +100,8 @@ function ChannelIcon({
   );
 }
 
-function formatFullDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+function formatFullDate(date: Date, locale: string): string {
+  return date.toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -126,10 +128,10 @@ function isYesterday(date: Date): boolean {
   return isSameDay(date, yesterday);
 }
 
-function formatDateLabel(date: Date): string {
-  if (isToday(date)) return "Today";
-  if (isYesterday(date)) return "Yesterday";
-  return date.toLocaleDateString("en-US", {
+function formatDateLabel(date: Date, locale: string, today: string, yesterday: string): string {
+  if (isToday(date)) return today;
+  if (isYesterday(date)) return yesterday;
+  return date.toLocaleDateString(locale, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -142,6 +144,8 @@ function formatDateLabel(date: Date): string {
    ------------------------------------------------------------------ */
 
 function ChatMessagesView({ messages }: { messages: InboxMessage[] }) {
+  const t = useTranslations("dashboard.inbox");
+  const locale = useLocale();
   const endRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -168,7 +172,7 @@ function ChatMessagesView({ messages }: { messages: InboxMessage[] }) {
         <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-surface-strong">
           <AppIcon icon={MessageCircle} className="h-5 w-5 text-muted" strokeWidth={1.5} />
         </div>
-        <p className="text-body-sm text-muted">No messages yet</p>
+        <p className="text-body-sm text-muted">{t("noMessagesYet")}</p>
       </div>
     );
   }
@@ -180,7 +184,7 @@ function ChatMessagesView({ messages }: { messages: InboxMessage[] }) {
           <div className="flex items-center gap-3 px-5 py-2">
             <div className="flex-1 border-t border-hairline" />
             <span className="shrink-0 text-[11px] font-medium text-muted-soft">
-              {formatDateLabel(group.date)}
+              {formatDateLabel(group.date, locale, t("today"), t("yesterday"))}
             </span>
             <div className="flex-1 border-t border-hairline" />
           </div>
@@ -195,6 +199,7 @@ function ChatMessagesView({ messages }: { messages: InboxMessage[] }) {
 }
 
 function MessageBubble({ message }: { message: InboxMessage }) {
+  const locale = useLocale();
   const isUser = message.role === "USER";
   const isSystem = message.role === "SYSTEM";
 
@@ -232,7 +237,7 @@ function MessageBubble({ message }: { message: InboxMessage }) {
             isUser ? "text-white/40" : "text-muted-soft",
           )}
         >
-          {formatFullDate(message.createdAt)}
+          {formatFullDate(message.createdAt, locale)}
         </p>
       </div>
     </div>
@@ -244,8 +249,9 @@ function MessageBubble({ message }: { message: InboxMessage }) {
    ------------------------------------------------------------------ */
 
 function EmailView({ detail }: { detail: ConversationDetail }) {
+  const t = useTranslations("dashboard.inbox");
   const firstMessage = detail.messages[0];
-  const customerLabel = detail.customerId ?? "Customer";
+  const customerLabel = detail.customerId ?? t("customer");
 
   return (
     <div className="rounded-xl border border-hairline bg-surface-card">
@@ -253,13 +259,13 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
       <div className="border-b border-hairline px-4 py-3 space-y-1">
         {firstMessage && (
           <div className="text-body-sm text-muted">
-            <span className="text-muted-soft">From: </span>
+            <span className="text-muted-soft">{t("from")} </span>
             <span className="text-ink">{customerLabel}</span>
           </div>
         )}
         <div className="text-body-sm text-muted">
-          <span className="text-muted-soft">Channel: </span>
-          <span className="text-ink">Email</span>
+          <span className="text-muted-soft">{t("emailChannel")} </span>
+          <span className="text-ink">{t("channels.email")}</span>
         </div>
       </div>
 
@@ -267,12 +273,12 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
       <div className="px-4 py-4 space-y-3">
         {detail.summary && (
           <div className="rounded-lg bg-canvas-soft px-3 py-2 text-body-sm text-muted">
-            <span className="font-medium text-ink">Summary: </span>
+            <span className="font-medium text-ink">{t("summary")} </span>
             <ChatMarkdown content={detail.summary} variant="neutral" />
           </div>
         )}
         {detail.messages.length === 0 && (
-          <p className="text-body-sm text-muted-soft">No email content available.</p>
+          <p className="text-body-sm text-muted-soft">{t("noEmailContent")}</p>
         )}
         {detail.messages.map((m) => (
           <div key={m.id} className="text-body-sm text-ink leading-relaxed">
@@ -294,10 +300,11 @@ function EmailView({ detail }: { detail: ConversationDetail }) {
    ------------------------------------------------------------------ */
 
 function LoadingSkeleton() {
+  const t = useTranslations("dashboard.inbox");
   return (
     <div className="flex flex-col items-center justify-center py-20">
       <AppIcon icon={LoaderIcon} className="h-6 w-6 animate-spin text-muted" />
-      <p className="mt-3 text-body-sm text-muted">Loading conversation…</p>
+      <p className="mt-3 text-body-sm text-muted">{t("loadingConversation")}</p>
     </div>
   );
 }
@@ -317,6 +324,8 @@ export function ConversationDetailSheet({
   open,
   onOpenChange,
 }: ConversationDetailSheetProps) {
+  const t = useTranslations("dashboard.inbox");
+  const locale = useLocale();
   const [detail, setDetail] = React.useState<ConversationDetail | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [messages, setMessages] = React.useState<InboxMessage[]>([]);
@@ -410,11 +419,11 @@ export function ConversationDetailSheet({
 
   const displayName =
     detail?.customerId ??
-    (detail?.channel ? CHANNEL_META[detail.channel]?.label : null) ??
-    "Conversation";
+    (detail?.channel ? t(CHANNEL_META[detail.channel]?.labelKey ?? "conversation") : null) ??
+    t("conversation");
 
   const statusCfg = detail?.status
-    ? STATUS_CFG[detail.status] ?? { dot: "bg-gray-300", label: detail.status }
+    ? STATUS_CFG[detail.status] ?? { dot: "bg-gray-300", labelKey: "" }
     : null;
 
   return (
@@ -442,32 +451,32 @@ export function ConversationDetailSheet({
                   </SheetTitle>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-soft mt-0.5">
                     <ChannelIcon channel={detail.channel} className="h-3 w-3 opacity-60" />
-                    <span>{CHANNEL_META[detail.channel]?.label ?? detail.channel}</span>
+                    <span>{CHANNEL_META[detail.channel] ? t(CHANNEL_META[detail.channel].labelKey) : detail.channel}</span>
                     {statusCfg && (
                       <>
                         <span>·</span>
                         <span className="inline-flex items-center gap-1">
                           <span className={cn("h-1.5 w-1.5 rounded-full", statusCfg.dot)} />
-                          {statusCfg.label}
+                          {statusCfg.labelKey ? t(statusCfg.labelKey) : detail.status}
                         </span>
                       </>
                     )}
                     <span>·</span>
-                    <span>{formatFullDate(detail.createdAt)}</span>
+                    <span>{formatFullDate(detail.createdAt, locale)}</span>
                   </div>
                 </div>
               </div>
               {detail.agentName && (
                 <SheetDescription className="pt-1.5 text-[11px]">
-                  Agent: {detail.agentName}
+                  {t("agentLabel")} {detail.agentName}
                 </SheetDescription>
               )}
             </>
           ) : (
             <>
-              <SheetTitle className="text-body-sm">Conversation</SheetTitle>
+              <SheetTitle className="text-body-sm">{t("conversation")}</SheetTitle>
               <SheetDescription className="text-[11px]">
-                {loading ? "Loading…" : ""}
+                {loading ? t("loadingConversation") : ""}
               </SheetDescription>
             </>
           )}
@@ -477,7 +486,7 @@ export function ConversationDetailSheet({
           <div className="shrink-0 space-y-2 border-b border-hairline px-5 py-3">
             {isEscalated && detail.escalatedReason ? (
               <p className="text-body-sm text-muted">
-                Escalation reason:{" "}
+                {t("escalationReason")}{" "}
                 <span className="text-ink">
                   {buildTriggerLabels()[detail.escalatedReason] ??
                     detail.escalatedReason}
@@ -486,7 +495,7 @@ export function ConversationDetailSheet({
             ) : null}
             {detail.ticket ? (
               <div className="rounded-xl border border-hairline bg-surface-strong px-3 py-2.5">
-                <p className="text-caption-uppercase text-muted">Support ticket</p>
+                <p className="text-caption-uppercase text-muted">{t("supportTicket")}</p>
                 <p className="mt-1 text-body-sm font-medium text-ink">
                   {detail.ticket.subject}
                 </p>
@@ -510,7 +519,7 @@ export function ConversationDetailSheet({
             <LoadingSkeleton />
           ) : !detail ? (
             <div className="flex flex-col items-center justify-center py-20 text-center px-5">
-              <p className="text-body-sm text-muted">Could not load conversation.</p>
+              <p className="text-body-sm text-muted">{t("couldNotLoadConversation")}</p>
             </div>
           ) : isVoice ? (
             <div className="p-5">
@@ -537,14 +546,14 @@ export function ConversationDetailSheet({
           {detail && (
             <div className="border-t border-hairline px-5 py-4">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-caption-uppercase text-muted">Summary</h3>
+                <h3 className="text-caption-uppercase text-muted">{t("summary")}</h3>
                 {!isEditingSummary && detail.summary && (
                   <button
                     type="button"
                     onClick={handleStartEdit}
                     className="text-[11px] font-medium text-primary hover:underline"
                   >
-                    Edit
+                    {t("edit")}
                   </button>
                 )}
               </div>
@@ -556,7 +565,7 @@ export function ConversationDetailSheet({
                     onChange={(e) => setEditedSummary(e.target.value)}
                     rows={4}
                     className="w-full resize-none rounded-xl border border-hairline bg-surface-strong px-3 py-2 text-body-sm text-ink placeholder:text-muted-soft outline-none focus:border-primary transition-colors"
-                    placeholder="Edit summary…"
+                    placeholder={t("editSummary")}
                   />
                   <div className="flex items-center gap-2">
                     <Button
@@ -567,7 +576,7 @@ export function ConversationDetailSheet({
                       disabled={savingSummary || !editedSummary.trim()}
                       className="rounded-lg"
                     >
-                      {savingSummary ? "Saving…" : "Save"}
+                      {savingSummary ? t("saving") : t("save")}
                     </Button>
                     <Button
                       type="button"
@@ -577,7 +586,7 @@ export function ConversationDetailSheet({
                       disabled={savingSummary}
                       className="rounded-lg"
                     >
-                      Cancel
+                      {t("cancel")}
                     </Button>
                   </div>
                 </div>
@@ -587,13 +596,13 @@ export function ConversationDetailSheet({
                 </p>
               ) : (
                 <div className="flex items-center gap-2">
-                  <p className="text-body-sm text-muted-soft">No summary yet</p>
+                  <p className="text-body-sm text-muted-soft">{t("noSummaryYet")}</p>
                   <button
                     type="button"
                     onClick={handleStartEdit}
                     className="text-[11px] font-medium text-primary hover:underline"
                   >
-                    Add summary
+                    {t("addSummary")}
                   </button>
                 </div>
               )}
@@ -620,7 +629,7 @@ export function ConversationDetailSheet({
               ) : (
                 <AppIcon icon={Handshake} className="mr-2 h-4 w-4" />
               )}
-              Claim this conversation
+              {t("claimConversation")}
             </Button>
           </div>
         )}
@@ -630,7 +639,7 @@ export function ConversationDetailSheet({
           <div className="shrink-0 border-t border-hairline bg-surface-card px-5 py-4">
             <form onSubmit={handleSend} className="flex items-center gap-2">
               <Input
-                placeholder="Type a reply…"
+                placeholder={t("typeReply")}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 className="h-10 flex-1 rounded-xl border-hairline bg-surface-strong pl-4 text-body-sm placeholder:text-muted-soft"

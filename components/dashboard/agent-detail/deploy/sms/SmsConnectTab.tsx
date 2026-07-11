@@ -4,6 +4,7 @@ import { LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,16 +26,9 @@ type Props = {
   onSettingsRefresh: () => Promise<void>;
 };
 
-function formatDate(d: Date | null): string {
-  if (!d) return "\u2014";
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    hour12: false,
-  }).format(new Date(d));
-}
-
 export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
+  const t = useTranslations("dashboard.deploy.messaging.sms.connect");
+  const locale = useLocale();
   const [connectPending, startConnect] = useTransition();
   const [disconnectPending, startDisconnect] = useTransition();
   const [phoneNumber, setPhoneNumber] = useState(
@@ -42,6 +36,14 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
   );
 
   const connection = settings.connection;
+  const formatDate = (date: Date | null): string => {
+    if (!date) return "—";
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      hour12: false,
+    }).format(new Date(date));
+  };
 
   useEffect(() => {
     if (!connection && settings.suggestedNumber && !phoneNumber) {
@@ -53,10 +55,10 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
     startConnect(async () => {
       const result = await connectSmsForAgent(agentId, { phoneNumber });
       if (!result.success) {
-        toast.error(result.error ?? "Could not connect");
+        toast.error(result.error ?? t("errors.couldNotConnect"));
         return;
       }
-      toast.success("SMS number linked to this agent");
+      toast.success(t("toasts.linked"));
       await onSettingsRefresh();
     });
   }
@@ -65,10 +67,10 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
     startDisconnect(async () => {
       const result = await disconnectSmsForAgent(agentId);
       if (!result.success) {
-        toast.error(result.error ?? "Could not disconnect");
+        toast.error(result.error ?? t("errors.couldNotDisconnect"));
         return;
       }
-      toast.success("SMS number disconnected");
+      toast.success(t("toasts.disconnected"));
       setPhoneNumber(settings.suggestedNumber ?? "");
       await onSettingsRefresh();
     });
@@ -83,18 +85,17 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
               <Image src="/svg/send.svg" alt="" width={24} height={24} className="size-6" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-title-sm font-medium text-ink">Link phone number</h2>
+              <h2 className="text-title-sm font-medium text-ink">{t("link.title")}</h2>
               <p className="mt-1 text-body-sm leading-relaxed text-muted">
-                Enter the SMS-capable Twilio number customers message (E.164 format). Inbound
-                messages to this number route to this agent.
+                {t("link.description")}
               </p>
             </div>
           </div>
 
           <div className="mt-4">
             <ChatWidgetSettingRow
-              label="SMS phone number"
-              description="Must match the number configured in Twilio."
+              label={t("link.phoneNumber")}
+              description={t("link.phoneNumberDescription")}
             >
               <Input
                 type="tel"
@@ -116,16 +117,15 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
             {connectPending ? (
               <>
                 <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
-                Connecting\u2026
+                {t("connecting")}
               </>
             ) : (
-              "Connect SMS"
+              t("connectSms")
             )}
           </Button>
 
           <p className="mt-3 text-caption text-muted-soft">
-            If this number is already linked to another agent in your organization, connecting here
-            will reassign inbound traffic to this agent.
+            {t("link.reassignmentNotice")}
           </p>
         </section>
       </div>
@@ -144,22 +144,22 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
             className="mt-0.5 size-7 shrink-0"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-body-sm font-medium text-ink">Connected</p>
+            <p className="text-body-sm font-medium text-ink">{t("connected")}</p>
             <p className="mt-0.5 font-mono text-body-sm text-muted">{connection.twilioNumber}</p>
             <p className="mt-2 text-caption text-muted-soft">
-              Linked {formatDate(connection.connectedAt)}
+              {t("linked", { date: formatDate(connection.connectedAt) })}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-            Active
+            {t("active")}
           </span>
         </div>
       </div>
 
       <div className="rounded-xl border border-hairline bg-surface-card p-4">
-        <p className="text-body-sm font-medium text-ink">Webhook</p>
+        <p className="text-body-sm font-medium text-ink">{t("webhook.title")}</p>
         <p className="mt-1 text-caption text-muted">
-          Ensure Twilio delivers inbound messages to:
+          {t("webhook.description")}
         </p>
         <p className="mt-2 break-all rounded-lg border border-hairline bg-canvas-soft/50 p-3 font-mono text-caption text-ink">
           {settings.webhookUrl}
@@ -178,7 +178,7 @@ export function SmsConnectTab({ agentId, settings, onSettingsRefresh }: Props) {
         ) : (
           <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
         )}
-        Disconnect
+        {t("disconnect")}
       </Button>
     </div>
   );

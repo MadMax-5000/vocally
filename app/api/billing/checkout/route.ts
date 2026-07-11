@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { createCheckout } from "@/lib/billing/lemonsqueezy";
 import { variantIdForPlan } from "@/lib/billing/plan-map";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
     }
 
     const origin = new URL(req.url).origin;
-    const redirectUrl = `${origin}/dashboard`;
+    const redirectUrl = `${origin}/${getRequestLocale(req.headers)}/dashboard`;
 
     const user = await currentUser();
     const email = user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress;

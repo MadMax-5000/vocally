@@ -1,0 +1,72 @@
+{
+  "dashboard": {
+    "deploy": {
+      "channels": {
+        "common": {
+          "preview": "Preview",
+          "connected": "Connected",
+          "active": "Active",
+          "disconnect": "Disconnect",
+          "saveChanges": "Save changes",
+          "saving": "Saving…",
+          "unsavedChanges": "Unsaved changes",
+          "copy": "Copy"
+        },
+        "instagram": {
+          "setup": "Setup", "test": "Test", "backToDeploy": "Back to Deploy", "title": "Instagram",
+          "subtitle": "Connect your agent to Instagram DMs and auto-reply to customers", "enabled": "Enabled", "disabled": "Disabled",
+          "enable": "Enable Instagram deployment", "configuration": "Instagram configuration", "prerequisites": "Prerequisites",
+          "prerequisitesDescription": "Instagram DMs use Meta’s Instagram Messaging API. You’ll need an Instagram professional account connected to a Facebook Page, and you must enable Connected Tools access in Instagram settings.",
+          "connectedTools": "Connected Tools", "connectedToolsPath": "Instagram Settings → Messages and story replies → Message controls → Connected Tools → Allow Access to Messages",
+          "docs": "Docs", "enableToConnect": "Enable Instagram to connect and receive messages.", "setPublic": "Set agent visibility to Public to serve real customers.",
+          "setActive": "Set agent status to Active to reply automatically.", "connect": "Connect Instagram",
+          "connectDescription": "Connect your Facebook Page linked to your Instagram professional account. Once connected, incoming DMs can be routed to this agent for replies.",
+          "authorize": "You’ll be redirected to Meta to authorize access.", "testMessaging": "Test messaging",
+          "testDescription": "After connecting, send a DM to your Instagram professional account from a personal account. If the webhook is configured correctly, the agent will reply automatically.",
+          "agent": "Agent: {agentId}", "testTip": "Tip: if you don’t see replies, confirm the Meta webhook callback URL and verify token are set, and that Connected Tools access is enabled.",
+          "direct": "Instagram Direct", "desktop": "Desktop", "mobile": "Mobile", "today": "Today", "sampleIncomingOne": "Hi! I have a question about pricing.",
+          "sampleOutgoingOne": "Of course — tell me what you need and I’ll help.", "sampleIncomingTwo": "Can you support Arabic and French?",
+          "sampleOutgoingTwo": "Yes. We support Arabic (MSA + Darija), French, and English.", "message": "Message…"
+        },
+        "messenger": {
+          "title": "Messenger", "subtitle": "Connect a Facebook Page and reply to DMs with your agent.", "on": "On", "off": "Off",
+          "couldNotDisconnect": "Could not disconnect", "disconnected": "Messenger disconnected", "connectedSuccess": "Messenger connected", "settingsRefreshed": "Messenger settings refreshed", "connect": "Connect Messenger",
+          "connectDescription": "Authorize Anselio to manage your Page messaging. You will be redirected to Meta to sign in.",
+          "connectFacebookPage": "Connect Facebook Page", "developmentNotice": "In development mode, Meta only delivers messages for app roles. For production use, you’ll need Advanced Access for permissions like <permission>pages_messaging</permission> via App Review.",
+          "facebookPage": "Facebook Page", "connectedAt": "Connected {date}", "webhookConfiguration": "Webhook configuration",
+          "webhookDescription": "In Meta App Dashboard → Webhooks, set the Callback URL and Verify token, then subscribe your Page to the <field>messages</field> field.",
+          "callbackUrl": "Callback URL", "missingAppUrl": "Set NEXT_PUBLIC_APP_URL to see your callback URL", "verifyToken": "Verify token",
+          "yourFacebookPage": "Your Facebook Page", "customer": "Customer", "replyingAs": "Replying as {agentName}",
+          "sampleIncomingOne": "Hi — do you have this in stock?", "sampleOutgoingOne": "Yes — I can help with that. What item are you looking for?",
+          "sampleIncomingTwo": "The black hoodie, size M.", "sampleOutgoingTwo": "Got it. Let me check availability for black hoodie (M).",
+          "message": "Message…", "previewOnly": "Preview only — real replies are sent via your Page connection.", "todayAt": "{customer} • Today • {time}"
+        },
+        "phone": {
+          "connected": "Phone number connected", "connectFailed": "Failed to connect number", "disconnected": "Phone number disconnected", "disconnectFailed": "Failed to disconnect",
+          "disabledTitle": "Phone deployment is disabled", "disabledDescription": "Enable the phone channel above to connect your business number.",
+          "forwardsTo": "Your number <number>{phoneNumber}</number> forwards calls to Anselio.", "forwardingDestination": "Forwarding destination",
+          "setupTitle": "One-time setup — dial this code from your phone", "setupDescription": "Copy the code below, open your phone’s dialer, type it in, and press call. Your carrier confirms activation in 2 seconds. That’s it.",
+          "forwardingType": "Forwarding type", "allCalls": "All calls", "whenBusy": "When I’m on another call", "whenNoAnswer": "When I don’t pick up", "whenUnreachable": "When my phone is off",
+          "copyCode": "Copy this code", "codeCopied": "Code copied to clipboard", "dialCode": "Dial the code",
+          "dialCodeDescription": "Open your phone dialer, paste or type the code, and press the call button. You’ll hear a confirmation message from your carrier.",
+          "disableForwarding": "Need to disable forwarding?", "disableForwardingDescription": "Dial <code>##002#</code> from your phone to turn off all forwarding. Or click Disconnect below to deactivate it from Anselio.",
+          "carrierQuestion": "What about Maroc Telecom / Orange / Inwi?", "carrierAnswer": "All three Moroccan carriers support the same USSD codes. Dial <code>*21*...</code> for unconditional forwarding. No special configuration needed.",
+          "connectBusinessNumber": "Connect your business number", "connectBusinessDescription": "Enter the phone number your customers call you on. We’ll give you a forwarding destination so calls reach your AI agent.",
+          "businessNumber": "Your business number", "numberFormat": "E.164 format including country code (e.g. +2126XXXXXXXX)", "connecting": "Connecting…", "connect": "Connect",
+          "activationNotice": "After connecting, you’ll dial a short code from your phone to activate forwarding. Takes 2 seconds. Your customers keep calling your usual number.",
+          "settingsSaved": "Phone settings saved", "settingsSaveFailed": "Failed to save settings", "callBehavior": "Call behavior",
+          "callBehaviorDescription": "Configure how the AI agent behaves during inbound phone calls.", "greeting": "Greeting message", "greetingDescription": "First message the caller hears when the call connects.",
+          "voicemailDetection": "Voicemail detection", "voicemailDescription": "Automatically detect voicemail and leave a pre-recorded message.", "bargeIn": "Barge-in",
+          "bargeInDescription": "Allow the caller to interrupt the AI mid-prompt. The AI stops and listens.", "language": "Language", "languageDescription": "Auto-detect or set a fixed language for voice conversations.",
+          "autoDetect": "Auto-detect", "arabicMsa": "Arabic (MSA)", "arabicDarija": "Arabic (Darija)", "french": "French", "english": "English",
+          "callTimeout": "Call timeout", "timeoutDescription": "Max seconds to wait for the caller to speak before the AI prompts again.", "seconds": "seconds",
+          "humanHandoff": "Human handoff", "handoffDescription": "When a call escalates, Anselio transfers the caller to this number.", "handoffNumber": "Handoff phone number",
+          "handoffNumberDescription": "E.164 format with country code (e.g. +212612345678). Required for phone escalations.", "handoffWarning": "Escalations are enabled on this agent but no handoff number is set. Calls cannot transfer to a human until you add one.",
+          "important": "Important", "importantDescription": "Changes to call behavior settings take effect on the next inbound call. Active calls continue with their original configuration.",
+          "live": "LIVE", "speaking": "Speaking", "listening": "Listening", "aiSpeaking": "AI is speaking…", "listeningHint": "Listening for your response…", "secureConnection": "Establishing secure connection",
+          "mute": "Mute", "unmute": "Unmute", "endCall": "End call", "defaultGreeting": "Hi, you’ve reached {agentName}. How can I help you today?"
+        }
+      }
+    }
+  }
+}

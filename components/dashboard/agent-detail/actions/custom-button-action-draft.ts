@@ -41,18 +41,18 @@ export function draftsEqual(
 export function validateCustomButtonDraft(draft: CustomButtonActionDraft): string | null {
   if (!draft.enabled) return null;
   for (const btn of draft.buttons) {
-    if (!btn.label.trim()) return "Each button needs a label";
+    if (!btn.label.trim()) return "buttonLabel";
     if (btn.kind === "message") {
-      if (!btn.message?.trim()) return "Message buttons need preset text";
-      if ((btn.message?.length ?? 0) > 200) return "Preset text must be 200 characters or less";
+      if (!btn.message?.trim()) return "messageText";
+      if ((btn.message?.length ?? 0) > 200) return "messageLength";
     } else {
       const href = btn.href?.trim() ?? "";
-      if (!href) return "Link buttons need a URL";
-      if (!href.startsWith("https://")) return "Links must use HTTPS";
+      if (!href) return "linkUrl";
+      if (!href.startsWith("https://")) return "https";
       try {
         new URL(href);
       } catch {
-        return "Enter a valid HTTPS URL";
+        return "validHttps";
       }
     }
   }

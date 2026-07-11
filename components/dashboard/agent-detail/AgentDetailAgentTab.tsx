@@ -3,10 +3,11 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, ChevronRight } from "@/lib/icons/app-icons"
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { LlmProvider, SupportedLanguage, VoiceProvider } from "@prisma/client";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { ArabicFlag, DarijaFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 import { AVATAR_DATA, AnimatedAvatar } from "@/utils/lib/avatars";
@@ -37,13 +38,6 @@ import type { AgentDetailWithRelations } from "./agent-detail-types";
 type AgentDetailAgentTabProps = {
   agent: AgentDetailWithRelations;
 };
-
-const LANGUAGE_OPTIONS: { value: SupportedLanguage; label: string }[] = [
-  { value: SupportedLanguage.ARABIC, label: "Arabic" },
-  { value: SupportedLanguage.DARIJA, label: "Darija" },
-  { value: SupportedLanguage.FRENCH, label: "French" },
-  { value: SupportedLanguage.ENGLISH, label: "English" },
-];
 
 function VoiceAvatar({ voiceId, size }: { voiceId: string; size: "row" | "list" }) {
   const direct = AVATAR_DATA.find((a) => a.id === voiceId);
@@ -110,6 +104,8 @@ function llmIconSrc(provider: LlmProvider): string {
 }
 
 export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
+  const t = useTranslations("dashboard.agentDetail.agent");
+  const agents = useTranslations("dashboard.agents");
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -149,8 +145,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");
   const [systemPrompt, setSystemPrompt] = useState<string>(agent.instructions ?? "");
 
-  const languageLabel = (value: SupportedLanguage) =>
-    LANGUAGE_OPTIONS.find((o) => o.value === value)?.label ?? String(value);
+  const languageLabel = (value: SupportedLanguage) => agents(value.toLowerCase());
   const languageIcon = (value: SupportedLanguage): React.ReactNode => {
     const cls = "h-4 w-4";
     switch (value) {
@@ -177,7 +172,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         languages: [nextLanguage],
       });
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save language settings");
+        toast.error(result.error ?? t("failedSaveLanguage"));
         return;
       }
       router.refresh();
@@ -194,7 +189,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         llmModel: nextModel,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save model settings");
+        toast.error(result.error ?? t("failedSaveModel"));
         return;
       }
       router.refresh();
@@ -219,7 +214,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         additionalVoices: [],
       });
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save voice settings");
+        toast.error(result.error ?? t("failedSaveVoice"));
         return;
       }
       router.refresh();
@@ -236,7 +231,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         instructions: nextInstructions,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save prompt settings");
+        toast.error(result.error ?? t("failedSavePrompt"));
         return;
       }
       router.refresh();
@@ -253,8 +248,8 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         <section>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-title-sm text-ink">Voices</h2>
-              <p className="mt-0.5 text-body-sm text-muted">Select the voices you want to use for the agent.</p>
+              <h2 className="text-title-sm text-ink">{t("voices")}</h2>
+              <p className="mt-0.5 text-body-sm text-muted">{t("voicesDescription")}</p>
             </div>
 
           </div>
@@ -278,7 +273,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                     </span>
                   </span>
                 ) : (
-                  "Select voice"
+                  t("selectVoice")
                 )
               }
               onClick={() => setVoicesOpen(true)}
@@ -291,8 +286,8 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         <section>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-title-sm text-ink">LLM</h2>
-              <p className="mt-0.5 text-body-sm text-muted">Select which provider and model to use for the LLM.</p>
+              <h2 className="text-title-sm text-ink">{t("llm")}</h2>
+              <p className="mt-0.5 text-body-sm text-muted">{t("llmDescription")}</p>
             </div>
 
           </div>
@@ -322,9 +317,9 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         <section>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-title-sm text-ink">Language</h2>
+              <h2 className="text-title-sm text-ink">{t("language")}</h2>
               <p className="mt-0.5 text-body-sm text-muted">
-                Choose the language this agent will use in conversations.
+                {t("languageDescription")}
               </p>
             </div>
 
@@ -343,9 +338,9 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         <section>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-title-sm text-ink">First message</h2>
+              <h2 className="text-title-sm text-ink">{t("firstMessage")}</h2>
               <p className="mt-0.5 text-body-sm text-muted">
-                The first message the agent will say. If empty, the agent will wait for the user.
+                {t("firstMessageDescription")}
               </p>
             </div>
 
@@ -356,7 +351,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
               onChange={(e) => setFirstMessage(e.target.value)}
               onBlur={() => void savePrompts(firstMessage, systemPrompt)}
               className="min-h-[92px]"
-              placeholder="Write the first message…"
+              placeholder={t("firstMessagePlaceholder")}
             />
           </div>
         </section>
@@ -365,9 +360,9 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
         <section className="mb-6">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h2 className="text-title-sm text-ink">System prompt</h2>
+              <h2 className="text-title-sm text-ink">{t("systemPrompt")}</h2>
               <p className="mt-0.5 text-body-sm text-muted">
-                Defines the agent&apos;s behavior and boundaries.
+                {t("systemPromptDescription")}
               </p>
             </div>
 
@@ -378,10 +373,10 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
               onChange={(e) => setSystemPrompt(e.target.value)}
               onBlur={() => void savePrompts(firstMessage, systemPrompt)}
               className="min-h-[220px] text-[13px] leading-relaxed"
-              placeholder="Write the system prompt…"
+              placeholder={t("systemPromptPlaceholder")}
             />
             <p className="mt-2 text-body-sm text-muted">
-              Type <span className="text-ink">{"{{"}</span> to add variables.
+              {t("variablesHint")}
             </p>
           </div>
         </section>
@@ -404,13 +399,13 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
       <CommandDialog
         open={llmOpen}
         onOpenChange={setLlmOpen}
-        title="LLM"
-        description="Select which provider and model to use."
+        title={t("llm")}
+        description={t("selectProviderModel")}
       >
         <Command>
-          <CommandInput placeholder="Search models…" />
+          <CommandInput placeholder={t("searchModels")} />
           <CommandList>
-            <CommandEmpty>No models found.</CommandEmpty>
+            <CommandEmpty>{t("noModels")}</CommandEmpty>
             {Object.entries(groupedModels).map(([group, models]) => (
               <CommandGroup key={group} heading={group}>
                 {models.map((m) => {
@@ -456,15 +451,16 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
       <CommandDialog
         open={languageOpen}
         onOpenChange={setLanguageOpen}
-        title="Language"
-        description="Choose the language this agent will use."
+        title={t("language")}
+        description={t("chooseLanguage")}
       >
         <Command>
-          <CommandInput placeholder="Search languages…" />
+          <CommandInput placeholder={t("searchLanguages")} />
           <CommandList>
-            <CommandEmpty>No languages found.</CommandEmpty>
-            <CommandGroup heading="Languages">
-              {LANGUAGE_OPTIONS.map((opt) => {
+            <CommandEmpty>{t("noLanguages")}</CommandEmpty>
+            <CommandGroup heading={t("languages")}>
+              {[SupportedLanguage.ARABIC, SupportedLanguage.DARIJA, SupportedLanguage.FRENCH, SupportedLanguage.ENGLISH].map((value) => {
+                const opt = { value, label: languageLabel(value) };
                 const active = opt.value === language;
                 return (
                   <CommandItem

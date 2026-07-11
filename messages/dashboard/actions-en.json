@@ -1,0 +1,63 @@
+{
+  "dashboard": {
+    "actions": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "enabled": "Enabled",
+      "comingSoon": "Coming soon",
+      "notAvailableYet": "Not available yet",
+      "title": "Actions",
+      "type": "Type",
+      "typeWithValue": "Type ({value})",
+      "createAction": "Create action",
+      "search": "Search",
+      "noMatches": "No actions match your search or filter.",
+      "removeItem": "Remove {item}",
+      "emailPlaceholder": "team@company.com",
+      "urlPlaceholder": "https://example.com",
+      "catalog": {
+        "filters": {
+          "all": "All types",
+          "escalation": "Escalation",
+          "custom": "Custom",
+          "commerce": "Commerce",
+          "liveChat": "Live chat",
+          "messaging": "Messaging",
+          "scheduling": "Scheduling",
+          "utility": "Utility"
+        },
+        "escalations": {"title": "Escalations", "description": "Create a support ticket on your chosen ticketing system when a customer needs human help", "pills": {"createTicket": "Create ticket"}},
+        "customActions": {"title": "Custom actions", "description": "Create a custom action that calls your API, runs client-side code, and optionally displays an interactive widget", "pills": {"callApi": "Call API", "runClientCode": "Run client-side code", "callApiShowWidget": "Call API + show widget", "showWidget": "Show widget"}},
+        "collectLeads": {"title": "Collect leads", "description": "Collect leads by capturing user details", "pills": {"collectLeads": "Collect leads"}},
+        "stripe": {"title": "Stripe", "description": "Handle billing, invoices, and subscription queries directly in chat", "pills": {"invoices": "Retrieve and display invoices", "subscriptions": "Retrieve and display subscriptions", "customerInfo": "Change customer information", "manageSubscriptions": "Manage subscriptions"}},
+        "shopify": {"title": "Shopify", "description": "Recommend products, answer order questions, and provide delivery updates", "pills": {"products": "Retrieve and display products", "orders": "Retrieve and display orders", "customerProfile": "Update Shopify customer profile", "billingAddress": "Update Shopify customer billing address", "cart": "Get cart"}},
+        "customForm": {"title": "Custom form", "description": "Create a custom form to collect information from your users", "pills": {"form": "Form"}},
+        "suggestedMessages": {"title": "Suggested messages", "description": "Customize suggested messages based on the conversation", "pills": {"suggestedMessages": "Suggested messages"}},
+        "sunshineLiveChat": {"title": "Sunshine live chat", "description": "Hand over from the AI agent to live chat with a human support agent", "pills": {"liveChat": "Live chat"}},
+        "salesforceLiveChat": {"title": "Salesforce live chat", "description": "Hand over from the AI agent to live chat with a human support agent", "pills": {"liveChat": "Live chat"}},
+        "slack": {"title": "Slack", "description": "Send notifications and updates to your Slack channels automatically", "pills": {"sendMessages": "Send messages"}},
+        "cal": {"title": "Cal", "description": "Let customers check availability and book meetings without leaving the conversation", "pills": {"bookSlots": "Retrieve and book slots"}},
+        "bookAppointment": {"title": "Book appointment", "description": "Let customers schedule appointments stored in Anselio — no external calendar required", "pills": {"bookAppointment": "Book appointment"}},
+        "calendly": {"title": "Calendly", "description": "Let customers check availability and book meetings without leaving the conversation", "pills": {"bookSlots": "Retrieve and book slots"}},
+        "tavily": {"title": "Tavily", "description": "Give your agent real-time web search to answer questions with live data", "pills": {"webSearch": "Web search"}},
+        "customButton": {"title": "Custom button", "description": "Add custom buttons to trigger your own links and redirects", "pills": {"customButton": "Custom button"}}
+      },
+      "sheet": {
+        "saveFailed": "Save failed",
+        "unknown": "Unknown",
+        "justNow": "Just now",
+        "minutesAgo": "{count}m ago",
+        "hoursAgo": "{count}h ago",
+        "daysAgo": "{count}d ago",
+        "bookAppointment": {"description": "Let the agent book appointments in conversation. Bookings are stored in Anselio and can trigger email notifications.", "enable": "Enable book appointment", "whenToOffer": "When to offer", "whenToOfferDescription": "Choose when the agent should offer to schedule an appointment.", "proactively": "Proactively", "whenAsked": "Only when customer asks", "departments": "Departments", "departmentsDescription": "Departments the agent can book. Use lowercase labels (e.g. sales, support).", "noDepartments": "No departments yet", "addDepartment": "Add", "departmentExists": "Department already exists", "maximumDepartments": "Maximum {count} departments", "departmentPlaceholder": "e.g. sales", "notifyEmail": "Notify email", "notifyEmailDescription": "Optional — get an email when an appointment is booked.", "disabledDescription": "Turn on to let the agent schedule appointments in chat and voice.", "recentBookings": "Recent bookings", "loading": "Loading…", "noBookings": "No appointments booked yet for this agent.", "saved": "Book appointment saved"},
+        "collectLeads": {"description": "Let the agent capture contact details in conversation and save them as structured leads. Conversational only — no inline form UI (unlike Custom form).", "enable": "Enable collect leads", "whenToAsk": "When to ask", "whenToAskDescription": "Choose when the agent should request contact details.", "proactively": "Proactively", "whenInterested": "Only when interested", "fields": "Fields", "name": "Name", "email": "Email", "phone": "Phone", "company": "Company", "notes": "Notes", "required": "Required", "optional": "Optional", "off": "Off", "consent": "Consent / disclaimer", "notifyEmail": "Notify email", "notifyEmailDescription": "Optional — get an email when all required fields are captured.", "disabledDescription": "Turn on to configure how the agent collects contact details.", "recentLeads": "Recent leads", "viewAll": "View all in Leads", "loading": "Loading…", "noLeads": "No leads captured yet for this agent.", "saved": "Collect leads saved"},
+        "customButton": {"description": "Add quick-action buttons above the chat input. Use links for external pages or preset messages to start a conversation topic.", "enable": "Enable custom buttons", "disabledDescription": "Turn on to add buttons above the chat composer.", "buttons": "Buttons", "buttonsDescription": "Shown above the chat input. Link buttons open a URL; message buttons send preset text.", "noButtons": "No buttons yet", "openLink": "Open link", "sendMessage": "Send message", "moveUp": "Move up", "moveDown": "Move down", "removeButton": "Remove button", "buttonLabel": "Button label", "openNewTab": "Open in new tab", "messageSent": "Message sent when clicked", "addButton": "Add button", "saved": "Custom buttons saved"},
+        "customForm": {"description": "Build a form customers fill in chat. Show it automatically after a number of messages or let the AI offer it with a tool.", "enable": "Enable custom form", "disabledDescription": "Turn on to configure a form for web chat.", "formTitle": "Form title", "descriptionLabel": "Description", "descriptionHelp": "Optional helper text shown above the form.", "submitLabel": "Submit button label", "whenToShow": "When to show", "whenToShowDescription": "Control timing and whether the AI can offer the form.", "off": "Off", "userMessages": "user messages (leave empty for AI-only)", "allowAi": "Allow AI to show form (tool)", "notifyEmail": "Notify email", "notifyEmailDescription": "Optional — get an email when a customer submits the form.", "recentSubmissions": "Recent submissions", "viewAll": "View all in Leads", "loading": "Loading…", "noSubmissions": "No submissions yet.", "fields": "Fields", "fieldsDescription": "Add inputs customers will fill in the form.", "addField": "Add field", "noFields": "No fields yet. Add one to get started.", "field": "Field {count}", "fieldPlaceholder": "e.g. Email address", "type": "Type", "label": "Label", "placeholder": "Placeholder", "optional": "Optional", "options": "Options", "optionsDescription": "One per line", "required": "Required", "text": "Text", "email": "Email", "phone": "Phone", "longText": "Long text", "dropdown": "Dropdown", "preview": "Preview", "addFieldsPreview": "Add fields to see a preview.", "form": "Form", "submit": "Submit", "saved": "Custom form saved"},
+        "escalations": {"description": "Hand conversations to your team when customers need a human. Tickets are stored in Anselio for your inbox.", "enable": "Enable handoff to human agents", "triggers": "Escalation triggers", "triggersDescription": "When should the agent offer or perform a handoff?", "customerMessage": "Customer message", "customerMessageDescription": "Shown in chat when a conversation is escalated. Optional.", "tickets": "Anselio tickets", "ticketsDescription": "Configure automatic ticket creation in your inbox.", "createTicket": "Create ticket automatically on escalate", "allowTicketTool": "Let the bot use create_ticket during chat", "requireEmail": "Require customer email for auto-ticket", "requireEmailDescription": "Skipped when no email appears in the conversation.", "priority": "Default ticket priority", "disabledDescription": "Turn on to configure when conversations escalate and how tickets are created.", "low": "Low", "medium": "Medium", "high": "High", "urgent": "Urgent", "userRequested": "Customer asks for a human", "negativeSentiment": "Negative sentiment or frustration", "aiFailure": "AI failure or repeated fallback", "unsupportedRequest": "Request outside AI capabilities", "saved": "Escalations saved"},
+        "suggestedMessages": {"description": "Show quick-reply chips in chat. Static starters appear before the first message; dynamic suggestions refresh after each bot reply when enabled.", "enable": "Enable suggested messages", "dynamic": "Dynamically suggest based on conversation", "starterMessages": "Starter messages", "starterMessagesDescription": "Quick-reply chips visitors can tap to start a conversation.", "disabledDescription": "Turn on to configure starter chips and dynamic suggestions.", "saved": "Suggested messages saved"}
+      },
+      "validation": {"addDepartment": "Add at least one department.", "buttonLabel": "Each button needs a label", "messageText": "Message buttons need preset text", "messageLength": "Preset text must be 200 characters or less", "linkUrl": "Link buttons need a URL", "https": "Links must use HTTPS", "validHttps": "Enter a valid HTTPS URL", "formTitle": "Form title is required", "submitLabel": "Submit button label is required", "formField": "Add at least one field", "maximumFields": "Maximum {count} fields allowed", "fieldLabel": "Each field needs a label", "fieldId": "Each field needs an id", "uniqueFieldIds": "Field ids must be unique", "selectOption": "Select fields need at least one option"}
+    }
+  }
+}

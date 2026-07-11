@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 /** Input styles aligned with the agent detail page. */
 export const actionSheetInputClass =
@@ -43,6 +44,8 @@ export function ActionSheetShell({
   onSave,
   children,
 }: ActionSheetShellProps) {
+  const t = useTranslations("dashboard.actions");
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -76,7 +79,7 @@ export function ActionSheetShell({
             onClick={() => onOpenChange(false)}
             disabled={pending}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="button"
@@ -85,7 +88,7 @@ export function ActionSheetShell({
             onClick={onSave}
             disabled={pending || !isDirty || saveDisabled}
           >
-            {pending ? "Saving…" : "Save"}
+            {pending ? t("saving") : t("save")}
           </Button>
         </SheetFooter>
       </SheetContent>

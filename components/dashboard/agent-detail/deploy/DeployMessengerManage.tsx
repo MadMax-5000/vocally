@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,9 @@ type Props = {
 };
 
 export function DeployMessengerManage({ agent, initialSettings }: Props) {
+  const t = useTranslations("dashboard.deploy.channels.messenger");
+  const tCommon = useTranslations("dashboard.deploy.common");
+  const tGeneric = useTranslations("dashboard.deploy.generic");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -41,7 +46,7 @@ export function DeployMessengerManage({ agent, initialSettings }: Props) {
 
   useEffect(() => {
     if (searchParams.get("connected") === "1") {
-      toast.success("Messenger connected");
+      toast.success(t("connectedSuccess"));
       router.replace(`/dashboard/agents/${agent.id}/deploy/messenger`, { scroll: false });
       void refreshSettings();
     }
@@ -70,7 +75,7 @@ export function DeployMessengerManage({ agent, initialSettings }: Props) {
       });
       if (!result.success) {
         setEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();
@@ -80,7 +85,7 @@ export function DeployMessengerManage({ agent, initialSettings }: Props) {
   function handleSave() {
     startTransition(async () => {
       await refreshSettings();
-      toast.success("Messenger settings refreshed");
+      toast.success(t("settingsRefreshed"));
       router.refresh();
     });
   }
@@ -108,14 +113,14 @@ export function DeployMessengerManage({ agent, initialSettings }: Props) {
           </div>
 
           <div className="flex shrink-0 items-center justify-between gap-3 border-t border-hairline px-4 py-3">
-            <span className="text-caption text-muted">Connection updates instantly</span>
+            <span className="text-caption text-muted">{tGeneric("connectionUpdates")}</span>
             <Button
               type="button"
               className="btn-primary h-9 rounded-md px-4"
               disabled={isPending}
               onClick={handleSave}
             >
-              {isPending ? "Refreshing…" : "Refresh"}
+              {isPending ? tGeneric("refreshing") : tGeneric("refresh")}
             </Button>
           </div>
         </div>

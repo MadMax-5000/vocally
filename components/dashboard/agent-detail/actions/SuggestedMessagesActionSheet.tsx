@@ -11,8 +11,9 @@
  */
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { ChatWidgetSuggestedMessages } from "@/components/dashboard/agent-detail/deploy/chat-widget/ChatWidgetSuggestedMessages";
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
@@ -43,6 +44,7 @@ export function SuggestedMessagesActionSheet({
   open,
   onOpenChange,
 }: SuggestedMessagesActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [savedDraft, setSavedDraft] = useState<SuggestedMessagesActionDraft>(() =>
@@ -70,14 +72,14 @@ export function SuggestedMessagesActionSheet({
         dynamicEnabled: draft.dynamicEnabled,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildSuggestedMessagesActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Suggested messages saved");
+      toast.success(t("sheet.suggestedMessages.saved"));
       onOpenChange(false);
     });
   }
@@ -86,13 +88,13 @@ export function SuggestedMessagesActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Suggested messages"
-      description="Show quick-reply chips in chat. Static starters appear before the first message; dynamic suggestions refresh after each bot reply when enabled."
+      title={t("catalog.suggestedMessages.title")}
+      description={t("sheet.suggestedMessages.description")}
       pending={pending}
       isDirty={isDirty}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable suggested messages">
+      <ActionSheetEnableRow label={t("sheet.suggestedMessages.enable")}>
         <Switch
           id="suggested-messages-enabled"
           checked={draft.enabled}
@@ -102,7 +104,7 @@ export function SuggestedMessagesActionSheet({
 
       {draft.enabled ? (
         <>
-          <ActionSheetToggleRow label="Dynamically suggest based on conversation">
+          <ActionSheetToggleRow label={t("sheet.suggestedMessages.dynamic")}>
             <Switch
               id="suggested-messages-dynamic"
               checked={draft.dynamicEnabled}
@@ -113,8 +115,8 @@ export function SuggestedMessagesActionSheet({
           </ActionSheetToggleRow>
 
           <ActionSheetSection
-            title="Starter messages"
-            description="Quick-reply chips visitors can tap to start a conversation."
+            title={t("sheet.suggestedMessages.starterMessages")}
+            description={t("sheet.suggestedMessages.starterMessagesDescription")}
           >
             <ChatWidgetSuggestedMessages
               messages={draft.staticStarters}
@@ -131,7 +133,7 @@ export function SuggestedMessagesActionSheet({
         </>
       ) : (
         <ActionSheetEmpty>
-          Turn on to configure starter chips and dynamic suggestions.
+          {t("sheet.suggestedMessages.disabledDescription")}
         </ActionSheetEmpty>
       )}
     </ActionSheetShell>

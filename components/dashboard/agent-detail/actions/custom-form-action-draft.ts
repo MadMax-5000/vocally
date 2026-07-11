@@ -67,20 +67,20 @@ export function draftsEqual(a: CustomFormActionDraft, b: CustomFormActionDraft):
 
 export function validateCustomFormDraft(draft: CustomFormActionDraft): string | null {
   if (!draft.enabled) return null;
-  if (!draft.title.trim()) return "Form title is required";
-  if (!draft.submitLabel.trim()) return "Submit button label is required";
-  if (draft.fields.length === 0) return "Add at least one field";
+  if (!draft.title.trim()) return "formTitle";
+  if (!draft.submitLabel.trim()) return "submitLabel";
+  if (draft.fields.length === 0) return "formField";
   if (draft.fields.length > MAX_FORM_FIELDS) {
-    return `Maximum ${MAX_FORM_FIELDS} fields allowed`;
+    return "maximumFields";
   }
   const ids = new Set<string>();
   for (const field of draft.fields) {
-    if (!field.label.trim()) return "Each field needs a label";
-    if (!field.id.trim()) return "Each field needs an id";
-    if (ids.has(field.id)) return "Field ids must be unique";
+    if (!field.label.trim()) return "fieldLabel";
+    if (!field.id.trim()) return "fieldId";
+    if (ids.has(field.id)) return "uniqueFieldIds";
     ids.add(field.id);
     if (field.type === "select") {
-      if (!field.options?.length) return "Select fields need at least one option";
+      if (!field.options?.length) return "selectOption";
     }
   }
   return null;

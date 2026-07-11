@@ -1,7 +1,8 @@
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { AppIcon } from "@/components/ui/app-icon"
 import { ArrowUpRightIcon } from "@/lib/icons/app-icons"
+import { getTranslations } from "next-intl/server";
 
 interface AgentCardProps {
   id: string;
@@ -12,7 +13,7 @@ interface AgentCardProps {
   className?: string;
 }
 
-function formatRelativeDate(date: Date): string {
+function formatRelativeDate(date: Date, t: Awaited<ReturnType<typeof getTranslations>>): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffSec = Math.floor(diffMs / 1000);
@@ -20,15 +21,16 @@ function formatRelativeDate(date: Date): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHr / 24);
 
-  if (diffSec < 60) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (diffDay < 7) return `${diffDay}d ago`;
-  if (diffDay < 30) return `${Math.floor(diffDay / 7)}w ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  if (diffSec < 60) return t("justNow");
+  if (diffMin < 60) return t("minutesAgo", { count: diffMin });
+  if (diffHr < 24) return t("hoursAgo", { count: diffHr });
+  if (diffDay < 7) return t("daysAgo", { count: diffDay });
+  if (diffDay < 30) return t("weeksAgo", { count: Math.floor(diffDay / 7) });
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
-export function AgentCard({ id, name, title, field, createdAt, className }: AgentCardProps) {
+export async function AgentCard({ id, name, title, field, createdAt, className }: AgentCardProps) {
+  const t = await getTranslations("dashboard.agents");
   return (
     <Link
       href={`/dashboard/agents/${id}`}
@@ -59,7 +61,7 @@ export function AgentCard({ id, name, title, field, createdAt, className }: Agen
 
       <div className="mt-auto pt-4">
         <p className="text-caption text-muted-soft">
-          Created {formatRelativeDate(createdAt)}
+          {t("created", { date: formatRelativeDate(createdAt, t) })}
         </p>
       </div>
     </Link>

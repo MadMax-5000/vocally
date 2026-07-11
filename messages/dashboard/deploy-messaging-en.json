@@ -1,0 +1,56 @@
+{
+  "dashboard": {
+    "deploy": {
+      "messaging": {
+        "whatsapp": {
+          "tabs": {"connect": "Connect", "settings": "Settings", "test": "Test"},
+          "header": {"backToDeploy": "Back to Deploy", "title": "WhatsApp", "subtitle": "Connect your WhatsApp Business number — we handle Twilio and webhooks for you", "enabled": "Enabled", "disabled": "Disabled", "enable": "Enable WhatsApp deployment", "configuration": "WhatsApp configuration"},
+          "preview": {
+            "title": "Preview", "viewport": {"desktop": "Desktop", "mobile": "Mobile"}, "online": "online", "today": "Today", "messagePlaceholder": "Message", "send": "Send",
+            "messages": {"supportQuestion": "Bonjour — do you support Darija and French?", "supportReply": "Yes! I can reply in Arabic (MSA or Darija), French, and English — just write in your language.", "hoursQuestion": "Great. What are your business hours?", "hoursReply": "We're available 9am–6pm Mon–Sat. How can I help you today?"}
+          },
+          "test": {
+            "readiness": {"title": "Readiness", "platformConfigured": "Platform messaging configured", "channelEnabled": "WhatsApp enabled for this agent", "agentPublic": "Agent visibility is Public", "agentActive": "Agent status is Active", "connectionOnline": "WhatsApp number connected and online", "ready": "Ready — send a test message from your phone.", "incomplete": "Complete the Connect tab steps, then ensure your agent is Public and Active."},
+            "messaging": {"title": "Test messaging", "connectedNumber": "your connected number", "instructions": "From WhatsApp on your phone, send a message to <number>{phoneNumber}</number>. <agent>{agentName}</agent> should reply automatically."}
+          },
+          "settings": {
+            "settingsSaved": "WhatsApp settings saved", "failedToSave": "Failed to save", "enableToCustomize": "Enable WhatsApp to customize channel settings.", "saveSettings": "Save settings",
+            "messages": {"title": "Messages", "welcome": {"label": "Welcome message", "description": "Prepended to the first reply in a new conversation.", "placeholder": "Thanks for messaging us on WhatsApp!"}, "away": {"label": "Away message", "description": "Sent automatically outside business hours."}},
+            "businessHours": {"title": "Business hours", "description": "When disabled, the agent replies 24/7.", "timezone": "Timezone", "to": "to", "days": {"monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday", "sunday": "Sunday"}},
+            "profile": {"title": "Profile", "about": {"label": "About", "description": "Short line shown on your WhatsApp profile."}, "description": "Description"},
+            "handoff": {"title": "Human handoff", "description": "Allow customers to request a live agent on WhatsApp."}
+          },
+          "connect": {
+            "errors": {"couldNotConnectWhatsApp": "Could not connect WhatsApp", "couldNotConnect": "Could not connect", "metaSignupFailed": "Meta signup failed", "signupNotConfigured": "WhatsApp signup is not configured on this deployment.", "enterBusinessNumber": "Enter your WhatsApp Business phone number first.", "sdkLoading": "Facebook SDK is still loading. Try again in a moment.", "invalidCode": "Invalid code", "couldNotDisconnect": "Could not disconnect"},
+            "toasts": {"connected": "WhatsApp connected", "setupCancelled": "WhatsApp setup cancelled", "phoneVerified": "Phone verified", "disconnected": "WhatsApp disconnected"},
+            "legacyConnection": "This connection uses the legacy setup. Reconnect to enable automatic webhook configuration and sender management.", "connected": "Connected", "linked": "Linked {date}", "quality": "Quality: {rating}", "messagingLimit": " · Limit: {limit}", "online": "Online", "disconnect": "Disconnect",
+            "verify": {"title": "Verify your phone number", "description": "Meta sent a one-time code to {number}. Enter it below.", "code": "Verification code", "submit": "Verify code"},
+            "connecting": {"title": "Connecting WhatsApp", "verifyWithMeta": "Verify with Meta", "registerSender": "Register sender with Twilio", "activateNumber": "Activate WhatsApp number", "button": "Connecting…"},
+            "connectNotConfigured": "WhatsApp connect is not configured on this deployment. Contact your administrator.",
+            "setup": {"title": "Connect WhatsApp Business", "description": "Enter the phone number you use on WhatsApp Business. We'll verify ownership with Meta and configure messaging automatically.", "businessNumber": "WhatsApp Business number", "businessNumberDescription": "E.164 format, e.g. +212612345678", "connectSandbox": "Connect sandbox", "connectWithWhatsApp": "Connect with WhatsApp", "sandboxDescription": "Sandbox mode: uses the platform Twilio sandbox number for testing.", "verificationDescription": "You'll complete a short Meta verification popup to confirm business ownership."}
+          }
+        },
+        "sms": {
+          "tabs": {"setup": "Setup", "connect": "Connect", "test": "Test"},
+          "header": {"backToDeploy": "Back to Deploy", "title": "SMS", "subtitle": "Connect a Twilio number and let your agent auto-reply to SMS", "enabled": "Enabled", "disabled": "Disabled", "enable": "Enable SMS deployment", "configuration": "SMS configuration"},
+          "setup": {
+            "issues": {"smsDisabled": "Enable SMS to connect a phone number and receive messages.", "platformNotConfigured": "Twilio credentials are not configured on this deployment."},
+            "prerequisites": {"title": "Prerequisites", "description": "SMS messaging uses Twilio. You need an SMS-capable phone number and inbound webhooks pointed at Anselio."}, "twilioDocs": "Twilio SMS docs",
+            "webhook": {"title": "Webhook URL", "description": "In Twilio Console, set <incomingMessage>When a message comes in</incomingMessage> to this URL (HTTP POST) for your SMS-capable phone number.", "inboundWebhook": "Inbound webhook", "fieldDescription": "Phone Numbers → Manage → Active Numbers → select your number → Messaging", "copy": "Copy {label}"},
+            "steps": {"title": "Twilio Console steps", "purchaseNumber": "Purchase an SMS-capable phone number in Twilio Console (or use an existing one).", "openPhoneNumbers": "Open Phone Numbers → Manage → Active Numbers → select your number.", "configureWebhook": "Under <messaging>Messaging</messaging>, paste the webhook URL above into <incomingMessage>When a message comes in</incomingMessage> (HTTP POST).", "connectNumber": "Open the <connect>Connect</connect> tab to link your phone number to this agent."}, "openTwilioPhoneNumbers": "Open Twilio Phone Numbers"
+          },
+          "test": {
+            "readiness": {"title": "Readiness checklist", "platformConfigured": "Twilio credentials configured", "channelEnabled": "SMS enabled for this agent", "agentPublic": "Agent visibility is Public", "agentActive": "Agent status is Active", "mappingActive": "Phone number linked on Connect tab", "ready": "All checks passed — send a test SMS to your linked number.", "incomplete": "Complete the items above, then configure the Twilio webhook on the Setup tab."},
+            "messaging": {"title": "Test messaging", "linkedPhoneNumber": "your linked phone number", "instructions": "From your phone, send a text message to <number>{phoneNumber}</number>. If the webhook is configured, <agent>{agentName}</agent> will reply automatically.", "ratesNotice": "Make sure your Twilio number has SMS capabilities enabled. Standard carrier rates apply for outbound messages."}
+          },
+          "connect": {
+            "errors": {"couldNotConnect": "Could not connect", "couldNotDisconnect": "Could not disconnect"}, "toasts": {"linked": "SMS number linked to this agent", "disconnected": "SMS number disconnected"},
+            "link": {"title": "Link phone number", "description": "Enter the SMS-capable Twilio number customers message (E.164 format). Inbound messages to this number route to this agent.", "phoneNumber": "SMS phone number", "phoneNumberDescription": "Must match the number configured in Twilio.", "reassignmentNotice": "If this number is already linked to another agent in your organization, connecting here will reassign inbound traffic to this agent."},
+            "connecting": "Connecting…", "connectSms": "Connect SMS", "connected": "Connected", "linked": "Linked {date}", "active": "Active", "webhook": {"title": "Webhook", "description": "Ensure Twilio delivers inbound messages to:"}, "disconnect": "Disconnect"
+          },
+          "preview": {"title": "Preview", "messagesLabel": "Messages", "today": "Today", "messagePlaceholder": "Text message", "messages": {"supportQuestion": "Salam — do you support Darija?", "supportReply": "Wa alikum salam! Yes, I can reply in Darija, Arabic, French, and English."}}
+        }
+      }
+    }
+  }
+}

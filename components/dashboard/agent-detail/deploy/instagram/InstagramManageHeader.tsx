@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon";
 import { ArrowLeftIcon } from "@/lib/icons/app-icons";
 
@@ -30,13 +31,14 @@ export function InstagramManageHeader({
   toggling,
   onInstagramEnabledChange,
 }: InstagramManageHeaderProps) {
+  const t = useTranslations("dashboard.deploy.channels.instagram");
   const tabs = useMemo((): DashboardTabItem<InstagramConfigTabId>[] => {
-    if (!instagramEnabled) return [{ id: "setup", label: "Setup" }];
+    if (!instagramEnabled) return [{ id: "setup", label: t("setup") }];
     return [
-      { id: "setup", label: "Setup" },
-      { id: "test", label: "Test" },
+      { id: "setup", label: t("setup") },
+      { id: "test", label: t("test") },
     ];
-  }, [instagramEnabled]);
+  }, [instagramEnabled, t]);
 
   return (
     <header className="sticky top-0 z-10 shrink-0 border-b border-hairline bg-surface-card">
@@ -46,27 +48,27 @@ export function InstagramManageHeader({
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
           <AppIcon icon={ArrowLeftIcon} size={14} className="size-3.5" />
-          Back to Deploy
+          {t("backToDeploy")}
         </Link>
 
         <div className="flex items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
             <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-              Instagram
+              {t("title")}
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">
-              Connect your agent to Instagram DMs and auto-reply to customers
+              {t("subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">
             <span className="text-caption text-muted">
-              {instagramEnabled ? "Enabled" : "Disabled"}
+              {instagramEnabled ? t("enabled") : t("disabled")}
             </span>
             <Switch
               checked={instagramEnabled}
               disabled={toggling}
               onCheckedChange={onInstagramEnabledChange}
-              aria-label="Enable Instagram deployment"
+              aria-label={t("enable")}
             />
           </div>
         </div>
@@ -77,7 +79,7 @@ export function InstagramManageHeader({
         activeTab={activeTab}
         onTabChange={onTabChange}
         layoutId="instagramManageTab"
-        ariaLabel="Instagram configuration"
+        ariaLabel={t("configuration")}
         className="px-4"
       />
     </header>

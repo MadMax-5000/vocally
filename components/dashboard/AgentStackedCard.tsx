@@ -2,9 +2,10 @@
 import { AppIcon } from "@/components/ui/app-icon"
 import { MoreHorizontal } from "@/lib/icons/app-icons"
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 import {
   AgentChannelType,
   AgentStatus,
@@ -15,7 +16,6 @@ import {
 import { archiveAgent, deleteAgent, duplicateAgent } from "@/lib/actions/agents";
 
 import { getEnabledAgentChannelTypes } from "@/lib/deploy/web-chat-config";
-import { formatRelativeCreated } from "@/lib/format/relative-created";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,7 +31,6 @@ import { SidebarAgentAvatar } from "@/components/dashboard/sidebar/SidebarAgentA
 import {
   AgentCardMetaFooter,
   CARD_AVATAR_SIZE,
-  humanizeEnum,
 } from "@/components/dashboard/agent-card-shared";
 
 export type AgentCardData = {
@@ -53,6 +52,7 @@ function AgentAvatarWithStatus({
   agentId: string;
   status: AgentStatus;
 }) {
+  const t = useTranslations("dashboard.agents");
   const showActiveDot = status === "ACTIVE";
 
   return (
@@ -64,7 +64,7 @@ function AgentAvatarWithStatus({
       {showActiveDot ? (
         <span
           className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full border-2 border-surface-card bg-emerald-500"
-          aria-label="Active"
+          aria-label={t("active")}
         />
       ) : null}
     </div>
@@ -77,6 +77,8 @@ type AgentActionsMenuProps = {
 
 function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("dashboard.agents");
 
   return (
     <DropdownMenu>
@@ -84,7 +86,7 @@ function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Agent actions"
+          aria-label={t("agentActions")}
           className="-mr-1 -mt-1 h-8 w-8 shrink-0 text-muted transition-all hover:bg-surface-strong hover:text-ink"
           onClick={(e) => e.stopPropagation()}
         >
@@ -93,7 +95,7 @@ function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuItem asChild>
-          <Link href={`/dashboard/agents/${agent.id}`}>Open</Link>
+          <Link href={`/dashboard/agents/${agent.id}`}>{t("open")}</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -101,52 +103,58 @@ function AgentActionsMenu({ agent }: AgentActionsMenuProps) {
             e.stopPropagation();
             const res = await duplicateAgent(agent.id);
             if (res.success) {
-              toast.success("Agent duplicated");
+              toast.success(t("agentDuplicated"));
               router.refresh();
             } else {
-              toast.error(res.error ?? "Failed to duplicate");
+              toast.error(res.error ?? t("failedToDuplicate"));
             }
           }}
         >
-          Duplicate Agent
+          {t("duplicate")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={async (e) => {
             e.stopPropagation();
             const res = await archiveAgent(agent.id);
             if (res.success) {
-              toast.success(res.status === "PAUSED" ? "Agent archived" : "Agent unarchived");
+              toast.success(res.status === "PAUSED" ? t("agentArchived") : t("agentUnarchived"));
               router.refresh();
             } else {
-              toast.error(res.error ?? "Failed to archive");
+              toast.error(res.error ?? t("failedToArchive"));
             }
           }}
         >
-          {agent.status === "PAUSED" ? "Unarchive Agent" : "Archive Agent"}
+          {agent.status === "PAUSED" ? t("unarchive") : t("archive")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async (e) => {
             e.stopPropagation();
             const confirmed = window.confirm(
-              `Are you sure you want to delete "${agent.name}"? This cannot be undone.`,
+              t("deleteConfirmation", { name: agent.name }),
             );
             if (!confirmed) return;
             const res = await deleteAgent(agent.id);
             if (res.success) {
-              toast.success("Agent deleted");
+              toast.success(t("agentDeleted"));
               router.refresh();
             } else {
-              toast.error(res.error ?? "Failed to delete");
+              toast.error(res.error ?? t("failedToDelete"));
             }
           }}
           className="text-semantic-error focus:text-semantic-error"
         >
-          Delete Agent
+          {t("delete")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <p className="pointer-events-none px-2 py-1.5 text-caption text-muted-soft">
-          {formatRelativeCreated(agent.createdAt)}
+          {t("created", {
+            date: new Intl.DateTimeFormat(locale, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }).format(agent.createdAt),
+          })}
         </p>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -160,13 +168,14 @@ type AgentStackedCardProps = {
 
 export function AgentStackedCard({ agent, index }: AgentStackedCardProps) {
   const router = useRouter();
+  const t = useTranslations("dashboard.agents");
 
   const displayType =
     agent.agentType === "CUSTOM" && agent.customRole
       ? agent.customRole
-      : humanizeEnum(agent.agentType);
+      : t(`agentTypes.${agent.agentType.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase())}`);
 
-  const displayTone = humanizeEnum(agent.tone);
+  const displayTone = t(`wizard.${agent.tone.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase())}`);
 
   const enabledChannelTypes = getEnabledAgentChannelTypes(agent.channels);
   const agentLanguages = agent.languages.map((entry) => entry.language);

@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "deploy": {
+      "wordpress": {
+        "tabs": { "setup": "الإعداد", "embed": "رمز التضمين", "install": "التثبيت على WordPress" },
+        "header": {
+          "backToDeploy": "العودة إلى النشر", "title": "WordPress", "subtitle": "وصّل وكيلك بـ WordPress باستخدام الإضافة الرسمية أو رمز التضمين", "enabled": "مفعّل", "disabled": "معطّل", "enable": "تفعيل نشر WordPress", "configuration": "إعداد WordPress"
+        },
+        "embed": {
+          "description": "ألصق رمز التضمين في WordPress دون الإضافة — استخدم كتلة HTML مخصّصة أو مقتطف تذييل WPCode أو تذييل القالب.", "iframeHint": "أضف كتلة HTML مخصّصة في صفحة وألصق إطار iframe هذا لقسم دردشة مضمّن.", "floatingHint": "ألصقه في الإعدادات ← Insert Headers and Footers (التذييل) أو WPCode لإظهار فقاعة عائمة في كامل الموقع."
+        },
+        "install": {
+          "intro": "اتبع هذه الخطوات لتوصيل WordPress باستخدام إضافة Anselio الرسمية. للتضمين اليدوي دون الإضافة، استخدم تبويب رمز التضمين.", "downloadTitle": "تنزيل الإضافة", "downloadBefore": "نزّل", "downloadAfter": "من تبويب الإعداد.", "wordpressTitle": "التثبيت في WordPress", "wordpressBodyBefore": "في wp-admin انتقل إلى", "wordpressBodyAfter": "، واختر ملف zip ثم", "uploadPlugin": "الإضافات ← أضف جديدًا ← رفع إضافة", "activate": "تفعيل", "configureTitle": "إعداد بيانات الاعتماد", "configureBefore": "افتح", "settingsAnselio": "الإعدادات ← Anselio", "configureAfter": ". ألصق عنوان تطبيق Anselio ومعرّف الوكيل ورمز أداة الدردشة (إن ظهر في الإعداد). اختر", "floating": "عائم", "configureMiddle": "لفقاعة على مستوى الموقع أو", "shortcodeOnly": "الرمز القصير فقط", "configureEnd": "لوضع الدردشة باستخدام", "saveTitle": "الحفظ والمعاينة", "saveBody": "زُر الواجهة العامة لموقعك (وليس لوحة الإدارة). يجب أن ترى فقاعة الدردشة أو تضمين الرمز القصير.", "withoutPlugin": "من دون الإضافة", "withoutPluginBefore": "ثبّت", "withoutPluginAfter": "(أو ما يشبهه)، ثم ألصق المقتطف العائم من تبويب رمز التضمين في التذييل أو استخدم كتلة HTML مخصّصة لتضمينات iframe المضمنة.", "troubleshootingBefore": "راجع", "troubleshootingAfter": "في مستودع Anselio لاستكشاف الأخطاء وإصلاحها."
+        },
+        "setup": {
+          "disabled": "فعّل نشر WordPress باستخدام المفتاح أعلاه لإعداد الإضافة ورمز التضمين.", "prerequisites": "المتطلبات المسبقة", "prerequisitesDescription": "يضمّن WordPress أداة الدردشة المستضافة لديك. فعّل أداة الدردشة واجعل الوكيل عامًا ونشطًا ليتمكن الزوار من الدردشة.", "widgetEnabled": "أداة الدردشة مفعّلة", "enableWidget": "تفعيل الأداة", "enabled": "مفعّل", "disabledStatus": "معطّل", "agentPublic": "الوكيل عام", "setVisibility": "تعيين الظهور", "public": "عام", "private": "خاص", "agentActive": "الوكيل نشط", "active": "نشط", "draftInactive": "مسودة / غير نشط", "widgetWarning": "فعّل أداة الدردشة قبل تضمينها في WordPress.", "openWidgetSettings": "فتح إعدادات أداة الدردشة", "officialPlugin": "الإضافة الرسمية", "officialPluginDescription": "نزّل إضافة Anselio، ثم ألصق هذه القيم ضمن الإعدادات ← Anselio في WordPress.", "downloadPlugin": "تنزيل الإضافة (.zip)", "appUrl": "عنوان تطبيق Anselio", "appUrlDescription": "نطاق لوحة تحكم Anselio لديك (من دون شرطة مائلة في النهاية).", "agentId": "معرّف الوكيل", "widgetToken": "رمز أداة الدردشة", "widgetTokenDescription": "مطلوب للوكلاء الخاصين — انسخه من إعدادات أمان وكيلك عند الحاجة.", "widgetTokenNotRequired": "غير مطلوب للوكلاء العامين من دون رمز أداة دردشة.", "embedUrl": "عنوان تضمين أداة الدردشة", "embedUrlDescription": "عنوان iframe الكامل — تستخدمه الإضافة ومقتطفات التضمين اليدوي.", "copy": "نسخ {label}"
+        }
+      },
+      "helpPage": {
+        "header": {
+          "tabs": { "settings": "الإعدادات", "embed": "تضمين" }, "backToDeploy": "العودة إلى النشر", "title": "صفحة المساعدة", "enabled": "مفعّلة", "disabled": "معطّلة", "enable": "تفعيل صفحة المساعدة", "configuration": "إعداد صفحة المساعدة"
+        },
+        "embed": {
+          "fallbackTitle": "مركز المساعدة", "iframeTitle": "المساعدة — {title}", "linkText": "فتح مركز المساعدة", "pageLink": "رابط الصفحة", "pageLinkDescription": "شارك هذا الرابط ليتمكن العملاء من فتح صفحة المساعدة المستقلة. أضف", "pageLinkDescriptionAfter": "للوصول العام.", "copied": "تم النسخ", "copyLink": "نسخ الرابط", "open": "فتح", "embedDescription": "أو ضمّن صفحة المساعدة في موقعك. تأتي الهوية البصرية من إعداداتك المحفوظة.", "embedIframe": "تضمين iframe", "htmlLink": "رابط HTML", "copyCode": "نسخ الرمز"
+        },
+        "navigation": {
+          "title": "تنقل الشريط الجانبي", "info": "الأزرار المعروضة في الشريط الجانبي لصفحة المساعدة. يستخدم الزر الأساسي نمطًا ممتلئًا.", "description": "أضف روابط لعملائك (مثل المستندات والأسعار). تفتح في علامة تبويب جديدة.", "empty": "لا توجد روابط في الشريط الجانبي بعد", "primary": "أساسي", "setPrimary": "تعيين كأساسي", "remove": "إزالة الرابط", "labelPlaceholder": "تسمية الزر", "hrefPlaceholder": "https://example.com أو /docs", "add": "إضافة رابط للشريط الجانبي"
+        },
+        "preview": "معاينة",
+        "settingsSaved": "تم حفظ إعدادات صفحة المساعدة",
+        "settings": {
+          "light": "فاتح", "dark": "داكن", "upload": "رفع", "pageTitle": "عنوان الصفحة", "pageTitleDescription": "يظهر في علامة تبويب المتصفح.", "headline": "العنوان الرئيسي", "headlineDescription": "نص كبير فوق حقل الدردشة في صفحة المساعدة.", "favicon": "أيقونة الموقع", "faviconDescription": "ملف ICO أو PNG أو SVG حتى 1 ميغابايت. يظهر في علامة تبويب المتصفح.", "messagePlaceholder": "النص الإرشادي للرسالة", "enableThemeSwitch": "تفعيل تبديل السمة", "themeSwitchDescription": "اسمح للزوار بالتبديل بين الوضعين الفاتح والداكن.", "defaultTheme": "السمة الافتراضية", "lightPrimaryColor": "اللون الأساسي الفاتح", "darkPrimaryColor": "اللون الأساسي الداكن", "enableVoiceToText": "تفعيل تحويل الصوت إلى نص", "voiceToTextDescription": "يعرض زر ميكروفون في حقل الدردشة. يُنسخ الكلام إلى حقل الرسالة.", "logo": "الشعار", "logoDescription": "يظهر في الشريط الجانبي على الخلفيات الفاتحة. JPG أو PNG أو SVG حتى 1 ميغابايت.", "darkLogo": "الشعار (الوضع الداكن)", "darkLogoDescription": "يظهر في الشريط الجانبي على الخلفيات الداكنة.", "heroImage": "صورة رئيسية", "heroImageDescription": "تظهر في المنتصف فوق العنوان الرئيسي على الخلفيات الفاتحة.", "darkHeroImage": "الصورة الرئيسية (الوضع الداكن)", "darkHeroImageDescription": "تظهر في المنتصف فوق العنوان الرئيسي على الخلفيات الداكنة."
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 type PreviewViewport = "desktop" | "mobile";
@@ -38,10 +40,12 @@ export function WhatsAppDmPreviewPanel({
   onViewportChange,
   businessName,
 }: WhatsAppDmPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.messaging.whatsapp.preview");
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("title")}</h3>
         <div className="inline-flex rounded-lg border border-hairline bg-canvas-soft p-0.5">
           {(["desktop", "mobile"] as const).map((v) => (
             <button
@@ -55,7 +59,7 @@ export function WhatsAppDmPreviewPanel({
                   : "text-muted hover:text-ink",
               )}
             >
-              {v}
+              {t(`viewport.${v}`)}
             </button>
           ))}
         </div>
@@ -73,7 +77,7 @@ export function WhatsAppDmPreviewPanel({
               <div className="size-9 rounded-full bg-white/20" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-medium">{businessName}</p>
-                <p className="text-[12px] text-white/80">online</p>
+                <p className="text-[12px] text-white/80">{t("online")}</p>
               </div>
             </div>
 
@@ -86,25 +90,24 @@ export function WhatsAppDmPreviewPanel({
             >
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-4">
                 <p className="mx-auto w-fit rounded-md bg-[#FFF9C4] px-2 py-0.5 text-[11px] font-medium text-[#54656F] shadow-sm">
-                  Today
+                  {t("today")}
                 </p>
-                <Bubble side="in">Bonjour — do you support Darija and French?</Bubble>
+                <Bubble side="in">{t("messages.supportQuestion")}</Bubble>
                 <Bubble side="out">
-                  Yes! I can reply in Arabic (MSA or Darija), French, and English — just write in
-                  your language.
+                  {t("messages.supportReply")}
                 </Bubble>
-                <Bubble side="in">Great. What are your business hours?</Bubble>
+                <Bubble side="in">{t("messages.hoursQuestion")}</Bubble>
                 <Bubble side="out">
-                  We&apos;re available 9am–6pm Mon–Sat. How can I help you today?
+                  {t("messages.hoursReply")}
                 </Bubble>
               </div>
 
               <div className="flex items-center gap-2 border-t border-black/5 bg-[#F0F0F0] px-2 py-2">
                 <div className="min-h-9 flex-1 rounded-full bg-white px-4 py-2 text-[14px] text-[#667781]">
-                  Message
+                  {t("messagePlaceholder")}
                 </div>
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#075E54]">
-                  <span className="sr-only">Send</span>
+                  <span className="sr-only">{t("send")}</span>
                 </div>
               </div>
             </div>

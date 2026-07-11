@@ -5,6 +5,7 @@ import { Mic, MicOff, PhoneOff, Volume2 } from "@/lib/icons/app-icons"
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type PhoneCallPreviewPanelProps = {
   businessName: string;
@@ -63,6 +64,8 @@ function AudioWaveform({ speaking }: { speaking: boolean }) {
 }
 
 export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.channels.phone");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
   const [callState, setCallState] = useState<"connecting" | "speaking" | "listening">(
     "connecting",
   );
@@ -83,7 +86,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{tCommon("preview")}</h3>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
@@ -120,7 +123,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                 </div>
                 {(callState === "speaking" || callState === "listening") && (
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-2 py-[1px] text-[10px] font-semibold text-white">
-                    LIVE
+                    {t("live")}
                   </div>
                 )}
               </div>
@@ -131,10 +134,10 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
               </h2>
               <p className="mt-1 text-[13px] text-white/60">
                 {callState === "connecting"
-                  ? "Connecting…"
+                  ? t("connecting")
                   : callState === "speaking"
-                    ? "Speaking"
-                    : "Listening"}
+                    ? t("speaking")
+                    : t("listening")}
               </p>
 
               {/* Timer */}
@@ -163,7 +166,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                   <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
                     <AppIcon icon={Volume2} className="size-3.5 text-primary" />
                     <span className="text-[12px] text-white/70">
-                      AI is speaking…
+                      {t("aiSpeaking")}
                     </span>
                   </div>
                 )}
@@ -171,14 +174,14 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                   <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
                     <AppIcon icon={Mic} className="size-3.5 text-emerald-400" />
                     <span className="text-[12px] text-white/70">
-                      Listening for your response…
+                      {t("listeningHint")}
                     </span>
                   </div>
                 )}
                 {callState === "connecting" && (
                   <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
                     <span className="text-[12px] text-white/50">
-                      Establishing secure connection
+                      {t("secureConnection")}
                     </span>
                   </div>
                 )}
@@ -191,7 +194,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
                 type="button"
                 onClick={() => setMuted(!muted)}
                 className="flex size-12 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
-                aria-label={muted ? "Unmute" : "Mute"}
+                aria-label={muted ? t("unmute") : t("mute")}
               >
                 {muted ? (
                   <AppIcon icon={MicOff} className="size-5 text-red-400" />
@@ -202,7 +205,7 @@ export function PhoneCallPreviewPanel({ businessName }: PhoneCallPreviewPanelPro
               <button
                 type="button"
                 className="flex size-14 items-center justify-center rounded-full bg-red-500 shadow-lg transition-colors hover:bg-red-600"
-                aria-label="End call"
+                aria-label={t("endCall")}
               >
                 <AppIcon icon={PhoneOff} className="size-6 text-white" />
               </button>

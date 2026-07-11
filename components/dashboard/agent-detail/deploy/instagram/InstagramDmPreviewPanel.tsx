@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type PreviewViewport = "desktop" | "mobile";
 
@@ -43,10 +44,12 @@ export function InstagramDmPreviewPanel({
   onViewportChange,
   accountName,
 }: InstagramDmPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.channels.instagram");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{tCommon("preview")}</h3>
         <div className="inline-flex rounded-lg border border-hairline bg-canvas-soft p-0.5">
           {(["desktop", "mobile"] as const).map((v) => (
             <button
@@ -80,26 +83,26 @@ export function InstagramDmPreviewPanel({
                 <p className="truncate text-body-sm font-medium text-ink">
                   {accountName}
                 </p>
-                <p className="text-caption text-muted">Instagram Direct</p>
+                <p className="text-caption text-muted">{t("direct")}</p>
               </div>
             </div>
 
             <div className="flex h-full flex-col">
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-4">
                 <p className="mx-auto w-fit rounded-full bg-surface-strong px-3 py-[2px] text-[11px] font-semibold uppercase tracking-wide text-muted">
-                  Today
+                  {t("today")}
                 </p>
                 <Bubble side="in">
-                  Hi! I have a question about pricing.
+                  {t("sampleIncomingOne")}
                 </Bubble>
                 <Bubble side="out">
-                  Of course — tell me what you need and I’ll help.
+                  {t("sampleOutgoingOne")}
                 </Bubble>
                 <Bubble side="in">
-                  Can you support Arabic and French?
+                  {t("sampleIncomingTwo")}
                 </Bubble>
                 <Bubble side="out">
-                  Yes. We support Arabic (MSA + Darija), French, and English.
+                  {t("sampleOutgoingTwo")}
                 </Bubble>
               </div>
 
@@ -107,7 +110,7 @@ export function InstagramDmPreviewPanel({
                 <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas-soft/70 px-3 py-2">
                   <div className="size-2.5 rounded-full bg-surface-strong" />
                   <p className="min-w-0 flex-1 truncate text-caption text-muted">
-                    Message…
+                    {t("message")}
                   </p>
                   <div className="size-8 rounded-full bg-surface-strong" />
                 </div>

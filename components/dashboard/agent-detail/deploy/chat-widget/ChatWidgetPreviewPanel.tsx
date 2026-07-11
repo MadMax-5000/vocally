@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { ChatWidgetFloating } from "@/components/chat/ChatWidgetFloating";
@@ -36,6 +37,7 @@ export function ChatWidgetPreviewPanel({
   viewport,
   onViewportChange,
 }: ChatWidgetPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("floating");
   const w = draft.widget;
   const displayName = w.displayName.trim() || agentName;
@@ -64,7 +66,7 @@ export function ChatWidgetPreviewPanel({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("preview")}</h3>
         <div className="flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-lg border border-hairline bg-canvas-soft p-0.5">
             {(["inline", "floating"] as const).map((mode) => (
@@ -79,7 +81,7 @@ export function ChatWidgetPreviewPanel({
                     : "text-muted hover:text-ink",
                 )}
               >
-                {mode === "inline" ? "Inline" : "Floating bubble"}
+                {mode === "inline" ? t("inline") : t("floatingBubble")}
               </button>
             ))}
           </div>
@@ -96,7 +98,7 @@ export function ChatWidgetPreviewPanel({
                     : "text-muted hover:text-ink",
                 )}
               >
-                {v}
+                {t(v)}
               </button>
             ))}
           </div>

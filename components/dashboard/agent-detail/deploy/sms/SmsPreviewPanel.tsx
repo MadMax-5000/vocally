@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+
 import { cn } from "@/lib/utils";
 
 type SmsPreviewPanelProps = {
@@ -13,6 +15,8 @@ function Bubble({
   side: "in" | "out";
   children: React.ReactNode;
 }) {
+  const locale = useLocale();
+
   return (
     <div className={cn("flex", side === "in" ? "justify-start" : "justify-end")}>
       <div
@@ -30,7 +34,7 @@ function Bubble({
             side === "in" ? "text-muted-soft" : "text-white/70",
           )}
         >
-          {new Intl.DateTimeFormat("en-US", {
+          {new Intl.DateTimeFormat(locale, {
             hour: "numeric",
             minute: "2-digit",
             hour12: true,
@@ -44,10 +48,12 @@ function Bubble({
 export function SmsPreviewPanel({
   businessName,
 }: SmsPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.messaging.sms.preview");
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("title")}</h3>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
@@ -59,26 +65,26 @@ export function SmsPreviewPanel({
                 <span className="size-3 rounded-full bg-yellow-500/80" />
                 <span className="size-3 rounded-full bg-green-500/80" />
               </div>
-              <div className="ml-2 text-caption font-medium text-muted">Messages</div>
+              <div className="ml-2 text-caption font-medium text-muted">{t("messagesLabel")}</div>
               <div className="ml-auto text-caption text-muted-soft">{businessName}</div>
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-[#F2F2F7] p-3">
               <p className="mx-auto w-fit rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-muted shadow-sm">
-                Today
+                {t("today")}
               </p>
               <Bubble side="in">
-                Salam — do you support Darija?
+                {t("messages.supportQuestion")}
               </Bubble>
               <Bubble side="out">
-                Wa alikum salam! Yes, I can reply in Darija, Arabic, French, and English.
+                {t("messages.supportReply")}
               </Bubble>
 
             </div>
 
             <div className="flex items-center gap-2 border-t border-hairline bg-canvas-soft px-3 py-2">
               <div className="min-h-9 flex-1 rounded-full bg-white px-4 py-2 text-[14px] text-muted-soft shadow-sm">
-                Text message
+                {t("messagePlaceholder")}
               </div>
               <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

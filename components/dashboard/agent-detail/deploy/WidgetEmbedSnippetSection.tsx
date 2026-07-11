@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, CopyIcon, ExternalLink } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { buildWidgetEmbedUrl, useEmbedOrigin } from "@/lib/deploy/embed-urls";
@@ -27,6 +28,8 @@ export function WidgetEmbedSnippetSection({
   iframeHint,
   floatingHint,
 }: WidgetEmbedSnippetSectionProps) {
+  const t = useTranslations("dashboard.deploy.generic");
+  const tCommon = useTranslations("dashboard.deploy.common");
   const [copied, setCopied] = useState(false);
   const [activeSnippet, setActiveSnippet] = useState<WidgetEmbedSnippetKind>("iframe");
 
@@ -36,7 +39,7 @@ export function WidgetEmbedSnippetSection({
   const titleMatch = activeEmbedUrl.match(/[?&]title=([^&]+)/);
   const title = titleMatch
     ? decodeURIComponent(titleMatch[1].replace(/\+/g, " "))
-    : "Support";
+    : t("defaultEmbedTitle");
 
   const snippet = buildWidgetEmbedSnippet(activeSnippet, activeEmbedUrl, title);
 
@@ -67,7 +70,7 @@ export function WidgetEmbedSnippetSection({
               : "bg-surface-strong text-muted hover:text-ink",
           )}
         >
-          Inline iframe
+          {t("inlineIframe")}
         </button>
         <button
           type="button"
@@ -79,7 +82,7 @@ export function WidgetEmbedSnippetSection({
               : "bg-surface-strong text-muted hover:text-ink",
           )}
         >
-          Floating bubble
+          {t("floatingBubble")}
         </button>
       </div>
 
@@ -90,7 +93,7 @@ export function WidgetEmbedSnippetSection({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-body-sm text-primary hover:underline"
         >
-          Open preview
+          {t("openPreview")}
           <AppIcon icon={ExternalLink} className="h-3 w-3" />
         </a>
         <Button
@@ -102,11 +105,11 @@ export function WidgetEmbedSnippetSection({
         >
           {copied ? (
             <>
-              <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
+              <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> {tCommon("copied")}
             </>
           ) : (
             <>
-              <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy code
+              <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> {t("copyCode")}
             </>
           )}
         </Button>

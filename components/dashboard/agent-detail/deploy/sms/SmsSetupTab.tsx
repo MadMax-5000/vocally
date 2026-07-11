@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, CopyIcon, ExternalLink } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +22,12 @@ function CopyField({
   label,
   value,
   description,
+  copyLabel,
 }: {
   label: string;
   value: string;
   description?: string;
+  copyLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -53,7 +56,7 @@ function CopyField({
           size="icon"
           className="size-10 shrink-0 rounded-lg border-hairline"
           onClick={handleCopy}
-          aria-label={`Copy ${label}`}
+          aria-label={copyLabel}
         >
           {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
         </Button>
@@ -66,19 +69,19 @@ export function SmsSetupTab({
   smsEnabled,
   settings,
 }: SmsSetupTabProps) {
+  const t = useTranslations("dashboard.deploy.messaging.sms.setup");
   const blockingIssue = !smsEnabled
-    ? "Enable SMS to connect a phone number and receive messages."
+    ? t("issues.smsDisabled")
     : !settings.platformConfigured
-      ? "Twilio credentials are not configured on this deployment."
+      ? t("issues.platformNotConfigured")
       : null;
 
   return (
     <div className="space-y-4">
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Prerequisites</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("prerequisites.title")}</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          SMS messaging uses Twilio. You need an SMS-capable phone number and inbound
-          webhooks pointed at Anselio.
+          {t("prerequisites.description")}
         </p>
 
         {blockingIssue ? (
@@ -94,43 +97,44 @@ export function SmsSetupTab({
             target="_blank"
             rel="noreferrer"
           >
-            Twilio SMS docs <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
+            {t("twilioDocs")} <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
           </a>
         </div>
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Webhook URL</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("webhook.title")}</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          In Twilio Console, set <span className="text-ink">When a message comes in</span> to
-          this URL (HTTP POST) for your SMS-capable phone number.
+          {t.rich("webhook.description", {
+            incomingMessage: (chunks) => <span className="text-ink">{chunks}</span>,
+          })}
         </p>
 
         <div className="mt-4 space-y-3">
           <CopyField
-            label="Inbound webhook"
+            label={t("webhook.inboundWebhook")}
             value={settings.webhookUrl}
-            description="Phone Numbers → Manage → Active Numbers → select your number → Messaging"
+            description={t("webhook.fieldDescription")}
+            copyLabel={t("webhook.copy", { label: t("webhook.inboundWebhook") })}
           />
         </div>
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Twilio Console steps</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("steps.title")}</h2>
         <ol className="mt-3 list-decimal space-y-2 pl-4 text-body-sm text-muted">
+          <li>{t("steps.purchaseNumber")}</li>
+          <li>{t("steps.openPhoneNumbers")}</li>
           <li>
-            Purchase an SMS-capable phone number in Twilio Console (or use an existing one).
+            {t.rich("steps.configureWebhook", {
+              messaging: (chunks) => <span className="text-ink">{chunks}</span>,
+              incomingMessage: (chunks) => <span className="text-ink">{chunks}</span>,
+            })}
           </li>
           <li>
-            Open Phone Numbers → Manage → Active Numbers → select your number.
-          </li>
-          <li>
-            Under <span className="text-ink">Messaging</span>, paste the webhook URL above into{" "}
-            <span className="text-ink">When a message comes in</span> (HTTP POST).
-          </li>
-          <li>
-            Open the <span className="text-ink">Connect</span> tab to link your phone number to
-            this agent.
+            {t.rich("steps.connectNumber", {
+              connect: (chunks) => <span className="text-ink">{chunks}</span>,
+            })}
           </li>
         </ol>
         <a
@@ -139,7 +143,7 @@ export function SmsSetupTab({
           target="_blank"
           rel="noreferrer"
         >
-          Open Twilio Phone Numbers <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
+          {t("openTwilioPhoneNumbers")} <AppIcon icon={ExternalLink} className="ml-1.5 size-3.5" />
         </a>
       </section>
     </div>

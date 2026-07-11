@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import { updateEscalationActionSettings } from "@/lib/actions/agents";
@@ -44,13 +45,6 @@ type EscalationsActionSheetProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const PRIORITY_OPTIONS = [
-  { value: "LOW", label: "Low" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "HIGH", label: "High" },
-  { value: "URGENT", label: "Urgent" },
-] as const;
-
 const checkboxLabelClass =
   "cursor-pointer font-normal normal-case tracking-normal text-body-sm leading-snug text-ink";
 
@@ -59,6 +53,7 @@ export function EscalationsActionSheet({
   open,
   onOpenChange,
 }: EscalationsActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [savedDraft, setSavedDraft] = useState<EscalationsActionDraft>(() =>
@@ -89,14 +84,14 @@ export function EscalationsActionSheet({
         requireEmailForTicket: draft.requireEmailForTicket,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildEscalationsActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Escalations saved");
+      toast.success(t("sheet.escalations.saved"));
       onOpenChange(false);
     });
   }
@@ -105,13 +100,13 @@ export function EscalationsActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Escalations"
-      description="Hand conversations to your team when customers need a human. Tickets are stored in Anselio for your inbox."
+      title={t("catalog.escalations.title")}
+      description={t("sheet.escalations.description")}
       pending={pending}
       isDirty={isDirty}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable handoff to human agents">
+      <ActionSheetEnableRow label={t("sheet.escalations.enable")}>
         <Switch
           id="escalations-enabled"
           checked={draft.enabled}
@@ -122,11 +117,11 @@ export function EscalationsActionSheet({
       {draft.enabled ? (
         <>
           <ActionSheetSection
-            title="Escalation triggers"
-            description="When should the agent offer or perform a handoff?"
+            title={t("sheet.escalations.triggers")}
+            description={t("sheet.escalations.triggersDescription")}
           >
             <ul className="flex flex-col gap-2">
-              {TRIGGER_FIELD_MAP.map(({ key, label }) => (
+              {TRIGGER_FIELD_MAP.map(({ key, labelKey }) => (
                 <li
                   key={key}
                   className="flex items-start gap-2.5 rounded-md border border-hairline bg-surface-card px-3 py-2.5"
@@ -142,7 +137,7 @@ export function EscalationsActionSheet({
                     }
                   />
                   <Label htmlFor={`trigger-${key}`} className={checkboxLabelClass}>
-                    {label}
+                    {t(`sheet.escalations.${labelKey}`)}
                   </Label>
                 </li>
               ))}
@@ -150,8 +145,8 @@ export function EscalationsActionSheet({
           </ActionSheetSection>
 
           <ActionSheetField
-            label="Customer message"
-            description="Shown in chat when a conversation is escalated. Optional."
+            label={t("sheet.escalations.customerMessage")}
+            description={t("sheet.escalations.customerMessageDescription")}
           >
             <Textarea
               id="escalation-customer-message"
@@ -166,11 +161,11 @@ export function EscalationsActionSheet({
           </ActionSheetField>
 
           <ActionSheetSection
-            title="Anselio tickets"
-            description="Configure automatic ticket creation in your inbox."
+            title={t("sheet.escalations.tickets")}
+            description={t("sheet.escalations.ticketsDescription")}
           >
             <ActionSheetSettingsGroup>
-              <ActionSheetToggleRow label="Create ticket automatically on escalate">
+              <ActionSheetToggleRow label={t("sheet.escalations.createTicket")}>
                 <Switch
                   id="create-ticket-on-escalate"
                   checked={draft.createTicketOnEscalate}
@@ -180,7 +175,7 @@ export function EscalationsActionSheet({
                 />
               </ActionSheetToggleRow>
 
-              <ActionSheetToggleRow label="Let the bot use create_ticket during chat">
+              <ActionSheetToggleRow label={t("sheet.escalations.allowTicketTool")}>
                 <Switch
                   id="allow-create-ticket-tool"
                   checked={draft.allowCreateTicketTool}
@@ -191,8 +186,8 @@ export function EscalationsActionSheet({
               </ActionSheetToggleRow>
 
               <ActionSheetToggleRow
-                label="Require customer email for auto-ticket"
-                description="Skipped when no email appears in the conversation."
+                label={t("sheet.escalations.requireEmail")}
+                description={t("sheet.escalations.requireEmailDescription")}
               >
                 <Switch
                   id="require-email-ticket"
@@ -204,7 +199,7 @@ export function EscalationsActionSheet({
               </ActionSheetToggleRow>
             </ActionSheetSettingsGroup>
 
-            <ActionSheetField label="Default ticket priority" className="mt-3">
+            <ActionSheetField label={t("sheet.escalations.priority")} className="mt-3">
               <Select
                 value={draft.ticketPriority}
                 onValueChange={(ticketPriority) =>
@@ -218,9 +213,9 @@ export function EscalationsActionSheet({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PRIORITY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
+                  {(["LOW", "MEDIUM", "HIGH", "URGENT"] as const).map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {t(`sheet.escalations.${value.toLowerCase()}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -230,7 +225,7 @@ export function EscalationsActionSheet({
         </>
       ) : (
         <ActionSheetEmpty>
-          Turn on to configure when conversations escalate and how tickets are created.
+          {t("sheet.escalations.disabledDescription")}
         </ActionSheetEmpty>
       )}
     </ActionSheetShell>

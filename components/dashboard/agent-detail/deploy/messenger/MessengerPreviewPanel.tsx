@@ -4,14 +4,15 @@ import { useMemo } from "react";
 
 import type { AgentMessengerSettings } from "@/lib/actions/messenger-connection";
 import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
 
 type Props = {
   agentName: string;
   settings: AgentMessengerSettings;
 };
 
-function nowTime(): string {
-  return new Intl.DateTimeFormat("en-GB", {
+function nowTime(locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -43,23 +44,26 @@ function Bubble({
 }
 
 export function MessengerPreviewPanel({ agentName, settings }: Props) {
-  const pageName = settings.connection?.pageName ?? "Your Facebook Page";
-  const sampleUser = "Customer";
+  const t = useTranslations("dashboard.deploy.channels.messenger");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
+  const locale = useLocale();
+  const pageName = settings.connection?.pageName ?? t("yourFacebookPage");
+  const sampleUser = t("customer");
 
   const transcript = useMemo(
     () => [
-      { side: "in" as const, text: "Hi — do you have this in stock?" },
-      { side: "out" as const, text: `Yes — I can help with that. What item are you looking for?` },
-      { side: "in" as const, text: "The black hoodie, size M." },
-      { side: "out" as const, text: `Got it. Let me check availability for black hoodie (M).` },
+      { side: "in" as const, text: t("sampleIncomingOne") },
+      { side: "out" as const, text: t("sampleOutgoingOne") },
+      { side: "in" as const, text: t("sampleIncomingTwo") },
+      { side: "out" as const, text: t("sampleOutgoingTwo") },
     ],
-    [],
+    [t],
   );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{tCommon("preview")}</h3>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6">
@@ -68,13 +72,13 @@ export function MessengerPreviewPanel({ agentName, settings }: Props) {
             <div className="shrink-0 border-b border-hairline bg-surface-card px-4 py-3">
               <p className="text-body-sm font-medium text-ink">{pageName}</p>
               <p className="text-caption text-muted">
-                Replying as <span className="text-ink">{agentName}</span>
+                {t("replyingAs", { agentName })}
               </p>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto bg-canvas-soft/40 px-3 py-3">
               <p className="mb-3 text-center text-[11px] text-muted-soft">
-                {sampleUser} • Today • {nowTime()}
+                {t("todayAt", { customer: sampleUser, time: nowTime(locale) })}
               </p>
               <div className="space-y-2">
                 {transcript.map((m, idx) => (
@@ -87,11 +91,11 @@ export function MessengerPreviewPanel({ agentName, settings }: Props) {
 
             <div className="shrink-0 border-t border-hairline bg-surface-card px-3 py-3">
               <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas-soft/60 px-3 py-2">
-                <span className="text-caption text-muted">Message…</span>
+                <span className="text-caption text-muted">{t("message")}</span>
                 <span className="ml-auto text-caption text-muted-soft">↩</span>
               </div>
               <p className="mt-2 text-center text-[11px] text-muted-soft">
-                Preview only — real replies are sent via your Page connection.
+                {t("previewOnly")}
               </p>
             </div>
           </div>

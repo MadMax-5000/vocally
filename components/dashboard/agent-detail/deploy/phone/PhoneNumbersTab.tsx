@@ -4,6 +4,7 @@ import { CheckCircle, InfoIcon, LoaderIcon, PhoneIcon, PhoneForwarded } from "@/
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,8 @@ export function PhoneNumbersTab({
   settings,
   onSettingsRefresh,
 }: PhoneNumbersTabProps) {
+  const t = useTranslations("dashboard.deploy.channels.phone");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
   const [isSaving, setIsSaving] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [customerNumber, setCustomerNumber] = useState(settings.customerNumber ?? "");
@@ -62,13 +65,13 @@ export function PhoneNumbersTab({
 
     if (result.success) {
       setSaved(true);
-      toast.success("Phone number connected");
+      toast.success(t("connected"));
       setTimeout(() => setSaved(false), 3000);
       await onSettingsRefresh();
     } else {
-      toast.error(result.error || "Failed to connect number");
+      toast.error(result.error || t("connectFailed"));
     }
-  }, [agentId, customerNumber, phoneEnabled, onSettingsRefresh]);
+  }, [agentId, customerNumber, phoneEnabled, onSettingsRefresh, t]);
 
   const handleDisconnect = useCallback(async () => {
     setIsDisconnecting(true);
@@ -78,13 +81,13 @@ export function PhoneNumbersTab({
     setIsDisconnecting(false);
 
     if (result.success) {
-      toast.success("Phone number disconnected");
+      toast.success(t("disconnected"));
       setCustomerNumber("");
       await onSettingsRefresh();
     } else {
-      toast.error(result.error || "Failed to disconnect");
+      toast.error(result.error || t("disconnectFailed"));
     }
-  }, [agentId, onSettingsRefresh]);
+  }, [agentId, onSettingsRefresh, t]);
 
   if (!phoneEnabled) {
     return (
@@ -94,9 +97,9 @@ export function PhoneNumbersTab({
             <AppIcon icon={PhoneIcon} className="size-6 text-muted-soft" />
           </div>
           <div>
-            <p className="text-body-sm font-medium text-ink">Phone deployment is disabled</p>
+            <p className="text-body-sm font-medium text-ink">{t("disabledTitle")}</p>
             <p className="mt-1 text-caption text-muted-soft">
-              Enable the phone channel above to connect your business number.
+              {t("disabledDescription")}
             </p>
           </div>
         </div>
@@ -130,29 +133,30 @@ export function PhoneNumbersTab({
               <AppIcon icon={PhoneForwarded} className="size-5 text-emerald-600" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-title-sm font-medium text-ink">Connected</p>
+              <p className="text-title-sm font-medium text-ink">{tCommon("connected")}</p>
               <p className="mt-1 text-body-sm text-muted">
-                Your number <span className="font-mono text-ink">{settings.customerNumber}</span>{" "}
-                forwards calls to Anselio.
+                {t.rich("forwardsTo", {
+                  number: (chunks) => <span className="font-mono text-ink">{chunks}</span>,
+                  phoneNumber: settings.customerNumber ?? "",
+                })}
               </p>
               <div className="mt-3 rounded-lg border border-hairline bg-canvas-soft/50 p-3">
-                <p className="text-caption font-medium text-ink">Forwarding destination</p>
+                <p className="text-caption font-medium text-ink">{t("forwardingDestination")}</p>
                 <p className="mt-0.5 font-mono text-body-sm text-ink">
                   {settings.forwardingNumber}
                 </p>
               </div>
             </div>
             <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-              Active
+              {tCommon("active")}
             </span>
           </div>
         </section>
 
         <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <h2 className="text-title-sm font-medium text-ink">One-time setup — dial this code from your phone</h2>
+          <h2 className="text-title-sm font-medium text-ink">{t("setupTitle")}</h2>
           <p className="mt-1 text-body-sm leading-relaxed text-muted">
-            Copy the code below, open your phone&apos;s dialer, type it in, and press call. Your
-            carrier confirms activation in 2 seconds. That&apos;s it.
+            {t("setupDescription")}
           </p>
 
           <div className="mt-4 space-y-3">
@@ -161,16 +165,16 @@ export function PhoneNumbersTab({
                 1
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">Forwarding type</p>
+                <p className="text-body-sm font-medium text-ink">{t("forwardingType")}</p>
                 <Select value={forwardingType} onValueChange={setForwardingType}>
                   <SelectTrigger className="h-10 w-full border-hairline-strong bg-surface-card text-body-sm sm:w-56">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="unconditional">All calls</SelectItem>
-                    <SelectItem value="busy">When I&apos;m on another call</SelectItem>
-                    <SelectItem value="noAnswer">When I don&apos;t pick up</SelectItem>
-                    <SelectItem value="unreachable">When my phone is off</SelectItem>
+                    <SelectItem value="unconditional">{t("allCalls")}</SelectItem>
+                    <SelectItem value="busy">{t("whenBusy")}</SelectItem>
+                    <SelectItem value="noAnswer">{t("whenNoAnswer")}</SelectItem>
+                    <SelectItem value="unreachable">{t("whenUnreachable")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -181,7 +185,7 @@ export function PhoneNumbersTab({
                 2
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">Copy this code</p>
+                <p className="text-body-sm font-medium text-ink">{t("copyCode")}</p>
                 <div className="mt-1 flex items-center gap-2">
                   <code className="inline-flex items-center rounded-lg border border-hairline bg-canvas-soft px-3 py-2 font-mono text-body-sm text-ink">
                     {selectedCode}
@@ -190,11 +194,11 @@ export function PhoneNumbersTab({
                     type="button"
                     onClick={() => {
                       navigator.clipboard.writeText(selectedCode);
-                      toast.success("Code copied to clipboard");
+                      toast.success(t("codeCopied"));
                     }}
                     className="btn-outline h-8 shrink-0 rounded-md px-3 text-caption"
                   >
-                    Copy
+                    {tCommon("copy")}
                   </button>
                 </div>
               </div>
@@ -205,10 +209,9 @@ export function PhoneNumbersTab({
                 3
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">Dial the code</p>
+                <p className="text-body-sm font-medium text-ink">{t("dialCode")}</p>
                 <p className="mt-0.5 text-caption text-muted">
-                  Open your phone dialer, paste or type the code, and press the call button.
-                  You&apos;ll hear a confirmation message from your carrier.
+                  {t("dialCodeDescription")}
                 </p>
               </div>
             </div>
@@ -221,10 +224,9 @@ export function PhoneNumbersTab({
               <AppIcon icon={InfoIcon} className="size-4 text-amber-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-body-sm font-medium text-ink">Need to disable forwarding?</p>
+              <p className="text-body-sm font-medium text-ink">{t("disableForwarding")}</p>
               <p className="mt-0.5 text-caption text-muted">
-                Dial <code className="font-mono text-ink">##002#</code> from your phone to turn
-                off all forwarding. Or click Disconnect below to deactivate it from Anselio.
+                {t.rich("disableForwardingDescription", { code: (chunks) => <code className="font-mono text-ink">{chunks}</code> })}
               </p>
             </div>
           </div>
@@ -239,7 +241,7 @@ export function PhoneNumbersTab({
             onClick={handleDisconnect}
           >
             {isDisconnecting ? <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" /> : null}
-            Disconnect
+            {tCommon("disconnect")}
           </Button>
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -248,13 +250,11 @@ export function PhoneNumbersTab({
                   type="button"
                   className="text-caption text-muted-soft underline decoration-dotted underline-offset-2 hover:text-muted"
                 >
-                  What about Maroc Telecom / Orange / Inwi?
+                  {t("carrierQuestion")}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-body-sm">
-                All three Moroccan carriers support the same USSD codes. Dial{" "}
-                <code className="font-mono">*21*...</code> for unconditional forwarding. No
-                special configuration needed.
+                {t.rich("carrierAnswer", { code: (chunks) => <code className="font-mono">{chunks}</code> })}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -272,19 +272,18 @@ export function PhoneNumbersTab({
           </div>
           <div className="min-w-0">
             <h2 className="text-title-sm font-medium text-ink">
-              Connect your business number
+              {t("connectBusinessNumber")}
             </h2>
             <p className="mt-1 text-body-sm leading-relaxed text-muted">
-              Enter the phone number your customers call you on. We&apos;ll give you a
-              forwarding destination so calls reach your AI agent.
+              {t("connectBusinessDescription")}
             </p>
           </div>
         </div>
 
         <div className="mt-4">
-          <p className="text-body-sm font-medium text-ink">Your business number</p>
+          <p className="text-body-sm font-medium text-ink">{t("businessNumber")}</p>
           <p className="text-caption text-muted-soft">
-            E.164 format including country code (e.g. +2126XXXXXXXX)
+            {t("numberFormat")}
           </p>
           <div className="mt-1.5 flex items-center gap-2">
             <div className="relative flex-1">
@@ -295,7 +294,7 @@ export function PhoneNumbersTab({
                   setCustomerNumber(e.target.value);
                   setSaved(false);
                 }}
-                placeholder="+2126XXXXXXXX"
+                placeholder={t("numberFormat")}
                 className={cn(
                   "pr-10 font-mono",
                   saved && "border-emerald-500 bg-emerald-50/50",
@@ -318,10 +317,10 @@ export function PhoneNumbersTab({
               {isSaving ? (
                 <>
                   <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
-                  Connecting…
+                  {t("connecting")}
                 </>
               ) : (
-                "Connect"
+                t("connect")
               )}
             </Button>
           </div>
@@ -330,8 +329,7 @@ export function PhoneNumbersTab({
         <div className="mt-4 flex items-start gap-3 rounded-lg border border-hairline bg-canvas-soft/50 p-3">
           <AppIcon icon={PhoneIcon} className="mt-0.5 size-4 shrink-0 text-muted" />
           <p className="text-caption leading-relaxed text-muted">
-            After connecting, you&apos;ll dial a short code from your phone to activate forwarding.
-            Takes 2 seconds. Your customers keep calling your usual number.
+            {t("activationNotice")}
           </p>
         </div>
       </section>

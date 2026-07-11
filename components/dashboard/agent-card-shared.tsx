@@ -2,6 +2,7 @@
 
 import type { ComponentType, SVGProps } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { AgentChannelType, SupportedLanguage } from "@prisma/client";
 
 import { CHANNEL_META } from "@/lib/constants/agent-channels";
@@ -36,12 +37,9 @@ export const LANGUAGE_FLAG: Record<
   ENGLISH: EnglishFlag,
 };
 
-export const LANGUAGE_LABEL: Record<SupportedLanguage, string> = {
-  ARABIC: "Arabic",
-  DARIJA: "Darija",
-  FRENCH: "French",
-  ENGLISH: "English",
-};
+function enumTranslationKey(value: string) {
+  return value.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+}
 
 export function humanizeEnum(value: string) {
   return value
@@ -61,6 +59,7 @@ export function AgentCardMetaFooter({
   languages,
   stopPropagation = false,
 }: AgentCardMetaFooterProps) {
+  const t = useTranslations("dashboard.agents");
   const enabledChannels = channelTypes
     .map((channel) => CHANNEL_META.find((m) => m.value === channel))
     .filter((m): m is NonNullable<typeof m> => m !== undefined);
@@ -80,7 +79,7 @@ export function AgentCardMetaFooter({
   if (!hasChannels && !hasLanguages) {
     return (
       <p className="mt-3 border-t border-hairline-soft pt-3 text-caption text-muted">
-        No channels
+        {t("noChannels")}
       </p>
     );
   }
@@ -98,26 +97,26 @@ export function AgentCardMetaFooter({
                 >
                   <Image
                     src={channel.iconSrc}
-                    alt={channel.label}
+                    alt={t(`channels.${enumTranslationKey(channel.value)}`)}
                     width={14}
                     height={14}
                     className="rounded-[2px] grayscale opacity-50 transition-all duration-200 group-hover/icon:grayscale-0 group-hover/icon:opacity-100"
                   />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="top">{channel.label}</TooltipContent>
+              <TooltipContent side="top">{t(`channels.${enumTranslationKey(channel.value)}`)}</TooltipContent>
             </Tooltip>
           ))}
         </div>
       ) : (
-        <span className="text-caption text-muted">No channels</span>
+        <span className="text-caption text-muted">{t("noChannels")}</span>
       )}
 
       {hasLanguages ? (
         <div className="ml-auto flex items-center gap-1.5">
           {orderedLanguages.map((lang) => {
             const Flag = LANGUAGE_FLAG[lang];
-            const label = LANGUAGE_LABEL[lang];
+            const label = t(lang.toLowerCase());
             return (
               <Tooltip key={lang}>
                 <TooltipTrigger asChild>

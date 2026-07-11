@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { ChatWidgetPreviewPanel } from "./chat-widget/ChatWidgetPreviewPanel";
 type Props = { agent: AgentDetailWithRelations };
 
 export function DeployChatWidgetManage({ agent }: Props) {
+  const t = useTranslations("dashboard.deploy");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [togglePending, startToggleTransition] = useTransition();
@@ -57,10 +59,10 @@ export function DeployChatWidgetManage({ agent }: Props) {
     startTransition(async () => {
       const result = await updateChatWidgetSettings(agent.id, draftToSavePayload(draft));
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save");
+        toast.error(result.error ?? t("common.failedToSave"));
         return;
       }
-      toast.success("Chat widget settings saved");
+      toast.success(t("chatWidget.settingsSaved"));
       if (result.data) {
         const next = buildChatWidgetDraft(result.data);
         setSavedDraft(next);
@@ -70,7 +72,7 @@ export function DeployChatWidgetManage({ agent }: Props) {
       }
       router.refresh();
     });
-  }, [agent.id, draft, router]);
+  }, [agent.id, draft, router, t]);
 
   function handleWebChatToggle(enabled: boolean) {
     const previous = webChatEnabled;
@@ -80,7 +82,7 @@ export function DeployChatWidgetManage({ agent }: Props) {
       const result = await updateAgentDeployment(agent.id, { webChatEnabled: enabled });
       if (!result.success) {
         setWebChatEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? t("common.failedToUpdate"));
         return;
       }
       router.refresh();
@@ -113,7 +115,7 @@ export function DeployChatWidgetManage({ agent }: Props) {
 
           <div className="flex shrink-0 items-center justify-between gap-3 border-t border-hairline px-4 py-3">
             <span className="text-caption text-muted">
-              {isDirty ? "Unsaved changes" : "All changes saved"}
+              {isDirty ? t("common.unsavedChanges") : t("common.allChangesSaved")}
             </span>
             <Button
               type="button"
@@ -121,7 +123,7 @@ export function DeployChatWidgetManage({ agent }: Props) {
               disabled={!isDirty || isPending}
               onClick={handleSave}
             >
-              {isPending ? "Saving…" : "Save changes"}
+              {isPending ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </div>
         </div>

@@ -20,6 +20,7 @@ import {
 import { HelpPageNavLinksEditor } from "./HelpPageNavLinksEditor";
 import type { HelpPageDraft } from "./help-page-draft";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
+import { useDeploySitesMessages } from "../useDeploySitesMessages";
 
 type HelpPageSettingsTabProps = {
   draft: HelpPageDraft;
@@ -30,13 +31,15 @@ type HelpPageSettingsTabProps = {
 function ThemeSegment({
   value,
   onChange,
+  labels,
 }: {
   value: WebChatHelpPageTheme;
   onChange: (v: WebChatHelpPageTheme) => void;
+  labels: { light: string; dark: string };
 }) {
   const options: { id: WebChatHelpPageTheme; label: string }[] = [
-    { id: "light", label: "Light" },
-    { id: "dark", label: "Dark" },
+    { id: "light", label: labels.light },
+    { id: "dark", label: labels.dark },
   ];
 
   return (
@@ -63,9 +66,11 @@ function ThemeSegment({
 function UploadStubField({
   label,
   description,
+  uploadLabel,
 }: {
   label: string;
   description: string;
+  uploadLabel: string;
 }) {
   return (
     <ChatWidgetSettingRow label={label} description={description}>
@@ -77,13 +82,14 @@ function UploadStubField({
         className="h-10 w-fit gap-1.5 rounded-lg border-hairline bg-surface-card text-body-sm"
       >
         <AppIcon icon={UploadIcon} className="size-3.5" />
-        Upload
+        {uploadLabel}
       </Button>
     </ChatWidgetSettingRow>
   );
 }
 
 export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSettingsTabProps) {
+  const t = useDeploySitesMessages().helpPage.settings;
   const hp = draft.helpPage;
 
   function patchHelpPage(partial: Partial<HelpPageDraft["helpPage"]>) {
@@ -93,8 +99,8 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
   return (
     <div>
       <ChatWidgetSettingRow
-        label="Page title"
-        description="Shown in the browser tab."
+        label={t.pageTitle}
+        description={t.pageTitleDescription}
         noBorder
       >
         <Input
@@ -106,8 +112,8 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Headline"
-        description="Large text above the chat input on the help page."
+        label={t.headline}
+        description={t.headlineDescription}
       >
         <Input
           value={hp.headline}
@@ -123,11 +129,12 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
       />
 
       <UploadStubField
-        label="Favicon"
-        description="ICO, PNG, or SVG up to 1MB. Shown in the browser tab."
+        label={t.favicon}
+        description={t.faviconDescription}
+        uploadLabel={t.upload}
       />
 
-      <ChatWidgetSettingRow label="Message placeholder">
+      <ChatWidgetSettingRow label={t.messagePlaceholder}>
         <Input
           value={hp.placeholder}
           onChange={(e) => patchHelpPage({ placeholder: e.target.value })}
@@ -137,25 +144,26 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Enable theme switch"
-        description="Let visitors toggle between light and dark mode."
+        label={t.enableThemeSwitch}
+        description={t.themeSwitchDescription}
         variant="row"
       >
         <Switch
           checked={hp.themeSwitchEnabled}
           onCheckedChange={(themeSwitchEnabled) => patchHelpPage({ themeSwitchEnabled })}
-          aria-label="Enable theme switch"
+          aria-label={t.enableThemeSwitch}
         />
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Default theme">
+      <ChatWidgetSettingRow label={t.defaultTheme}>
         <ThemeSegment
           value={hp.defaultTheme}
           onChange={(defaultTheme) => patchHelpPage({ defaultTheme })}
+          labels={{ light: t.light, dark: t.dark }}
         />
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Light primary color">
+      <ChatWidgetSettingRow label={t.lightPrimaryColor}>
         <ChatWidgetColorField
           value={hp.primaryColorLight}
           defaultValue={WIDGET_PRIMARY_COLOR_DEFAULT}
@@ -163,7 +171,7 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
         />
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Dark primary color">
+      <ChatWidgetSettingRow label={t.darkPrimaryColor}>
         <ChatWidgetColorField
           value={hp.primaryColorDark}
           defaultValue={WIDGET_PRIMARY_COLOR_DEFAULT}
@@ -172,35 +180,39 @@ export function HelpPageSettingsTab({ draft, onChange, agentName }: HelpPageSett
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Enable voice to text"
-        description="Show a microphone button in the chat input. Speech is transcribed into the message field."
+        label={t.enableVoiceToText}
+        description={t.voiceToTextDescription}
         variant="row"
       >
         <Switch
           checked={hp.voiceToTextEnabled}
           onCheckedChange={(voiceToTextEnabled) => patchHelpPage({ voiceToTextEnabled })}
-          aria-label="Enable voice to text"
+          aria-label={t.enableVoiceToText}
         />
       </ChatWidgetSettingRow>
 
       <UploadStubField
-        label="Logo"
-        description="Shown in the sidebar on light backgrounds. JPG, PNG, or SVG up to 1MB."
+        label={t.logo}
+        description={t.logoDescription}
+        uploadLabel={t.upload}
       />
 
       <UploadStubField
-        label="Logo (dark mode)"
-        description="Shown in the sidebar on dark backgrounds."
+        label={t.darkLogo}
+        description={t.darkLogoDescription}
+        uploadLabel={t.upload}
       />
 
       <UploadStubField
-        label="Hero image"
-        description="Centered above the headline on light backgrounds."
+        label={t.heroImage}
+        description={t.heroImageDescription}
+        uploadLabel={t.upload}
       />
 
       <UploadStubField
-        label="Hero image (dark mode)"
-        description="Centered above the headline on dark backgrounds."
+        label={t.darkHeroImage}
+        description={t.darkHeroImageDescription}
+        uploadLabel={t.upload}
       />
     </div>
   );

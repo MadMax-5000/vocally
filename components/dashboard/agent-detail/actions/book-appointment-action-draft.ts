@@ -44,7 +44,7 @@ export function validateBookAppointmentDraft(
   if (!draft.enabled) return null;
   const valid = draft.departments.map((d) => d.trim()).filter(Boolean);
   if (valid.length === 0) {
-    return "Add at least one department.";
+    return "addDepartment";
   }
   return null;
 }

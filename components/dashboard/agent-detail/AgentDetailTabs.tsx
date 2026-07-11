@@ -8,6 +8,7 @@ import { AgentDetailKnowledgeTab } from "./AgentDetailKnowledgeTab";
 import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
 import { AgentDetailDeployTab } from "./AgentDetailDeployTab";
 import { AgentDetailActionsTab } from "./AgentDetailActionsTab";
+import { useTranslations } from "next-intl";
 
 export const AGENT_DETAIL_TAB_IDS: AgentDetailTabId[] = [
   "preview",
@@ -20,17 +21,6 @@ export const AGENT_DETAIL_TAB_IDS: AgentDetailTabId[] = [
   "advanced",
 ];
 
-const TAB_CONFIG: { id: AgentDetailTabId; label: string }[] = [
-  { id: "preview", label: "Preview" },
-  { id: "agent", label: "Agent" },
-  { id: "knowledge", label: "Knowledge Base" },
-  { id: "actions", label: "Actions" },
-  { id: "deploy", label: "Deploy" },
-  { id: "security", label: "Security" },
-  { id: "tests", label: "Tests" },
-  { id: "advanced", label: "Advanced" },
-];
-
 type AgentDetailTabsProps = {
   agent: AgentDetailWithRelations;
   activeTab: AgentDetailTabId;
@@ -38,9 +28,10 @@ type AgentDetailTabsProps = {
 };
 
 function TabPlaceholder({ label }: { label: string }) {
+  const t = useTranslations("dashboard.agentDetail.tabs");
   return (
     <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-hairline bg-canvas-soft px-6 py-16">
-      <p className="text-center text-body-sm text-muted">Coming soon — {label}</p>
+      <p className="text-center text-body-sm text-muted">{t("placeholder", { label })}</p>
     </div>
   );
 }
@@ -50,16 +41,18 @@ export function AgentDetailTabs({
   activeTab,
   onTabChange,
 }: AgentDetailTabsProps) {
-  const activeLabel = TAB_CONFIG.find((t) => t.id === activeTab)?.label ?? "";
+  const t = useTranslations("dashboard.agentDetail.tabs");
+  const tabConfig = AGENT_DETAIL_TAB_IDS.map((id) => ({ id, label: t(id) }));
+  const activeLabel = tabConfig.find((tab) => tab.id === activeTab)?.label ?? "";
 
   return (
     <div className="flex flex-col">
       <DashboardTabBar
-        tabs={TAB_CONFIG}
+        tabs={tabConfig}
         activeTab={activeTab}
         onTabChange={onTabChange}
         layoutId="agentDetailTabPill"
-        ariaLabel="Agent sections"
+        ariaLabel={t("sections")}
         className="-mx-4 -mt-1 px-4"
       />
 

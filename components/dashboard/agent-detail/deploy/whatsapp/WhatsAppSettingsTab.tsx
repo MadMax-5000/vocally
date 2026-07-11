@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon";
 import { LoaderIcon } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
@@ -25,17 +26,18 @@ type Props = {
   whatsappEnabled: boolean;
 };
 
-const DAY_LABELS: Record<keyof NonNullable<WhatsappChannelConfig["businessHours"]>, string> = {
-  monday: "Monday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
-  thursday: "Thursday",
-  friday: "Friday",
-  saturday: "Saturday",
-  sunday: "Sunday",
-};
+const DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const satisfies ReadonlyArray<keyof NonNullable<WhatsappChannelConfig["businessHours"]>>;
 
 export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
+  const t = useTranslations("dashboard.deploy.messaging.whatsapp.settings");
   const [config, setConfig] = useState<WhatsappChannelConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,16 +64,16 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
     setIsSaving(false);
     if (result.success) {
       setHasChanges(false);
-      toast.success("WhatsApp settings saved");
+      toast.success(t("settingsSaved"));
     } else {
-      toast.error(result.error ?? "Failed to save");
+      toast.error(result.error ?? t("failedToSave"));
     }
-  }, [agentId, config]);
+  }, [agentId, config, t]);
 
   if (!whatsappEnabled) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-caption text-amber-800">
-        Enable WhatsApp to customize channel settings.
+        {t("enableToCustomize")}
       </div>
     );
   }
@@ -87,11 +89,11 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
   return (
     <div className="space-y-4">
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Messages</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("messages.title")}</h2>
         <div className="mt-4 space-y-4">
           <ChatWidgetSettingRow
-            label="Welcome message"
-            description="Prepended to the first reply in a new conversation."
+            label={t("messages.welcome.label")}
+            description={t("messages.welcome.description")}
           >
             <Textarea
               value={config.welcomeMessage ?? ""}
@@ -101,13 +103,13 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
               }}
               rows={3}
               className={chatWidgetFieldTextareaClass}
-              placeholder="Thanks for messaging us on WhatsApp!"
+              placeholder={t("messages.welcome.placeholder")}
             />
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
-            label="Away message"
-            description="Sent automatically outside business hours."
+            label={t("messages.away.label")}
+            description={t("messages.away.description")}
           >
             <Textarea
               value={config.awayMessage ?? ""}
@@ -125,9 +127,9 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-title-sm font-medium text-ink">Business hours</h2>
+            <h2 className="text-title-sm font-medium text-ink">{t("businessHours.title")}</h2>
             <p className="mt-0.5 text-caption text-muted">
-              When disabled, the agent replies 24/7.
+              {t("businessHours.description")}
             </p>
           </div>
           <Switch
@@ -141,7 +143,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
 
         {config.businessHoursEnabled ? (
           <div className="mt-4 space-y-3">
-            <ChatWidgetSettingRow label="Timezone">
+            <ChatWidgetSettingRow label={t("businessHours.timezone")}>
               <input
                 value={config.timezone ?? "Africa/Casablanca"}
                 onChange={(e) => {
@@ -154,9 +156,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
 
             {config.businessHours
               ? (
-                  Object.keys(DAY_LABELS) as Array<
-                    keyof NonNullable<WhatsappChannelConfig["businessHours"]>
-                  >
+                  DAYS
                 ).map((day) => {
                   const schedule = config.businessHours![day];
                   return (
@@ -181,7 +181,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
                           markChanged();
                         }}
                       />
-                      <span className="w-24 text-caption text-ink">{DAY_LABELS[day]}</span>
+                      <span className="w-24 text-caption text-ink">{t(`businessHours.days.${day}`)}</span>
                       <input
                         type="time"
                         value={schedule.start}
@@ -202,7 +202,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
                         }}
                         className="rounded-md border border-hairline bg-surface-card px-2 py-1 text-caption"
                       />
-                      <span className="text-caption text-muted">to</span>
+                      <span className="text-caption text-muted">{t("businessHours.to")}</span>
                       <input
                         type="time"
                         value={schedule.end}
@@ -232,9 +232,9 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Profile</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("profile.title")}</h2>
         <div className="mt-4 space-y-4">
-          <ChatWidgetSettingRow label="About" description="Short line shown on your WhatsApp profile.">
+          <ChatWidgetSettingRow label={t("profile.about.label")} description={t("profile.about.description")}>
             <input
               value={config.profileAbout ?? ""}
               onChange={(e) => {
@@ -245,7 +245,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
               className={chatWidgetFieldInputClass}
             />
           </ChatWidgetSettingRow>
-          <ChatWidgetSettingRow label="Description">
+          <ChatWidgetSettingRow label={t("profile.description")}>
             <Textarea
               value={config.profileDescription ?? ""}
               onChange={(e) => {
@@ -263,9 +263,9 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-body-sm font-medium text-ink">Human handoff</p>
+            <p className="text-body-sm font-medium text-ink">{t("handoff.title")}</p>
             <p className="mt-0.5 text-caption text-muted">
-              Allow customers to request a live agent on WhatsApp.
+              {t("handoff.description")}
             </p>
           </div>
           <Switch
@@ -285,7 +285,7 @@ export function WhatsAppSettingsTab({ agentId, whatsappEnabled }: Props) {
         onClick={handleSave}
       >
         {isSaving ? <AppIcon icon={LoaderIcon} size={16} className="mr-2 size-4 animate-spin" /> : null}
-        Save settings
+        {t("saveSettings")}
       </Button>
     </div>
   );

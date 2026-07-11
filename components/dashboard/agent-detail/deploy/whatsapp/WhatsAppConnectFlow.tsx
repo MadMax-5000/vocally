@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon";
 import { CheckIcon, CircleIcon, LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
@@ -38,15 +39,6 @@ declare global {
   }
 }
 
-function formatDate(d: Date | null): string {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    hour12: false,
-  }).format(new Date(d));
-}
-
 function StepItem({ done, active, label }: { done: boolean; active: boolean; label: string }) {
   return (
     <li className="flex items-center gap-2.5 text-body-sm">
@@ -63,6 +55,8 @@ function StepItem({ done, active, label }: { done: boolean; active: boolean; lab
 }
 
 export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Props) {
+  const t = useTranslations("dashboard.deploy.messaging.whatsapp.connect");
+  const locale = useLocale();
   const [connectPending, startConnect] = useTransition();
   const [disconnectPending, startDisconnect] = useTransition();
   const [otpPending, startOtp] = useTransition();
@@ -81,6 +75,17 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     connection?.status === "PENDING" ||
     connectStep === "registering" ||
     connectStep === "meta";
+  const formatDate = useCallback(
+    (date: Date | null): string => {
+      if (!date) return "—";
+      return new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+        hour12: false,
+      }).format(new Date(date));
+    },
+    [locale],
+  );
 
   const loadFacebookSdk = useCallback(() => {
     const appId = process.env.NEXT_PUBLIC_META_APP_ID;
@@ -135,8 +140,8 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
 
       if (!json.success) {
         setConnectStep("failed");
-        setErrorMessage(json.error ?? "Could not connect WhatsApp");
-        toast.error(json.error ?? "Could not connect");
+        setErrorMessage(json.error ?? t("errors.couldNotConnectWhatsApp"));
+        toast.error(json.error ?? t("errors.couldNotConnect"));
         return;
       }
 
@@ -148,7 +153,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
 
       if (json.data?.status === "ONLINE") {
         setConnectStep("done");
-        toast.success("WhatsApp connected");
+        toast.success(t("toasts.connected"));
         await onSettingsRefresh();
         return;
       }
@@ -156,7 +161,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
       setConnectStep("registering");
       await onSettingsRefresh();
     },
-    [agentId, onSettingsRefresh, phoneNumber],
+    [agentId, onSettingsRefresh, phoneNumber, t],
   );
 
   useEffect(() => {
@@ -178,10 +183,10 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
           }
         } else if (data.event === "CANCEL") {
           setConnectStep("idle");
-          toast.message("WhatsApp setup cancelled");
+          toast.message(t("toasts.setupCancelled"));
         } else if (data.event === "ERROR") {
           setConnectStep("failed");
-          setErrorMessage(data.data?.error_message ?? "Meta signup failed");
+          setErrorMessage(data.data?.error_message ?? t("errors.metaSignupFailed"));
         }
       } catch {
         /* non-JSON message */
@@ -190,7 +195,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
 
     window.addEventListener("message", listener);
     return () => window.removeEventListener("message", listener);
-  }, [completeConnection]);
+  }, [completeConnection, t]);
 
   useEffect(() => {
     if (!isProvisioning || !connection) return;
@@ -205,17 +210,17 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     const solutionId = process.env.NEXT_PUBLIC_META_PARTNER_SOLUTION_ID;
 
     if (!configId || !solutionId) {
-      toast.error("WhatsApp signup is not configured on this deployment.");
+      toast.error(t("errors.signupNotConfigured"));
       return;
     }
 
     if (!phoneNumber.trim()) {
-      toast.error("Enter your WhatsApp Business phone number first.");
+      toast.error(t("errors.enterBusinessNumber"));
       return;
     }
 
     if (!window.FB) {
-      toast.error("Facebook SDK is still loading. Try again in a moment.");
+      toast.error(t("errors.sdkLoading"));
       return;
     }
 
@@ -258,10 +263,10 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
       });
       const json = (await res.json()) as { success: boolean; error?: string };
       if (!json.success) {
-        toast.error(json.error ?? "Invalid code");
+        toast.error(json.error ?? t("errors.invalidCode"));
         return;
       }
-      toast.success("Phone verified");
+      toast.success(t("toasts.phoneVerified"));
       setOtpCode("");
       setConnectStep("done");
       await onSettingsRefresh();
@@ -272,10 +277,10 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     startDisconnect(async () => {
       const result = await disconnectWhatsAppForAgent(agentId);
       if (!result.success) {
-        toast.error(result.error ?? "Could not disconnect");
+        toast.error(result.error ?? t("errors.couldNotDisconnect"));
         return;
       }
-      toast.success("WhatsApp disconnected");
+      toast.success(t("toasts.disconnected"));
       setPhoneNumber("");
       setConnectStep("idle");
       await onSettingsRefresh();
@@ -287,8 +292,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
       <div className="space-y-4">
         {connection.isLegacy ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-caption text-amber-800">
-            This connection uses the legacy setup. Reconnect to enable automatic webhook
-            configuration and sender management.
+            {t("legacyConnection")}
           </div>
         ) : null}
 
@@ -302,20 +306,22 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
               className="mt-0.5 size-7 shrink-0"
             />
             <div className="min-w-0 flex-1">
-              <p className="text-body-sm font-medium text-ink">Connected</p>
+              <p className="text-body-sm font-medium text-ink">{t("connected")}</p>
               <p className="mt-0.5 font-mono text-body-sm text-muted">{connection.twilioNumber}</p>
               <p className="mt-2 text-caption text-muted-soft">
-                Linked {formatDate(connection.connectedAt)}
+                {t("linked", { date: formatDate(connection.connectedAt) })}
               </p>
               {connection.qualityRating ? (
                 <p className="mt-1 text-caption text-muted-soft">
-                  Quality: {connection.qualityRating}
-                  {connection.messagingLimit ? ` · Limit: ${connection.messagingLimit}` : ""}
+                  {t("quality", { rating: connection.qualityRating })}
+                  {connection.messagingLimit
+                    ? t("messagingLimit", { limit: connection.messagingLimit })
+                    : ""}
                 </p>
               ) : null}
             </div>
             <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-              Online
+              {t("online")}
             </span>
           </div>
         </div>
@@ -332,7 +338,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
           ) : (
             <AppIcon icon={UnplugIcon} size={16} className="mr-2 size-4" />
           )}
-          Disconnect
+          {t("disconnect")}
         </Button>
       </div>
     );
@@ -342,12 +348,12 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     return (
       <div className="space-y-4">
         <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <h2 className="text-title-sm font-medium text-ink">Verify your phone number</h2>
+          <h2 className="text-title-sm font-medium text-ink">{t("verify.title")}</h2>
           <p className="mt-1 text-body-sm text-muted">
-            Meta sent a one-time code to {phoneNumber || connection?.twilioNumber}. Enter it below.
+            {t("verify.description", { number: phoneNumber || connection?.twilioNumber || "" })}
           </p>
           <div className="mt-4">
-            <ChatWidgetSettingRow label="Verification code">
+            <ChatWidgetSettingRow label={t("verify.code")}>
               <input
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
@@ -364,7 +370,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
             onClick={handleVerifyOtp}
           >
             {otpPending ? <AppIcon icon={LoaderIcon} size={16} className="mr-2 size-4 animate-spin" /> : null}
-            Verify code
+            {t("verify.submit")}
           </Button>
         </section>
       </div>
@@ -375,22 +381,22 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     return (
       <div className="space-y-4">
         <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <h2 className="text-title-sm font-medium text-ink">Connecting WhatsApp</h2>
+          <h2 className="text-title-sm font-medium text-ink">{t("connecting.title")}</h2>
           <ul className="mt-4 space-y-2.5">
             <StepItem
               done={connectStep !== "meta" && connectStep !== "idle"}
               active={connectStep === "meta"}
-              label="Verify with Meta"
+              label={t("connecting.verifyWithMeta")}
             />
             <StepItem
               done={connection?.status === "ONLINE"}
               active={connectStep === "registering" || connection?.status === "CREATING"}
-              label="Register sender with Twilio"
+              label={t("connecting.registerSender")}
             />
             <StepItem
               done={connection?.status === "ONLINE"}
               active={connection?.status === "CREATING"}
-              label="Activate WhatsApp number"
+              label={t("connecting.activateNumber")}
             />
           </ul>
           {connection?.statusMessage ? (
@@ -405,7 +411,7 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
     <div className="space-y-4">
       {!settings.connectAvailable ? (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-caption text-amber-800">
-          WhatsApp connect is not configured on this deployment. Contact your administrator.
+          {t("connectNotConfigured")}
         </div>
       ) : null}
 
@@ -421,18 +427,17 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
             <Image src="/svg/whatsapp-icon.svg" alt="" width={24} height={24} className="size-6" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-title-sm font-medium text-ink">Connect WhatsApp Business</h2>
+            <h2 className="text-title-sm font-medium text-ink">{t("setup.title")}</h2>
             <p className="mt-1 text-body-sm leading-relaxed text-muted">
-              Enter the phone number you use on WhatsApp Business. We&apos;ll verify ownership with
-              Meta and configure messaging automatically.
+              {t("setup.description")}
             </p>
           </div>
         </div>
 
         <div className="mt-4">
           <ChatWidgetSettingRow
-            label="WhatsApp Business number"
-            description="E.164 format, e.g. +212612345678"
+            label={t("setup.businessNumber")}
+            description={t("setup.businessNumberDescription")}
           >
             <input
               type="tel"
@@ -454,22 +459,22 @@ export function WhatsAppConnectFlow({ agentId, settings, onSettingsRefresh }: Pr
           {connectPending ? (
             <>
               <AppIcon icon={LoaderIcon} size={16} className="mr-2 size-4 animate-spin" />
-              Connecting…
+              {t("connecting.button")}
             </>
           ) : settings.sandboxMode ? (
-            "Connect sandbox"
+            t("setup.connectSandbox")
           ) : (
-            "Connect with WhatsApp"
+            t("setup.connectWithWhatsApp")
           )}
         </Button>
 
         {settings.sandboxMode ? (
           <p className="mt-3 text-caption text-muted-soft">
-            Sandbox mode: uses the platform Twilio sandbox number for testing.
+            {t("setup.sandboxDescription")}
           </p>
         ) : (
           <p className="mt-3 text-caption text-muted-soft">
-            You&apos;ll complete a short Meta verification popup to confirm business ownership.
+            {t("setup.verificationDescription")}
           </p>
         )}
       </section>

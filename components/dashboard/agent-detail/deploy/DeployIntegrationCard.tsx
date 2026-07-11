@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export function DeployIntegrationCard({
   comingSoon = false,
   toggling = false,
 }: DeployIntegrationCardProps) {
+  const t = useTranslations("dashboard.deploy");
   if (comingSoon) {
     return (
       <article
@@ -52,7 +54,7 @@ export function DeployIntegrationCard({
             <div className="flex min-w-0 flex-1 items-center gap-2">
               <h3 className="text-title-sm font-medium text-muted">{title}</h3>
               <span className="shrink-0 rounded-pill bg-canvas-soft px-2 py-0.5 text-xs text-muted-soft">
-                Coming soon
+                {t("common.comingSoon")}
               </span>
             </div>
           </div>
@@ -62,7 +64,7 @@ export function DeployIntegrationCard({
           </p>
 
           <p className="mt-3 text-right text-caption text-muted-soft">
-            Not available yet
+            {t("common.notAvailableYet")}
           </p>
         </div>
       </article>
@@ -102,13 +104,13 @@ export function DeployIntegrationCard({
 
       <div className="mt-3 flex items-center justify-end gap-2">
         <Link href={manageHref} className="btn-outline shrink-0">
-          Manage
+          {t("common.manage")}
         </Link>
         <Switch
           checked={enabled}
           disabled={toggling}
           onCheckedChange={onEnabledChange}
-          aria-label={`Enable ${title}`}
+          aria-label={t("integrationCard.enable", { title })}
         />
       </div>
     </article>

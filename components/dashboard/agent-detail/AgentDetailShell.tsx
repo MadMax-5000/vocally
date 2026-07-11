@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AGENT_DETAIL_TAB_IDS, AgentDetailTabs } from "./AgentDetailTabs";

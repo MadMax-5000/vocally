@@ -3,7 +3,8 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, CopyIcon, Eye, EyeOff, RefreshCwIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +56,8 @@ export function ApiSetupTab({
   onRegenerateToken,
   regenerating,
 }: ApiSetupTabProps) {
+  const t = useTranslations("dashboard.deploy.apiSetup");
+  const common = useTranslations("dashboard.deploy.common");
   const origin = useEmbedOrigin();
   const [showToken, setShowToken] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -81,40 +84,39 @@ export function ApiSetupTab({
   return (
     <div className="space-y-2">
       <div className="rounded-xl border border-hairline bg-canvas-soft/50 p-4">
-        <h3 className="text-title-sm font-medium text-ink">Prerequisites</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("prerequisites")}</h3>
         <p className="mt-1 text-body-sm text-muted">
-          External API calls require a public, active agent with API deployment enabled.
-          You can test from the Try panel before publishing.
+          {t("prerequisitesDescription")}
         </p>
         <ul className="mt-4 space-y-3">
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">Agent is public</span>
+            <span className="text-body-sm text-ink">{t("agentPublic")}</span>
             <div className="flex items-center gap-2">
               {!isPublic ? (
                 <Link
                   href={`/dashboard/agents/${agentId}?tab=agent`}
                   className="text-caption text-primary hover:underline"
                 >
-                  Set visibility
+                  {t("setVisibility")}
                 </Link>
               ) : null}
-              <StatusPill ok={isPublic} label={isPublic ? "Public" : "Private"} />
+              <StatusPill ok={isPublic} label={isPublic ? t("public") : t("private")} />
             </div>
           </li>
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">Agent is active</span>
-            <StatusPill ok={isActive} label={isActive ? "Active" : "Draft / inactive"} />
+            <span className="text-body-sm text-ink">{t("agentActive")}</span>
+            <StatusPill ok={isActive} label={isActive ? common("active") : t("draftInactive")} />
           </li>
           <li className="flex items-center justify-between gap-3">
-            <span className="text-body-sm text-ink">API deployment enabled</span>
-            <StatusPill ok={apiEnabled} label={apiEnabled ? "Enabled" : "Disabled"} />
+            <span className="text-body-sm text-ink">{t("deploymentEnabled")}</span>
+            <StatusPill ok={apiEnabled} label={apiEnabled ? common("enabled") : common("disabled")} />
           </li>
         </ul>
       </div>
 
       <ChatWidgetSettingRow
-        label="API key"
-        description="Use this key in the Authorization header. Keep it secret — rotate if exposed."
+        label={t("apiKey")}
+        description={t("apiKeyDescription")}
       >
         <div className="flex gap-2">
           <input
@@ -122,7 +124,7 @@ export function ApiSetupTab({
             type={showToken ? "text" : "password"}
             value={showToken ? apiToken : maskedToken}
             className={cn(chatWidgetFieldInputClass, "font-mono text-caption")}
-            aria-label="API key"
+            aria-label={t("apiKey")}
           />
           <Button
             type="button"
@@ -130,7 +132,7 @@ export function ApiSetupTab({
             size="icon"
             className="size-10 shrink-0 rounded-lg border-hairline"
             onClick={() => setShowToken((v) => !v)}
-            aria-label={showToken ? "Hide API key" : "Show API key"}
+            aria-label={showToken ? t("hideApiKey") : t("showApiKey")}
           >
             {showToken ? <AppIcon icon={EyeOff} className="size-4" /> : <AppIcon icon={Eye} className="size-4" />}
           </Button>
@@ -140,7 +142,7 @@ export function ApiSetupTab({
             size="icon"
             className="size-10 shrink-0 rounded-lg border-hairline"
             onClick={handleCopyToken}
-            aria-label="Copy API key"
+            aria-label={t("copyApiKey")}
           >
             {copied ? <AppIcon icon={CheckIcon} className="size-4" /> : <AppIcon icon={CopyIcon} className="size-4" />}
           </Button>
@@ -155,19 +157,19 @@ export function ApiSetupTab({
             onClick={() => setConfirmOpen(true)}
           >
             <AppIcon icon={RefreshCwIcon} className={cn("size-3.5", regenerating && "animate-spin")} />
-            {regenerating ? "Regenerating…" : "Regenerate key"}
+            {regenerating ? t("regenerating") : t("regenerateKey")}
           </Button>
         </div>
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Endpoint" noBorder>
+      <ChatWidgetSettingRow label={t("endpoint")} noBorder>
         <div className="rounded-lg border border-hairline bg-canvas-soft px-3 py-2.5">
           <p className="font-mono text-caption text-muted">
             <span className="font-semibold text-ink">POST</span> {endpointUrl}
           </p>
         </div>
         <p className="mt-2 text-caption text-muted">
-          Request body:{" "}
+          {t("requestBody")}{" "}
           <code className="rounded bg-surface-strong px-1 py-0.5 font-mono text-caption">
             {"{ \"message\": \"...\", \"sessionId\": \"...\" }"}
           </code>
@@ -177,10 +179,9 @@ export function ApiSetupTab({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Regenerate API key?</DialogTitle>
+            <DialogTitle>{t("regenerateTitle")}</DialogTitle>
             <DialogDescription>
-              The current key will stop working immediately. Update any integrations using the
-              old key.
+              {t("regenerateDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
@@ -190,14 +191,14 @@ export function ApiSetupTab({
               className="rounded-lg border-hairline"
               onClick={() => setConfirmOpen(false)}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="button"
               className="btn-primary rounded-lg"
               onClick={handleConfirmRegenerate}
             >
-              Regenerate
+              {t("regenerate")}
             </Button>
           </DialogFooter>
         </DialogContent>

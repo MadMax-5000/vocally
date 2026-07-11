@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { Link } from "@/i18n/routing"
+import { usePathname } from "@/i18n/routing"
+import { useTranslations } from "next-intl"
 
 import type { IconSvgElement } from "@/components/ui/app-icon"
 import { AppIcon } from "@/components/ui/app-icon"
@@ -46,16 +47,16 @@ function SidebarNavIcon({ icon }: { icon: SidebarIcon }) {
   return <AppIcon icon={icon as IconSvgElement} size={16} />
 }
 
-const operationsItems: { title: string; url: string; icon: IconSvgElement }[] = [
-  { title: "Inbox", url: "/dashboard/inbox", icon: Inbox },
-  { title: "Leads", url: "/dashboard/leads", icon: BriefcaseIcon },
-  { title: "Live monitor", url: "/dashboard/live", icon: Radio },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart2Icon },
+const operationsItems: { key: "inbox" | "leads" | "live" | "analytics"; url: string; icon: IconSvgElement }[] = [
+  { key: "inbox", url: "/dashboard/inbox", icon: Inbox },
+  { key: "leads", url: "/dashboard/leads", icon: BriefcaseIcon },
+  { key: "live", url: "/dashboard/live", icon: Radio },
+  { key: "analytics", url: "/dashboard/analytics", icon: BarChart2Icon },
 ]
 
-const workspaceItems: { title: string; url: string; icon: SidebarIcon }[] = [
-  { title: "Knowledge base", url: "/dashboard/knowledge", icon: KnowledgeIcon },
-  { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
+const workspaceItems: { key: "knowledge" | "billing"; url: string; icon: SidebarIcon }[] = [
+  { key: "knowledge", url: "/dashboard/knowledge", icon: KnowledgeIcon },
+  { key: "billing", url: "/dashboard/billing", icon: CreditCard },
 ]
 
 function SidebarBrand() {
@@ -95,6 +96,7 @@ function SidebarBrand() {
 }
 
 export function AppSidebar() {
+  const t = useTranslations("dashboard.nav")
   const pathname = usePathname()
   const { state, isMobile, openMobile } = useSidebar()
   const [escalationCount, setEscalationCount] = React.useState(0)
@@ -137,20 +139,20 @@ export function AppSidebar() {
         <SidebarAgentsSection />
 
         <SidebarGroup>
-          <SidebarGroupLabel>Operations</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("operations")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {operationsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}
+                    tooltip={t(item.key)}
                   >
                     <Link href={item.url} className="relative">
                       <SidebarNavIcon icon={item.icon} />
-                      <span>{item.title}</span>
-                      {item.title === "Inbox" &&
+                      <span>{t(item.key)}</span>
+                      {item.key === "inbox" &&
                         escalationCount > 0 &&
                         (isMobile ? openMobile : state === "expanded") && (
                         <span
@@ -169,19 +171,19 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("workspace")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {workspaceItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}
+                    tooltip={t(item.key)}
                   >
                     <Link href={item.url}>
                       <SidebarNavIcon icon={item.icon} />
-                      <span>{item.title}</span>
+                      <span>{t(item.key)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

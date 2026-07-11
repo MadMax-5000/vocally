@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { LoaderIcon, SendIcon } from "@/lib/icons/app-icons"
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { buildAgentChatApiUrl } from "@/lib/deploy/api-config";
@@ -29,6 +30,7 @@ type ApiResponse = {
 };
 
 export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
+  const t = useTranslations("dashboard.deploy.api");
   const origin = useEmbedOrigin();
   const [message, setMessage] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
       setLastResponse(JSON.stringify(json, null, 2));
 
       if (!res.ok || !json.success) {
-        const errMsg = json.error ?? `Request failed (${res.status})`;
+        const errMsg = json.error ?? t("requestFailed", { status: res.status });
         setError(errMsg);
         return;
       }
@@ -79,11 +81,11 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
         setTurns((prev) => [...prev, { role: "bot", content: botContent }]);
       }
     } catch {
-      setError("Network error — could not reach the API");
+      setError(t("networkError"));
     } finally {
       setLoading(false);
     }
-  }, [agentId, apiToken, loading, message, origin, sessionId]);
+  }, [agentId, apiToken, loading, message, origin, sessionId, t]);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -103,14 +105,14 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Try API</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("tryApi")}</h3>
         {sessionId || turns.length > 0 ? (
           <button
             type="button"
             onClick={handleReset}
             className="text-caption text-muted hover:text-ink"
           >
-            Reset session
+            {t("resetSession")}
           </button>
         ) : null}
       </div>
@@ -120,8 +122,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             {turns.length === 0 ? (
               <p className="text-body-sm text-muted">
-                Send a test message to preview API responses. Uses your dashboard session for
-                testing before the agent is public.
+                {t("empty")}
               </p>
             ) : (
               <div className="space-y-3">
@@ -141,7 +142,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
                 {loading ? (
                   <div className="flex items-center gap-2 text-body-sm text-muted">
                     <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
-                    Waiting for response…
+                    {t("waiting")}
                   </div>
                 ) : null}
               </div>
@@ -161,7 +162,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a test message…"
+              placeholder={t("messagePlaceholder")}
               rows={2}
               disabled={loading}
               className="min-h-[44px] flex-1 resize-none rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-body-sm focus-visible:border-ink focus-visible:outline-none focus-visible:ring-0"
@@ -171,7 +172,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
               className="btn-primary h-auto shrink-0 rounded-lg px-3"
               disabled={!message.trim() || loading}
               onClick={() => void sendMessage()}
-              aria-label="Send test message"
+              aria-label={t("sendMessage")}
             >
               {loading ? (
                 <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
@@ -190,7 +191,7 @@ export function ApiTryPanel({ agentId, apiToken }: ApiTryPanelProps) {
 
         {lastResponse ? (
           <div className="min-h-0 shrink-0">
-            <p className="mb-1.5 text-caption font-medium text-muted">Last response</p>
+            <p className="mb-1.5 text-caption font-medium text-muted">{t("lastResponse")}</p>
             <pre className="max-h-40 overflow-auto rounded-lg border border-hairline bg-canvas-soft p-3 font-mono text-caption text-muted">
               {lastResponse}
             </pre>

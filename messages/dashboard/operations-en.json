@@ -1,0 +1,43 @@
+{
+  "dashboard": {
+    "common": {
+      "sections": "Sections",
+      "couldNotLoadKnowledge": "Could not load knowledge base.",
+      "selectOrganizationFirst": "Select an organization first.",
+      "selectOrganizationInbox": "Select an organization to view the inbox.",
+      "selectOrganizationKnowledge": "Select an organization to manage your knowledge base.",
+      "selectOrganizationLive": "Select an organization to view the live monitor.",
+      "selectOrganizationLeads": "Select an organization to view leads.",
+      "loading": "Loading…",
+      "unableToLoadAnalytics": "Unable to load analytics",
+      "unableToLoadDashboardStats": "We couldn't load your dashboard stats.",
+      "goToAgents": "Go to Agents"
+    },
+    "inbox": {
+      "channels": {"voice": "Voice", "chat": "Chat", "sms": "SMS", "whatsApp": "WhatsApp", "email": "Email"},
+      "statuses": {"active": "Active", "waiting": "Waiting", "bot": "Bot", "human": "Human", "escalated": "Escalated", "claimed": "Claimed", "resolved": "Resolved", "abandoned": "Abandoned"},
+      "clear": "Clear", "notAvailableYet": "Not available yet", "allChannels": "All channels", "allStatuses": "All statuses", "allLanguages": "All languages", "allUsers": "All users", "unidentified": "Unidentified", "allAgents": "All agents", "unassigned": "Unassigned", "anyDuration": "Any duration", "underOneMinute": "Under 1 min", "oneToTenMinutes": "1–10 min", "overTenMinutes": "Over 10 min", "noDuration": "No duration", "anyRating": "Any rating", "underFifty": "Under 50", "noRating": "No rating", "allOutcomes": "All outcomes", "resolvedByAi": "Resolved by AI", "notResolvedByAi": "Not resolved by AI", "all": "All", "hasRecording": "Has recording", "noRecording": "No recording",
+      "conversationHistory": "Conversation history", "noConversationsYet": "No conversations yet", "conversationHistoryEmpty": "When customers reach out, their threads will show up in your conversation history here.", "searchConversations": "Search conversations…", "dateAfter": "Date After", "dateBefore": "Date Before", "callStatus": "Call status", "criteria": "Criteria", "data": "Data", "duration": "Duration", "rating": "Rating", "agent": "Agent", "language": "Language", "user": "User", "channel": "Channel", "filterActions": "Filter actions", "clearAllFilters": "Clear all filters", "conversationCount": "{count, plural, one {# conversation} other {# conversations}}", "noMatchingConversations": "No matching conversations", "clearFilters": "Clear filters", "title": "Title", "date": "Date", "messages": "Messages", "status": "Status", "noMessages": "No messages",
+      "today": "Today", "yesterday": "Yesterday", "noMessagesYet": "No messages yet", "customer": "Customer", "from": "From:", "emailChannel": "Channel:", "summary": "Summary:", "noEmailContent": "No email content available.", "loadingConversation": "Loading conversation…", "conversation": "Conversation", "escalationReason": "Escalation reason:", "supportTicket": "Support ticket", "couldNotLoadConversation": "Could not load conversation.", "edit": "Edit", "editSummary": "Edit summary…", "saving": "Saving…", "save": "Save", "cancel": "Cancel", "noSummaryYet": "No summary yet", "addSummary": "Add summary", "claimConversation": "Claim this conversation", "typeReply": "Type a reply…", "agentLabel": "Agent:",
+      "aiSummary": "AI Summary", "recording": "Recording", "metrics": "Metrics", "sentiment": "Sentiment", "qaScore": "QA Score", "transcript": "Transcript", "positive": "Positive", "neutral": "Neutral", "negative": "Negative", "browserAudioUnsupported": "Your browser does not support the audio element."
+    },
+    "knowledge": {
+      "documentIdCopied": "Document ID copied", "failedToCopy": "Failed to copy", "comingSoon": "Coming soon", "documentDeleted": "Document deleted", "deleteFailed": "Delete failed", "documentActions": "Document actions", "copyDocumentId": "Copy document ID", "shareDocument": "Share document", "deleteDocument": "Delete document", "knowledgeBase": "Knowledge Base", "indexedStorage": "Indexed source storage for this workspace", "ragStorage": "RAG Storage:", "addUrl": "Add URL", "addFiles": "Add Files", "createText": "Create Text", "createFolder": "Create Folder", "searchKnowledgeBase": "Search Knowledge Base...", "type": "Type", "allTypes": "All types", "folder": "Folder", "file": "File", "text": "Text", "creator": "Creator", "allCreators": "All creators", "noDocumentsFound": "No documents found", "noDocumentsYet": "You don't have any documents yet.", "selectAllDocuments": "Select all documents", "name": "Name", "createdBy": "Created by", "lastUpdated": "Last updated", "selectDocument": "Select {title}", "urlAdded": "URL added", "filesUploaded": "Files uploaded", "textDocumentCreated": "Text document created", "folderCreated": "Folder created", "current": "Current", "parentFolder": "Parent folder", "urlImportType": "URL import type", "singleUrl": "Single URL", "sitemap": "Sitemap", "wholeWebsite": "Whole Website", "sitemapHelp": "Get the sitemap for this URL and decide what pages to crawl. Max pages fetched: 1,000.", "pattern": "Pattern", "sitemapPatternHelp": "Only include sitemap URLs that match this pattern. All URLs are included if left empty.", "crawlDepth": "Crawl depth", "crawlDepthHelp": "Control how deep the crawler will follow links from the starting URL.", "maxUrls": "Max number of URLs", "maxUrlsHelp": "Limit the no. of unique URLs to crawl from the website. Max: 10,000.", "websitePatternHelp": "Only follow URLs that match this pattern. All URLs included if left empty.", "importedPages": "Imported {count} pages", "urlImported": "URL imported successfully", "importSitemap": "Import Sitemap", "crawlWebsite": "Crawl Website", "fetching": "Fetching…", "importingPages": "Importing pages…", "addAtLeastOneFile": "Add at least one file", "dragFiles": "Drag and drop files here", "orBrowse": "or browse from your computer", "supportedFormats": "Supported formats: PDF, DOCX, TXT", "removeFile": "Remove {name}", "upload": "Upload{count, plural, =0 {} other { (#)}}", "documentTitle": "Document title", "enterTitle": "Enter title", "content": "Content", "knowledgeTextPlaceholder": "Write or paste your knowledge text here…", "saveDocument": "Save Document", "folderName": "Folder name", "folderNamePlaceholder": "Enter a name for your folder"
+    },
+    "productAssistant": {
+      "fallbackName": "there",
+      "welcomeMessage": "Hi {firstName}! I'm your Vocally product assistant. Ask me anything about features, setup, billing, or troubleshooting.",
+      "agentName": "Ask Vocally",
+      "placeholder": "Ask about Vocally...",
+      "contactSupport": "Contact Support",
+      "suggestions": {"createAgent": "How do I create my first AI agent?", "plans": "What plans do you offer?", "connectTwilio": "How do I connect Twilio?", "deployWidget": "How do I deploy the chat widget?", "knowledgeBase": "How does the knowledge base work?"}
+    },
+    "home": {
+      "greetings": {"morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening"},
+      "activeCalls": "Active calls:",
+      "chartTabs": {"count": "Number of calls", "avgDuration": "Average duration", "totalCost": "Total cost", "avgCost": "Average cost", "totalLlmCost": "Total LLM cost", "avgLlmCost": "Average LLM cost"},
+      "credits": "{count} credits", "moreInfo": "More info", "linearScale": "Linear scale", "download": "Download", "noDataCollected": "No data has been collected", "filter": "Filter", "all": "All", "filteredCallHistory": "Filtered call history", "overallSuccessRate": "Overall Success Rate", "averageCsatRating": "Average CSAT Rating", "agentResponseTime": "Agent Response Time", "totalConversationDuration": "Total Conversation Duration", "sessionsByChannel": "Sessions by Channel", "sessions": "Sessions", "noChannelData": "No channel data available",
+      "channels": {"voice": "Voice", "chat": "Chat", "sms": "SMS", "whatsapp": "WhatsApp", "email": "Email"}
+    }
+  }
+}

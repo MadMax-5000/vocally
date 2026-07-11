@@ -13,6 +13,7 @@ import {
 } from "recharts";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import {
   getAgentAnalytics,
   type AgentAnalytics,
@@ -56,6 +57,7 @@ function MetricCard({
 }
 
 export function AgentDetailAnalyticsTab({ agentId }: Props) {
+  const t = useTranslations("dashboard.analytics");
   const [data, setData] = React.useState<AgentAnalytics | null>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -70,7 +72,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-body-sm text-muted">Loading analytics…</p>
+        <p className="text-body-sm text-muted">{t("loading")}</p>
       </div>
     );
   }
@@ -79,7 +81,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AppIcon icon={BarChart2Icon} className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
-        <p className="text-body-sm text-muted">Could not load analytics</p>
+        <p className="text-body-sm text-muted">{t("failed")}</p>
       </div>
     );
   }
@@ -90,7 +92,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AppIcon icon={BarChart2Icon} className="mb-3 h-8 w-8 text-muted-soft" strokeWidth={1.25} />
-        <p className="text-body-sm text-muted">No sessions handled yet</p>
+        <p className="text-body-sm text-muted">{t("noSessions")}</p>
       </div>
     );
   }
@@ -111,13 +113,13 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
     <div className="flex flex-col gap-4">
       {/* KPI grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <MetricCard label="Sessions Handled" value={data.totalSessions} />
+        <MetricCard label={t("sessionsHandled")} value={data.totalSessions} />
         <MetricCard
-          label="Resolution Rate"
+          label={t("resolutionRate")}
           value={`${data.aiResolutionRate.toFixed(1)}%`}
         />
         <MetricCard
-          label="Avg Sentiment"
+          label={t("avgSentiment")}
           value={
             data.averageSentiment != null
               ? data.averageSentiment.toFixed(2)
@@ -125,11 +127,11 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
           }
         />
         <MetricCard
-          label="Avg Duration"
+          label={t("avgDuration")}
           value={formatDuration(data.averageDuration)}
         />
         <MetricCard
-          label="Avg QA Score"
+          label={t("avgQaScore")}
           value={
             data.averageQaScore != null
               ? `${data.averageQaScore.toFixed(1)}`
@@ -137,7 +139,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
           }
         />
         <MetricCard
-          label="Total Cost"
+          label={t("totalCost")}
           value={`$${data.totalCost.toFixed(2)}`}
         />
       </div>
@@ -146,7 +148,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
       <Card className="overflow-hidden rounded-xl border-hairline bg-surface-card">
         <CardContent className="p-4">
           <span className="text-body-sm font-medium text-ink">
-            Sessions (Last 14 Days)
+            {t("sessionsLast14")}
           </span>
           <div className="mt-2 h-[160px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -207,7 +209,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
         <Card className="overflow-hidden rounded-xl border-hairline bg-surface-card">
           <CardContent className="p-4">
             <span className="text-body-sm font-medium text-ink">
-              Resolution Rate (Last 14 Days)
+              {t("resolutionLast14")}
             </span>
             <div className="mt-2 h-[120px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -272,7 +274,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
         <Card className="overflow-hidden rounded-xl border-hairline bg-surface-card">
           <CardContent className="p-4">
             <span className="text-body-sm font-medium text-ink">
-              Sessions by Channel
+              {t("sessionsByChannel")}
             </span>
             <div className="mt-3 flex flex-col gap-1.5">
               {data.sessionsByChannel.map((entry) => {

@@ -3,7 +3,8 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { Library, Globe, LoaderIcon, SearchIcon, TypeIcon, UploadIcon, FolderPlus, FileText, FolderOpen, FolderIcon, MoreHorizontal } from "@/lib/icons/app-icons"
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 
 import type {
@@ -58,9 +59,9 @@ const kbModalPrimaryClass =
 
 type TypeFilter = "all" | "folder" | "URL" | "FILE" | "TEXT";
 
-function formatRowDate(iso: string): string {
+function formatRowDate(iso: string, locale: string): string {
     try {
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat(locale, {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -79,26 +80,27 @@ function DocActionsSelect({
     docId: string;
     onDeleteSuccess: () => void;
 }) {
+    const t = useTranslations("dashboard.knowledge");
     async function handleCopyId() {
         try {
             await navigator.clipboard.writeText(docId);
-            toast.success("Document ID copied");
+            toast.success(t("documentIdCopied"));
         } catch {
-            toast.error("Failed to copy");
+            toast.error(t("failedToCopy"));
         }
     }
 
     function handleShare() {
-        toast.message("Coming soon");
+        toast.message(t("comingSoon"));
     }
 
     async function handleDelete() {
         const res = await deleteKnowledgeDoc(docId);
         if (res.success) {
-            toast.success("Document deleted");
+            toast.success(t("documentDeleted"));
             onDeleteSuccess();
         } else {
-            toast.error(res.error ?? "Delete failed");
+            toast.error(res.error ?? t("deleteFailed"));
         }
     }
 
@@ -107,7 +109,7 @@ function DocActionsSelect({
             <DropdownMenuTrigger asChild>
                 <button
                     type="button"
-                    aria-label="Document actions"
+                    aria-label={t("documentActions")}
                     className="flex h-9 w-9 items-center justify-center rounded-md border border-transparent bg-transparent p-0 shadow-none hover:bg-canvas-soft focus-visible:ring-2 focus-visible:ring-hairline-strong/10"
                 >
                     <AppIcon icon={MoreHorizontal} className="h-5 w-5 text-muted" aria-hidden />
@@ -115,16 +117,16 @@ function DocActionsSelect({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-[10rem] rounded-xl border-hairline">
                 <DropdownMenuItem onClick={handleCopyId}>
-                    Copy document ID
+                    {t("copyDocumentId")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleShare}>
-                    Share document
+                    {t("shareDocument")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={handleDelete}
                     className="text-semantic-error focus:text-semantic-error"
                 >
-                    Delete document
+                    {t("deleteDocument")}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -140,6 +142,8 @@ export function KnowledgeBaseClient({
 }: {
     initial: KnowledgeDashboardPayload;
 }) {
+    const t = useTranslations("dashboard.knowledge");
+    const locale = useLocale();
     const router = useRouter();
     const [, startTransition] = React.useTransition();
 
@@ -231,19 +235,19 @@ export function KnowledgeBaseClient({
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-                        Knowledge Base
+                        {t("knowledgeBase")}
                     </h1>
                     <KnowledgeIcon className="h-4 w-4 text-muted" aria-hidden />
                 </div>
                 <div
                     className="inline-flex items-center gap-2 rounded-pill border border-hairline bg-surface-card px-3 py-1 text-caption text-body"
-                    title="Indexed source storage for this workspace"
+                    title={t("indexedStorage")}
                 >
                     <span
                         className="h-2 w-2 shrink-0 rounded-full bg-semantic-success"
                         aria-hidden
                     />
-                    <span className="text-muted">RAG Storage:</span>
+                    <span className="text-muted">{t("ragStorage")}</span>
                     <span className="font-semibold text-ink">{usedStr}</span>
                     <span className="text-muted">/</span>
                     <span className="text-body">{quotaStr}</span>
@@ -254,22 +258,22 @@ export function KnowledgeBaseClient({
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 max-w-xl">
                 <ActionCard
                     icon={<AppIcon icon={Globe} className="h-5 w-5 text-ink" />}
-                    label="Add URL"
+                    label={t("addUrl")}
                     onClick={() => setOpenUrl(true)}
                 />
                 <ActionCard
                     icon={<AppIcon icon={FileText} className="h-5 w-5 text-ink" />}
-                    label="Add Files"
+                    label={t("addFiles")}
                     onClick={() => setOpenFiles(true)}
                 />
                 <ActionCard
                     icon={<AppIcon icon={TypeIcon} className="h-5 w-5 text-ink" />}
-                    label="Create Text"
+                    label={t("createText")}
                     onClick={() => setOpenText(true)}
                 />
                 <ActionCard
                     icon={<AppIcon icon={FolderPlus} className="h-5 w-5 text-ink" />}
-                    label="Create Folder"
+                    label={t("createFolder")}
                     onClick={() => setOpenFolder(true)}
                 />
             </div>
@@ -283,7 +287,7 @@ export function KnowledgeBaseClient({
                     aria-hidden
                 />
                 <Input
-                    placeholder="Search Knowledge Base..."
+                    placeholder={t("searchKnowledgeBase")}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
@@ -299,20 +303,20 @@ export function KnowledgeBaseClient({
                             size="sm"
                             className="h-8 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
                         >
-                            + Type
+                            + {t("type")}
                             {typeFilter !== "all" ? ` (${typeFilter})` : ""}
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-[10rem] rounded-xl border-hairline">
                         <DropdownMenuItem onClick={() => setTypeFilter("all")}>
-                            All types
+                            {t("allTypes")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setTypeFilter("folder")}>
-                            Folder
+                            {t("folder")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => setTypeFilter("URL")}>URL</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>File</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>Text</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>{t("file")}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>{t("text")}</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <DropdownMenu>
@@ -322,13 +326,13 @@ export function KnowledgeBaseClient({
                             size="sm"
                             className="h-8 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
                         >
-                            + Creator
+                            + {t("creator")}
                             {creatorFilter !== "all" ? ` (${creatorFilter})` : ""}
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="min-w-[12rem] rounded-xl border-hairline">
                         <DropdownMenuItem onClick={() => setCreatorFilter("all")}>
-                            All creators
+                            {t("allCreators")}
                         </DropdownMenuItem>
                         {creators.map((c) => (
                             <DropdownMenuItem key={c} onClick={() => setCreatorFilter(c)}>
@@ -345,9 +349,9 @@ export function KnowledgeBaseClient({
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
                         <AppIcon icon={Library} className="h-6 w-6 text-ink" aria-hidden />
                     </div>
-                    <h3 className="text-base font-semibold text-ink">No documents found</h3>
+                    <h3 className="text-base font-semibold text-ink">{t("noDocumentsFound")}</h3>
                     <p className="mt-1 max-w-sm text-body-sm text-muted">
-                        You don&apos;t have any documents yet.
+                        {t("noDocumentsYet")}
                     </p>
                 </div>
             ) : (
@@ -356,7 +360,7 @@ export function KnowledgeBaseClient({
                     <TableRow className="border-b border-hairline hover:bg-transparent">
                         <TableHead className="w-[36px] px-3 py-2">
                             <Checkbox
-                                aria-label="Select all documents"
+                                aria-label={t("selectAllDocuments")}
                                 className="data-[state=checked]:bg-ink data-[state=checked]:border-ink data-[state=checked]:text-white"
                                 checked={
                                     allVisibleSelected
@@ -371,13 +375,13 @@ export function KnowledgeBaseClient({
                             />
                         </TableHead>
                         <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
-                            Name
+                            {t("name")}
                         </TableHead>
                         <TableHead className="px-3 py-2 text-body-sm font-medium text-muted">
-                            Created by
+                            {t("createdBy")}
                         </TableHead>
                         <TableHead className="px-3 py-2 text-right text-body-sm font-medium text-muted">
-                            Last updated
+                            {t("lastUpdated")}
                         </TableHead>
                         <TableHead className="w-[44px] px-3 py-2" />
                     </TableRow>
@@ -400,7 +404,7 @@ export function KnowledgeBaseClient({
                                     —
                                 </TableCell>
                                 <TableCell className="px-3 py-2 text-right text-caption text-muted">
-                                    {formatRowDate(row.updatedAt)}
+                                    {formatRowDate(row.updatedAt, locale)}
                                 </TableCell>
                                 <TableCell className="px-3 py-2" />
                             </TableRow>
@@ -411,7 +415,7 @@ export function KnowledgeBaseClient({
                             >
                                 <TableCell className="px-3 py-2">
                                     <Checkbox
-                                        aria-label={`Select ${row.title}`}
+                                        aria-label={t("selectDocument", { title: row.title })}
                                         className="data-[state=checked]:bg-ink data-[state=checked]:border-ink data-[state=checked]:text-white"
                                         checked={selectedDocIds.has(row.id)}
                                         onCheckedChange={(v) => {
@@ -448,7 +452,7 @@ export function KnowledgeBaseClient({
                                     {row.creatorEmail}
                                 </TableCell>
                                 <TableCell className="px-3 py-2 text-right text-caption text-muted">
-                                    {formatRowDate(row.updatedAt)}
+                                    {formatRowDate(row.updatedAt, locale)}
                                 </TableCell>
                                 <TableCell className="px-3 py-2 text-right">
                                     <DocActionsSelect docId={row.id} onDeleteSuccess={refresh} />
@@ -465,25 +469,25 @@ export function KnowledgeBaseClient({
                 open={openUrl}
                 onOpenChange={setOpenUrl}
                 folders={initial.folders}
-                onSuccess={() => { toast.success("URL added"); refresh(); }}
+                onSuccess={() => { toast.success(t("urlAdded")); refresh(); }}
             />
             <FilesDialog
                 open={openFiles}
                 onOpenChange={setOpenFiles}
                 folders={initial.folders}
-                onSuccess={() => { toast.success("Files uploaded"); refresh(); }}
+                onSuccess={() => { toast.success(t("filesUploaded")); refresh(); }}
             />
             <TextDialog
                 open={openText}
                 onOpenChange={setOpenText}
                 folders={initial.folders}
-                onSuccess={() => { toast.success("Text document created"); refresh(); }}
+                onSuccess={() => { toast.success(t("textDocumentCreated")); refresh(); }}
             />
             <FolderDialog
                 open={openFolder}
                 onOpenChange={setOpenFolder}
                 folders={initial.folders}
-                onSuccess={() => { toast.success("Folder created"); refresh(); }}
+                onSuccess={() => { toast.success(t("folderCreated")); refresh(); }}
             />
         </div>
     );
@@ -527,7 +531,7 @@ function FolderSelect({
     value,
     onChange,
     folders,
-    rootLabel = "Knowledge Base",
+    rootLabel,
 }: {
     id?: string;
     value: string;
@@ -535,13 +539,15 @@ function FolderSelect({
     folders: KnowledgeDashboardPayload["folders"];
     rootLabel?: string;
 }) {
+    const t = useTranslations("dashboard.knowledge");
+    const resolvedRootLabel = rootLabel ?? t("knowledgeBase");
     if (folders.length === 0) {
         return (
             <div className="flex h-8 items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 text-sm text-muted-foreground">
                 <AppIcon icon={FolderIcon} className="size-4 shrink-0 text-muted" aria-hidden />
-                <span>{rootLabel}</span>
+                <span>{resolvedRootLabel}</span>
                 <span className="rounded-xs bg-accent px-1.5 py-0.5 text-xs text-muted-foreground">
-                    Current
+                    {t("current")}
                 </span>
             </div>
         );
@@ -554,16 +560,16 @@ function FolderSelect({
             <SelectTrigger id={id} className="w-full">
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                     <AppIcon icon={FolderIcon} className="size-4 shrink-0 text-muted" aria-hidden />
-                    <SelectValue placeholder={rootLabel} />
+                    <SelectValue placeholder={resolvedRootLabel} />
                     {resolved === "__none__" ? (
                         <span className="rounded-xs bg-accent px-1.5 py-0.5 text-xs text-muted-foreground">
-                            Current
+                            {t("current")}
                         </span>
                     ) : null}
                 </div>
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="__none__">{rootLabel}</SelectItem>
+                <SelectItem value="__none__">{resolvedRootLabel}</SelectItem>
                 {folders.map((f) => (
                     <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                 ))}
@@ -598,6 +604,7 @@ function UrlDialog({
     folders: KnowledgeDashboardPayload["folders"];
     onSuccess: () => void;
 }) {
+    const t = useTranslations("dashboard.knowledge");
     const [busy, setBusy] = React.useState(false);
     const [tab, setTab] = React.useState<UrlTab>("single");
     const [url, setUrl] = React.useState("");
@@ -640,12 +647,12 @@ function UrlDialog({
             }
             const pages = res.pagesImported;
             if (pages && pages > 1) {
-                toast.success(`Imported ${pages} pages`);
+                toast.success(t("importedPages", { count: pages }));
                 if ("warning" in res && res.warning) {
                     toast.warning(res.warning);
                 }
             } else {
-                toast.success("URL imported successfully");
+                toast.success(t("urlImported"));
             }
             onOpenChange(false);
             onSuccess();
@@ -656,23 +663,23 @@ function UrlDialog({
 
     const segmentIds = React.useMemo(() => ["single", "sitemap", "website"] as const, []);
 
-    const submitLabel = tab === "single" ? "Add URL" : tab === "sitemap" ? "Import Sitemap" : "Crawl Website";
+    const submitLabel = tab === "single" ? t("addUrl") : tab === "sitemap" ? t("importSitemap") : t("crawlWebsite");
 
-    const busyLabel = busy ? (tab === "single" ? "Fetching…" : "Importing pages…") : submitLabel;
+    const busyLabel = busy ? (tab === "single" ? t("fetching") : t("importingPages")) : submitLabel;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-                <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title="Add URL" />
+                <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title={t("addUrl")} />
                 <div
                     className="mb-4 inline-flex h-10 items-center rounded-lg bg-surface-strong p-1"
                     role="tablist"
-                    aria-label="URL import type"
+                    aria-label={t("urlImportType")}
                 >
                     {[
-                        { id: "single" as const, label: "Single URL" },
-                        { id: "sitemap" as const, label: "Sitemap" },
-                        { id: "website" as const, label: "Whole Website" },
+                        { id: "single" as const, label: t("singleUrl") },
+                        { id: "sitemap" as const, label: t("sitemap") },
+                        { id: "website" as const, label: t("wholeWebsite") },
                     ].map(({ id, label }) => (
                         <button
                             key={id}
@@ -706,7 +713,7 @@ function UrlDialog({
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-url-folder" className="text-body-sm font-medium text-body-strong">
-                            Parent folder
+                            {t("parentFolder")}
                         </Label>
                         <FolderSelect
                             id="kb-url-folder"
@@ -730,7 +737,7 @@ function UrlDialog({
                         />
                         {tab === "sitemap" && (
                             <p className="text-caption text-muted">
-                                Get the sitemap for this URL and decide what pages to crawl. Max pages fetched: 1,000.
+                                {t("sitemapHelp")}
                             </p>
                         )}
                     </div>
@@ -738,7 +745,7 @@ function UrlDialog({
                     {tab === "sitemap" && (
                         <div className="space-y-1.5">
                             <Label htmlFor="kb-sitemap-pattern" className="text-body-sm font-medium text-body-strong">
-                                Pattern
+                                {t("pattern")}
                             </Label>
                             <Input
                                 id="kb-sitemap-pattern"
@@ -747,7 +754,7 @@ function UrlDialog({
                                 placeholder="*/blog/*"
                             />
                             <p className="text-caption text-muted">
-                                Only include sitemap URLs that match this pattern. All URLs are included if left empty.
+                                {t("sitemapPatternHelp")}
                             </p>
                         </div>
                     )}
@@ -756,10 +763,10 @@ function UrlDialog({
                         <>
                             <div className="space-y-1.5">
                                 <Label className="text-body-sm font-medium text-body-strong">
-                                    Crawl depth
+                                    {t("crawlDepth")}
                                 </Label>
                                 <p className="text-caption text-muted">
-                                    Control how deep the crawler will follow links from the starting URL.
+                                    {t("crawlDepthHelp")}
                                 </p>
                                 <div className="inline-flex rounded-lg bg-surface-strong p-0.5" role="radiogroup">
                                     {[1, 2, 3, 4, 5].map((d) => (
@@ -784,7 +791,7 @@ function UrlDialog({
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="kb-website-maxurls" className="text-body-sm font-medium text-body-strong">
-                                    Max number of URLs
+                                    {t("maxUrls")}
                                 </Label>
                                 <Input
                                     id="kb-website-maxurls"
@@ -795,13 +802,13 @@ function UrlDialog({
                                     max={10000}
                                 />
                                 <p className="text-caption text-muted">
-                                    Limit the no. of unique URLs to crawl from the website. Max: 10,000.
+                                    {t("maxUrlsHelp")}
                                 </p>
                             </div>
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="kb-website-pattern" className="text-body-sm font-medium text-body-strong">
-                                    Pattern
+                                {t("pattern")}
                                 </Label>
                                 <Input
                                     id="kb-website-pattern"
@@ -810,7 +817,7 @@ function UrlDialog({
                                     placeholder="*/blog/*"
                                 />
                                 <p className="text-caption text-muted">
-                                    Only follow URLs that match this pattern. All URLs included if left empty.
+                                    {t("websitePatternHelp")}
                                 </p>
                             </div>
                         </>
@@ -849,6 +856,7 @@ function FilesDialog({
     folders: KnowledgeDashboardPayload["folders"];
     onSuccess: () => void;
 }) {
+    const t = useTranslations("dashboard.knowledge");
     const [busy, setBusy] = React.useState(false);
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [files, setFiles] = React.useState<File[]>([]);
@@ -874,7 +882,7 @@ function FilesDialog({
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (!files.length) { toast.error("Add at least one file"); return; }
+        if (!files.length) { toast.error(t("addAtLeastOneFile")); return; }
         setBusy(true);
         try {
             const fd = new FormData();
@@ -890,12 +898,12 @@ function FilesDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-                <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title="Add Files" />
+                <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title={t("addFiles")} />
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-files-folder" className="text-body-sm font-medium text-body-strong">
-                            Parent folder
+                            {t("parentFolder")}
                         </Label>
                         <FolderSelect
                             id="kb-files-folder"
@@ -929,14 +937,13 @@ function FilesDialog({
                     >
                         <AppIcon icon={UploadIcon} className="mb-3 h-8 w-8 text-muted" aria-hidden />
                         <p className="text-body-sm text-body">
-                            Drag and drop files here
+                            {t("dragFiles")}
                         </p>
                         <p className="mt-1 text-caption text-muted">
-                            or{" "}
-                            <span className="font-medium text-ink underline underline-offset-2">browse</span> from your computer
+                            {t("orBrowse")}
                         </p>
                         <p className="mt-2 text-caption text-muted-soft">
-                            Supported formats: PDF, DOCX, TXT
+                            {t("supportedFormats")}
                         </p>
                         <input
                             ref={inputRef}
@@ -970,7 +977,7 @@ function FilesDialog({
                                             removeFile(i);
                                         }}
                                         className="h-6 w-6 shrink-0 rounded-md text-muted-soft opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
-                                        aria-label={`Remove ${f.name}`}
+                                        aria-label={t("removeFile", { name: f.name })}
                                     >
                                         ×
                                     </button>
@@ -989,7 +996,7 @@ function FilesDialog({
                                 {busy ? (
                                     <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" />
                                 ) : (
-                                    `Upload${files.length ? ` (${files.length})` : ""}`
+                                    t("upload", { count: files.length })
                                 )}
                             </Button>
                         </div>
@@ -1015,6 +1022,7 @@ function TextDialog({
     folders: KnowledgeDashboardPayload["folders"];
     onSuccess: () => void;
 }) {
+    const t = useTranslations("dashboard.knowledge");
     const [busy, setBusy] = React.useState(false);
     const [title, setTitle] = React.useState("");
     const [content, setContent] = React.useState("");
@@ -1052,12 +1060,12 @@ function TextDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[520px]">
-                <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title="Create Text" />
+                <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title={t("createText")} />
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-text-folder" className="text-body-sm font-medium text-body-strong">
-                            Parent folder
+                            {t("parentFolder")}
                         </Label>
                         <FolderSelect
                             id="kb-text-folder"
@@ -1068,19 +1076,19 @@ function TextDialog({
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-text-title" className="text-body-sm font-medium text-body-strong">
-                            Document title
+                            {t("documentTitle")}
                         </Label>
                         <Input
                             id="kb-text-title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter title"
+                            placeholder={t("enterTitle")}
                             required
                         />
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-text-body" className="text-body-sm font-medium text-body-strong">
-                            Content
+                            {t("content")}
                         </Label>
                         <Textarea
                             id="kb-text-body"
@@ -1088,7 +1096,7 @@ function TextDialog({
                             onChange={(e) => setContent(e.target.value)}
                             required
                             rows={8}
-                            placeholder="Write or paste your knowledge text here…"
+                            placeholder={t("knowledgeTextPlaceholder")}
                             className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
                         />
                     </div>
@@ -1096,7 +1104,7 @@ function TextDialog({
                     <div className="border-t border-hairline pt-3">
                         <div className="flex justify-end">
                             <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
-                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : "Save Document"}
+                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : t("saveDocument")}
                             </Button>
                         </div>
                     </div>
@@ -1121,6 +1129,7 @@ function FolderDialog({
     folders: KnowledgeDashboardPayload["folders"];
     onSuccess: () => void;
 }) {
+    const t = useTranslations("dashboard.knowledge");
     const [busy, setBusy] = React.useState(false);
     const [name, setName] = React.useState("");
     const [parentFolderId, setParentFolderId] = React.useState("__none__");
@@ -1156,13 +1165,13 @@ function FolderDialog({
             <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
                 <ModalHeader
                     icon={<AppIcon icon={FolderPlus} className="h-5 w-5" aria-hidden />}
-                    title="Create Folder"
+                    title={t("createFolder")}
                 />
 
                 <form onSubmit={onSubmit} className="space-y-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-folder-parent" className="text-body-sm font-medium text-body-strong">
-                            Parent folder
+                            {t("parentFolder")}
                         </Label>
                         <FolderSelect
                             id="kb-folder-parent"
@@ -1173,13 +1182,13 @@ function FolderDialog({
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="kb-folder-name" className="text-body-sm font-medium text-body-strong">
-                            Folder name
+                            {t("folderName")}
                         </Label>
                         <Input
                             id="kb-folder-name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Enter a name for your folder"
+                            placeholder={t("folderNamePlaceholder")}
                             required
                         />
                     </div>
@@ -1187,7 +1196,7 @@ function FolderDialog({
                     <div className="border-t border-hairline pt-3">
                         <div className="flex justify-end">
                             <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
-                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : "Create Folder"}
+                                {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : t("createFolder")}
                             </Button>
                         </div>
                     </div>

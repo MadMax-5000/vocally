@@ -1,10 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
+import { defaultLocale } from './i18n/config';
+import { getRequestLocale } from "./lib/i18n/request-locale";
 
 const handleI18nRouting = createMiddleware(routing);
 
-const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isLocalizedDashboardRoute = createRouteMatcher(["/(fr|en|ar)/dashboard(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/(fr|en|ar)/onboarding", "/onboarding"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)", "/api/cron(.*)"]);
 
@@ -25,12 +27,20 @@ export default clerkMiddleware(async (auth, req) => {
 
   const session = await auth();
 
-  if (isProtectedRoute(req)) {
+  if (req.nextUrl.pathname === "/dashboard" || req.nextUrl.pathname.startsWith("/dashboard/")) {
+    const locale = getRequestLocale(req.headers);
+    const url = req.nextUrl.clone();
+    url.pathname = `/${locale}${req.nextUrl.pathname}`;
+    return Response.redirect(url, 308);
+  }
+
+  if (isLocalizedDashboardRoute(req)) {
     if (!session.userId) {
       return session.redirectToSignIn({ returnBackUrl: req.url });
     }
     if (!session.orgId) {
-      return Response.redirect(new URL("/fr/onboarding", req.url));
+      const locale = req.nextUrl.pathname.split("/")[1] ?? defaultLocale;
+      return Response.redirect(new URL(`/${locale}/onboarding`, req.url));
     }
     return;
   }
@@ -40,7 +50,8 @@ export default clerkMiddleware(async (auth, req) => {
       return session.redirectToSignIn({ returnBackUrl: req.url });
     }
     if (session.orgId) {
-      return Response.redirect(new URL("/dashboard", req.url));
+      const locale = req.nextUrl.pathname.split("/")[1] ?? getRequestLocale(req.headers);
+      return Response.redirect(new URL(`/${locale}/dashboard`, req.url));
     }
     return handleI18nRouting(req);
   }

@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,8 @@ type Props = {
 };
 
 export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
+  const tEmail = useTranslations("dashboard.deploy.email");
+  const tCommon = useTranslations("dashboard.deploy.common");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -55,14 +59,14 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
 
   useEffect(() => {
     if (searchParams.get("connected") === "1") {
-      toast.success("Gmail connected");
+      toast.success(tEmail("connected"));
       router.replace(`/dashboard/agents/${agent.id}/deploy/email`, { scroll: false });
     }
     const err = searchParams.get("error");
     if (err) {
       toast.error(decodeURIComponent(err.replace(/\+/g, " ")));
     }
-  }, [searchParams, agent.id, router]);
+  }, [searchParams, agent.id, router, tEmail]);
 
   const isDirty = !draftsEqual(draft, savedDraft);
 
@@ -70,10 +74,10 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
     startTransition(async () => {
       const result = await updateEmailChannelSettings(agent.id, draftToSavePayload(draft));
       if (!result.success) {
-        toast.error(result.error ?? "Failed to save");
+        toast.error(result.error ?? tCommon("failedToSave"));
         return;
       }
-      toast.success("Email settings saved");
+      toast.success(tEmail("settingsSaved"));
       setSavedDraft(draft);
       const refreshed = await getAgentGmailSettings(agent.id);
       if (refreshed.success) {
@@ -81,7 +85,7 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
       }
       router.refresh();
     });
-  }, [agent.id, draft, router]);
+  }, [agent.id, draft, router, tCommon, tEmail]);
 
   function handleEmailToggle(enabled: boolean) {
     const previous = emailEnabled;
@@ -94,7 +98,7 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
       });
       if (!result.success) {
         setEmailEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();
@@ -135,7 +139,7 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
 
           <div className="flex shrink-0 items-center justify-between gap-3 border-t border-hairline px-4 py-3">
             <span className="text-caption text-muted">
-              {isDirty ? "Unsaved changes" : "All changes saved"}
+              {isDirty ? tCommon("unsavedChanges") : tCommon("allChangesSaved")}
             </span>
             <Button
               type="button"
@@ -143,7 +147,7 @@ export function DeployEmailManage({ agent, initialGmailSettings }: Props) {
               disabled={!isDirty || isPending}
               onClick={handleSave}
             >
-              {isPending ? "Saving…" : "Save changes"}
+              {isPending ? tCommon("saving") : tCommon("saveChanges")}
             </Button>
           </div>
         </div>

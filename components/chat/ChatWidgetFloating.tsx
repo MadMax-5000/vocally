@@ -22,7 +22,27 @@ export type ChatWidgetFloatingProps = Omit<
   contained?: boolean;
   isMobile?: boolean;
   className?: string;
+  context?: string;
 };
+
+const POPUP_DISMISS_KEY = "vocally-widget-popup-dismissed";
+
+function getStoredPopupDismissed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(POPUP_DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function setStoredPopupDismissed(): void {
+  try {
+    localStorage.setItem(POPUP_DISMISS_KEY, "1");
+  } catch {
+    // localStorage unavailable
+  }
+}
 
 export function ChatWidgetFloating({
   bubbleColor,
@@ -32,11 +52,12 @@ export function ChatWidgetFloating({
   contained = false,
   isMobile,
   className,
+  context,
   ...chatWidgetProps
 }: ChatWidgetFloatingProps) {
   const [open, setOpen] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
-  const [popupDismissed, setPopupDismissed] = useState(false);
+  const [popupDismissed, setPopupDismissed] = useState(getStoredPopupDismissed);
   const [mobileViewport, setMobileViewport] = useState(false);
 
   useEffect(() => {
@@ -67,6 +88,7 @@ export function ChatWidgetFloating({
     setOpen(true);
     setShowWelcomePopup(false);
     setPopupDismissed(true);
+    setStoredPopupDismissed();
   }
 
   function handleClose() {
@@ -155,6 +177,7 @@ export function ChatWidgetFloating({
             {...chatWidgetProps}
             onMinimize={handleClose}
             className="h-full min-h-0 max-h-full shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+            context={context}
           />
         </div>
       ) : null}

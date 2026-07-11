@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export function DeployFeaturedCard({
   manageLabel = "Manage",
   toggling = false,
 }: DeployFeaturedCardProps) {
+  const t = useTranslations("dashboard.deploy");
   return (
     <article
       className={cn(
@@ -57,7 +59,7 @@ export function DeployFeaturedCard({
               checked={enabled}
               disabled={toggling}
               onCheckedChange={onEnabledChange}
-              aria-label={`Enable ${title}`}
+              aria-label={t("featuredCard.enable", { title })}
             />
           </div>
         </div>

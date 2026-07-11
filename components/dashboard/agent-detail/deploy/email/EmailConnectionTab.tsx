@@ -4,6 +4,7 @@ import { LoaderIcon, MailIcon, UnplugIcon } from "@/lib/icons/app-icons"
 
 import { useTransition } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export function EmailConnectionTab({
   labelsLoading,
   onDisconnected,
 }: EmailConnectionTabProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const [disconnectPending, startDisconnect] = useTransition();
   const [testPending, startTest] = useTransition();
 
@@ -51,10 +53,10 @@ export function EmailConnectionTab({
     startDisconnect(async () => {
       const result = await disconnectGmail(agentId);
       if (!result.success) {
-        toast.error(result.error ?? "Could not disconnect");
+        toast.error(result.error ?? t("couldNotDisconnect"));
         return;
       }
-      toast.success("Gmail disconnected");
+      toast.success(t("gmailDisconnected"));
       onDisconnected();
     });
   }
@@ -63,10 +65,10 @@ export function EmailConnectionTab({
     startTest(async () => {
       const result = await sendGmailTestEmail(agentId);
       if (!result.success) {
-        toast.error(result.error ?? "Could not send test email");
+        toast.error(result.error ?? t("couldNotSendTestEmail"));
         return;
       }
-      toast.success("Test email sent to your inbox");
+      toast.success(t("testEmailSent"));
     });
   }
 
@@ -77,15 +79,14 @@ export function EmailConnectionTab({
           <Image src="/svg/gmail.svg" alt="" width={32} height={32} className="size-8" />
         </div>
         <div className="max-w-sm space-y-1">
-          <p className="text-body-sm font-medium text-ink">Connect Gmail</p>
+          <p className="text-body-sm font-medium text-ink">{t("connectGmail")}</p>
           <p className="text-caption text-muted">
-            Authorize Anselio to read and send email on behalf of this agent. You will be
-            redirected to Google to sign in.
+            {t("gmailAuthorize")}
           </p>
         </div>
         <Button type="button" className="btn-primary h-10 rounded-md px-5" onClick={handleConnect}>
           <AppIcon icon={MailIcon} className="mr-2 size-4" />
-          Connect Gmail
+          {t("connectGmail")}
         </Button>
       </div>
     );
@@ -97,25 +98,24 @@ export function EmailConnectionTab({
         <div className="flex items-start gap-3">
           <Image src="/svg/gmail.svg" alt="" width={28} height={28} className="mt-0.5 size-7 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-body-sm font-medium text-ink">Connected</p>
+            <p className="text-body-sm font-medium text-ink">{t("connected")}</p>
             <p className="mt-0.5 truncate text-body-sm text-muted">{connection.googleEmail}</p>
             <p className="mt-2 text-caption text-muted-soft">
-              Connected {formatDate(connection.connectedAt)}
+              {t("connectedAt", { date: formatDate(connection.connectedAt) })}
             </p>
             <p className="text-caption text-muted-soft">
-              Watch renews before {formatDate(connection.watchExpiration)}
+              {t("watchRenews", { date: formatDate(connection.watchExpiration) })}
             </p>
             <p className="mt-1 text-caption text-muted-soft">
-              Labels:{" "}
-              {labelsLoading
-                ? "Loading…"
+              {t("labels", { labels: labelsLoading
+                ? t("loading")
                 : labelNames.length > 0
                   ? labelNames.join(", ")
-                  : connection.labelIds.join(", ")}
+                  : connection.labelIds.join(", ") })}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-            Active
+            {t("active")}
           </span>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function EmailConnectionTab({
           ) : (
             <AppIcon icon={MailIcon} className="mr-2 size-4" />
           )}
-          Send test email
+          {t("sendTestEmail")}
         </Button>
         <Button
           type="button"
@@ -147,13 +147,12 @@ export function EmailConnectionTab({
           ) : (
             <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
           )}
-          Disconnect
+          {t("disconnect")}
         </Button>
       </div>
 
       <p className="text-caption text-muted-soft">
-        Inbound mail is delivered via Google Cloud Pub/Sub. Ensure your GCP topic and push
-        subscription are configured (see docs/gmail-deploy.md).
+        {t("gmailPubSub")}
       </p>
     </div>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 import { AgentStatus, AgentVisibility } from "@prisma/client";
 
@@ -19,6 +20,8 @@ type Props = {
 };
 
 export function DeployApiManage({ agent, apiToken: initialApiToken }: Props) {
+  const t = useTranslations("dashboard.deploy.api");
+  const tCommon = useTranslations("dashboard.deploy.common");
   const router = useRouter();
   const [togglePending, startToggleTransition] = useTransition();
   const [regeneratePending, startRegenerateTransition] = useTransition();
@@ -50,7 +53,7 @@ export function DeployApiManage({ agent, apiToken: initialApiToken }: Props) {
       });
       if (!result.success) {
         setApiEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();
@@ -61,11 +64,11 @@ export function DeployApiManage({ agent, apiToken: initialApiToken }: Props) {
     startRegenerateTransition(async () => {
       const result = await regenerateAgentApiToken(agent.id);
       if (!result.success) {
-        toast.error(result.error ?? "Failed to regenerate key");
+        toast.error(result.error ?? t("failedToRegenerate"));
         return;
       }
       setApiToken(result.data.apiToken);
-      toast.success("API key regenerated");
+      toast.success(t("keyRegenerated"));
       router.refresh();
     });
   }

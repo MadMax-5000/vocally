@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +19,7 @@ type ChatWidgetContentTabProps = {
 };
 
 export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const w = draft.widget;
 
   function patchWidget(partial: Partial<ChatWidgetDraft["widget"]>) {
@@ -25,16 +28,16 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
 
   return (
     <div>
-      <ChatWidgetSettingRow label="Display name" noBorder>
+      <ChatWidgetSettingRow label={t("displayName")} noBorder>
         <Input
           value={w.displayName}
           onChange={(e) => patchWidget({ displayName: e.target.value })}
-          placeholder="Widget title"
+          placeholder={t("widgetTitle")}
           className={chatWidgetFieldInputClass}
         />
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Initial message">
+      <ChatWidgetSettingRow label={t("initialMessage")}>
         <Textarea
           value={draft.welcomeMessage}
           onChange={(e) => onChange({ ...draft, welcomeMessage: e.target.value })}
@@ -44,8 +47,8 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Use different initial message on mobile"
-        tooltip="Shown when the widget detects a mobile viewport."
+        label={t("differentMobileWelcome")}
+        tooltip={t("differentMobileWelcomeHint")}
         variant="row"
       >
         <Switch
@@ -55,7 +58,7 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
       </ChatWidgetSettingRow>
 
       {w.useMobileWelcome ? (
-        <ChatWidgetSettingRow label="Mobile initial message">
+        <ChatWidgetSettingRow label={t("mobileInitialMessage")}>
           <Textarea
             value={w.welcomeMessageMobile}
             onChange={(e) => patchWidget({ welcomeMessageMobile: e.target.value })}
@@ -66,8 +69,8 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
       ) : null}
 
       <ChatWidgetSettingRow
-        label="Auto-show welcome pop-up"
-        tooltip="Show a proactive message bubble before the visitor opens the chat."
+        label={t("autoShowWelcome")}
+        tooltip={t("autoShowWelcomeHint")}
         variant="row"
       >
         <Switch
@@ -78,8 +81,8 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
 
       {w.autoShowWelcomePopup ? (
         <ChatWidgetSettingRow
-          label="Delay (seconds)"
-          description="Time before the pop-up appears."
+          label={t("delay")}
+          description={t("delayHint")}
         >
           <Input
             type="number"
@@ -99,7 +102,7 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
         </ChatWidgetSettingRow>
       ) : null}
 
-      <ChatWidgetSettingRow label="Auto pop-up on mobile" variant="row">
+      <ChatWidgetSettingRow label={t("autoPopupMobile")} variant="row">
         <Switch
           checked={w.autoShowWelcomePopupMobile}
           onCheckedChange={(checked) =>
@@ -108,7 +111,7 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
         />
       </ChatWidgetSettingRow>
 
-      <ChatWidgetSettingRow label="Message placeholder">
+      <ChatWidgetSettingRow label={t("messagePlaceholder")}>
         <Input
           value={w.placeholder}
           onChange={(e) => patchWidget({ placeholder: e.target.value })}
@@ -117,8 +120,8 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Enable voice-to-text"
-        description="Show a microphone button in the chat input. Speech is transcribed into the message field."
+        label={t("voiceToText")}
+        description={t("voiceToTextHint")}
         variant="row"
       >
         <Switch
@@ -128,8 +131,8 @@ export function ChatWidgetContentTab({ draft, onChange }: ChatWidgetContentTabPr
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Enable attachments"
-        description="Coming soon"
+        label={t("attachments")}
+        description={t("comingSoon")}
         variant="row"
         noBorder
       >

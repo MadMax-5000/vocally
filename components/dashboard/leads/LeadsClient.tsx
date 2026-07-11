@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import type { OrgLeadRow } from "@/lib/actions/leads";
 import { listOrgLeads } from "@/lib/actions/leads";
@@ -31,17 +33,17 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-const CHANNEL_META: Record<string, { src: string; label: string }> = {
-  VOICE: { src: "/svg/call.svg", label: "Voice" },
-  CHAT: { src: "/svg/chat.svg", label: "Chat" },
-  SMS: { src: "/svg/send.svg", label: "SMS" },
-  WHATSAPP: { src: "/svg/whatsapp-icon.svg", label: "WhatsApp" },
-  EMAIL: { src: "/svg/gmail.svg", label: "Email" },
+const CHANNEL_META: Record<string, { src: string; labelKey: string }> = {
+  VOICE: { src: "/svg/call.svg", labelKey: "channels.voice" },
+  CHAT: { src: "/svg/chat.svg", labelKey: "channels.chat" },
+  SMS: { src: "/svg/send.svg", labelKey: "channels.sms" },
+  WHATSAPP: { src: "/svg/whatsapp-icon.svg", labelKey: "channels.whatsApp" },
+  EMAIL: { src: "/svg/gmail.svg", labelKey: "channels.email" },
 };
 
-const CAPTURE_TYPE_LABELS: Record<OrgLeadRow["captureType"], string> = {
-  collect_leads: "Collect leads",
-  custom_form: "Custom form",
+const CAPTURE_TYPE_LABEL_KEYS: Record<OrgLeadRow["captureType"], string> = {
+  collect_leads: "captureTypes.collectLeads",
+  custom_form: "captureTypes.customForm",
 };
 
 const CAPTURE_TYPE_PILLS: Record<OrgLeadRow["captureType"], string> = {
@@ -52,8 +54,8 @@ const CAPTURE_TYPE_PILLS: Record<OrgLeadRow["captureType"], string> = {
 const CHIP_TRIGGER =
   "h-8 shrink-0 rounded-md border border-hairline bg-surface-card px-2.5 text-xs font-medium shadow-none transition-colors";
 
-function formatLeadDate(iso: string): string {
-  return new Date(iso).toLocaleString("en-US", {
+function formatLeadDate(iso: string, locale: string): string {
+  return new Date(iso).toLocaleString(locale, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -128,16 +130,18 @@ function LeadDetailSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useTranslations("dashboard.leads");
+  const locale = useLocale();
   if (!lead) return null;
 
   const fields: { label: string; value: string | null }[] =
     lead.captureType === "collect_leads"
       ? [
-          { label: "Name", value: lead.name },
-          { label: "Email", value: lead.email },
-          { label: "Phone", value: lead.phone },
-          { label: "Company", value: lead.company },
-          { label: "Notes", value: lead.notes },
+          { label: t("fields.name"), value: lead.name },
+          { label: t("fields.email"), value: lead.email },
+          { label: t("fields.phone"), value: lead.phone },
+          { label: t("fields.company"), value: lead.company },
+          { label: t("fields.notes"), value: lead.notes },
         ]
       : Object.entries(lead.detail ?? {}).map(([label, value]) => ({
           label,
@@ -160,7 +164,7 @@ function LeadDetailSheet({
                 CAPTURE_TYPE_PILLS[lead.captureType],
               )}
             >
-              {CAPTURE_TYPE_LABELS[lead.captureType]}
+              {t(CAPTURE_TYPE_LABEL_KEYS[lead.captureType])}
             </span>
             {lead.channel && CHANNEL_META[lead.channel] ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-surface-strong px-2 py-0.5 text-caption text-muted">
@@ -170,25 +174,25 @@ function LeadDetailSheet({
                   width={12}
                   height={12}
                 />
-                {CHANNEL_META[lead.channel].label}
+                {t(CHANNEL_META[lead.channel].labelKey)}
               </span>
             ) : null}
           </div>
 
           <dl className="space-y-3">
             <div>
-              <dt className="text-caption text-muted-soft">Agent</dt>
+              <dt className="text-caption text-muted-soft">{t("fields.agent")}</dt>
               <dd className="text-body-sm text-ink">{lead.agentName}</dd>
             </div>
             {lead.formTitle ? (
               <div>
-                <dt className="text-caption text-muted-soft">Form</dt>
+                <dt className="text-caption text-muted-soft">{t("fields.form")}</dt>
                 <dd className="text-body-sm text-ink">{lead.formTitle}</dd>
               </div>
             ) : null}
             <div>
-              <dt className="text-caption text-muted-soft">Captured</dt>
-              <dd className="text-body-sm text-ink">{formatLeadDate(lead.createdAt)}</dd>
+              <dt className="text-caption text-muted-soft">{t("fields.captured")}</dt>
+              <dd className="text-body-sm text-ink">{formatLeadDate(lead.createdAt, locale)}</dd>
             </div>
             {fields.map((field) =>
               field.value?.trim() ? (
@@ -205,7 +209,7 @@ function LeadDetailSheet({
           {lead.sessionId ? (
             <Button variant="outline" size="sm" asChild className="rounded-md">
               <Link href={`/dashboard/inbox?session=${lead.sessionId}`}>
-                View conversation
+                {t("viewConversation")}
               </Link>
             </Button>
           ) : null}
@@ -228,6 +232,8 @@ export function LeadsClient({
   agents,
   initialAgentId,
 }: LeadsClientProps) {
+  const t = useTranslations("dashboard.leads");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [rows, setRows] = React.useState(initialRows);
@@ -243,8 +249,8 @@ export function LeadsClient({
 
   const agentOptions = agents.map((a) => ({ value: a.id, label: a.name }));
   const captureOptions: { value: OrgLeadRow["captureType"]; label: string }[] = [
-    { value: "collect_leads", label: "Collect leads" },
-    { value: "custom_form", label: "Custom form" },
+    { value: "collect_leads", label: t("captureTypes.collectLeads") },
+    { value: "custom_form", label: t("captureTypes.customForm") },
   ];
 
   function updateFilters(next: {
@@ -293,20 +299,19 @@ export function LeadsClient({
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-hairline bg-surface-card px-6 py-5">
-        <h1 className="font-display text-display-md text-ink">Leads</h1>
+        <h1 className="font-display text-display-md text-ink">{t("title")}</h1>
         <p className="mt-1 text-body-sm text-muted">
-          Contact details captured by your agents — conversational leads and custom
-          form submissions.
+          {t("description")}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <FilterChip
-            label="Agent"
+            label={t("fields.agent")}
             options={agentOptions}
             value={agentId}
             onChange={(value) => updateFilters({ agentId: value })}
           />
           <FilterChip
-            label="Source"
+            label={t("fields.source")}
             options={captureOptions}
             value={captureType}
             onChange={(value) =>
@@ -323,7 +328,7 @@ export function LeadsClient({
               className="h-8 text-body-sm text-muted"
               onClick={() => updateFilters({ agentId: null, captureType: null })}
             >
-              Clear filters
+              {t("clearFilters")}
             </Button>
           )}
         </div>
@@ -331,29 +336,28 @@ export function LeadsClient({
 
       <div className="flex-1 overflow-auto px-6 py-4">
         {loading ? (
-          <p className="text-body-sm text-muted">Loading…</p>
+          <p className="text-body-sm text-muted">{t("loading")}</p>
         ) : rows.length === 0 ? (
           <div className="rounded-xl border border-hairline bg-surface-card px-6 py-12 text-center">
-            <p className="text-body-sm text-muted">No leads captured yet.</p>
+            <p className="text-body-sm text-muted">{t("empty.title")}</p>
             <p className="mt-1 text-caption text-muted-soft">
-              Enable Collect leads or Custom form on an agent to start capturing
-              contact details.
+              {t("empty.description")}
             </p>
           </div>
         ) : (
           <>
             <p className="mb-3 text-caption text-muted-soft">
-              {total} lead{total === 1 ? "" : "s"}
+              {t("count", { count: total })}
             </p>
             <div className="overflow-hidden rounded-xl border border-hairline bg-surface-card">
               <Table>
                 <TableHeader>
                   <TableRow className="border-hairline hover:bg-transparent">
-                    <TableHead className="text-caption text-muted-soft">Contact</TableHead>
-                    <TableHead className="text-caption text-muted-soft">Agent</TableHead>
-                    <TableHead className="text-caption text-muted-soft">Source</TableHead>
-                    <TableHead className="text-caption text-muted-soft">Channel</TableHead>
-                    <TableHead className="text-caption text-muted-soft">Captured</TableHead>
+                    <TableHead className="text-caption text-muted-soft">{t("fields.contact")}</TableHead>
+                    <TableHead className="text-caption text-muted-soft">{t("fields.agent")}</TableHead>
+                    <TableHead className="text-caption text-muted-soft">{t("fields.source")}</TableHead>
+                    <TableHead className="text-caption text-muted-soft">{t("fields.channel")}</TableHead>
+                    <TableHead className="text-caption text-muted-soft">{t("fields.captured")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -379,15 +383,15 @@ export function LeadsClient({
                             CAPTURE_TYPE_PILLS[lead.captureType],
                           )}
                         >
-                          {CAPTURE_TYPE_LABELS[lead.captureType]}
+                          {t(CAPTURE_TYPE_LABEL_KEYS[lead.captureType])}
                         </span>
                       </TableCell>
                       <TableCell>
                         {lead.channel && CHANNEL_META[lead.channel] ? (
                           <Image
                             src={CHANNEL_META[lead.channel].src}
-                            alt={CHANNEL_META[lead.channel].label}
-                            title={CHANNEL_META[lead.channel].label}
+                            alt={t(CHANNEL_META[lead.channel].labelKey)}
+                            title={t(CHANNEL_META[lead.channel].labelKey)}
                             width={16}
                             height={16}
                           />
@@ -396,7 +400,7 @@ export function LeadsClient({
                         )}
                       </TableCell>
                       <TableCell className="text-body-sm text-muted">
-                        {formatLeadDate(lead.createdAt)}
+                        {formatLeadDate(lead.createdAt, locale)}
                       </TableCell>
                     </TableRow>
                   ))}

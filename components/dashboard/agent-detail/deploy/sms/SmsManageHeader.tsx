@@ -2,8 +2,9 @@
 import { AppIcon } from "@/components/ui/app-icon"
 import { ArrowLeftIcon } from "@/lib/icons/app-icons"
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   DashboardTabBar,
@@ -30,14 +31,15 @@ export function SmsManageHeader({
   toggling,
   onSmsEnabledChange,
 }: SmsManageHeaderProps) {
+  const t = useTranslations("dashboard.deploy.messaging.sms");
   const tabs = useMemo((): DashboardTabItem<SmsConfigTabId>[] => {
-    if (!smsEnabled) return [{ id: "setup", label: "Setup" }];
+    if (!smsEnabled) return [{ id: "setup", label: t("tabs.setup") }];
     return [
-      { id: "setup", label: "Setup" },
-      { id: "connect", label: "Connect" },
-      { id: "test", label: "Test" },
+      { id: "setup", label: t("tabs.setup") },
+      { id: "connect", label: t("tabs.connect") },
+      { id: "test", label: t("tabs.test") },
     ];
-  }, [smsEnabled]);
+  }, [smsEnabled, t]);
 
   return (
     <header className="sticky top-0 z-10 shrink-0 border-b border-hairline bg-surface-card">
@@ -47,27 +49,27 @@ export function SmsManageHeader({
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
           <AppIcon icon={ArrowLeftIcon} className="size-3.5" />
-          Back to Deploy
+          {t("header.backToDeploy")}
         </Link>
 
         <div className="flex items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
             <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-              SMS
+              {t("header.title")}
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">
-              Connect a Twilio number and let your agent auto-reply to SMS
+              {t("header.subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">
             <span className="text-caption text-muted">
-              {smsEnabled ? "Enabled" : "Disabled"}
+              {smsEnabled ? t("header.enabled") : t("header.disabled")}
             </span>
             <Switch
               checked={smsEnabled}
               disabled={toggling}
               onCheckedChange={onSmsEnabledChange}
-              aria-label="Enable SMS deployment"
+              aria-label={t("header.enable")}
             />
           </div>
         </div>
@@ -78,7 +80,7 @@ export function SmsManageHeader({
         activeTab={activeTab}
         onTabChange={onTabChange}
         layoutId="smsManageTab"
-        ariaLabel="SMS configuration"
+        ariaLabel={t("header.configuration")}
         className="px-4"
       />
     </header>

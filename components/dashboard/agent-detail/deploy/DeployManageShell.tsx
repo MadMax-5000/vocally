@@ -2,7 +2,8 @@
 import { AppIcon } from "@/components/ui/app-icon"
 import { ArrowLeftIcon } from "@/lib/icons/app-icons"
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 type DeployManageShellProps = {
   agentId: string;
@@ -19,6 +20,7 @@ export function DeployManageShell({
   variant = "default",
   children,
 }: DeployManageShellProps) {
+  const t = useTranslations("dashboard.deploy");
   const isWide = variant === "wide";
 
   return (
@@ -35,7 +37,7 @@ export function DeployManageShell({
           className="mb-4 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
           <AppIcon icon={ArrowLeftIcon} className="size-3.5" />
-          Back to Deploy
+          {t("common.backToDeploy")}
         </Link>
         <h2 className="font-display text-display-sm font-normal tracking-tight text-ink">
           {title}

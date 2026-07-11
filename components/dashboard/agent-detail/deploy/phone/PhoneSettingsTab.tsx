@@ -4,6 +4,7 @@ import { InfoIcon, LoaderIcon } from "@/lib/icons/app-icons"
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,8 +32,10 @@ type PhoneSettingsTabProps = {
 };
 
 export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) {
+  const t = useTranslations("dashboard.deploy.channels.phone");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
   const [greeting, setGreeting] = useState(
-    `Hi, you've reached ${agentName}. How can I help you today?`,
+    t("defaultGreeting", { agentName }),
   );
   const [voicemailDetection, setVoicemailDetection] = useState(true);
   const [bargeIn, setBargeIn] = useState(true);
@@ -77,11 +80,11 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
     setIsSaving(false);
     if (result.success) {
       setHasChanges(false);
-      toast.success("Phone settings saved");
+      toast.success(t("settingsSaved"));
     } else {
-      toast.error(result.error || "Failed to save settings");
+      toast.error(result.error || t("settingsSaveFailed"));
     }
-  }, [agentId, greeting, voicemailDetection, bargeIn, timeout, language, handoffPhone]);
+  }, [agentId, greeting, voicemailDetection, bargeIn, timeout, language, handoffPhone, t]);
 
   const showHandoffWarning =
     escalationsEnabled && handoffPhone.trim().length === 0;
@@ -97,15 +100,15 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
   return (
     <div className="space-y-4">
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Call behavior</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("callBehavior")}</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          Configure how the AI agent behaves during inbound phone calls.
+          {t("callBehaviorDescription")}
         </p>
 
         <div className="mt-2 divide-y divide-hairline">
           <ChatWidgetSettingRow
-            label="Greeting message"
-            description="First message the caller hears when the call connects."
+            label={t("greeting")}
+            description={t("greetingDescription")}
           >
             <Textarea
               value={greeting}
@@ -119,8 +122,8 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
-            label="Voicemail detection"
-            description="Automatically detect voicemail and leave a pre-recorded message."
+            label={t("voicemailDetection")}
+            description={t("voicemailDescription")}
             variant="row"
           >
             <Switch
@@ -133,8 +136,8 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
-            label="Barge-in"
-            description="Allow the caller to interrupt the AI mid-prompt. The AI stops and listens."
+            label={t("bargeIn")}
+            description={t("bargeInDescription")}
             variant="row"
           >
             <Switch
@@ -147,8 +150,8 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
-            label="Language"
-            description="Auto-detect or set a fixed language for voice conversations."
+            label={t("language")}
+            description={t("languageDescription")}
           >
             <Select
               value={language}
@@ -161,18 +164,18 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Auto-detect</SelectItem>
-                <SelectItem value="ar">Arabic (MSA)</SelectItem>
-                <SelectItem value="ary">Arabic (Darija)</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="auto">{t("autoDetect")}</SelectItem>
+                <SelectItem value="ar">{t("arabicMsa")}</SelectItem>
+                <SelectItem value="ary">{t("arabicDarija")}</SelectItem>
+                <SelectItem value="fr">{t("french")}</SelectItem>
+                <SelectItem value="en">{t("english")}</SelectItem>
               </SelectContent>
             </Select>
           </ChatWidgetSettingRow>
 
           <ChatWidgetSettingRow
-            label="Call timeout"
-            description="Max seconds to wait for the caller to speak before the AI prompts again."
+            label={t("callTimeout")}
+            description={t("timeoutDescription")}
           >
             <div className="flex items-center gap-2">
               <Input
@@ -186,14 +189,14 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
                 max={120}
                 className="w-20"
               />
-              <span className="text-caption text-muted-soft">seconds</span>
+              <span className="text-caption text-muted-soft">{t("seconds")}</span>
             </div>
           </ChatWidgetSettingRow>
         </div>
 
         <div className="mt-4 flex items-center justify-end gap-3 border-t border-hairline pt-4">
           {hasChanges && (
-            <p className="text-caption text-muted-soft">Unsaved changes</p>
+            <p className="text-caption text-muted-soft">{tCommon("unsavedChanges")}</p>
           )}
           <Button
             type="button"
@@ -204,25 +207,25 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
             {isSaving ? (
               <>
                 <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
-                Saving…
+                {tCommon("saving")}
               </>
             ) : (
-              "Save changes"
+              tCommon("saveChanges")
             )}
           </Button>
         </div>
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Human handoff</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("humanHandoff")}</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          When a call escalates, Anselio transfers the caller to this number.
+          {t("handoffDescription")}
         </p>
 
         <div className="mt-2 divide-y divide-hairline">
           <ChatWidgetSettingRow
-            label="Handoff phone number"
-            description="E.164 format with country code (e.g. +212612345678). Required for phone escalations."
+            label={t("handoffNumber")}
+            description={t("handoffNumberDescription")}
           >
             <Input
               value={handoffPhone}
@@ -238,14 +241,13 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
 
         {showHandoffWarning ? (
           <p className="mt-3 text-caption text-amber-700">
-            Escalations are enabled on this agent but no handoff number is set. Calls
-            cannot transfer to a human until you add one.
+            {t("handoffWarning")}
           </p>
         ) : null}
 
         <div className="mt-4 flex items-center justify-end gap-3 border-t border-hairline pt-4">
           {hasChanges && (
-            <p className="text-caption text-muted-soft">Unsaved changes</p>
+            <p className="text-caption text-muted-soft">{tCommon("unsavedChanges")}</p>
           )}
           <Button
             type="button"
@@ -256,10 +258,10 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
             {isSaving ? (
               <>
                 <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
-                Saving…
+                {tCommon("saving")}
               </>
             ) : (
-              "Save changes"
+              tCommon("saveChanges")
             )}
           </Button>
         </div>
@@ -271,10 +273,9 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
             <AppIcon icon={InfoIcon} className="size-4 text-amber-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-body-sm font-medium text-ink">Important</p>
+            <p className="text-body-sm font-medium text-ink">{t("important")}</p>
             <p className="mt-1 text-caption text-muted leading-relaxed">
-              Changes to call behavior settings take effect on the next inbound call.
-              Active calls continue with their original configuration.
+              {t("importantDescription")}
             </p>
           </div>
         </div>

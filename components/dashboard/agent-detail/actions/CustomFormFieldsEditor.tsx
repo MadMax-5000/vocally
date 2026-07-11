@@ -21,6 +21,7 @@ import {
   type CustomFormFieldType,
 } from "@/lib/deploy/custom-form-action";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 import {
   ActionSheetField,
@@ -36,15 +37,8 @@ type CustomFormFieldsEditorProps = {
   onChange: (fields: CustomFormField[]) => void;
 };
 
-const FIELD_TYPE_LABELS: Record<CustomFormFieldType, string> = {
-  text: "Text",
-  email: "Email",
-  phone: "Phone",
-  textarea: "Long text",
-  select: "Dropdown",
-};
-
 export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEditorProps) {
+  const t = useTranslations("dashboard.actions");
   function updateField(index: number, patch: Partial<CustomFormField>) {
     const next = [...fields];
     const current = next[index];
@@ -82,8 +76,8 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
 
   return (
     <ActionSheetSection
-      title="Fields"
-      description="Add inputs customers will fill in the form."
+      title={t("sheet.customForm.fields")}
+      description={t("sheet.customForm.fieldsDescription")}
     >
       <div className="flex justify-end">
         <Button
@@ -95,12 +89,12 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
           disabled={fields.length >= MAX_FORM_FIELDS}
         >
           <AppIcon icon={PlusIcon} size={16} className="h-4 w-4" aria-hidden />
-          Add field
+          {t("sheet.customForm.addField")}
         </Button>
       </div>
 
       {fields.length === 0 ? (
-        <p className="text-body-sm text-muted-soft">No fields yet. Add one to get started.</p>
+        <p className="text-body-sm text-muted-soft">{t("sheet.customForm.noFields")}</p>
       ) : null}
 
       {fields.map((field, index) => (
@@ -109,7 +103,9 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
           className="space-y-3 rounded-md border border-hairline bg-surface-card p-3"
         >
           <div className="flex items-start justify-between gap-2">
-            <span className="text-body-sm font-medium text-ink">Field {index + 1}</span>
+            <span className="text-body-sm font-medium text-ink">
+              {t("sheet.customForm.field", { count: index + 1 })}
+            </span>
             <div className="flex items-center gap-0.5">
               <Button
                 type="button"
@@ -118,7 +114,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 className="h-7 w-7 text-muted hover:text-ink"
                 onClick={() => moveField(index, -1)}
                 disabled={index === 0}
-                aria-label="Move up"
+                aria-label={t("sheet.customButton.moveUp")}
               >
                 <AppIcon icon={ChevronUp} size={16} className="h-4 w-4" />
               </Button>
@@ -129,7 +125,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 className="h-7 w-7 text-muted hover:text-ink"
                 onClick={() => moveField(index, 1)}
                 disabled={index === fields.length - 1}
-                aria-label="Move down"
+                aria-label={t("sheet.customButton.moveDown")}
               >
                 <AppIcon icon={ChevronDown} size={16} className="h-4 w-4" />
               </Button>
@@ -139,7 +135,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                 size="icon"
                 className="h-7 w-7 text-muted hover:text-destructive"
                 onClick={() => removeField(index)}
-                aria-label="Remove field"
+                aria-label={t("removeItem", { item: t("sheet.customForm.field", { count: index + 1 }) })}
               >
                 <AppIcon icon={Trash2Icon} size={16} className="h-4 w-4" />
               </Button>
@@ -147,7 +143,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
           </div>
 
           <div className="grid gap-3">
-            <ActionSheetField label="Type">
+            <ActionSheetField label={t("sheet.customForm.type")}>
               <Select
                 value={field.type}
                 onValueChange={(type) =>
@@ -158,25 +154,33 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CUSTOM_FORM_FIELD_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {FIELD_TYPE_LABELS[t]}
+                  {CUSTOM_FORM_FIELD_TYPES.map((fieldType) => (
+                    <SelectItem key={fieldType} value={fieldType}>
+                      {t(
+                        `sheet.customForm.${
+                          fieldType === "textarea"
+                            ? "longText"
+                            : fieldType === "select"
+                              ? "dropdown"
+                              : fieldType
+                        }`,
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </ActionSheetField>
 
-            <ActionSheetField label="Label">
+            <ActionSheetField label={t("sheet.customForm.label")}>
               <Input
                 value={field.label}
                 onChange={(e) => updateField(index, { label: e.target.value })}
                 className={actionSheetInputClass}
-                placeholder="e.g. Email address"
+                placeholder={t("sheet.customForm.fieldPlaceholder")}
               />
             </ActionSheetField>
 
-            <ActionSheetField label="Placeholder" description="Optional">
+            <ActionSheetField label={t("sheet.customForm.placeholder")} description={t("sheet.customForm.optional")}>
               <Input
                 value={field.placeholder ?? ""}
                 onChange={(e) =>
@@ -189,7 +193,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
             </ActionSheetField>
 
             {field.type === "select" ? (
-              <ActionSheetField label="Options" description="One per line">
+              <ActionSheetField label={t("sheet.customForm.options")} description={t("sheet.customForm.optionsDescription")}>
                 <Textarea
                   value={(field.options ?? []).join("\n")}
                   onChange={(e) => {
@@ -205,7 +209,7 @@ export function CustomFormFieldsEditor({ fields, onChange }: CustomFormFieldsEdi
               </ActionSheetField>
             ) : null}
 
-            <ActionSheetToggleRow label="Required">
+            <ActionSheetToggleRow label={t("sheet.customForm.required")}>
               <Switch
                 id={`required-${field.id}`}
                 checked={field.required}

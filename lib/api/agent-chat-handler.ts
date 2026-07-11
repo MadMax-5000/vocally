@@ -66,6 +66,7 @@ type HandleAgentChatMessageInput = {
   sessionId: string | null | undefined;
   message: string;
   deployment?: ChatDeployment;
+  context?: string;
 };
 
 type HandleAgentChatMessageSuccess = {
@@ -113,6 +114,7 @@ export async function handleAgentChatMessage({
   sessionId: existingSessionId,
   message,
   deployment = "widget",
+  context,
 }: HandleAgentChatMessageInput): Promise<HandleAgentChatMessageResult> {
   let sessionId = existingSessionId;
 
@@ -141,11 +143,13 @@ export async function handleAgentChatMessage({
     data: { sessionId, role: "USER", content: message },
   });
 
+  const effectiveMessage = context ? `[Context: ${context}]\n${message}` : message;
+
   const processResult = await processMessage({
     orgId,
     agentId,
     sessionId,
-    message,
+    message: effectiveMessage,
   });
 
   const { botContent, escalation, customerFacingMessage, ticketId, formRequest } =

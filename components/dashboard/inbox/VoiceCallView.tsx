@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { Play, Pause, DownloadIcon } from "@/lib/icons/app-icons"
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 /* ------------------------------------------------------------------
    Helpers
@@ -15,11 +16,11 @@ function formatDuration(seconds: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-function sentimentLabel(score: number | null): { label: string; color: string } {
+function sentimentLabel(score: number | null, positive: string, neutral: string, negative: string): { label: string; color: string } {
   if (score == null) return { label: "—", color: "text-muted-soft" };
-  if (score >= 0.3) return { label: "Positive", color: "text-emerald-600" };
-  if (score >= -0.3) return { label: "Neutral", color: "text-amber-600" };
-  return { label: "Negative", color: "text-red-600" };
+  if (score >= 0.3) return { label: positive, color: "text-emerald-600" };
+  if (score >= -0.3) return { label: neutral, color: "text-amber-600" };
+  return { label: negative, color: "text-red-600" };
 }
 
 /* ------------------------------------------------------------------
@@ -27,6 +28,7 @@ function sentimentLabel(score: number | null): { label: string; color: string } 
    ------------------------------------------------------------------ */
 
 function AudioPlayer({ src }: { src: string }) {
+  const t = useTranslations("dashboard.inbox");
   return (
     <div className="rounded-xl border border-hairline bg-surface-card p-3">
       <audio
@@ -34,7 +36,7 @@ function AudioPlayer({ src }: { src: string }) {
         src={src}
         className="w-full h-10 [&::-webkit-media-controls-panel]:bg-surface-card"
       >
-        Your browser does not support the audio element.
+        {t("browserAudioUnsupported")}
       </audio>
     </div>
   );
@@ -53,6 +55,7 @@ function MetricBadge({
   value: React.ReactNode;
   className?: string;
 }) {
+  const t = useTranslations("dashboard.inbox");
   return (
     <div className={cn("flex flex-col items-center gap-0.5 rounded-xl border border-hairline bg-surface-card px-4 py-3", className)}>
       <span className="text-[11px] font-medium text-muted-soft uppercase tracking-wider">
@@ -108,18 +111,19 @@ export function VoiceCallView({
   sentiment: number | null;
   qaScore: number | null;
 }) {
+  const t = useTranslations("dashboard.inbox");
   const parsedTranscript = transcript
     ? parseTranscript(transcript)
     : null;
 
-  const sent = sentimentLabel(sentiment);
+  const sent = sentimentLabel(sentiment, t("positive"), t("neutral"), t("negative"));
 
   return (
     <div className="flex flex-col gap-4">
       {/* Summary card */}
       {summary && (
         <div className="rounded-xl border border-hairline bg-surface-card p-4">
-          <h3 className="text-caption-uppercase text-muted mb-2">AI Summary</h3>
+          <h3 className="text-caption-uppercase text-muted mb-2">{t("aiSummary")}</h3>
           <p className="text-body-sm text-ink leading-relaxed">{summary}</p>
         </div>
       )}
@@ -127,31 +131,31 @@ export function VoiceCallView({
       {/* Audio Player */}
       {recordingUrl && (
         <div>
-          <h3 className="text-caption-uppercase text-muted mb-2">Recording</h3>
+          <h3 className="text-caption-uppercase text-muted mb-2">{t("recording")}</h3>
           <AudioPlayer src={recordingUrl} />
         </div>
       )}
 
       {/* Metrics */}
       <div>
-        <h3 className="text-caption-uppercase text-muted mb-2">Metrics</h3>
+        <h3 className="text-caption-uppercase text-muted mb-2">{t("metrics")}</h3>
         <div className="grid grid-cols-4 gap-2">
           <MetricBadge
-            label="Duration"
+            label={t("duration")}
             value={formatDuration(duration)}
           />
           <MetricBadge
-            label="Sentiment"
+            label={t("sentiment")}
             value={
               <span className={sent.color}>{sent.label}</span>
             }
           />
           <MetricBadge
-            label="QA Score"
+            label={t("qaScore")}
             value={qaScore != null ? `${Math.round(qaScore)}%` : "—"}
           />
           <MetricBadge
-            label="Messages"
+            label={t("messages")}
             value={parsedTranscript?.length ?? "—"}
           />
         </div>
@@ -160,7 +164,7 @@ export function VoiceCallView({
       {/* Transcript */}
       {parsedTranscript && parsedTranscript.length > 0 && (
         <div>
-          <h3 className="text-caption-uppercase text-muted mb-2">Transcript</h3>
+          <h3 className="text-caption-uppercase text-muted mb-2">{t("transcript")}</h3>
           <div className="rounded-xl border border-hairline bg-surface-card py-2">
             {parsedTranscript.map((line, i) => (
               <TranscriptLine

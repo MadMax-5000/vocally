@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { AgentVisibility } from "@prisma/client";
 import { toast } from "sonner";
 
 import { Switch } from "@/components/ui/switch";
 import { updateAgentVisibility } from "@/lib/actions/agents";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 type AgentVisibilityPillProps = {
   agentId: string;
@@ -20,6 +21,7 @@ export function AgentVisibilityPill({
   visibility: initialVisibility,
   className,
 }: AgentVisibilityPillProps) {
+  const t = useTranslations("dashboard.agentDetail");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [visibility, setVisibility] = useState(initialVisibility);
@@ -29,7 +31,7 @@ export function AgentVisibilityPill({
   }, [initialVisibility]);
 
   const isPublic = visibility === AgentVisibility.PUBLIC;
-  const label = isPublic ? "Public" : "Private";
+  const label = isPublic ? t("public") : t("private");
 
   function handleToggle(checked: boolean) {
     const next = checked ? AgentVisibility.PUBLIC : AgentVisibility.PRIVATE;
@@ -39,7 +41,7 @@ export function AgentVisibilityPill({
       const result = await updateAgentVisibility(agentId, next);
       if (!result.success) {
         setVisibility(previous);
-        toast.error(result.error ?? "Could not update visibility");
+        toast.error(result.error ?? t("couldNotUpdateVisibility"));
         return;
       }
       router.refresh();
@@ -54,7 +56,7 @@ export function AgentVisibilityPill({
         checked={isPublic}
         disabled={pending}
         onCheckedChange={handleToggle}
-        aria-label={isPublic ? "Set agent to private" : "Set agent to public"}
+        aria-label={isPublic ? t("setPrivate") : t("setPublic")}
       />
     </div>
   );

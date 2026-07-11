@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon"
 import { InfoIcon } from "@/lib/icons/app-icons"
 
@@ -37,6 +38,7 @@ export function ChatWidgetSettingRow({
   noBorder,
   variant = "field",
 }: ChatWidgetSettingRowProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const labelEl = (
     <div className="flex items-center gap-1.5">
       <span
@@ -55,7 +57,7 @@ export function ChatWidgetSettingRow({
               <button
                 type="button"
                 className="text-muted-soft hover:text-muted"
-                aria-label="More information"
+                aria-label={t("moreInformation")}
               >
                 <AppIcon icon={InfoIcon} className="size-3.5" />
               </button>

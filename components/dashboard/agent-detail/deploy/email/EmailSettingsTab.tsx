@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -31,6 +32,7 @@ export function EmailSettingsTab({
   labelsLoading,
   labelsError,
 }: EmailSettingsTabProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   function patch(partial: Partial<EmailDraft>) {
     onChange({ ...draft, ...partial });
   }
@@ -38,20 +40,20 @@ export function EmailSettingsTab({
   return (
     <div>
       <ChatWidgetSettingRow
-        label="Auto-reply"
-        description="When off, inbound emails are still logged but the agent will not send AI replies."
+        label={t("autoReply")}
+        description={t("autoReplyDescription")}
         variant="row"
       >
         <Switch
           checked={draft.autoReplyEnabled}
           onCheckedChange={(v) => patch({ autoReplyEnabled: v })}
-          aria-label="Auto-reply to inbound email"
+          aria-label={t("autoReply")}
         />
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Reply subject prefix"
-        description='Prepended to customer subjects (e.g. "Re:").'
+        label={t("replySubjectPrefix")}
+        description={t("replySubjectPrefixDescription")}
       >
         <Input
           className={chatWidgetFieldInputClass}
@@ -62,8 +64,8 @@ export function EmailSettingsTab({
       </ChatWidgetSettingRow>
 
       <ChatWidgetSettingRow
-        label="Email signature"
-        description="Appended to outbound replies from this agent."
+        label={t("emailSignature")}
+        description={t("emailSignatureDescription")}
         noBorder={!hasConnection}
       >
         <Textarea
@@ -72,14 +74,14 @@ export function EmailSettingsTab({
           onChange={(e) => patch({ signature: e.target.value })}
           rows={4}
           maxLength={2000}
-          placeholder="Thanks,&#10;Support Team"
+          placeholder={t("emailSignaturePlaceholder")}
         />
       </ChatWidgetSettingRow>
 
       {hasConnection ? (
         <ChatWidgetSettingRow
-          label="Watch labels"
-          description="Only emails with these Gmail labels trigger the agent. Saving restarts the mailbox watch."
+          label={t("watchLabels")}
+          description={t("watchLabelsDescription")}
           className="mt-2 border-t border-hairline pt-4"
           noBorder
         >

@@ -2,14 +2,16 @@
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { resolveWebChatWidgetSettings } from "@/lib/deploy/web-chat-config";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailWithRelations } from "./agent-detail-types";
 
 type Props = { agent: AgentDetailWithRelations };
 
 export function AgentDetailPreviewTab({ agent }: Props) {
+  const t = useTranslations("dashboard.agentDetail");
   const welcomeMessage =
-    agent.welcomeMessage?.trim() || "Hello! How can I help you today?";
+    agent.welcomeMessage?.trim() || t("previewFallback");
   const widgetSettings = resolveWebChatWidgetSettings(
     agent.name,
     agent.welcomeMessage,

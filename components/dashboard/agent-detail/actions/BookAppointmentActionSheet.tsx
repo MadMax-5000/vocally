@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { AppIcon } from "@/components/ui/app-icon";
 import { PlusIcon, Trash2Icon } from "@/lib/icons/app-icons";
@@ -35,11 +36,6 @@ import {
   type BookAppointmentActionDraft,
 } from "./book-appointment-action-draft";
 
-const WHEN_TO_OFFER_OPTIONS = [
-  { value: "proactive" as const, label: "Proactively" },
-  { value: "intent_only" as const, label: "Only when customer asks" },
-] as const;
-
 const MAX_DEPARTMENTS = 12;
 
 type BookAppointmentActionSheetProps = {
@@ -48,21 +44,21 @@ type BookAppointmentActionSheetProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-function formatAppointmentLabel(item: AgentAppointmentListItem): string {
+function formatAppointmentLabel(item: AgentAppointmentListItem, unknown: string): string {
   if (item.customerName?.trim()) return item.customerName.trim();
-  return "Unknown";
+  return unknown;
 }
 
-function formatRelativeTime(iso: string): string {
+function formatRelativeTime(iso: string, t: ReturnType<typeof useTranslations>): string {
   const date = new Date(iso);
   const diffMs = Date.now() - date.getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("sheet.justNow");
+  if (diffMin < 60) return t("sheet.minutesAgo", { count: diffMin });
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return t("sheet.hoursAgo", { count: diffHr });
   const diffDay = Math.floor(diffHr / 24);
-  return `${diffDay}d ago`;
+  return t("sheet.daysAgo", { count: diffDay });
 }
 
 function formatAppointmentWhen(item: AgentAppointmentListItem): string {
@@ -75,6 +71,7 @@ export function BookAppointmentActionSheet({
   open,
   onOpenChange,
 }: BookAppointmentActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
@@ -111,11 +108,11 @@ export function BookAppointmentActionSheet({
     const label = newDepartment.trim().toLowerCase();
     if (!label) return;
     if (draft.departments.some((d) => d.toLowerCase() === label)) {
-      toast.error("Department already exists");
+      toast.error(t("sheet.bookAppointment.departmentExists"));
       return;
     }
     if (draft.departments.length >= MAX_DEPARTMENTS) {
-      toast.error(`Maximum ${MAX_DEPARTMENTS} departments`);
+      toast.error(t("sheet.bookAppointment.maximumDepartments", { count: MAX_DEPARTMENTS }));
       return;
     }
     setDraft((d) => ({ ...d, departments: [...d.departments, label] }));
@@ -132,7 +129,7 @@ export function BookAppointmentActionSheet({
   function handleSave() {
     const err = validateBookAppointmentDraft(draft);
     if (err) {
-      toast.error(err);
+      toast.error(t(`validation.${err}`));
       return;
     }
 
@@ -146,14 +143,14 @@ export function BookAppointmentActionSheet({
         notifyEmail: draft.notifyEmail,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildBookAppointmentActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Book appointment saved");
+      toast.success(t("sheet.bookAppointment.saved"));
       onOpenChange(false);
     });
   }
@@ -162,13 +159,13 @@ export function BookAppointmentActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Book appointment"
-      description="Let the agent book appointments in conversation. Bookings are stored in Anselio and can trigger email notifications."
+      title={t("catalog.bookAppointment.title")}
+      description={t("sheet.bookAppointment.description")}
       pending={pending}
       isDirty={isDirty}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable book appointment">
+      <ActionSheetEnableRow label={t("sheet.bookAppointment.enable")}>
         <Switch
           id="book-appointment-enabled"
           checked={draft.enabled}
@@ -179,8 +176,8 @@ export function BookAppointmentActionSheet({
       {draft.enabled ? (
         <>
           <ActionSheetSection
-            title="When to offer"
-            description="Choose when the agent should offer to schedule an appointment."
+            title={t("sheet.bookAppointment.whenToOffer")}
+            description={t("sheet.bookAppointment.whenToOfferDescription")}
           >
             <RadioGroup
               value={draft.whenToOffer}
@@ -193,33 +190,35 @@ export function BookAppointmentActionSheet({
               }
               className="flex flex-col gap-2"
             >
-              {WHEN_TO_OFFER_OPTIONS.map((opt) => (
+              {(["proactive", "intent_only"] as const).map((value) => (
                 <label
-                  key={opt.value}
-                  htmlFor={`when-to-offer-${opt.value}`}
+                  key={value}
+                  htmlFor={`when-to-offer-${value}`}
                   className={cn(
                     "flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2 transition-colors",
-                    draft.whenToOffer === opt.value
+                    draft.whenToOffer === value
                       ? "border-hairline-strong bg-surface-card"
                       : "border-hairline bg-surface-card hover:bg-canvas-soft",
                   )}
                 >
                   <RadioGroupItem
-                    value={opt.value}
-                    id={`when-to-offer-${opt.value}`}
+                    value={value}
+                    id={`when-to-offer-${value}`}
                   />
-                  <span className="text-body-sm text-ink">{opt.label}</span>
+                  <span className="text-body-sm text-ink">
+                    {t(`sheet.bookAppointment.${value === "proactive" ? "proactively" : "whenAsked"}`)}
+                  </span>
                 </label>
               ))}
             </RadioGroup>
           </ActionSheetSection>
 
           <ActionSheetSection
-            title="Departments"
-            description="Departments the agent can book. Use lowercase labels (e.g. sales, support)."
+            title={t("sheet.bookAppointment.departments")}
+            description={t("sheet.bookAppointment.departmentsDescription")}
           >
             {draft.departments.length === 0 ? (
-              <p className="text-body-sm text-muted-soft">No departments yet</p>
+              <p className="text-body-sm text-muted-soft">{t("sheet.bookAppointment.noDepartments")}</p>
             ) : (
               <ul className="mb-3 flex flex-col gap-2">
                 {draft.departments.map((dept, index) => (
@@ -234,7 +233,7 @@ export function BookAppointmentActionSheet({
                       size="sm"
                       className="h-8 w-8 shrink-0 p-0 text-muted hover:text-ink"
                       onClick={() => removeDepartment(index)}
-                      aria-label={`Remove ${dept}`}
+                      aria-label={t("removeItem", { item: dept })}
                     >
                       <AppIcon icon={Trash2Icon} className="h-4 w-4" aria-hidden />
                     </Button>
@@ -244,7 +243,7 @@ export function BookAppointmentActionSheet({
             )}
             <div className="flex gap-2">
               <Input
-                placeholder="e.g. sales"
+                placeholder={t("sheet.bookAppointment.departmentPlaceholder")}
                 value={newDepartment}
                 onChange={(e) => setNewDepartment(e.target.value)}
                 onKeyDown={(e) => {
@@ -264,19 +263,19 @@ export function BookAppointmentActionSheet({
                 disabled={draft.departments.length >= MAX_DEPARTMENTS}
               >
                 <AppIcon icon={PlusIcon} className="h-4 w-4" aria-hidden />
-                Add
+                {t("sheet.bookAppointment.addDepartment")}
               </Button>
             </div>
           </ActionSheetSection>
 
           <ActionSheetField
-            label="Notify email"
-            description="Optional — get an email when an appointment is booked."
+            label={t("sheet.bookAppointment.notifyEmail")}
+            description={t("sheet.bookAppointment.notifyEmailDescription")}
           >
             <Input
               id="book-appointment-notify"
               type="email"
-              placeholder="team@company.com"
+              placeholder={t("emailPlaceholder")}
               value={draft.notifyEmail}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, notifyEmail: e.target.value }))
@@ -287,24 +286,24 @@ export function BookAppointmentActionSheet({
         </>
       ) : (
         <ActionSheetEmpty>
-          Turn on to let the agent schedule appointments in chat and voice.
+          {t("sheet.bookAppointment.disabledDescription")}
         </ActionSheetEmpty>
       )}
 
-      <ActionSheetSection title="Recent bookings">
+      <ActionSheetSection title={t("sheet.bookAppointment.recentBookings")}>
         {appointmentsLoading ? (
-          <ActionSheetEmpty>Loading…</ActionSheetEmpty>
+          <ActionSheetEmpty>{t("sheet.bookAppointment.loading")}</ActionSheetEmpty>
         ) : recentAppointments.length === 0 ? (
-          <ActionSheetEmpty>No appointments booked yet for this agent.</ActionSheetEmpty>
+          <ActionSheetEmpty>{t("sheet.bookAppointment.noBookings")}</ActionSheetEmpty>
         ) : (
           <ActionSheetList>
             {recentAppointments.map((item) => (
               <ActionSheetListItem key={item.id}>
                 <p className="truncate text-body-sm text-ink">
-                  {formatAppointmentLabel(item)}
+                  {formatAppointmentLabel(item, t("sheet.unknown"))}
                 </p>
                 <p className="text-caption text-muted-soft">
-                  {formatAppointmentWhen(item)} · {formatRelativeTime(item.createdAt)}
+                  {formatAppointmentWhen(item)} · {formatRelativeTime(item.createdAt, t)}
                 </p>
               </ActionSheetListItem>
             ))}

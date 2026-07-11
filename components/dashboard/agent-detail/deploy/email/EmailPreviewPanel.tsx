@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 import { EMAIL_REPLY_SUBJECT_PREFIX_DEFAULT } from "@/lib/deploy/email-channel-config";
 
@@ -18,26 +19,25 @@ export function EmailPreviewPanel({
   draft,
   gmailSettings,
 }: EmailPreviewPanelProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const connected = gmailSettings.connection !== null;
   const mailbox = gmailSettings.connection?.googleEmail ?? "you@company.com";
   const prefix = draft.replySubjectPrefix.trim() || EMAIL_REPLY_SUBJECT_PREFIX_DEFAULT;
-  const sampleSubject = `${prefix} Order question`;
-  const sampleBody =
-    "Hi — thanks for reaching out. Your order is on its way and should arrive within 2–3 business days.";
+  const sampleSubject = `${prefix} ${t("orderQuestion")}`;
+  const sampleBody = t("orderReply");
   const signature = draft.signature.trim();
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t("preview")}</h3>
       </div>
 
       <div className="flex min-h-0 flex-1 items-center justify-center px-6 pb-8">
         {!connected ? (
           <div className="max-w-sm text-center">
             <p className="text-body-sm text-muted">
-              Connect Gmail on the Connection tab to enable live inbox automation. This preview
-              shows how replies will look.
+              {t("emailPreviewDisconnected")}
             </p>
           </div>
         ) : null}
@@ -57,29 +57,29 @@ export function EmailPreviewPanel({
             <div className="rounded-xl border border-hairline bg-canvas-soft/30">
               <div className="border-b border-hairline px-4 py-3 space-y-1">
                 <p className="text-caption text-muted-soft">
-                  <span className="text-muted">From:</span>{" "}
-                  <span className="text-ink">customer@example.com</span>
+                  <span className="text-muted">{t("from")}</span>{" "}
+                  <span className="text-ink">{t("customerEmail")}</span>
                 </p>
                 <p className="text-caption text-muted-soft">
-                  <span className="text-muted">To:</span>{" "}
+                  <span className="text-muted">{t("to")}</span>{" "}
                   <span className="text-ink">{mailbox}</span>
                 </p>
-                <p className="text-body-sm font-medium text-ink">Order question</p>
+                <p className="text-body-sm font-medium text-ink">{t("orderQuestion")}</p>
               </div>
               <div className="px-4 py-3 text-body-sm text-muted">
-                Hi, I placed an order yesterday — can you confirm when it will ship?
+                {t("orderQuestionMessage")}
               </div>
             </div>
 
             <div className="mt-4 rounded-xl border border-hairline bg-surface-card">
               <div className="border-b border-hairline px-4 py-3 space-y-1">
                 <p className="text-caption text-muted-soft">
-                  <span className="text-muted">From:</span>{" "}
+                  <span className="text-muted">{t("from")}</span>{" "}
                   <span className="text-ink">{mailbox}</span>
                 </p>
                 <p className="text-caption text-muted-soft">
-                  <span className="text-muted">To:</span>{" "}
-                  <span className="text-ink">customer@example.com</span>
+                  <span className="text-muted">{t("to")}</span>{" "}
+                  <span className="text-ink">{t("customerEmail")}</span>
                 </p>
                 <p className="text-body-sm font-medium text-ink">{sampleSubject}</p>
               </div>
@@ -93,8 +93,8 @@ export function EmailPreviewPanel({
                 ) : null}
               </div>
               <div className="border-t border-hairline-soft px-4 py-2 text-caption text-muted-soft">
-                Sent by {agentName}
-                {!draft.autoReplyEnabled ? " · Auto-reply off" : ""}
+                {t("sentBy", { agentName })}
+                {!draft.autoReplyEnabled ? ` · ${t("autoReplyOff")}` : ""}
               </div>
             </div>
           </div>

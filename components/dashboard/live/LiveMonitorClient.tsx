@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { LiveSession } from "@/lib/actions/sessions";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
@@ -14,20 +15,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const CHANNEL_META: Record<string, { src: string; label: string }> = {
-  VOICE:    { src: "/svg/call.svg",          label: "Voice" },
-  CHAT:     { src: "/svg/chat.svg",          label: "Chat" },
-  SMS:      { src: "/svg/send.svg",          label: "SMS" },
-  WHATSAPP: { src: "/svg/whatsapp-icon.svg", label: "WhatsApp" },
-  EMAIL:    { src: "/svg/gmail.svg",         label: "Email" },
+const CHANNEL_META: Record<string, { src: string; labelKey: string }> = {
+  VOICE:    { src: "/svg/call.svg",          labelKey: "channels.voice" },
+  CHAT:     { src: "/svg/chat.svg",          labelKey: "channels.chat" },
+  SMS:      { src: "/svg/send.svg",          labelKey: "channels.sms" },
+  WHATSAPP: { src: "/svg/whatsapp-icon.svg", labelKey: "channels.whatsApp" },
+  EMAIL:    { src: "/svg/gmail.svg",         labelKey: "channels.email" },
 };
 
-const STATUS_CFG: Record<string, { label: string; pill: string }> = {
-  ACTIVE:    { label: "Active",    pill: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
-  WAITING:   { label: "Waiting",   pill: "bg-amber-50 text-amber-800 ring-amber-100" },
-  BOT:       { label: "Bot",       pill: "bg-slate-50 text-slate-700 ring-slate-200" },
-  ESCALATED: { label: "Escalated", pill: "bg-red-50 text-red-700 ring-red-300" },
-  CLAIMED:   { label: "Claimed",   pill: "bg-blue-50 text-blue-700 ring-blue-300" },
+const STATUS_CFG: Record<string, { labelKey: string; pill: string }> = {
+  ACTIVE:    { labelKey: "statuses.active", pill: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
+  WAITING:   { labelKey: "statuses.waiting", pill: "bg-amber-50 text-amber-800 ring-amber-100" },
+  BOT:       { labelKey: "statuses.bot", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
+  ESCALATED: { labelKey: "statuses.escalated", pill: "bg-red-50 text-red-700 ring-red-300" },
+  CLAIMED:   { labelKey: "statuses.claimed", pill: "bg-blue-50 text-blue-700 ring-blue-300" },
 };
 
 const STATUS_ORDER = ["ACTIVE", "BOT", "WAITING", "ESCALATED", "CLAIMED"];
@@ -40,8 +41,8 @@ function formatDuration(seconds: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
+function formatTime(date: Date, locale: string): string {
+  return date.toLocaleTimeString(locale, {
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
@@ -60,6 +61,8 @@ export function LiveMonitorClient({
 }: {
   initialSessions: LiveSession[];
 }) {
+  const t = useTranslations("dashboard.live");
+  const locale = useLocale();
   const [liveSessions, setLiveSessions] = React.useState(initialSessions);
 
   React.useEffect(() => {
@@ -109,18 +112,18 @@ export function LiveMonitorClient({
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6">
         <div className="flex items-center justify-between">
           <h1 className="font-display text-display-sm tracking-tight text-ink">
-            Live Monitor
+            {t("title")}
           </h1>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-card px-3 py-[3px] text-body-sm font-medium text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-muted-soft" />
-            0 active
+            {t("activeCount", { count: 0 })}
           </span>
         </div>
         <div className="flex flex-col items-center justify-center rounded-xl border border-hairline bg-surface-card py-20">
           <RadioIcon />
-          <p className="mt-4 text-body-md text-muted">No active sessions</p>
+          <p className="mt-4 text-body-md text-muted">{t("empty.title")}</p>
           <p className="mt-1 text-body-sm text-muted-soft">
-            Live sessions from voice calls, chat, and other channels will appear here.
+            {t("empty.description")}
           </p>
         </div>
       </div>
@@ -131,11 +134,11 @@ export function LiveMonitorClient({
     <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-display-sm tracking-tight text-ink">
-          Live Monitor
+          {t("title")}
         </h1>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-card px-3 py-[3px] text-body-sm font-medium text-ink">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          {totalActive} active
+          {t("activeCount", { count: totalActive })}
         </span>
       </div>
 
@@ -149,7 +152,7 @@ export function LiveMonitorClient({
             <div key={status} className="rounded-xl border border-hairline bg-surface-card overflow-hidden">
               <div className="flex items-center gap-2 border-b border-hairline px-4 py-2.5">
                 <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-caption-uppercase font-semibold ring-1 ring-inset", cfg.pill)}>
-                  {cfg.label}
+                  {t(cfg.labelKey)}
                 </span>
                 <span className="text-caption text-muted">{group.length}</span>
               </div>
@@ -157,13 +160,13 @@ export function LiveMonitorClient({
                 <TableHeader>
                   <TableRow className="border-hairline">
                     <TableHead className="w-10" />
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Channel</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Customer</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Agent</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Duration</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Sentiment</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Last Activity</TableHead>
-                    <TableHead className="text-caption-uppercase text-muted font-semibold">Messages</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.channel")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.customer")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.agent")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.duration")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.sentiment")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.lastActivity")}</TableHead>
+                    <TableHead className="text-caption-uppercase text-muted font-semibold">{t("columns.messages")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -179,7 +182,7 @@ export function LiveMonitorClient({
                         {session.customerId ?? "—"}
                       </TableCell>
                       <TableCell className="text-body-sm text-body">
-                        {session.agentName ?? "AI"}
+                        {session.agentName ?? t("ai")}
                       </TableCell>
                       <TableCell className="text-body-sm text-body font-mono">
                         {formatDuration(session.duration)}
@@ -188,7 +191,7 @@ export function LiveMonitorClient({
                         {session.sentiment != null ? session.sentiment.toFixed(2) : "—"}
                       </TableCell>
                       <TableCell className="text-body-sm text-muted font-mono">
-                        {formatTime(session.startedAt)}
+                        {formatTime(session.startedAt, locale)}
                       </TableCell>
                       <TableCell className="text-body-sm text-muted">
                         {session.messageCount}
@@ -206,12 +209,13 @@ export function LiveMonitorClient({
 }
 
 function ChannelBadge({ channel }: { channel: string }) {
+  const t = useTranslations("dashboard.live");
   const meta = CHANNEL_META[channel];
   if (!meta) return <span className="text-body-sm text-muted">{channel}</span>;
   return (
     <span className="inline-flex items-center gap-1.5">
-      <Image src={meta.src} alt={meta.label} width={16} height={16} className="shrink-0" />
-      <span className="text-body-sm text-body">{meta.label}</span>
+      <Image src={meta.src} alt={t(meta.labelKey)} width={16} height={16} className="shrink-0" />
+      <span className="text-body-sm text-body">{t(meta.labelKey)}</span>
     </span>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon";
 import { ArrowLeftIcon } from "@/lib/icons/app-icons";
 
@@ -30,16 +31,17 @@ export function WhatsAppManageHeader({
   toggling,
   onWhatsappEnabledChange,
 }: WhatsAppManageHeaderProps) {
+  const t = useTranslations("dashboard.deploy.messaging.whatsapp");
   const tabs = useMemo((): DashboardTabItem<WhatsAppConfigTabId>[] => {
     if (!whatsappEnabled) {
-      return [{ id: "connect", label: "Connect" }];
+      return [{ id: "connect", label: t("tabs.connect") }];
     }
     return [
-      { id: "connect", label: "Connect" },
-      { id: "settings", label: "Settings" },
-      { id: "test", label: "Test" },
+      { id: "connect", label: t("tabs.connect") },
+      { id: "settings", label: t("tabs.settings") },
+      { id: "test", label: t("tabs.test") },
     ];
-  }, [whatsappEnabled]);
+  }, [t, whatsappEnabled]);
 
   return (
     <header className="sticky top-0 z-10 shrink-0 border-b border-hairline bg-surface-card">
@@ -49,27 +51,27 @@ export function WhatsAppManageHeader({
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
           <AppIcon icon={ArrowLeftIcon} size={14} className="size-3.5" />
-          Back to Deploy
+          {t("header.backToDeploy")}
         </Link>
 
         <div className="flex items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
             <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-              WhatsApp
+              {t("header.title")}
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">
-              Connect your WhatsApp Business number — we handle Twilio and webhooks for you
+              {t("header.subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">
             <span className="text-caption text-muted">
-              {whatsappEnabled ? "Enabled" : "Disabled"}
+              {whatsappEnabled ? t("header.enabled") : t("header.disabled")}
             </span>
             <Switch
               checked={whatsappEnabled}
               disabled={toggling}
               onCheckedChange={onWhatsappEnabledChange}
-              aria-label="Enable WhatsApp deployment"
+              aria-label={t("header.enable")}
             />
           </div>
         </div>
@@ -80,7 +82,7 @@ export function WhatsAppManageHeader({
         activeTab={activeTab}
         onTabChange={onTabChange}
         layoutId="whatsappManageTab"
-        ariaLabel="WhatsApp configuration"
+        ariaLabel={t("header.configuration")}
         className="px-4"
       />
     </header>

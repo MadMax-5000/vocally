@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { HelpPageNavLink } from "@/lib/deploy/web-chat-config";
 import { cn } from "@/lib/utils";
+import { useDeploySitesMessages } from "../useDeploySitesMessages";
 
 import { chatWidgetFieldInputClass } from "../chat-widget/ChatWidgetSettingRow";
 
@@ -15,6 +16,8 @@ type HelpPageNavLinksEditorProps = {
 };
 
 export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEditorProps) {
+  const t = useDeploySitesMessages().helpPage.navigation;
+
   function updateLink(index: number, patch: Partial<HelpPageNavLink>) {
     const next = [...links];
     next[index] = { ...next[index], ...patch };
@@ -46,17 +49,17 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
   return (
     <div className="space-y-3 border-b border-hairline py-4">
       <div className="flex items-center gap-1.5">
-        <h4 className="text-body-sm text-muted">Sidebar navigation</h4>
-        <span title="Buttons shown in the help page sidebar. Primary uses a filled style.">
+        <h4 className="text-body-sm text-muted">{t.title}</h4>
+        <span title={t.info}>
           <AppIcon icon={InfoIcon} className="size-3.5 text-muted-soft" aria-hidden />
         </span>
       </div>
       <p className="text-caption text-muted-soft">
-        Add links for your customers (e.g. docs, pricing). Opens in a new tab.
+        {t.description}
       </p>
 
       {links.length === 0 ? (
-        <p className="py-2 text-center text-body-sm text-muted-soft">No sidebar links yet</p>
+        <p className="py-2 text-center text-body-sm text-muted-soft">{t.empty}</p>
       ) : (
         <ul className="space-y-3">
           {links.map((link, index) => (
@@ -75,7 +78,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
                       : "bg-surface-strong text-muted hover:text-ink",
                   )}
                 >
-                  {link.variant === "primary" ? "Primary" : "Set as primary"}
+                  {link.variant === "primary" ? t.primary : t.setPrimary}
                 </button>
                 <Button
                   type="button"
@@ -83,7 +86,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
                   size="icon"
                   className="size-8 shrink-0 text-muted hover:text-error"
                   onClick={() => removeLink(index)}
-                  aria-label="Remove link"
+                  aria-label={t.remove}
                 >
                   <AppIcon icon={Trash2Icon} className="size-4" />
                 </Button>
@@ -91,13 +94,13 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
               <Input
                 value={link.label}
                 onChange={(e) => updateLink(index, { label: e.target.value })}
-                placeholder="Button label"
+                placeholder={t.labelPlaceholder}
                 className={chatWidgetFieldInputClass}
               />
               <Input
                 value={link.href}
                 onChange={(e) => updateLink(index, { href: e.target.value })}
-                placeholder="https://example.com or /docs"
+                placeholder={t.hrefPlaceholder}
                 className={chatWidgetFieldInputClass}
               />
             </li>
@@ -113,7 +116,7 @@ export function HelpPageNavLinksEditor({ links, onChange }: HelpPageNavLinksEdit
         disabled={links.length >= 8}
       >
         <AppIcon icon={PlusIcon} className="mr-1.5 size-4" />
-        Add sidebar link
+        {t.add}
       </Button>
     </div>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon"
 import { RotateCcw } from "@/lib/icons/app-icons"
 
@@ -26,6 +27,7 @@ export function ChatWidgetColorField({
   onChange,
   className,
 }: ChatWidgetColorFieldProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const display = normalizeHex(value) ?? defaultValue;
 
   return (
@@ -36,7 +38,7 @@ export function ChatWidgetColorField({
           value={display}
           onChange={(e) => onChange(e.target.value)}
           className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
-          aria-label="Pick color"
+          aria-label={t("pickColor")}
         />
         <Input
           value={value}
@@ -56,7 +58,7 @@ export function ChatWidgetColorField({
         size="icon"
         className="size-10 shrink-0 rounded-lg border-hairline bg-surface-card"
         onClick={() => onChange(defaultValue)}
-        aria-label="Reset color"
+        aria-label={t("resetColor")}
       >
         <AppIcon icon={RotateCcw} className="size-3.5" />
       </Button>

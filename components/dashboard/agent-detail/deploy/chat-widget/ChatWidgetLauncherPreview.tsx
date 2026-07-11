@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon"
 import { MessageCircle } from "@/lib/icons/app-icons"
 
@@ -18,6 +19,7 @@ export function ChatWidgetLauncherPreview({
   showPopup,
   className,
 }: ChatWidgetLauncherPreviewProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   return (
     <div
       className={cn(
@@ -35,7 +37,7 @@ export function ChatWidgetLauncherPreview({
         disabled
         className="flex size-12 items-center justify-center rounded-full text-white shadow-lg"
         style={{ backgroundColor: bubbleColor }}
-        aria-label="Chat launcher preview"
+        aria-label={t("launcherPreview")}
       >
         <AppIcon icon={MessageCircle} className="size-5" />
       </button>

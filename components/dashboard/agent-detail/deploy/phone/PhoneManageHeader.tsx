@@ -2,8 +2,9 @@
 import { AppIcon } from "@/components/ui/app-icon"
 import { ArrowLeftIcon } from "@/lib/icons/app-icons"
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   DashboardTabBar,
@@ -30,13 +31,14 @@ export function PhoneManageHeader({
   toggling,
   onPhoneEnabledChange,
 }: PhoneManageHeaderProps) {
+  const t = useTranslations("dashboard.deploy");
   const tabs = useMemo((): DashboardTabItem<PhoneConfigTabId>[] => {
-    if (!phoneEnabled) return [{ id: "numbers", label: "Numbers" }];
+    if (!phoneEnabled) return [{ id: "numbers", label: t("phone.numbers") }];
     return [
-      { id: "numbers", label: "Numbers" },
-      { id: "settings", label: "Settings" },
+      { id: "numbers", label: t("phone.numbers") },
+      { id: "settings", label: t("common.settings") },
     ];
-  }, [phoneEnabled]);
+  }, [phoneEnabled, t]);
 
   return (
     <header className="sticky top-0 z-10 shrink-0 border-b border-hairline bg-surface-card">
@@ -46,27 +48,27 @@ export function PhoneManageHeader({
           className="mb-3 inline-flex items-center gap-1.5 text-body-sm text-muted transition-colors hover:text-ink"
         >
           <AppIcon icon={ArrowLeftIcon} className="size-3.5" />
-          Back to Deploy
+          {t("common.backToDeploy")}
         </Link>
 
         <div className="flex items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
             <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-              Phone
+              {t("phone.title")}
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">
-              Connect a Twilio number via Vapi for AI voice calls
+              {t("phone.subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2 pt-1">
             <span className="text-caption text-muted">
-              {phoneEnabled ? "Enabled" : "Disabled"}
+              {phoneEnabled ? t("common.enabled") : t("common.disabled")}
             </span>
             <Switch
               checked={phoneEnabled}
               disabled={toggling}
               onCheckedChange={onPhoneEnabledChange}
-              aria-label="Enable phone deployment"
+              aria-label={t("phone.enable")}
             />
           </div>
         </div>
@@ -77,7 +79,7 @@ export function PhoneManageHeader({
         activeTab={activeTab}
         onTabChange={onTabChange}
         layoutId="phoneManageTab"
-        ariaLabel="Phone configuration"
+        ariaLabel={t("phone.configuration")}
         className="px-4"
       />
     </header>

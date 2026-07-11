@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon"
 import { InfoIcon, PlusIcon, Trash2Icon } from "@/lib/icons/app-icons"
 
@@ -31,6 +32,7 @@ export function ChatWidgetSuggestedMessages({
   onKeepShowingChange,
   variant = "deploy",
 }: ChatWidgetSuggestedMessagesProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   const isActionSheet = variant === "action-sheet";
 
   function addMessage() {
@@ -55,20 +57,20 @@ export function ChatWidgetSuggestedMessages({
     <div className={cn("space-y-3", !isActionSheet && "border-b border-hairline py-4")}>
       {!isActionSheet ? (
         <div className="flex items-center gap-1.5">
-          <h4 className="text-body-sm text-muted">Suggested messages</h4>
+          <h4 className="text-body-sm text-muted">{t("suggestedMessages")}</h4>
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
                   className="text-muted hover:text-ink"
-                  aria-label="About suggested messages"
+                  aria-label={t("aboutSuggestedMessages")}
                 >
                   <AppIcon icon={InfoIcon} className="size-3.5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs text-body-sm">
-                Quick-reply chips visitors can tap to start a conversation.
+                {t("suggestedMessagesHint")}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -77,16 +79,16 @@ export function ChatWidgetSuggestedMessages({
 
       {isActionSheet ? (
         <ActionSheetToggleRow
-          label="Keep showing after first message"
-          description="Show suggested messages after the visitor sends their first message."
+          label={t("keepSuggestedMessages")}
+          description={t("keepSuggestedMessagesHint")}
         >
           <Switch checked={keepShowing} onCheckedChange={onKeepShowingChange} />
         </ActionSheetToggleRow>
       ) : (
         <ChatWidgetSettingRow
           variant="row"
-          label="Keep showing suggested messages"
-          tooltip="Show suggested messages after the visitor sends their first message."
+          label={t("keepSuggestedMessages")}
+          tooltip={t("keepSuggestedMessagesHint")}
           noBorder
         >
           <Switch checked={keepShowing} onCheckedChange={onKeepShowingChange} />
@@ -95,7 +97,7 @@ export function ChatWidgetSuggestedMessages({
 
       {messages.length === 0 ? (
         <p className="py-2 text-center text-body-sm text-muted-soft">
-          No suggested messages yet
+          {t("noSuggestedMessages")}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -104,7 +106,7 @@ export function ChatWidgetSuggestedMessages({
               <Input
                 value={msg}
                 onChange={(e) => updateMessage(index, e.target.value)}
-                placeholder="Suggested message"
+                placeholder={t("suggestedMessage")}
                 className={inputClass}
               />
               <Button
@@ -113,7 +115,7 @@ export function ChatWidgetSuggestedMessages({
                 size="icon"
                 className="size-9 shrink-0 text-muted hover:text-error"
                 onClick={() => removeMessage(index)}
-                aria-label="Remove message"
+                aria-label={t("removeMessage")}
               >
                 <AppIcon icon={Trash2Icon} className="size-4" />
               </Button>
@@ -134,7 +136,7 @@ export function ChatWidgetSuggestedMessages({
         onClick={addMessage}
       >
         <AppIcon icon={PlusIcon} className="mr-1.5 size-4" />
-        Add suggested message
+        {t("addSuggestedMessage")}
       </Button>
     </div>
   );

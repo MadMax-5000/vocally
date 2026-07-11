@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import { DeployFeaturedCard } from "@/components/dashboard/agent-detail/deploy/DeployFeaturedCard";
 import {
@@ -39,6 +40,7 @@ function buildIntegrationState(
 }
 
 export function AgentDetailDeployTab({ agent }: Props) {
+  const t = useTranslations("dashboard.agentDetail.deploy");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -75,7 +77,7 @@ export function AgentDetailDeployTab({ agent }: Props) {
       });
       if (!result.success) {
         rollback();
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? t("failedUpdate"));
         return;
       }
       router.refresh();
@@ -95,7 +97,7 @@ export function AgentDetailDeployTab({ agent }: Props) {
       });
       if (!result.success) {
         setIntegrationEnabled((prev) => ({ ...prev, [id]: previous }));
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? t("failedUpdate"));
         return;
       }
       router.refresh();
@@ -108,10 +110,10 @@ export function AgentDetailDeployTab({ agent }: Props) {
     <div className="mx-auto flex max-w-6xl flex-col gap-3 py-2">
       <div>
         <h2 className="font-display text-display-sm font-normal tracking-tight text-ink">
-          All channels
+          {t("title")}
         </h2>
         <p className="mt-0.5 text-body-sm text-muted">
-          Deploy your agent across web, messaging, and integrations.
+          {t("description")}
         </p>
       </div>
 

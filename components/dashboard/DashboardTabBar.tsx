@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export type DashboardTabItem<T extends string> = {
@@ -22,9 +23,11 @@ export function DashboardTabBar<T extends string>({
   activeTab,
   onTabChange,
   layoutId,
-  ariaLabel = "Sections",
+  ariaLabel,
   className,
 }: DashboardTabBarProps<T>) {
+  const t = useTranslations("dashboard.common");
+
   return (
     <div
       className={cn(
@@ -34,7 +37,7 @@ export function DashboardTabBar<T extends string>({
     >
       <nav
         className="flex overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        aria-label={ariaLabel}
+        aria-label={ariaLabel ?? t("sections")}
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;

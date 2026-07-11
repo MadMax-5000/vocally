@@ -3,8 +3,9 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { FileText, Globe, Library, LoaderIcon, MoreHorizontal, SearchIcon, TypeIcon, UploadIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 
 import type { KnowledgeSourceKind } from "@prisma/client";
 import { Button } from "@/components/ui/button";
@@ -66,9 +67,9 @@ type OrgDocRow = {
 const kbModalPrimaryClass =
   "h-9 rounded-md bg-ink px-4 text-body-sm font-medium text-on-primary shadow-none hover:bg-body-strong disabled:opacity-50";
 
-function formatRowDate(iso: string): string {
+function formatRowDate(iso: string, locale: string): string {
   try {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -95,13 +96,15 @@ function DocRowActions({
   docId: string;
   onDetached: () => void;
 }) {
+  const t = useTranslations("dashboard.agentDetail.knowledge");
+
   async function handleDetach() {
     const res = await detachKnowledgeDocFromAgent(agentId, docId);
     if (res.success) {
-      toast.success("Document detached");
+      toast.success(t("documentDetached"));
       onDetached();
     } else {
-      toast.error(res.error ?? "Detach failed");
+      toast.error(res.error ?? t("detachFailed"));
     }
   }
 
@@ -111,7 +114,7 @@ function DocRowActions({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="Document actions"
+          aria-label={t("documentActions")}
           className="h-8 w-8 text-muted transition-all hover:bg-surface-strong hover:text-ink"
         >
           <AppIcon icon={MoreHorizontal} className="h-4 w-4" />
@@ -125,7 +128,7 @@ function DocRowActions({
           onClick={handleDetach}
           className="text-semantic-error focus:text-semantic-error"
         >
-          Detach document
+          {t("detachDocument")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -154,6 +157,7 @@ function UrlDialog({
   onOpenChange: (o: boolean) => void;
   onSuccessDocIds: (docIds: string[]) => void;
 }) {
+  const t = useTranslations("dashboard.agentDetail.knowledge");
   const [busy, setBusy] = React.useState(false);
   const [url, setUrl] = React.useState("");
 
@@ -174,7 +178,7 @@ function UrlDialog({
         toast.error(res.error);
         return;
       }
-      toast.success("URL added");
+      toast.success(t("urlAdded"));
       const ids = ("docIds" in res && Array.isArray(res.docIds) ? res.docIds : []).filter(
         (x): x is string => typeof x === "string" && x.length > 0,
       );
@@ -188,18 +192,18 @@ function UrlDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-        <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title="Add URL" />
+        <ModalHeader icon={<AppIcon icon={Globe} className="h-5 w-5" aria-hidden />} title={t("addUrl")} />
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="agent-kb-url" className="text-body-sm font-medium text-body-strong">
-              URL
+              {t("url")}
             </Label>
             <Input
               id="agent-kb-url"
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
+              placeholder={t("urlPlaceholder")}
               required
             />
           </div>
@@ -207,7 +211,7 @@ function UrlDialog({
             <div className="flex justify-end">
               <Button type="submit" disabled={busy || !url} className={kbModalPrimaryClass}>
                 {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
-                {busy ? "Fetching…" : "Add URL"}
+                {busy ? t("fetching") : t("addUrl")}
               </Button>
             </div>
           </div>
@@ -226,6 +230,7 @@ function FilesDialog({
   onOpenChange: (o: boolean) => void;
   onSuccessDocIds: (docIds: string[]) => void;
 }) {
+  const t = useTranslations("dashboard.agentDetail.knowledge");
   const [busy, setBusy] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [files, setFiles] = React.useState<File[]>([]);
@@ -250,7 +255,7 @@ function FilesDialog({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!files.length) {
-      toast.error("Add at least one file");
+      toast.error(t("addFileRequired"));
       return;
     }
     setBusy(true);
@@ -262,7 +267,7 @@ function FilesDialog({
         toast.error(res.error);
         return;
       }
-      toast.success("Files uploaded");
+      toast.success(t("filesUploaded"));
       const ids = ("docIds" in res && Array.isArray(res.docIds) ? res.docIds : []).filter(
         (x): x is string => typeof x === "string" && x.length > 0,
       );
@@ -276,7 +281,7 @@ function FilesDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[480px]">
-        <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title="Add Files" />
+        <ModalHeader icon={<AppIcon icon={UploadIcon} className="h-5 w-5" aria-hidden />} title={t("addFiles")} />
         <form onSubmit={onSubmit} className="space-y-4">
           <div
             role="presentation"
@@ -303,15 +308,15 @@ function FilesDialog({
             )}
           >
             <AppIcon icon={UploadIcon} className="mb-3 h-8 w-8 text-muted" aria-hidden />
-            <p className="text-body-sm text-body">Drag and drop files here</p>
+            <p className="text-body-sm text-body">{t("dragAndDrop")}</p>
             <p className="mt-1 text-caption text-muted">
-              or{" "}
+              {t("or")}{" "}
               <span className="font-medium text-ink underline underline-offset-2">
-                browse
+                {t("browse")}
               </span>{" "}
-              from your computer
+              {t("fromComputer")}
             </p>
-            <p className="mt-2 text-caption text-muted-soft">Supported formats: PDF, DOCX, TXT</p>
+            <p className="mt-2 text-caption text-muted-soft">{t("supportedFormats")}</p>
             <input
               ref={inputRef}
               type="file"
@@ -346,7 +351,7 @@ function FilesDialog({
                       removeFile(i);
                     }}
                     className="h-6 w-6 shrink-0 rounded-md text-muted-soft opacity-0 transition-opacity hover:text-ink group-hover:opacity-100"
-                    aria-label={`Remove ${f.name}`}
+                    aria-label={t("removeFile", { name: f.name })}
                   >
                     ×
                   </button>
@@ -363,7 +368,7 @@ function FilesDialog({
                 className={kbModalPrimaryClass}
               >
                 {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
-                {busy ? "Uploading…" : `Upload${files.length ? ` (${files.length})` : ""}`}
+                {busy ? t("uploading") : t("upload", { count: files.length })}
               </Button>
             </div>
           </div>
@@ -382,6 +387,7 @@ function TextDialog({
   onOpenChange: (o: boolean) => void;
   onSuccessDocIds: (docIds: string[]) => void;
 }) {
+  const t = useTranslations("dashboard.agentDetail.knowledge");
   const [busy, setBusy] = React.useState(false);
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
@@ -403,7 +409,7 @@ function TextDialog({
         toast.error(res.error);
         return;
       }
-      toast.success("Text document created");
+      toast.success(t("textDocumentCreated"));
       const ids = ("docId" in res && typeof res.docId === "string" ? [res.docId] : []).filter(
         (x): x is string => typeof x === "string" && x.length > 0,
       );
@@ -417,23 +423,23 @@ function TextDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden rounded-xl border-hairline bg-surface-card p-4 shadow-md sm:max-w-[520px]">
-        <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title="Create Text" />
+        <ModalHeader icon={<AppIcon icon={TypeIcon} className="h-5 w-5" aria-hidden />} title={t("createText")} />
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="agent-kb-text-title" className="text-body-sm font-medium text-body-strong">
-              Document title
+              {t("documentTitle")}
             </Label>
             <Input
               id="agent-kb-text-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title"
+              placeholder={t("titlePlaceholder")}
               required
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="agent-kb-text-content" className="text-body-sm font-medium text-body-strong">
-              Content
+              {t("content")}
             </Label>
             <Textarea
               id="agent-kb-text-content"
@@ -441,7 +447,7 @@ function TextDialog({
               onChange={(e) => setContent(e.target.value)}
               required
               rows={8}
-              placeholder="Write or paste your knowledge text here…"
+              placeholder={t("contentPlaceholder")}
               className="min-h-[160px] resize-y rounded-xl border-hairline bg-surface-card text-body-sm placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
             />
           </div>
@@ -449,7 +455,7 @@ function TextDialog({
             <div className="flex justify-end">
               <Button type="submit" disabled={busy} className={kbModalPrimaryClass}>
                 {busy ? <AppIcon icon={LoaderIcon} className="h-4 w-4 animate-spin" /> : null}
-                {busy ? "Saving…" : "Save Document"}
+                {busy ? t("saving") : t("saveDocument")}
               </Button>
             </div>
           </div>
@@ -480,6 +486,7 @@ function AddDocumentMenuContent({
   onAddText: () => void;
   align?: "start" | "center" | "end";
 }) {
+  const t = useTranslations("dashboard.agentDetail.knowledge");
   const searchRef = React.useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState<"all" | KnowledgeSourceKind>("all");
@@ -517,7 +524,7 @@ function AddDocumentMenuContent({
         <Textarea
           ref={searchRef}
           autoFocus
-          placeholder="Search documents..."
+          placeholder={t("search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           rows={1}
@@ -534,15 +541,15 @@ function AddDocumentMenuContent({
               size="sm"
               className="h-6 rounded-md border-hairline bg-surface-card px-2 text-[12px] font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              + Type
+              + {t("type")}
               {typeFilter !== "all" ? ` (${typeFilter})` : ""}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="min-w-[10rem] rounded-xl border-hairline bg-surface-card">
-            <DropdownMenuItem onClick={() => setTypeFilter("all")}>All types</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("URL")}>URL</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>File</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>Text</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("all")}>{t("allTypes")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("URL")}>{t("sourceUrl")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>{t("sourceFile")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>{t("sourceText")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
@@ -552,16 +559,16 @@ function AddDocumentMenuContent({
               size="sm"
               className="h-6 rounded-md border-hairline bg-surface-card px-2 text-[12px] font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              + Creator
+              + {t("creator")}
               {creatorFilter !== "all" ? ` (${creatorFilter})` : ""}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="min-w-[12rem] rounded-xl border-hairline bg-surface-card">
             <DropdownMenuItem onClick={() => setCreatorFilter("all")}>
-              All creators
+              {t("allCreators")}
             </DropdownMenuItem>
             {creators.length === 0 ? (
-              <DropdownMenuItem disabled>No creators</DropdownMenuItem>
+              <DropdownMenuItem disabled>{t("noCreators")}</DropdownMenuItem>
             ) : (
               creators.map((c) => (
                 <DropdownMenuItem key={c} onClick={() => setCreatorFilter(c)}>
@@ -581,11 +588,11 @@ function AddDocumentMenuContent({
         {orgDocsBusy ? (
           <div className="flex items-center justify-center py-6 text-body-sm text-muted">
             <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
-            Loading…
+            {t("loading")}
           </div>
         ) : displayDocs.length === 0 ? (
           <div className="py-4 text-center text-body-sm text-muted">
-            No documents found.
+            {t("noDocumentsFound")}
           </div>
         ) : (
           <div className="space-y-0.5">
@@ -629,7 +636,7 @@ function AddDocumentMenuContent({
           onClick={onAddUrl}
         >
           <AppIcon icon={Globe} className="mr-2 h-4 w-4 text-muted" aria-hidden />
-          Add URL
+          {t("addUrl")}
         </Button>
         <Button
           type="button"
@@ -639,7 +646,7 @@ function AddDocumentMenuContent({
           onClick={onAddFiles}
         >
           <AppIcon icon={UploadIcon} className="mr-2 h-4 w-4 text-muted" aria-hidden />
-          Add Files
+          {t("addFiles")}
         </Button>
         <Button
           type="button"
@@ -649,7 +656,7 @@ function AddDocumentMenuContent({
           onClick={onAddText}
         >
           <AppIcon icon={TypeIcon} className="mr-2 h-4 w-4 text-muted" aria-hidden />
-          Create Text
+          {t("createText")}
         </Button>
       </div>
     </DropdownMenuContent>
@@ -662,6 +669,8 @@ function AddDocumentMenuContent({
 
 export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("dashboard.agentDetail.knowledge");
   const [, startTransition] = React.useTransition();
 
   const [busy, setBusy] = React.useState(true);
@@ -691,12 +700,12 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
       if (res.success) {
         setRows(res.data.rows);
       } else {
-        toast.error(res.error ?? "Failed to load attached documents");
+        toast.error(res.error ?? t("loadAttachedFailed"));
       }
     } finally {
       setBusy(false);
     }
-  }, [agentId]);
+  }, [agentId, t]);
 
   React.useEffect(() => {
     void load();
@@ -731,7 +740,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
     try {
       const res = await getOrgKnowledgeDocs();
       if (res.success) setOrgDocs(res.data);
-      else toast.error(res.error ?? "Failed to load knowledge documents");
+      else toast.error(res.error ?? t("loadDocumentsFailed"));
     } finally {
       setOrgDocsBusy(false);
     }
@@ -741,7 +750,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
     for (const id of ids) {
       const res = await attachKnowledgeDocToAgent(agentId, id);
       if (!res.success) {
-        toast.error(res.error ?? "Attach failed");
+        toast.error(res.error ?? t("attachFailed"));
         return;
       }
     }
@@ -752,12 +761,12 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
   async function onSelectOrgDoc(docId: string, closeMenu: () => void) {
     const res = await attachKnowledgeDocToAgent(agentId, docId);
     if (res.success) {
-      toast.success("Document attached");
+      toast.success(t("documentAttached"));
       closeMenu();
       await load();
       refresh();
     } else {
-      toast.error(res.error ?? "Attach failed");
+      toast.error(res.error ?? t("attachFailed"));
     }
   }
 
@@ -766,7 +775,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-            Agent Knowledge Base
+            {t("title")}
           </h1>
           <KnowledgeIcon className="h-4 w-4 text-muted" aria-hidden />
         </div>
@@ -777,9 +786,9 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
             variant="outline"
             size="sm"
             className="h-8 rounded-md border-hairline bg-surface-card px-3 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
-            onClick={() => toast.message("Coming soon")}
+            onClick={() => toast.message(t("configureRag"), { description: t("comingSoon") })}
           >
-            Configure RAG
+            {t("configureRag")}
           </Button>
 
           <DropdownMenu
@@ -791,7 +800,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
           >
             <DropdownMenuTrigger asChild>
               <Button type="button" size="sm" variant="primary" className="h-8">
-                Add document
+                {t("addDocument")}
               </Button>
             </DropdownMenuTrigger>
             <AddDocumentMenuContent
@@ -814,7 +823,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
           aria-hidden
         />
         <Input
-          placeholder="Search Knowledge Base..."
+          placeholder={t("search")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="h-10 rounded-md border-hairline bg-surface-card pl-9 text-body-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
@@ -829,7 +838,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
               size="sm"
               className="h-6 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              + Type
+              + {t("type")}
               {typeFilter !== "all" ? ` (${typeFilter})` : ""}
             </Button>
           </DropdownMenuTrigger>
@@ -837,10 +846,10 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
             align="start"
             className="min-w-[10rem] rounded-xl border-hairline bg-surface-card"
           >
-            <DropdownMenuItem onClick={() => setTypeFilter("all")}>All types</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("URL")}>URL</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>File</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>Text</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("all")}>{t("allTypes")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("URL")}>{t("sourceUrl")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("FILE")}>{t("sourceFile")}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("TEXT")}>{t("sourceText")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -851,7 +860,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
               size="sm"
               className="h-6 rounded-md border-hairline bg-surface-card py-1 px-2 text-body-sm font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              + Creator
+              + {t("creator")}
               {creatorFilter !== "all" ? ` (${creatorFilter})` : ""}
             </Button>
           </DropdownMenuTrigger>
@@ -860,7 +869,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
             className="min-w-[12rem] rounded-xl border-hairline bg-surface-card"
           >
             <DropdownMenuItem onClick={() => setCreatorFilter("all")}>
-              All creators
+              {t("allCreators")}
             </DropdownMenuItem>
             {creators.map((c) => (
               <DropdownMenuItem key={c} onClick={() => setCreatorFilter(c)}>
@@ -875,16 +884,16 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
         {busy ? (
           <div className="flex items-center justify-center py-20 text-body-sm text-muted">
             <AppIcon icon={LoaderIcon} className="mr-2 h-4 w-4 animate-spin" />
-            Loading…
+            {t("loading")}
           </div>
         ) : filteredRows.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
               <AppIcon icon={Library} className="h-6 w-6 text-ink" aria-hidden />
             </div>
-            <h3 className="text-base font-semibold text-ink">No documents found</h3>
+            <h3 className="text-base font-semibold text-ink">{t("noDocumentsFound")}</h3>
             <p className="mt-1 max-w-sm text-body-sm text-muted">
-              This agent has no attached documents yet.
+              {t("emptyDescription")}
             </p>
             <div className="mt-4">
               <DropdownMenu
@@ -896,7 +905,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
               >
                 <DropdownMenuTrigger asChild>
                   <Button type="button" variant="primary">
-                    Add document
+                    {t("addDocument")}
                   </Button>
                 </DropdownMenuTrigger>
                 <AddDocumentMenuContent
@@ -916,13 +925,13 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
             <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="pl-0 text-xs font-medium uppercase tracking-wider text-muted">
-                    Name
+                    {t("name")}
                   </TableHead>
                   <TableHead className="text-xs font-medium uppercase tracking-wider text-muted">
-                    Created by
+                    {t("createdBy")}
                   </TableHead>
                   <TableHead className="text-right text-xs font-medium uppercase tracking-wider text-muted">
-                    Last updated
+                    {t("lastUpdated")}
                   </TableHead>
                   <TableHead className="w-[44px]" />
               </TableRow>
@@ -951,7 +960,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
                     {row.creatorEmail}
                   </TableCell>
                   <TableCell className="py-1 text-right text-caption text-muted">
-                    {formatRowDate(row.updatedAt)}
+                    {formatRowDate(row.updatedAt, locale)}
                   </TableCell>
                   <TableCell className="py-1 text-right">
                     <DocRowActions

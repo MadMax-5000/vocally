@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { CheckIcon, CopyIcon } from "@/lib/icons/app-icons"
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { useEmbedOrigin } from "@/lib/deploy/embed-urls";
@@ -14,13 +15,15 @@ type ApiExamplesTabProps = {
   apiToken: string;
 };
 
-const LANGUAGES: { id: ApiSampleLanguage; label: string }[] = [
-  { id: "curl", label: "cURL" },
-  { id: "javascript", label: "JavaScript" },
-  { id: "python", label: "Python" },
+const LANGUAGES: { id: ApiSampleLanguage; labelKey: "curl" | "javascript" | "python" }[] = [
+  { id: "curl", labelKey: "curl" },
+  { id: "javascript", labelKey: "javascript" },
+  { id: "python", labelKey: "python" },
 ];
 
 export function ApiExamplesTab({ agentId, apiToken }: ApiExamplesTabProps) {
+  const t = useTranslations("dashboard.deploy.api");
+  const tCommon = useTranslations("dashboard.deploy.common");
   const origin = useEmbedOrigin();
   const [activeLanguage, setActiveLanguage] = useState<ApiSampleLanguage>("curl");
   const [copied, setCopied] = useState(false);
@@ -40,10 +43,7 @@ export function ApiExamplesTab({ agentId, apiToken }: ApiExamplesTabProps) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-body-sm text-muted">
-          Send messages to your agent from your backend. Include your API key in the
-          Authorization header.
-        </p>
+        <p className="text-body-sm text-muted">{t("examplesDescription")}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -59,7 +59,7 @@ export function ApiExamplesTab({ agentId, apiToken }: ApiExamplesTabProps) {
                 : "bg-surface-strong text-muted hover:text-ink",
             )}
           >
-            {lang.label}
+            {t(lang.labelKey)}
           </button>
         ))}
       </div>
@@ -74,11 +74,11 @@ export function ApiExamplesTab({ agentId, apiToken }: ApiExamplesTabProps) {
         >
           {copied ? (
             <>
-              <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> Copied
+              <AppIcon icon={CheckIcon} className="h-3.5 w-3.5" /> {tCommon("copied")}
             </>
           ) : (
             <>
-              <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> Copy code
+              <AppIcon icon={CopyIcon} className="h-3.5 w-3.5" /> {t("copyCode")}
             </>
           )}
         </Button>
@@ -89,9 +89,9 @@ export function ApiExamplesTab({ agentId, apiToken }: ApiExamplesTabProps) {
       </pre>
 
       <p className="text-caption text-muted">
-        Pass{" "}
-        <code className="rounded bg-surface-strong px-1 py-0.5 font-mono">sessionId</code> from
-        the response to continue a conversation across requests.
+        {t("sessionHintBefore")}{" "}
+        <code className="rounded bg-surface-strong px-1 py-0.5 font-mono">sessionId</code>{" "}
+        {t("sessionHintAfter")}
       </p>
     </div>
   );

@@ -56,26 +56,26 @@ export function draftsEqual(a: EscalationsActionDraft, b: EscalationsActionDraft
 export const TRIGGER_FIELD_MAP: {
   key: keyof EscalationsActionDraft["triggers"];
   trigger: EscalationTrigger;
-  label: string;
+  labelKey: "userRequested" | "negativeSentiment" | "aiFailure" | "unsupportedRequest";
 }[] = [
   {
     key: "userRequested",
     trigger: EscalationTrigger.USER_REQUESTED,
-    label: "Customer asks for a human",
+    labelKey: "userRequested",
   },
   {
     key: "negativeSentiment",
     trigger: EscalationTrigger.NEGATIVE_SENTIMENT,
-    label: "Negative sentiment or frustration",
+    labelKey: "negativeSentiment",
   },
   {
     key: "aiFailure",
     trigger: EscalationTrigger.AI_FAILURE,
-    label: "AI failure or repeated fallback",
+    labelKey: "aiFailure",
   },
   {
     key: "unsupportedRequest",
     trigger: EscalationTrigger.UNSUPPORTED_REQUEST,
-    label: "Request outside AI capabilities",
+    labelKey: "unsupportedRequest",
   },
 ];

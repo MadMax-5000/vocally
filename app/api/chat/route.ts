@@ -11,6 +11,7 @@ const chatRequestSchema = z.object({
   sessionId: z.string().nullable().optional(),
   message: z.string().min(1).max(4000),
   deployment: z.enum(["widget", "help"]).optional(),
+  context: z.string().max(500).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
       sessionId: existingSessionId,
       message,
       deployment = "widget",
+      context,
     } = parsed.data;
 
     const agent = await prisma.agent.findUnique({
@@ -83,6 +85,7 @@ export async function POST(req: NextRequest) {
       sessionId: existingSessionId,
       message,
       deployment,
+      context,
     });
 
     if (!result.ok) {

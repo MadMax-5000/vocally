@@ -1,10 +1,11 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { ProductAssistantWidget } from "@/components/dashboard/ProductAssistantWidget";
 
 /**
  * Fullscreen routes under /dashboard (no sidebar/topbar) must be listed here.
@@ -30,7 +31,12 @@ export function DashboardRouteLayout({
   const hideDashboardTopbar = pathname ? isAgentDetailRoute(pathname) : false;
 
   if (isFullscreen) {
-    return <div className="min-h-dvh bg-surface-card">{children}</div>;
+    return (
+      <div className="min-h-dvh bg-surface-card">
+        {children}
+        <ProductAssistantWidget />
+      </div>
+    );
   }
 
   return (
@@ -42,6 +48,7 @@ export function DashboardRouteLayout({
           {children}
         </main>
       </div>
+      <ProductAssistantWidget />
     </SidebarProvider>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import {
@@ -55,6 +56,7 @@ export function CustomFormActionSheet({
   open,
   onOpenChange,
 }: CustomFormActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [savedDraft, setSavedDraft] = useState<CustomFormActionDraft>(() =>
@@ -87,7 +89,7 @@ export function CustomFormActionSheet({
   function handleSave() {
     const err = validateCustomFormDraft(draft);
     if (err) {
-      toast.error(err);
+      toast.error(t(`validation.${err}`));
       return;
     }
 
@@ -119,14 +121,14 @@ export function CustomFormActionSheet({
         notifyEmail: draft.notifyEmail.trim() || undefined,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildCustomFormActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Custom form saved");
+      toast.success(t("sheet.customForm.saved"));
       onOpenChange(false);
     });
   }
@@ -135,15 +137,15 @@ export function CustomFormActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Custom form"
-      description="Build a form customers fill in chat. Show it automatically after a number of messages or let the AI offer it with a tool."
+      title={t("catalog.customForm.title")}
+      description={t("sheet.customForm.description")}
       size="wide"
       pending={pending}
       isDirty={isDirty}
       saveDisabled={Boolean(validationError)}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable custom form">
+      <ActionSheetEnableRow label={t("sheet.customForm.enable")}>
         <Switch
           id="custom-form-enabled"
           checked={draft.enabled}
@@ -153,7 +155,7 @@ export function CustomFormActionSheet({
 
       {draft.enabled ? (
         <>
-          <ActionSheetField label="Form title">
+          <ActionSheetField label={t("sheet.customForm.formTitle")}>
             <Input
               value={draft.title}
               onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
@@ -161,7 +163,7 @@ export function CustomFormActionSheet({
             />
           </ActionSheetField>
 
-          <ActionSheetField label="Description" description="Optional helper text shown above the form.">
+          <ActionSheetField label={t("sheet.customForm.descriptionLabel")} description={t("sheet.customForm.descriptionHelp")}>
             <Textarea
               value={draft.description}
               onChange={(e) =>
@@ -172,7 +174,7 @@ export function CustomFormActionSheet({
             />
           </ActionSheetField>
 
-          <ActionSheetField label="Submit button label">
+          <ActionSheetField label={t("sheet.customForm.submitLabel")}>
             <Input
               value={draft.submitLabel}
               onChange={(e) =>
@@ -183,8 +185,8 @@ export function CustomFormActionSheet({
           </ActionSheetField>
 
           <ActionSheetSection
-            title="When to show"
-            description="Control timing and whether the AI can offer the form."
+            title={t("sheet.customForm.whenToShow")}
+            description={t("sheet.customForm.whenToShowDescription")}
           >
             <ActionSheetSettingsGroup>
               <div className="flex items-center gap-3 py-2.5">
@@ -202,15 +204,15 @@ export function CustomFormActionSheet({
                         : null,
                     }));
                   }}
-                  placeholder="Off"
+                  placeholder={t("sheet.customForm.off")}
                   className={cn(actionSheetInputClass, "w-24")}
                 />
                 <span className="text-body-sm text-muted">
-                  user messages (leave empty for AI-only)
+                  {t("sheet.customForm.userMessages")}
                 </span>
               </div>
 
-              <ActionSheetToggleRow label="Allow AI to show form (tool)">
+              <ActionSheetToggleRow label={t("sheet.customForm.allowAi")}>
                 <Switch
                   id="allow-llm-form"
                   checked={draft.allowLlmTrigger}
@@ -236,13 +238,13 @@ export function CustomFormActionSheet({
           />
 
           <ActionSheetField
-            label="Notify email"
-            description="Optional — get an email when a customer submits the form."
+            label={t("sheet.customForm.notifyEmail")}
+            description={t("sheet.customForm.notifyEmailDescription")}
           >
             <Input
               id="custom-form-notify"
               type="email"
-              placeholder="team@company.com"
+              placeholder={t("emailPlaceholder")}
               value={draft.notifyEmail}
               onChange={(e) =>
                 setDraft((d) => ({ ...d, notifyEmail: e.target.value }))
@@ -251,19 +253,19 @@ export function CustomFormActionSheet({
             />
           </ActionSheetField>
 
-          <ActionSheetSection title="Recent submissions">
+          <ActionSheetSection title={t("sheet.customForm.recentSubmissions")}>
             <div className="mb-2 flex justify-end">
               <Link
                 href={`/dashboard/leads?agentId=${agent.id}&captureType=custom_form`}
                 className="text-caption text-muted hover:text-ink"
               >
-                View all in Leads
+                {t("sheet.customForm.viewAll")}
               </Link>
             </div>
             {submissionsLoading ? (
-              <ActionSheetEmpty>Loading…</ActionSheetEmpty>
+              <ActionSheetEmpty>{t("sheet.customForm.loading")}</ActionSheetEmpty>
             ) : submissions.length === 0 ? (
-              <ActionSheetEmpty>No submissions yet.</ActionSheetEmpty>
+              <ActionSheetEmpty>{t("sheet.customForm.noSubmissions")}</ActionSheetEmpty>
             ) : (
               <ActionSheetList>
                 {submissions.map((row) => (
@@ -281,7 +283,7 @@ export function CustomFormActionSheet({
           </ActionSheetSection>
         </>
       ) : (
-        <ActionSheetEmpty>Turn on to configure a form for web chat.</ActionSheetEmpty>
+        <ActionSheetEmpty>{t("sheet.customForm.disabledDescription")}</ActionSheetEmpty>
       )}
     </ActionSheetShell>
   );

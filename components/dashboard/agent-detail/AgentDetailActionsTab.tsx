@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { PlusIcon, SearchIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,29 +29,19 @@ import { EscalationsActionSheet } from "./actions/EscalationsActionSheet";
 import { SuggestedMessagesActionSheet } from "./actions/SuggestedMessagesActionSheet";
 import {
   ACTION_CATALOG,
-  ACTION_CATALOG_TYPE_LABELS,
+  ACTION_CATALOG_TYPE_LABEL_KEYS,
   isActionImplemented,
   type ActionCatalogType,
 } from "./action-catalog";
 import { ActionCatalogCard } from "./ActionCatalogCard";
 import type { AgentDetailWithRelations } from "./agent-detail-types";
 
-const TYPE_FILTER_OPTIONS: { value: ActionCatalogType; label: string }[] = [
-  { value: "all", label: "All types" },
-  { value: "escalation", label: "Escalation" },
-  { value: "custom", label: "Custom" },
-  { value: "commerce", label: "Commerce" },
-  { value: "live_chat", label: "Live chat" },
-  { value: "messaging", label: "Messaging" },
-  { value: "scheduling", label: "Scheduling" },
-  { value: "utility", label: "Utility" },
-];
-
 type AgentDetailActionsTabProps = {
   agent: AgentDetailWithRelations;
 };
 
 export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
+  const t = useTranslations("dashboard.actions");
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState<ActionCatalogType>("all");
   const [suggestedMessagesOpen, setSuggestedMessagesOpen] = React.useState(false);
@@ -95,7 +86,11 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
     return ACTION_CATALOG.filter((entry) => {
       if (typeFilter !== "all" && entry.type !== typeFilter) return false;
       if (!q) return true;
-      const haystack = [entry.title, entry.description, ...entry.pills]
+      const haystack = [
+        t(entry.title),
+        t(entry.description),
+        ...entry.pills.map((pill) => t(pill)),
+      ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(q);
@@ -110,12 +105,12 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
         ACTION_CATALOG.findIndex((e) => e.id === b.id)
       );
     });
-  }, [search, typeFilter]);
+  }, [search, t, typeFilter]);
 
   const typeFilterLabel =
     typeFilter === "all"
-      ? "Type"
-      : `Type (${ACTION_CATALOG_TYPE_LABELS[typeFilter]})`;
+      ? t("type")
+      : t("typeWithValue", { value: t(ACTION_CATALOG_TYPE_LABEL_KEYS[typeFilter]) });
 
   function handleCardClick(entryId: string) {
     if (entryId === "suggested-messages") {
@@ -143,17 +138,17 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
       <div className="mx-auto flex max-w-6xl flex-col gap-3 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-            Actions
+            {t("title")}
           </h1>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="h-8 gap-1.5 px-2 text-body-sm font-medium text-ink hover:bg-canvas-soft"
-            onClick={() => toast.message("Coming soon")}
+            onClick={() => toast.message(t("comingSoon"))}
           >
             <AppIcon icon={PlusIcon} className="h-4 w-4" aria-hidden />
-            Create action
+            {t("createAction")}
           </Button>
         </div>
 
@@ -166,7 +161,7 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
               aria-hidden
             />
             <Input
-              placeholder="Search"
+              placeholder={t("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-10 w-full rounded-md border border-hairline bg-surface-card pl-9 pr-3 text-body-sm text-ink shadow-none placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
@@ -187,12 +182,12 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
               align="end"
               className="min-w-[10rem] rounded-xl border-hairline bg-surface-card"
             >
-              {TYPE_FILTER_OPTIONS.map((opt) => (
+              {(Object.keys(ACTION_CATALOG_TYPE_LABEL_KEYS) as ActionCatalogType[]).map((value) => (
                 <DropdownMenuItem
-                  key={opt.value}
-                  onClick={() => setTypeFilter(opt.value)}
+                  key={value}
+                  onClick={() => setTypeFilter(value)}
                 >
-                  {opt.label}
+                  {t(ACTION_CATALOG_TYPE_LABEL_KEYS[value])}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -201,7 +196,7 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
 
         {filtered.length === 0 ? (
           <p className="py-12 text-center text-body-sm text-muted">
-            No actions match your search or filter.
+            {t("noMatches")}
           </p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -38,6 +38,7 @@ export type UseChatOptions = {
   initialSuggestedMessages?: string[];
   onAudioReady?: (base64: string) => void;
   deployment?: ChatDeployment;
+  context?: string;
 };
 
 function getVoiceSupportedSnapshot(): boolean {
@@ -69,6 +70,7 @@ export function useChat({
   initialSuggestedMessages,
   onAudioReady,
   deployment = "widget",
+  context,
 }: UseChatOptions) {
   const resolvedInitialSuggested =
     initialSuggestedMessages ?? EMPTY_SUGGESTED_MESSAGES;
@@ -213,6 +215,7 @@ export function useChat({
             sessionId: sessionIdRef.current,
             message: trimmed,
             ...(deployment === "help" ? { deployment: "help" as const } : {}),
+            ...(context ? { context } : {}),
           }),
         });
 
@@ -272,7 +275,7 @@ export function useChat({
         setIsLoading(false);
       }
     },
-    [agentId, widgetToken, isLoading, isEscalated, deployment, formSubmitted],
+    [agentId, widgetToken, isLoading, isEscalated, deployment, formSubmitted, context],
   );
 
   const submitForm = useCallback(

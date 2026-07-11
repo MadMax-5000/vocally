@@ -17,16 +17,16 @@ const ICON_PLATE_CLASS =
   "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-hairline bg-surface-card";
 
 const SVG_ICONS: Partial<
-  Record<ActionIconKey, { src: string; alt: string; size?: "default" | "large" }>
+  Record<ActionIconKey, { src: string; size?: "default" | "large" }>
 > = {
-  api: { src: "/svg/api.svg", alt: "Custom API" },
-  stripe: { src: "/svg/stripe.svg", alt: "Stripe" },
-  shopify: { src: "/svg/shopify.svg", alt: "Shopify" },
-  slack: { src: "/svg/slack.svg", alt: "Slack" },
-  cal: { src: "/svg/cal.svg", alt: "Cal" },
-  calendar: { src: "/svg/calendly.svg", alt: "Calendly", size: "large" },
-  tavily: { src: "/svg/tavily.svg", alt: "Tavily" },
-  salesforce: { src: "/svg/salesforce.svg", alt: "Salesforce" },
+  api: { src: "/svg/api.svg" },
+  stripe: { src: "/svg/stripe.svg" },
+  shopify: { src: "/svg/shopify.svg" },
+  slack: { src: "/svg/slack.svg" },
+  cal: { src: "/svg/cal.svg" },
+  calendar: { src: "/svg/calendly.svg", size: "large" },
+  tavily: { src: "/svg/tavily.svg" },
+  salesforce: { src: "/svg/salesforce.svg" },
 };
 
 const SVG_SIZE_CLASS = {
@@ -74,7 +74,7 @@ export function ActionCatalogIcon({
       <span className={plateClass} aria-hidden>
         <Image
           src={svg.src}
-          alt={svg.alt}
+          alt=""
           width={px}
           height={px}
           className={cn(SVG_SIZE_CLASS[sizeKey], mediaMutedClass)}

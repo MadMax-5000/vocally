@@ -1,6 +1,12 @@
 "use client";
-import { AppIcon } from "@/components/ui/app-icon"
-import { BarChart2Icon, DownloadIcon, ExternalLink, TrendingUp } from "@/lib/icons/app-icons"
+import { AppIcon } from "@/components/ui/app-icon";
+import {
+  BarChart2Icon,
+  DownloadIcon,
+  ExternalLink,
+  TrendingUp,
+} from "@/lib/icons/app-icons";
+import { useLocale, useTranslations } from "next-intl";
 
 import * as React from "react";
 import {
@@ -36,23 +42,23 @@ import {
 const CHART_COLOR = "#FF5A36";
 
 const chartConfig = {
-  count:        { label: "Number of calls",  color: CHART_COLOR },
-  avgDuration:  { label: "Average duration", color: CHART_COLOR },
-  totalCost:    { label: "Total cost",       color: CHART_COLOR },
-  avgCost:      { label: "Average cost",     color: CHART_COLOR },
-  totalLlmCost: { label: "Total LLM cost",   color: CHART_COLOR },
-  avgLlmCost:   { label: "Average LLM cost", color: CHART_COLOR },
+  count: { color: CHART_COLOR },
+  avgDuration: { color: CHART_COLOR },
+  totalCost: { color: CHART_COLOR },
+  avgCost: { color: CHART_COLOR },
+  totalLlmCost: { color: CHART_COLOR },
+  avgLlmCost: { color: CHART_COLOR },
 } satisfies ChartConfig;
 
 type ChartKey = keyof typeof chartConfig;
 
-const chartTabs: { key: ChartKey; label: string }[] = [
-  { key: "count",        label: "Number of calls" },
-  { key: "avgDuration",  label: "Average duration" },
-  { key: "totalCost",    label: "Total cost" },
-  { key: "avgCost",      label: "Average cost" },
-  { key: "totalLlmCost", label: "Total LLM cost" },
-  { key: "avgLlmCost",   label: "Average LLM cost" },
+const chartTabs: ChartKey[] = [
+  "count",
+  "avgDuration",
+  "totalCost",
+  "avgCost",
+  "totalLlmCost",
+  "avgLlmCost",
 ];
 
 const CHANNEL_COLORS: Record<string, string> = {
@@ -65,55 +71,67 @@ const CHANNEL_COLORS: Record<string, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatShortDate(isoDate: string) {
+function formatShortDate(isoDate: string, locale: string) {
   const d = new Date(`${isoDate}T00:00:00Z`);
-  return (
-    d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }) + ", 01:00 AM"
-  );
+  return d.toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
-function formatDuration(seconds: number | null): string {
+function formatDuration(seconds: number | null, locale: string): string {
   if (seconds == null) return "—";
-  if (seconds < 1) return `${Math.round(seconds * 1000)}ms`;
+  if (seconds < 1)
+    return new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit: "millisecond",
+      unitDisplay: "narrow",
+    }).format(Math.round(seconds * 1000));
   if (seconds < 60)
-    return `${Number.isInteger(seconds) ? seconds : seconds.toFixed(2)}s`;
+    return new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit: "second",
+      unitDisplay: "narrow",
+      maximumFractionDigits: 2,
+    }).format(seconds);
   const mins = Math.floor(seconds / 60);
   const secs = Math.round(seconds % 60);
-  return `${mins}m ${secs}s`;
+  return `${new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: "minute",
+    unitDisplay: "narrow",
+  }).format(mins)} ${new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: "second",
+    unitDisplay: "narrow",
+  }).format(secs)}`;
 }
 
-function formatDurationCompact(seconds: number): string {
-  if (seconds < 0) return "0s";
-  if (seconds < 60) return `${Math.round(seconds)}s`;
+function formatDurationCompact(seconds: number, locale: string): string {
+  if (seconds < 0) return formatDuration(0, locale);
+  if (seconds < 60) return formatDuration(Math.round(seconds), locale);
   const mins = Math.round(seconds / 60);
-  if (mins < 60) return `${mins}m`;
+  if (mins < 60)
+    return new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit: "minute",
+      unitDisplay: "narrow",
+    }).format(mins);
   const hours = Math.floor(mins / 60);
   const remMins = mins % 60;
-  return `${hours}h${remMins > 0 ? remMins + "m" : ""}`;
-}
-
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
-
-function formatTabValue(key: ChartKey, val: number): string {
-  if (key === "avgDuration") return formatDuration(val);
-  if (key === "totalLlmCost" || key === "avgLlmCost") return `$${val.toFixed(2)}`;
-  if (key === "totalCost" || key === "avgCost") return `${val.toFixed(2)} credits`;
-  return String(val);
-}
-
-function yAxisTickFormatter(key: ChartKey, val: number): string {
-  if (key === "avgDuration") return formatDurationCompact(val);
-  if (key === "totalLlmCost" || key === "avgLlmCost") return `$${val}`;
-  return String(val);
+  const formatter = new Intl.NumberFormat(locale, {
+    style: "unit",
+    unit: "hour",
+    unitDisplay: "narrow",
+  });
+  return remMins > 0
+    ? `${formatter.format(hours)} ${new Intl.NumberFormat(locale, {
+        style: "unit",
+        unit: "minute",
+        unitDisplay: "narrow",
+      }).format(remMins)}`
+    : formatter.format(hours);
 }
 
 // ─── Stable grad id ───────────────────────────────────────────────────────────
@@ -139,13 +157,14 @@ function DetailArea({
   tooltipValueFormatter?: (v: number) => string;
 }) {
   const id = useGradId();
+  const locale = useLocale();
   const config = { value: { label: "", color } } satisfies ChartConfig;
   return (
     <ChartContainer config={config} className="h-full w-full min-w-0">
       <AreaChart data={data} margin={{ top: 6, right: 4, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor={color} stopOpacity={0.16} />
+            <stop offset="5%" stopColor={color} stopOpacity={0.16} />
             <stop offset="95%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
@@ -158,7 +177,7 @@ function DetailArea({
           dataKey="date"
           tickFormatter={(v: string) => {
             const d = new Date(`${v}T00:00:00Z`);
-            return d.toLocaleDateString("en-US", {
+            return d.toLocaleDateString(locale, {
               month: "short",
               day: "numeric",
               year: "numeric",
@@ -236,6 +255,7 @@ function StatCard({
   infoIcon?: boolean;
   chartHeight?: number;
 }) {
+  const t = useTranslations("dashboard.home");
   return (
     <Card className="overflow-hidden rounded-xl border-hairline bg-surface-card">
       <CardContent className="p-0">
@@ -244,7 +264,7 @@ function StatCard({
             <span className="text-body-sm font-medium text-ink">{title}</span>
             {infoIcon && (
               <span
-                title="More info"
+                title={t("moreInfo")}
                 className="flex h-4 w-4 cursor-default select-none items-center justify-center rounded-full border border-hairline text-[10px] font-semibold text-muted"
               >
                 i
@@ -257,16 +277,24 @@ function StatCard({
                 type="button"
                 className="flex items-center gap-1.5 rounded-md border border-hairline bg-surface-card px-2 py-1 text-caption font-medium text-body shadow-none transition-colors hover:bg-canvas-soft"
               >
-                <AppIcon icon={TrendingUp} className="h-3 w-3 text-muted" aria-hidden />
-                Linear scale
+                <AppIcon
+                  icon={TrendingUp}
+                  className="h-3 w-3 text-muted"
+                  aria-hidden
+                />
+                {t("linearScale")}
               </button>
             )}
             <button
               type="button"
-              aria-label="Download"
+              aria-label={t("download")}
               className="flex h-7 w-7 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted shadow-none transition-colors hover:bg-canvas-soft hover:text-ink"
             >
-              <AppIcon icon={DownloadIcon} className="h-3.5 w-3.5" aria-hidden />
+              <AppIcon
+                icon={DownloadIcon}
+                className="h-3.5 w-3.5"
+                aria-hidden
+              />
             </button>
           </div>
         </div>
@@ -279,13 +307,14 @@ function StatCard({
 
         {noData ? (
           <div className="flex flex-col items-center justify-center py-10">
-            <AppIcon icon={BarChart2Icon}
+            <AppIcon
+              icon={BarChart2Icon}
               className="h-12 w-12 text-muted-soft"
               aria-hidden
               strokeWidth={1.25}
             />
             <p className="mt-3 text-body-sm text-muted">
-              No data has been collected
+              {t("noDataCollected")}
             </p>
           </div>
         ) : (
@@ -304,7 +333,7 @@ function StatCard({
             <div className="flex items-center gap-2">
               {showFilter && (
                 <>
-                  <span className="text-caption text-muted">Filter</span>
+                  <span className="text-caption text-muted">{t("filter")}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -312,14 +341,14 @@ function StatCard({
                         size="sm"
                         className="h-6 rounded-md border-hairline bg-surface-card px-2 text-caption font-medium text-body shadow-none hover:bg-canvas-soft"
                       >
-                        All
+                        {t("all")}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="start"
                       className="min-w-[8rem] rounded-xl border-hairline bg-surface-card"
                     >
-                      <DropdownMenuItem>All</DropdownMenuItem>
+                      <DropdownMenuItem>{t("all")}</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
@@ -330,8 +359,12 @@ function StatCard({
               size="sm"
               className="h-7 gap-1 rounded-md border-hairline bg-surface-card px-2.5 text-caption font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              Filtered call history
-              <AppIcon icon={ExternalLink} className="h-3 w-3 text-muted" aria-hidden />
+              {t("filteredCallHistory")}
+              <AppIcon
+                icon={ExternalLink}
+                className="h-3 w-3 text-muted"
+                aria-hidden
+              />
             </Button>
           </div>
         )}
@@ -343,22 +376,60 @@ function StatCard({
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function DashboardClient({ stats }: { stats: DashboardStats }) {
+  const t = useTranslations("dashboard.home");
+  const locale = useLocale();
   const [activeChart, setActiveChart] = React.useState<ChartKey>("count");
   const mainGradId = `fill-main-${activeChart}`;
+  const greeting = (() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t("greetings.morning");
+    if (hour < 17) return t("greetings.afternoon");
+    return t("greetings.evening");
+  })();
+  const formatTabValue = (key: ChartKey, value: number): string => {
+    if (key === "avgDuration") return formatDuration(value, locale);
+    if (key === "totalLlmCost" || key === "avgLlmCost")
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: "USD",
+      }).format(value);
+    if (key === "totalCost" || key === "avgCost")
+      return t("credits", { count: value.toFixed(2) });
+    return String(value);
+  };
+  const yAxisTickFormatter = (key: ChartKey, value: number): string => {
+    if (key === "avgDuration") return formatDurationCompact(value, locale);
+    if (key === "totalLlmCost" || key === "avgLlmCost")
+      return new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(value);
+    return String(value);
+  };
 
   const tabValues = React.useMemo(() => {
     const totalCalls = stats.dailySeries.reduce((s, d) => s + d.count, 0);
     const totalCost = stats.dailySeries.reduce((s, d) => s + d.totalCost, 0);
-    const totalLlmCost = stats.dailySeries.reduce((s, d) => s + d.totalLlmCost, 0);
+    const totalLlmCost = stats.dailySeries.reduce(
+      (s, d) => s + d.totalLlmCost,
+      0,
+    );
     const costEntries = stats.dailySeries.filter((d) => d.avgCost > 0);
     const llmCostEntries = stats.dailySeries.filter((d) => d.avgLlmCost > 0);
     return {
-      count:        totalCalls,
-      avgDuration:  stats.averageDuration ?? 0,
-      totalCost:    parseFloat(totalCost.toFixed(2)),
-      avgCost:      costEntries.length > 0 ? parseFloat((totalCost / costEntries.length).toFixed(2)) : 0,
+      count: totalCalls,
+      avgDuration: stats.averageDuration ?? 0,
+      totalCost: parseFloat(totalCost.toFixed(2)),
+      avgCost:
+        costEntries.length > 0
+          ? parseFloat((totalCost / costEntries.length).toFixed(2))
+          : 0,
       totalLlmCost: parseFloat(totalLlmCost.toFixed(2)),
-      avgLlmCost:   llmCostEntries.length > 0 ? parseFloat((totalLlmCost / llmCostEntries.length).toFixed(2)) : 0,
+      avgLlmCost:
+        llmCostEntries.length > 0
+          ? parseFloat((totalLlmCost / llmCostEntries.length).toFixed(2))
+          : 0,
     };
   }, [stats]);
 
@@ -404,28 +475,27 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
 
   const channelChartConfig = React.useMemo(() => {
     const cfg: ChartConfig = {
-      sessions: { label: "Sessions" },
+      sessions: { label: t("sessions") },
     };
     for (const entry of channelPieData) {
       cfg[entry.channel] = {
-        label: entry.channel,
+        label: t(`channels.${entry.channel.toLowerCase()}`),
         color: entry.fill,
       };
     }
     return cfg;
-  }, [channelPieData]);
+  }, [channelPieData, t]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 flex flex-col gap-3">
-
       {/* ── Greeting ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
-          {greeting()}
+          {greeting}
         </h1>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-card px-3 py-[3px] text-body-sm font-medium text-ink">
           <span className="h-1.5 w-1.5 rounded-full bg-ink" />
-          Active calls:{" "}
+          {t("activeCalls")}{" "}
           <span className="font-semibold">{stats.activeSessions}</span>
         </span>
       </div>
@@ -435,12 +505,12 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
         <CardHeader className="p-0">
           <div className="flex flex-wrap border-b border-hairline">
             {chartTabs.map((tab) => {
-              const isActive = activeChart === tab.key;
+              const isActive = activeChart === tab;
               return (
                 <button
-                  key={tab.key}
+                  key={tab}
                   type="button"
-                  onClick={() => setActiveChart(tab.key)}
+                  onClick={() => setActiveChart(tab)}
                   className={[
                     "relative flex flex-1 flex-col gap-0.5 px-4 py-3 text-left transition-colors",
                     "border-r border-hairline last:border-r-0",
@@ -449,14 +519,16 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
                       : "bg-canvas-soft hover:bg-surface-card",
                   ].join(" ")}
                 >
-                  <span className="text-caption text-muted">{tab.label}</span>
+                  <span className="text-caption text-muted">
+                    {t(`chartTabs.${tab}`)}
+                  </span>
                   <span
                     className={[
                       "mt-0.5 font-display text-display-sm tracking-tight",
                       isActive ? "text-ink" : "text-body",
                     ].join(" ")}
                   >
-                    {formatTabValue(tab.key, tabValues[tab.key])}
+                    {formatTabValue(tab, tabValues[tab])}
                   </span>
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-ink" />
@@ -478,7 +550,11 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
             >
               <defs>
                 <linearGradient id={mainGradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor={CHART_COLOR} stopOpacity={0.18} />
+                  <stop
+                    offset="5%"
+                    stopColor={CHART_COLOR}
+                    stopOpacity={0.18}
+                  />
                   <stop offset="95%" stopColor={CHART_COLOR} stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -489,7 +565,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
               />
               <XAxis
                 dataKey="date"
-                tickFormatter={(v: string) => formatShortDate(v)}
+                tickFormatter={(v: string) => formatShortDate(v, locale)}
                 interval="preserveStartEnd"
                 minTickGap={60}
                 tick={{ fontSize: 10, fill: "#a8a29e" }}
@@ -505,14 +581,18 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
                 width={44}
                 allowDecimals={false}
                 domain={[0, "auto"]}
-                tickFormatter={(v: number) => yAxisTickFormatter(activeChart, v)}
+                tickFormatter={(v: number) =>
+                  yAxisTickFormatter(activeChart, v)
+                }
               />
               <ChartTooltip
                 content={
                   <ChartTooltipContent
                     indicator="line"
                     className="rounded-xl border-hairline bg-surface-card shadow-md"
-                    valueFormatter={(v: number) => formatTabValue(activeChart, v)}
+                    valueFormatter={(v: number) =>
+                      formatTabValue(activeChart, v)
+                    }
                   />
                 }
                 cursor={{
@@ -546,24 +626,36 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
             type="button"
             className="flex items-center gap-1.5 rounded-md border border-hairline bg-surface-card px-2.5 py-1 text-caption font-medium text-body shadow-none transition-colors hover:bg-canvas-soft"
           >
-            <AppIcon icon={TrendingUp} className="h-3 w-3 text-muted" aria-hidden />
-            Linear scale
+            <AppIcon
+              icon={TrendingUp}
+              className="h-3 w-3 text-muted"
+              aria-hidden
+            />
+            {t("linearScale")}
           </button>
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              aria-label="Download"
+              aria-label={t("download")}
               className="flex h-7 w-7 items-center justify-center rounded-md border border-hairline bg-surface-card text-muted shadow-none transition-colors hover:bg-canvas-soft hover:text-ink"
             >
-              <AppIcon icon={DownloadIcon} className="h-3.5 w-3.5" aria-hidden />
+              <AppIcon
+                icon={DownloadIcon}
+                className="h-3.5 w-3.5"
+                aria-hidden
+              />
             </button>
             <Button
               variant="outline"
               size="sm"
               className="h-7 gap-1 rounded-md border-hairline bg-surface-card px-2.5 text-caption font-medium text-body shadow-none hover:bg-canvas-soft"
             >
-              Filtered call history
-              <AppIcon icon={ExternalLink} className="h-3 w-3 text-muted" aria-hidden />
+              {t("filteredCallHistory")}
+              <AppIcon
+                icon={ExternalLink}
+                className="h-3 w-3 text-muted"
+                aria-hidden
+              />
             </Button>
           </div>
         </div>
@@ -572,7 +664,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
       {/* ── Row 1: Success Rate + CSAT ────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard
-          title="Overall Success Rate"
+          title={t("overallSuccessRate")}
           value={`${stats.aiResolutionRate.toFixed(1)}%`}
           series={resolutionSeries}
           color="#16a34a"
@@ -581,7 +673,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
           chartHeight={170}
         />
         <StatCard
-          title="Average CSAT Rating"
+          title={t("averageCsatRating")}
           value={hasQaData ? (stats.averageQaScore?.toFixed(1) ?? "—") : "---"}
           series={qaScoreSeries}
           color="#3b82f6"
@@ -594,31 +686,31 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
       {/* ── Row 2: Response Time + Total Duration ─────────────────────── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard
-          title="Agent Response Time"
+          title={t("agentResponseTime")}
           value={
             stats.averageResponseTime != null
-              ? formatDuration(stats.averageResponseTime)
+              ? formatDuration(stats.averageResponseTime, locale)
               : "—"
           }
           series={responseTimeSeries}
           color="#b91c1c"
-          yTickFormatter={(v) => formatDurationCompact(v)}
-          tooltipValueFormatter={(v: number) => formatDuration(v)}
+          yTickFormatter={(v) => formatDurationCompact(v, locale)}
+          tooltipValueFormatter={(v: number) => formatDuration(v, locale)}
           showLinearScale
           infoIcon
           chartHeight={170}
         />
         <StatCard
-          title="Total Conversation Duration"
+          title={t("totalConversationDuration")}
           value={
             stats.totalDuration != null
-              ? formatDuration(stats.totalDuration)
+              ? formatDuration(stats.totalDuration, locale)
               : "—"
           }
           series={totalDurationSeries}
           color="#7c3aed"
-          yTickFormatter={(v) => formatDurationCompact(v)}
-          tooltipValueFormatter={(v: number) => formatDuration(v)}
+          yTickFormatter={(v) => formatDurationCompact(v, locale)}
+          tooltipValueFormatter={(v: number) => formatDuration(v, locale)}
           showLinearScale
           infoIcon
           chartHeight={170}
@@ -629,7 +721,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
       <Card className="overflow-hidden rounded-xl border-hairline bg-surface-card">
         <CardHeader className="px-4 pt-4 pb-0">
           <span className="text-body-sm font-medium text-ink">
-            Sessions by Channel
+            {t("sessionsByChannel")}
           </span>
         </CardHeader>
         <CardContent className="flex-1 pb-0">
@@ -672,7 +764,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
                               y={(viewBox.cy || 0) + 24}
                               className="fill-muted-foreground"
                             >
-                              Sessions
+                              {t("sessions")}
                             </tspan>
                           </text>
                         );
@@ -684,13 +776,14 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
             </ChartContainer>
           ) : (
             <div className="flex flex-col items-center justify-center py-10">
-              <AppIcon icon={BarChart2Icon}
+              <AppIcon
+                icon={BarChart2Icon}
                 className="h-12 w-12 text-muted-soft"
                 aria-hidden
                 strokeWidth={1.25}
               />
               <p className="mt-3 text-body-sm text-muted">
-                No channel data available
+                {t("noChannelData")}
               </p>
             </div>
           )}

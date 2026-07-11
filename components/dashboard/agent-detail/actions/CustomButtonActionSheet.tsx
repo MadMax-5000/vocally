@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import { updateCustomButtonActionSettings } from "@/lib/actions/agents";
@@ -32,6 +33,7 @@ export function CustomButtonActionSheet({
   open,
   onOpenChange,
 }: CustomButtonActionSheetProps) {
+  const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [savedDraft, setSavedDraft] = useState<CustomButtonActionDraft>(() =>
@@ -54,7 +56,7 @@ export function CustomButtonActionSheet({
   function handleSave() {
     const err = validateCustomButtonDraft(draft);
     if (err) {
-      toast.error(err);
+      toast.error(t(`validation.${err}`));
       return;
     }
 
@@ -82,14 +84,14 @@ export function CustomButtonActionSheet({
           : undefined,
       });
       if (!result.success) {
-        toast.error(result.error ?? "Save failed");
+        toast.error(result.error ?? t("sheet.saveFailed"));
         return;
       }
       const next = buildCustomButtonActionDraft(result.data);
       setSavedDraft(next);
       setDraft(next);
       router.refresh();
-      toast.success("Custom buttons saved");
+      toast.success(t("sheet.customButton.saved"));
       onOpenChange(false);
     });
   }
@@ -98,14 +100,14 @@ export function CustomButtonActionSheet({
     <ActionSheetShell
       open={open}
       onOpenChange={onOpenChange}
-      title="Custom button"
-      description="Add quick-action buttons above the chat input. Use links for external pages or preset messages to start a conversation topic."
+      title={t("catalog.customButton.title")}
+      description={t("sheet.customButton.description")}
       pending={pending}
       isDirty={isDirty}
       saveDisabled={Boolean(validationError)}
       onSave={handleSave}
     >
-      <ActionSheetEnableRow label="Enable custom buttons">
+      <ActionSheetEnableRow label={t("sheet.customButton.enable")}>
         <Switch
           id="custom-button-enabled"
           checked={draft.enabled}
@@ -119,7 +121,7 @@ export function CustomButtonActionSheet({
           onChange={(buttons) => setDraft((d) => ({ ...d, buttons }))}
         />
       ) : (
-        <ActionSheetEmpty>Turn on to add buttons above the chat composer.</ActionSheetEmpty>
+        <ActionSheetEmpty>{t("sheet.customButton.disabledDescription")}</ActionSheetEmpty>
       )}
     </ActionSheetShell>
   );

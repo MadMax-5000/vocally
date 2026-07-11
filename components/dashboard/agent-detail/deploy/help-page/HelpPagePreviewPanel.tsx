@@ -6,6 +6,7 @@ import { HelpPagePreviewFrame } from "@/components/chat/HelpPagePreviewFrame";
 import { getInitialSuggestedMessages } from "@/lib/deploy/suggested-messages-action";
 import type { ResolvedSuggestedMessagesAction } from "@/lib/deploy/web-chat-config";
 import type { WebChatHelpPageTheme } from "@/lib/deploy/web-chat-config";
+import { useDeploySitesMessages } from "../useDeploySitesMessages";
 
 import type { HelpPageDraft } from "./help-page-draft";
 
@@ -20,6 +21,7 @@ export function HelpPagePreviewPanel({
   agentName,
   suggestedMessagesAction,
 }: HelpPagePreviewPanelProps) {
+  const t = useDeploySitesMessages().helpPage;
   const hp = draft.helpPage;
   const [previewTheme, setPreviewTheme] = useState<WebChatHelpPageTheme>(hp.defaultTheme);
 
@@ -46,7 +48,7 @@ export function HelpPagePreviewPanel({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center justify-between px-6 pt-5 pb-3">
-        <h3 className="text-title-sm font-medium text-ink">Preview</h3>
+        <h3 className="text-title-sm font-medium text-ink">{t.preview}</h3>
       </div>
 
       <div className="flex min-h-0 flex-1 items-center justify-center px-6 pb-8">

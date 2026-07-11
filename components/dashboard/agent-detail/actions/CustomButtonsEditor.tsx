@@ -12,6 +12,7 @@ import {
   type CustomButtonKind,
 } from "@/lib/deploy/custom-button-action";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 import {
   ActionSheetSection,
@@ -32,6 +33,7 @@ function emptyButton(kind: CustomButtonKind = "link"): CustomButtonItem {
 }
 
 export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorProps) {
+  const t = useTranslations("dashboard.actions");
   function updateButton(index: number, patch: Partial<CustomButtonItem>) {
     const next = [...buttons];
     const current = next[index];
@@ -67,11 +69,11 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
 
   return (
     <ActionSheetSection
-      title="Buttons"
-      description="Shown above the chat input. Link buttons open a URL; message buttons send preset text."
+      title={t("sheet.customButton.buttons")}
+      description={t("sheet.customButton.buttonsDescription")}
     >
       {buttons.length === 0 ? (
-        <p className="text-body-sm text-muted-soft">No buttons yet</p>
+        <p className="text-body-sm text-muted-soft">{t("sheet.customButton.noButtons")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {buttons.map((btn, index) => (
@@ -93,7 +95,9 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                           : "text-muted hover:text-ink",
                       )}
                     >
-                      {kind === "link" ? "Open link" : "Send message"}
+                      {kind === "link"
+                        ? t("sheet.customButton.openLink")
+                        : t("sheet.customButton.sendMessage")}
                     </button>
                   ))}
                 </div>
@@ -105,7 +109,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     className="size-8 shrink-0 text-muted"
                     disabled={index === 0}
                     onClick={() => moveButton(index, -1)}
-                    aria-label="Move up"
+                    aria-label={t("sheet.customButton.moveUp")}
                   >
                     <AppIcon icon={ChevronUp} size={16} className="size-4" />
                   </Button>
@@ -116,7 +120,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     className="size-8 shrink-0 text-muted"
                     disabled={index === buttons.length - 1}
                     onClick={() => moveButton(index, 1)}
-                    aria-label="Move down"
+                    aria-label={t("sheet.customButton.moveDown")}
                   >
                     <AppIcon icon={ChevronDown} size={16} className="size-4" />
                   </Button>
@@ -126,7 +130,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                     size="icon"
                     className="size-8 shrink-0 text-muted hover:text-error"
                     onClick={() => removeButton(index)}
-                    aria-label="Remove button"
+                    aria-label={t("sheet.customButton.removeButton")}
                   >
                     <AppIcon icon={Trash2Icon} size={16} className="size-4" />
                   </Button>
@@ -136,7 +140,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
               <Input
                 value={btn.label}
                 onChange={(e) => updateButton(index, { label: e.target.value })}
-                placeholder="Button label"
+                placeholder={t("sheet.customButton.buttonLabel")}
                 className={actionSheetInputClass}
               />
 
@@ -145,10 +149,10 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                   <Input
                     value={btn.href ?? ""}
                     onChange={(e) => updateButton(index, { href: e.target.value })}
-                    placeholder="https://example.com"
+                    placeholder={t("urlPlaceholder")}
                     className={actionSheetInputClass}
                   />
-                  <ActionSheetToggleRow label="Open in new tab">
+                  <ActionSheetToggleRow label={t("sheet.customButton.openNewTab")}>
                     <Switch
                       id={`custom-btn-new-tab-${index}`}
                       checked={btn.openInNewTab !== false}
@@ -162,7 +166,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
                 <Input
                   value={btn.message ?? ""}
                   onChange={(e) => updateButton(index, { message: e.target.value })}
-                  placeholder="Message sent when clicked"
+                  placeholder={t("sheet.customButton.messageSent")}
                   className={actionSheetInputClass}
                 />
               )}
@@ -179,7 +183,7 @@ export function CustomButtonsEditor({ buttons, onChange }: CustomButtonsEditorPr
         disabled={buttons.length >= MAX_CUSTOM_BUTTONS}
       >
         <AppIcon icon={PlusIcon} size={16} className="mr-1.5 size-4" />
-        Add button
+        {t("sheet.customButton.addButton")}
       </Button>
     </ActionSheetSection>
   );

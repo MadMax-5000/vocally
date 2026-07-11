@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { AppIcon } from "@/components/ui/app-icon"
 import { LoaderIcon } from "@/lib/icons/app-icons"
 
@@ -21,11 +22,12 @@ export function EmailLabelPicker({
   loading,
   error,
 }: EmailLabelPickerProps) {
+  const t = useTranslations("dashboard.deploy.generic");
   if (loading) {
     return (
       <div className="flex items-center gap-2 py-2 text-body-sm text-muted">
         <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
-        Loading Gmail labels…
+        {t("loadingGmailLabels")}
       </div>
     );
   }
@@ -35,7 +37,7 @@ export function EmailLabelPicker({
   }
 
   if (options.length === 0) {
-    return <p className="text-caption text-muted-soft">No labels found in this mailbox.</p>;
+    return <p className="text-caption text-muted-soft">{t("noLabels")}</p>;
   }
 
   function toggle(id: string, checked: boolean) {
@@ -69,7 +71,7 @@ export function EmailLabelPicker({
             <span className="min-w-0 flex-1 text-body-sm text-ink">{label.name}</span>
             {label.type === "system" ? (
               <span className="shrink-0 text-[10px] uppercase tracking-wide text-muted-soft">
-                System
+                {t("system")}
               </span>
             ) : null}
           </label>

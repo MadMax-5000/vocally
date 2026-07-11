@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 
 import { AppIcon } from "@/components/ui/app-icon";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { ArrowLeftIcon, Eye } from "@/lib/icons/app-icons";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentMoreActionsMenu } from "./AgentMoreActionsMenu";
@@ -32,6 +33,7 @@ export function AgentDetailTopbar({
   activeTab,
   onTabChange,
 }: AgentDetailTopbarProps) {
+  const t = useTranslations("dashboard.agentDetail");
   const isPreviewActive = activeTab === "preview";
 
   return (
@@ -42,7 +44,7 @@ export function AgentDetailTopbar({
             variant="ghost"
             size="icon-sm"
             className="shrink-0 text-muted hover:text-ink"
-            aria-label="Back to agents"
+            aria-label={t("backToAgents")}
             asChild
           >
             <Link href="/dashboard/agents">
@@ -57,7 +59,7 @@ export function AgentDetailTopbar({
           <div
             className="flex items-center overflow-hidden rounded-md border border-hairline-strong bg-surface-card shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             role="group"
-            aria-label="Agent tools"
+            aria-label={t("agentTools")}
           >
             <AgentVisibilityPill agentId={agent.id} visibility={agent.visibility} />
 
@@ -83,10 +85,10 @@ export function AgentDetailTopbar({
                       isPreviewActive ? "text-ink" : "text-muted group-hover:text-ink",
                     )}
                   />
-                  Preview
+                  {t("preview")}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Open live chat preview</TooltipContent>
+              <TooltipContent>{t("openLivePreview")}</TooltipContent>
             </Tooltip>
 
             <div className="h-4 w-px shrink-0 bg-hairline" aria-hidden />

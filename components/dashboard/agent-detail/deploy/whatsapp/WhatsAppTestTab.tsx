@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { AppIcon } from "@/components/ui/app-icon";
 import { CheckIcon, CircleIcon } from "@/lib/icons/app-icons";
 
@@ -25,6 +27,7 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
 }
 
 export function WhatsAppTestTab({ agentName, settings }: WhatsAppTestTabProps) {
+  const t = useTranslations("dashboard.deploy.messaging.whatsapp.test");
   const { readiness, connection } = settings;
   const ready =
     readiness.channelEnabled &&
@@ -36,39 +39,40 @@ export function WhatsAppTestTab({ agentName, settings }: WhatsAppTestTabProps) {
   return (
     <div className="space-y-4">
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Readiness</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("readiness.title")}</h2>
         <ul className="mt-4 space-y-2.5">
-          <ChecklistItem done={readiness.platformConfigured} label="Platform messaging configured" />
-          <ChecklistItem done={readiness.channelEnabled} label="WhatsApp enabled for this agent" />
-          <ChecklistItem done={readiness.agentPublic} label="Agent visibility is Public" />
-          <ChecklistItem done={readiness.agentActive} label="Agent status is Active" />
+          <ChecklistItem done={readiness.platformConfigured} label={t("readiness.platformConfigured")} />
+          <ChecklistItem done={readiness.channelEnabled} label={t("readiness.channelEnabled")} />
+          <ChecklistItem done={readiness.agentPublic} label={t("readiness.agentPublic")} />
+          <ChecklistItem done={readiness.agentActive} label={t("readiness.agentActive")} />
           <ChecklistItem
             done={readiness.connectionOnline}
-            label="WhatsApp number connected and online"
+            label={t("readiness.connectionOnline")}
           />
         </ul>
 
         {ready ? (
           <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-caption text-emerald-800">
-            Ready — send a test message from your phone.
+            {t("readiness.ready")}
           </div>
         ) : (
           <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-caption text-amber-800">
-            Complete the Connect tab steps, then ensure your agent is Public and Active.
+            {t("readiness.incomplete")}
           </div>
         )}
       </section>
 
       <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <h2 className="text-title-sm font-medium text-ink">Test messaging</h2>
+        <h2 className="text-title-sm font-medium text-ink">{t("messaging.title")}</h2>
         <p className="mt-1 text-body-sm leading-relaxed text-muted">
-          From WhatsApp on your phone, send a message to{" "}
-          {connection ? (
-            <span className="font-mono font-medium text-ink">{connection.twilioNumber}</span>
-          ) : (
-            "your connected number"
-          )}
-          . <span className="text-ink">{agentName}</span> should reply automatically.
+          {t.rich("messaging.instructions", {
+            number: (chunks) => (
+              <span className="font-mono font-medium text-ink">{chunks}</span>
+            ),
+            agent: (chunks) => <span className="text-ink">{chunks}</span>,
+            agentName,
+            phoneNumber: connection?.twilioNumber ?? t("messaging.connectedNumber"),
+          })}
         </p>
       </section>
     </div>

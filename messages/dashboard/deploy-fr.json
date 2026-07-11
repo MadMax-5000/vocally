@@ -1,0 +1,91 @@
+{
+  "dashboard": {
+    "deploy": {
+      "common": {
+        "backToDeploy": "Retour au déploiement",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "manage": "Gérer",
+        "comingSoon": "Bientôt disponible",
+        "notAvailableYet": "Pas encore disponible",
+        "saveChanges": "Enregistrer les modifications",
+        "saving": "Enregistrement…",
+        "unsavedChanges": "Modifications non enregistrées",
+        "allChangesSaved": "Toutes les modifications sont enregistrées",
+        "failedToSave": "Échec de l’enregistrement",
+        "failedToUpdate": "Échec de la mise à jour",
+        "preview": "Aperçu",
+        "connection": "Connexion",
+        "settings": "Paramètres",
+        "setup": "Configuration",
+        "examples": "Exemples",
+        "copy": "Copier",
+        "copied": "Copié",
+        "disconnect": "Déconnecter",
+        "connected": "Connecté",
+        "active": "Actif",
+        "loading": "Chargement…"
+      },
+      "integrationCard": {"enable": "Activer {title}"},
+      "featuredCard": {"enable": "Activer {title}"},
+      "comingSoonPanel": {
+        "description": "La configuration de {title} n’est pas encore disponible. Vous pourrez la connecter et la gérer depuis cette page lors de son lancement.",
+        "roadmap": "Ce canal est dans notre feuille de route. Revenez bientôt."
+      },
+      "hero": {
+        "agentName": "Votre agent professionnel",
+        "greeting": "Bonjour ! Comment puis-je vous aider ?",
+        "helpHeading": "Comment pouvons-nous vous aider aujourd’hui ?",
+        "askQuestion": "Posez une question..."
+      },
+      "api": {
+        "title": "API",
+        "subtitle": "Connectez votre agent avec des API REST",
+        "enable": "Activer le déploiement API",
+        "configuration": "Configuration de l’API",
+        "tryApi": "Essayer l’API",
+        "resetSession": "Réinitialiser la session",
+        "empty": "Envoyez un message de test pour prévisualiser les réponses de l’API. Votre session du tableau de bord est utilisée pour les tests avant que l’agent soit public.",
+        "waiting": "En attente de réponse…",
+        "messagePlaceholder": "Saisissez un message de test…",
+        "sendMessage": "Envoyer le message de test",
+        "lastResponse": "Dernière réponse",
+        "networkError": "Erreur réseau — impossible de joindre l’API",
+        "requestFailed": "Échec de la requête ({status})",
+        "failedToRegenerate": "Impossible de régénérer la clé",
+        "keyRegenerated": "Clé API régénérée",
+        "examplesDescription": "Envoyez des messages à votre agent depuis votre backend. Incluez votre clé API dans l’en-tête Authorization.",
+        "curl": "cURL",
+        "javascript": "JavaScript",
+        "python": "Python",
+        "copyCode": "Copier le code",
+        "sessionHintBefore": "Passez",
+        "sessionHintAfter": "de la réponse pour poursuivre une conversation sur plusieurs requêtes."
+      },
+      "chatWidget": {
+        "title": "Widget de chat", "content": "Contenu", "style": "Style", "embed": "Intégrer",
+        "enable": "Activer le widget de chat", "configuration": "Configuration du widget de chat",
+        "settingsSaved": "Paramètres du widget de chat enregistrés"
+      },
+      "email": {
+        "title": "Gmail", "subtitle": "Connectez votre boîte de réception afin que cet agent puisse répondre aux e-mails clients.",
+        "enable": "Activer le canal e-mail", "configuration": "Configuration Gmail",
+        "connected": "Gmail connecté", "settingsSaved": "Paramètres e-mail enregistrés"
+      },
+      "phone": {
+        "title": "Téléphone", "subtitle": "Connectez un numéro Twilio via Vapi pour les appels vocaux IA",
+        "numbers": "Numéros", "enable": "Activer le déploiement téléphonique",
+        "configuration": "Configuration téléphonique"
+      },
+      "generic": {
+        "preview": "Aperçu", "connected": "Connecté", "active": "Actif", "disconnect": "Déconnecter", "connectGmail": "Connecter Gmail", "gmailAuthorize": "Autorisez Anselio à lire et envoyer des e-mails pour cet agent. Vous serez redirigé vers Google pour vous connecter.", "gmailDisconnected": "Gmail déconnecté", "testEmailSent": "E-mail de test envoyé", "couldNotDisconnect": "Impossible de déconnecter", "couldNotSendTestEmail": "Impossible d’envoyer l’e-mail de test", "connectedAt": "Connecté le {date}", "watchRenews": "La surveillance est renouvelée avant le {date}", "labels": "Libellés : {labels}", "loading": "Chargement…", "sendTestEmail": "Envoyer un e-mail de test", "gmailPubSub": "Les e-mails entrants sont livrés via Google Cloud Pub/Sub. Vérifiez que votre sujet GCP et votre abonnement push sont configurés (voir docs/gmail-deploy.md).", "loadingGmailLabels": "Chargement des libellés Gmail…", "noLabels": "Aucun libellé trouvé dans cette boîte.", "system": "Système",
+        "autoReply": "Réponse automatique", "autoReplyDescription": "Lorsqu’elle est désactivée, les e-mails entrants sont enregistrés mais l’agent n’envoie pas de réponse IA.", "replySubjectPrefix": "Préfixe de l’objet", "replySubjectPrefixDescription": "Ajouté aux objets client (ex. « Re: »).", "emailSignature": "Signature e-mail", "emailSignatureDescription": "Ajoutée aux réponses sortantes de cet agent.", "emailSignaturePlaceholder": "Merci,\nÉquipe support", "watchLabels": "Libellés surveillés", "watchLabelsDescription": "Seuls les e-mails avec ces libellés Gmail déclenchent l’agent.", "emailPreviewDisconnected": "Connectez Gmail dans l’onglet Connexion pour activer l’automatisation de la boîte. Cet aperçu montre l’apparence des réponses.", "from": "De :", "to": "À :", "customerEmail": "client@exemple.com", "orderQuestion": "Question sur une commande", "orderQuestionMessage": "Bonjour, j’ai passé une commande hier — pouvez-vous confirmer sa date d’expédition ?", "orderReply": "Bonjour — merci de nous avoir contactés. Votre commande est en route et devrait arriver sous 2 à 3 jours ouvrés.", "sentBy": "Envoyé par {agentName}", "autoReplyOff": "Réponse automatique désactivée",
+        "displayName": "Nom affiché", "widgetTitle": "Titre du widget", "initialMessage": "Message initial", "mobileInitialMessage": "Message initial mobile", "differentMobileWelcome": "Utiliser un message initial différent sur mobile", "differentMobileWelcomeHint": "Affiché lorsque le widget détecte un écran mobile.", "autoShowWelcome": "Afficher automatiquement la fenêtre de bienvenue", "autoShowWelcomeHint": "Afficher un message proactif avant que le visiteur ouvre le chat.", "delay": "Délai (secondes)", "delayHint": "Temps avant l’apparition de la fenêtre.", "autoPopupMobile": "Fenêtre automatique sur mobile", "messagePlaceholder": "Texte indicatif du message", "voiceToText": "Activer la saisie vocale", "voiceToTextHint": "Afficher un bouton microphone dans la saisie.", "attachments": "Activer les pièces jointes", "comingSoon": "Bientôt disponible",
+        "suggestedMessages": "Messages suggérés", "suggestedMessagesHint": "Des réponses rapides sur lesquelles les visiteurs peuvent appuyer pour démarrer une conversation.", "keepSuggestedMessages": "Conserver les messages suggérés", "keepSuggestedMessagesHint": "Afficher les messages suggérés après le premier message du visiteur.", "noSuggestedMessages": "Aucun message suggéré", "suggestedMessage": "Message suggéré", "removeMessage": "Supprimer le message", "addSuggestedMessage": "Ajouter un message suggéré", "appearance": "Apparence", "light": "Clair", "dark": "Sombre", "profilePicture": "Photo de profil", "chatIcon": "Icône de chat", "imageUploadHint": "JPG, PNG et SVG jusqu’à 1 Mo", "upload": "Téléverser", "primaryColor": "Couleur principale", "bubbleColor": "Couleur du bouton de chat", "pickColor": "Choisir une couleur", "resetColor": "Réinitialiser la couleur", "moreInformation": "Plus d’informations", "aboutSuggestedMessages": "À propos des messages suggérés", "launcherPreview": "Aperçu du lanceur de chat", "inline": "Intégré", "floatingBubble": "Bulle flottante", "desktop": "Ordinateur", "mobile": "Mobile", "connectionUpdates": "Les mises à jour de connexion sont instantanées", "refreshing": "Actualisation…", "refresh": "Actualiser", "inlineIframe": "Iframe intégré", "openPreview": "Ouvrir l’aperçu", "copyCode": "Copier le code", "defaultEmbedTitle": "Assistance"
+      },
+      "apiSetup": {
+        "prerequisites": "Prérequis", "prerequisitesDescription": "Les appels API externes nécessitent un agent public et actif avec le déploiement API activé. Vous pouvez tester depuis le panneau Essayer avant de publier.", "agentPublic": "L’agent est public", "setVisibility": "Définir la visibilité", "public": "Public", "private": "Privé", "agentActive": "L’agent est actif", "draftInactive": "Brouillon / inactif", "deploymentEnabled": "Déploiement API activé", "apiKey": "Clé API", "apiKeyDescription": "Utilisez cette clé dans l’en-tête Authorization. Gardez-la secrète — changez-la si elle est exposée.", "hideApiKey": "Masquer la clé API", "showApiKey": "Afficher la clé API", "copyApiKey": "Copier la clé API", "regenerating": "Régénération…", "regenerateKey": "Régénérer la clé", "endpoint": "Point de terminaison", "requestBody": "Corps de la requête :", "regenerateTitle": "Régénérer la clé API ?", "regenerateDescription": "La clé actuelle cessera immédiatement de fonctionner. Mettez à jour les intégrations utilisant l’ancienne clé.", "cancel": "Annuler", "regenerate": "Régénérer"
+      }
+    }
+  }
+}

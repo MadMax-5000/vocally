@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AppIcon } from "@/components/ui/app-icon";
 import { LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
+import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +19,9 @@ type Props = {
   onSettingsRefresh: () => Promise<void>;
 };
 
-function formatDate(d: Date | null): string {
+function formatDate(d: Date | null, locale: string): string {
   if (!d) return "—";
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
     hour12: false,
@@ -35,6 +36,9 @@ function getPublicBaseUrl(): string {
 }
 
 export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }: Props) {
+  const t = useTranslations("dashboard.deploy.channels.messenger");
+  const tCommon = useTranslations("dashboard.deploy.channels.common");
+  const locale = useLocale();
   const [disconnectPending, startDisconnect] = useTransition();
   const connection = settings.connection;
 
@@ -54,10 +58,10 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
     startDisconnect(async () => {
       const result = await disconnectMessenger(agentId);
       if (!result.success) {
-        toast.error(result.error ?? "Could not disconnect");
+        toast.error(result.error ?? t("couldNotDisconnect"));
         return;
       }
-      toast.success("Messenger disconnected");
+      toast.success(t("disconnected"));
       await onSettingsRefresh();
     });
   }
@@ -69,19 +73,16 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
           <Image src="/svg/messenger.svg" alt="" width={32} height={32} className="size-8" />
         </div>
         <div className="max-w-sm space-y-1">
-          <p className="text-body-sm font-medium text-ink">Connect Messenger</p>
+          <p className="text-body-sm font-medium text-ink">{t("connect")}</p>
           <p className="text-caption text-muted">
-            Authorize Anselio to manage your Page messaging. You will be redirected to Meta to sign
-            in.
+            {t("connectDescription")}
           </p>
         </div>
         <Button type="button" className="btn-primary h-10 rounded-md px-5" onClick={handleConnect}>
-          Connect Facebook Page
+          {t("connectFacebookPage")}
         </Button>
         <p className="max-w-sm text-caption text-muted-soft">
-          In development mode, Meta only delivers messages for app roles. For production use, you’ll
-          need Advanced Access for permissions like <span className="text-ink">pages_messaging</span>{" "}
-          via App Review.
+          {t.rich("developmentNotice", { permission: (chunks) => <span className="text-ink">{chunks}</span> })}
         </p>
       </div>
     );
@@ -99,36 +100,35 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
             className="mt-0.5 size-7 shrink-0"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-body-sm font-medium text-ink">Connected</p>
+            <p className="text-body-sm font-medium text-ink">{tCommon("connected")}</p>
             <p className="mt-0.5 truncate text-body-sm text-muted">
-              {connection.pageName ?? "Facebook Page"} ({connection.pageId})
+              {connection.pageName ?? t("facebookPage")} ({connection.pageId})
             </p>
             <p className="mt-2 text-caption text-muted-soft">
-              Connected {formatDate(connection.connectedAt)}
+              {t("connectedAt", { date: formatDate(connection.connectedAt, locale) })}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-            Active
+            {tCommon("active")}
           </span>
         </div>
       </div>
 
       <div className="rounded-xl border border-hairline bg-surface-card p-4">
-        <p className="text-body-sm font-medium text-ink">Webhook configuration</p>
+        <p className="text-body-sm font-medium text-ink">{t("webhookConfiguration")}</p>
         <p className="mt-1 text-caption text-muted">
-          In Meta App Dashboard → Webhooks, set the Callback URL and Verify token, then subscribe
-          your Page to the <span className="text-ink">messages</span> field.
+          {t.rich("webhookDescription", { field: (chunks) => <span className="text-ink">{chunks}</span> })}
         </p>
 
         <div className="mt-3 grid gap-3">
           <div className="rounded-lg border border-hairline bg-canvas-soft/50 p-3">
-            <p className="text-caption text-muted">Callback URL</p>
+            <p className="text-caption text-muted">{t("callbackUrl")}</p>
             <p className="mt-0.5 break-all text-body-sm text-ink">
-              {callbackUrl ?? "Set NEXT_PUBLIC_APP_URL to see your callback URL"}
+              {callbackUrl ?? t("missingAppUrl")}
             </p>
           </div>
           <div className="rounded-lg border border-hairline bg-canvas-soft/50 p-3">
-            <p className="text-caption text-muted">Verify token</p>
+            <p className="text-caption text-muted">{t("verifyToken")}</p>
             <p className="mt-0.5 break-all text-body-sm text-ink">
               {connection.webhookVerifyToken}
             </p>
@@ -149,7 +149,7 @@ export function MessengerConnectionTab({ agentId, settings, onSettingsRefresh }:
           ) : (
             <AppIcon icon={UnplugIcon} size={16} className="mr-2 size-4" />
           )}
-          Disconnect
+          {tCommon("disconnect")}
         </Button>
       </div>
     </div>

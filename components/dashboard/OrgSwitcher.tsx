@@ -4,6 +4,7 @@ import { CheckIcon, ChevronsUpDown } from "@/lib/icons/app-icons"
 
 import * as React from "react"
 import { useOrganizationList, useOrganization } from "@clerk/nextjs"
+import { useTranslations } from "next-intl"
 
 import {
   DropdownMenu,
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/sidebar"
 
 export function OrgSwitcher() {
+  const t = useTranslations("dashboard.organization")
   const { setExpandHoverLock } = useSidebar()
   const { userMemberships, isLoaded, setActive } = useOrganizationList()
   const { organization: activeOrg } = useOrganization()
@@ -50,7 +52,7 @@ export function OrgSwitcher() {
     await setActive({ organization: orgId })
   }
 
-  const currentName = activeOrg?.name || "Personal"
+  const currentName = activeOrg?.name || t("personal")
   const currentSlug = activeOrg?.slug || ""
 
   return (

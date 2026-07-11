@@ -53,6 +53,7 @@ type ChatWidgetProps = {
   onSuggestedClick?: (message: string) => void;
   customButtonsReadOnly?: boolean;
   voiceToTextEnabled?: boolean;
+  context?: string;
 };
 
 export function ChatWidget({
@@ -75,6 +76,7 @@ export function ChatWidget({
   onSuggestedClick,
   customButtonsReadOnly,
   voiceToTextEnabled = false,
+  context,
 }: ChatWidgetProps) {
   const actionEnabled = suggestedMessagesAction?.enabled ?? false;
 
@@ -102,6 +104,7 @@ export function ChatWidget({
     initialMessages,
     initialSuggestedMessages: actionEnabled ? initialSuggestedMessages : undefined,
     deployment,
+    context,
   });
 
   const bottomRef = useRef<HTMLDivElement>(null);

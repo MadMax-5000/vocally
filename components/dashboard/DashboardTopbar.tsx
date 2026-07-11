@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
+import { Link } from "@/i18n/routing"
+import { useTranslations } from "next-intl"
 
 import { AppIcon } from "@/components/ui/app-icon"
 import { KnowledgeIcon } from "@/components/ui/icons"
@@ -14,8 +15,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { UserAvatarMenu } from "./UserAvatarMenu"
+import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher"
 
 export function DashboardTopbar() {
+  const t = useTranslations("dashboard.topbar")
+
   return (
     <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center border-b border-hairline bg-surface-card px-3">
       {/* Right cluster */}
@@ -25,13 +29,13 @@ export function DashboardTopbar() {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Feedback"
+              aria-label={t("feedback")}
               className="text-muted hover:text-ink"
             >
               <AppIcon icon={MessageCircle} size={16} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Feedback</TooltipContent>
+          <TooltipContent>{t("feedback")}</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -40,7 +44,7 @@ export function DashboardTopbar() {
               variant="ghost"
               size="icon-sm"
               asChild
-              aria-label="Documentation"
+              aria-label={t("docs")}
               className="text-muted hover:text-ink"
             >
               <Link href="/docs">
@@ -48,7 +52,7 @@ export function DashboardTopbar() {
               </Link>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Docs</TooltipContent>
+          <TooltipContent>{t("docs")}</TooltipContent>
         </Tooltip>
 
         {/* Separator */}
@@ -59,16 +63,17 @@ export function DashboardTopbar() {
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Notifications"
+              aria-label={t("notifications")}
               className="relative text-muted hover:text-ink"
             >
               <AppIcon icon={Bell} size={16} />
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-semantic-error" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Notifications</TooltipContent>
+          <TooltipContent>{t("notifications")}</TooltipContent>
         </Tooltip>
 
+        <LanguageSwitcher />
         <UserAvatarMenu />
       </div>
     </header>

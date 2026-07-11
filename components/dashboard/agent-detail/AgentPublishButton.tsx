@@ -3,8 +3,10 @@
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export function AgentPublishButton() {
+  const t = useTranslations("dashboard.agentDetail");
   return (
     <Button
       type="button"
@@ -12,10 +14,10 @@ export function AgentPublishButton() {
       size="sm"
       className="shrink-0"
       onClick={() => {
-        toast.message("Publish", { description: "Coming soon." });
+        toast.message(t("publish"), { description: t("comingSoon") });
       }}
     >
-      Publish
+      {t("publish")}
     </Button>
   );
 }

@@ -4,6 +4,7 @@ import { Inbox, SearchIcon, SlidersHorizontal } from "@/lib/icons/app-icons"
 
 import * as React from "react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { InboxSession } from "@/lib/actions/sessions";
 import {
@@ -44,12 +45,12 @@ import { ConversationDetailSheet } from "./ConversationDetailSheet";
    Constants & helpers
    ------------------------------------------------------------------ */
 
-const CHANNEL_META: Record<string, { src: string; label: string }> = {
-  VOICE: { src: "/svg/call.svg", label: "Voice" },
-  CHAT: { src: "/svg/chat.svg", label: "Chat" },
-  SMS: { src: "/svg/send.svg", label: "SMS" },
-  WHATSAPP: { src: "/svg/whatsapp-icon.svg", label: "WhatsApp" },
-  EMAIL: { src: "/svg/gmail.svg", label: "Email" },
+const CHANNEL_META: Record<string, { src: string; labelKey: string }> = {
+  VOICE: { src: "/svg/call.svg", labelKey: "channels.voice" },
+  CHAT: { src: "/svg/chat.svg", labelKey: "channels.chat" },
+  SMS: { src: "/svg/send.svg", labelKey: "channels.sms" },
+  WHATSAPP: { src: "/svg/whatsapp-icon.svg", labelKey: "channels.whatsApp" },
+  EMAIL: { src: "/svg/gmail.svg", labelKey: "channels.email" },
 };
 
 const CHANNELS = ["VOICE", "CHAT", "SMS", "WHATSAPP", "EMAIL"] as const;
@@ -57,15 +58,15 @@ const CHANNELS = ["VOICE", "CHAT", "SMS", "WHATSAPP", "EMAIL"] as const;
 const USER_NONE = "__USER_NONE__";
 const AGENT_AI = "__AGENT_AI__";
 
-const STATUS_CFG: Record<string, { label: string; pill: string }> = {
-  ACTIVE: { label: "Active", pill: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
-  WAITING: { label: "Waiting", pill: "bg-amber-50 text-amber-800 ring-amber-100" },
-  BOT: { label: "Bot", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
-  HUMAN: { label: "Human", pill: "bg-violet-50 text-violet-700 ring-violet-100" },
-  ESCALATED: { label: "Escalated", pill: "bg-red-50 text-red-700 ring-red-300" },
-  CLAIMED: { label: "Claimed", pill: "bg-blue-50 text-blue-700 ring-blue-300" },
-  RESOLVED: { label: "Resolved", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
-  ABANDONED: { label: "Abandoned", pill: "bg-rose-50 text-rose-700 ring-rose-100" },
+const STATUS_CFG: Record<string, { labelKey: string; pill: string }> = {
+  ACTIVE: { labelKey: "statuses.active", pill: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
+  WAITING: { labelKey: "statuses.waiting", pill: "bg-amber-50 text-amber-800 ring-amber-100" },
+  BOT: { labelKey: "statuses.bot", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
+  HUMAN: { labelKey: "statuses.human", pill: "bg-violet-50 text-violet-700 ring-violet-100" },
+  ESCALATED: { labelKey: "statuses.escalated", pill: "bg-red-50 text-red-700 ring-red-300" },
+  CLAIMED: { labelKey: "statuses.claimed", pill: "bg-blue-50 text-blue-700 ring-blue-300" },
+  RESOLVED: { labelKey: "statuses.resolved", pill: "bg-slate-50 text-slate-700 ring-slate-200" },
+  ABANDONED: { labelKey: "statuses.abandoned", pill: "bg-rose-50 text-rose-700 ring-rose-100" },
 };
 
 const AVATAR_PALETTE = [
@@ -98,8 +99,8 @@ function parseLocalYMD(iso: string): Date {
   return new Date(y, m - 1, d);
 }
 
-function formatSessionDate(date: Date): string {
-  return date.toLocaleString("en-US", {
+function formatSessionDate(date: Date, locale: string): string {
+  return date.toLocaleString(locale, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -122,13 +123,14 @@ function ChannelIcon({
   channel: string;
   className?: string;
 }) {
+  const t = useTranslations("dashboard.inbox");
   const meta = CHANNEL_META[channel];
   if (!meta) return null;
   return (
     <Image
       src={meta.src}
-      alt={meta.label}
-      title={meta.label}
+      alt={t(meta.labelKey)}
+      title={t(meta.labelKey)}
       width={16}
       height={16}
       className={cn("shrink-0", className)}
@@ -211,6 +213,7 @@ function DateFilterChip({
   value: string | null;
   onChange: (v: string | null) => void;
 }) {
+  const t = useTranslations("dashboard.inbox");
   const [open, setOpen] = React.useState(false);
   const active = value !== null;
 
@@ -267,7 +270,7 @@ function DateFilterChip({
               }}
               className="w-full rounded-md px-2 py-1 text-left text-body-sm text-muted hover:bg-surface-strong"
             >
-              Clear
+              {t("clear")}
             </button>
           </div>
         )}
@@ -277,6 +280,7 @@ function DateFilterChip({
 }
 
 function DisabledFilterChip({ label }: { label: string }) {
+  const t = useTranslations("dashboard.inbox");
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -298,7 +302,7 @@ function DisabledFilterChip({ label }: { label: string }) {
           </Button>
         </span>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Not available yet</TooltipContent>
+      <TooltipContent side="bottom">{t("notAvailableYet")}</TooltipContent>
     </Tooltip>
   );
 }
@@ -312,6 +316,8 @@ function uniqSorted(values: string[]): string[] {
    ------------------------------------------------------------------ */
 
 export function InboxClient({ sessions: initialSessions }: { sessions: InboxSession[] }) {
+  const t = useTranslations("dashboard.inbox");
+  const locale = useLocale();
   const [liveSessions, setLiveSessions] = React.useState(initialSessions);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -526,33 +532,33 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
 
   const channelOptions = React.useMemo(
     () => [
-      { value: null, label: "All channels" },
+      { value: null, label: t("allChannels") },
       ...CHANNELS.map((ch) => ({
         value: ch,
-        label: CHANNEL_META[ch]?.label ?? ch,
+        label: CHANNEL_META[ch] ? t(CHANNEL_META[ch].labelKey) : ch,
       })),
     ],
-    [],
+    [t],
   );
 
   const statusOptions = React.useMemo(
     () => [
-      { value: null, label: "All statuses" },
+      { value: null, label: t("allStatuses") },
       ...Object.entries(STATUS_CFG).map(([key, cfg]) => ({
         value: key,
-        label: cfg.label,
+        label: t(cfg.labelKey),
       })),
     ],
-    [],
+    [t],
   );
 
   const languageOptions = React.useMemo(() => {
     const langs = uniqSorted(liveSessions.map((s) => s.language).filter(Boolean));
     return [
-      { value: null, label: "All languages" },
+      { value: null, label: t("allLanguages") },
       ...langs.map((lang) => ({ value: lang, label: lang })),
     ];
-  }, [liveSessions]);
+  }, [liveSessions, t]);
 
   const userOptions = React.useMemo(() => {
     const ids = uniqSorted(
@@ -561,11 +567,11 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
         .filter((id): id is string => id != null && id.length > 0),
     );
     return [
-      { value: null, label: "All users" },
-      { value: USER_NONE, label: "Unidentified" },
+      { value: null, label: t("allUsers") },
+      { value: USER_NONE, label: t("unidentified") },
       ...ids.map((id) => ({ value: id, label: id })),
     ];
-  }, [liveSessions]);
+  }, [liveSessions, t]);
 
   const agentOptions = React.useMemo(() => {
     const names = uniqSorted(
@@ -574,56 +580,56 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
         .filter((n): n is string => n != null && n.length > 0),
     );
     return [
-      { value: null, label: "All agents" },
-      { value: AGENT_AI, label: "Unassigned" },
+      { value: null, label: t("allAgents") },
+      { value: AGENT_AI, label: t("unassigned") },
       ...names.map((n) => ({ value: n, label: n })),
     ];
-  }, [liveSessions]);
+  }, [liveSessions, t]);
 
   const durationOptions = React.useMemo(
     () => [
-      { value: null, label: "Any duration" },
-      { value: "lt1", label: "Under 1 min" },
-      { value: "1_10", label: "1–10 min" },
-      { value: "gt10", label: "Over 10 min" },
-      { value: "none", label: "No duration" },
+      { value: null, label: t("anyDuration") },
+      { value: "lt1", label: t("underOneMinute") },
+      { value: "1_10", label: t("oneToTenMinutes") },
+      { value: "gt10", label: t("overTenMinutes") },
+      { value: "none", label: t("noDuration") },
     ],
-    [],
+    [t],
   );
 
   const ratingOptions = React.useMemo(
     () => [
-      { value: null, label: "Any rating" },
+      { value: null, label: t("anyRating") },
       { value: "high", label: "80+" },
       { value: "mid", label: "50–79" },
-      { value: "low", label: "Under 50" },
-      { value: "norating", label: "No rating" },
+      { value: "low", label: t("underFifty") },
+      { value: "norating", label: t("noRating") },
     ],
-    [],
+    [t],
   );
 
   const criteriaOptions = React.useMemo(
     () => [
-      { value: null, label: "All outcomes" },
-      { value: "ai", label: "Resolved by AI" },
-      { value: "not_ai", label: "Not resolved by AI" },
+      { value: null, label: t("allOutcomes") },
+      { value: "ai", label: t("resolvedByAi") },
+      { value: "not_ai", label: t("notResolvedByAi") },
     ],
-    [],
+    [t],
   );
 
   const dataOptions = React.useMemo(
     () => [
-      { value: null, label: "All" },
-      { value: "has", label: "Has recording" },
-      { value: "no", label: "No recording" },
+      { value: null, label: t("all") },
+      { value: "has", label: t("hasRecording") },
+      { value: "no", label: t("noRecording") },
     ],
-    [],
+    [t],
   );
 
   const pageHeader = (
     <div className="shrink-0">
       <h1 className="text-display-sm font-display tracking-tight text-ink">
-        Conversation history
+        {t("conversationHistory")}
       </h1>
     </div>
   );
@@ -639,11 +645,10 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
               <AppIcon icon={Inbox} className="h-6 w-6 text-ink" strokeWidth={1.5} />
             </div>
             <h2 className="text-title-sm font-medium text-ink">
-              No conversations yet
+              {t("noConversationsYet")}
             </h2>
             <p className="mt-1 max-w-sm text-body-sm text-muted">
-              When customers reach out, their threads will show up in your
-              conversation history here.
+              {t("conversationHistoryEmpty")}
             </p>
           </div>
         </div>
@@ -666,7 +671,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
           />
           <Input
             ref={searchInputRef}
-            placeholder="Search conversations…"
+            placeholder={t("searchConversations")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-9 w-full rounded-lg border-hairline pl-8 pr-16 text-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
@@ -682,65 +687,65 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
         <div className="flex items-center gap-1.5">
           <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
             <DateFilterChip
-              label="Date After"
+              label={t("dateAfter")}
               value={dateAfter}
               onChange={setDateAfter}
             />
             <DateFilterChip
-              label="Date Before"
+              label={t("dateBefore")}
               value={dateBefore}
               onChange={setDateBefore}
             />
             <CompactDropdown
-              label="Call status"
+              label={t("callStatus")}
               options={statusOptions}
               value={statusFilter}
               onChange={setStatusFilter}
             />
             <CompactDropdown
-              label="Criteria"
+              label={t("criteria")}
               options={criteriaOptions}
               value={criteriaFilter}
               onChange={setCriteriaFilter}
             />
             <CompactDropdown
-              label="Data"
+              label={t("data")}
               options={dataOptions}
               value={dataFilter}
               onChange={setDataFilter}
             />
             <CompactDropdown
-              label="Duration"
+              label={t("duration")}
               options={durationOptions}
               value={durationFilter}
               onChange={setDurationFilter}
             />
             <CompactDropdown
-              label="Rating"
+              label={t("rating")}
               options={ratingOptions}
               value={ratingFilter}
               onChange={setRatingFilter}
             />
                 <CompactDropdown
-                  label="Agent"
+                  label={t("agent")}
                   options={agentOptions}
                   value={agentFilter}
                   onChange={setAgentFilter}
                 />
             <CompactDropdown
-              label="Language"
+              label={t("language")}
               options={languageOptions}
               value={languageFilter}
               onChange={setLanguageFilter}
             />
             <CompactDropdown
-              label="User"
+              label={t("user")}
               options={userOptions}
               value={userFilter}
               onChange={setUserFilter}
             />
             <CompactDropdown
-              label="Channel"
+              label={t("channel")}
               options={channelOptions}
               value={channelFilter}
               onChange={setChannelFilter}
@@ -753,7 +758,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                 variant="outline"
                 size="icon"
                 className="h-6 w-7 shrink-0 rounded-md border-hairline bg-surface-card shadow-none"
-                aria-label="Filter actions"
+                aria-label={t("filterActions")}
               >
                 <AppIcon icon={SlidersHorizontal} className="h-4 w-4 text-muted" />
               </Button>
@@ -766,15 +771,14 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                 className="text-body-sm"
                 onClick={clearAllFilters}
               >
-                Clear all filters
+                {t("clearAllFilters")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <p className="text-caption text-muted">
-          {filteredSessions.length} conversation
-          {filteredSessions.length !== 1 ? "s" : ""}
+          {t("conversationCount", { count: filteredSessions.length })}
         </p>
 
         {/* Table */}
@@ -782,14 +786,14 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <AppIcon icon={SearchIcon} className="mb-3 h-6 w-6 text-muted-soft" />
             <p className="text-body-sm text-muted">
-              No matching conversations
+              {t("noMatchingConversations")}
             </p>
             <button
               type="button"
               onClick={clearAllFilters}
               className="mt-2 text-body-sm text-primary hover:underline"
             >
-              Clear filters
+              {t("clearFilters")}
             </button>
           </div>
         ) : (
@@ -797,22 +801,22 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-0 pr-3 py-1 text-xs font-medium uppercase tracking-wider text-muted">
-                  Agent
+                  {t("agent")}
                 </TableHead>
                 <TableHead className="px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted">
-                  Title
+                  {t("title")}
                 </TableHead>
                 <TableHead className="w-[128px] px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted">
-                  Date
+                  {t("date")}
                 </TableHead>
                 <TableHead className="w-[72px] px-3 py-1 text-right text-xs font-medium uppercase tracking-wider text-muted">
-                  Duration
+                  {t("duration")}
                 </TableHead>
                 <TableHead className="w-[72px] px-3 py-1 text-right text-xs font-medium uppercase tracking-wider text-muted">
-                  Messages
+                  {t("messages")}
                 </TableHead>
                 <TableHead className="w-[100px] px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted">
-                  Status
+                  {t("status")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -820,17 +824,17 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                       {filteredSessions.map((s) => {
                         const statusCfg =
                           STATUS_CFG[s.status] ?? {
-                            label: s.status,
+                            labelKey: "",
                             pill: "bg-slate-50 text-slate-700 ring-slate-200",
                           };
                         const title =
                           s.summary ??
                           s.lastMessage?.content?.slice(0, 60) ??
-                          "No messages";
+                          t("noMessages");
                         const titleTruncated =
                           (s.summary ?? s.lastMessage?.content ?? "").length >
                           60;
-                        const displayAgent = s.agentName ?? "Unassigned";
+                        const displayAgent = s.agentName ?? t("unassigned");
 
                         return (
                           <TableRow
@@ -862,7 +866,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                                 className="whitespace-nowrap text-xs text-muted"
                                 title={s.createdAt.toISOString()}
                               >
-                                {formatSessionDate(s.createdAt)}
+                                {formatSessionDate(s.createdAt, locale)}
                               </span>
                             </TableCell>
 
@@ -885,7 +889,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
                                   statusCfg.pill,
                                 )}
                               >
-                                {statusCfg.label}
+                                {statusCfg.labelKey ? t(statusCfg.labelKey) : s.status}
                               </span>
                             </TableCell>
                           </TableRow>

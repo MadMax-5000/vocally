@@ -1,0 +1,37 @@
+{
+  "dashboard": {
+    "deploy": {
+      "wordpress": {
+        "tabs": { "setup": "Configuration", "embed": "Code d’intégration", "install": "Installer sur WordPress" },
+        "header": {
+          "backToDeploy": "Retour au déploiement", "title": "WordPress", "subtitle": "Connectez votre agent à WordPress avec le plugin officiel ou du code d’intégration", "enabled": "Activé", "disabled": "Désactivé", "enable": "Activer le déploiement WordPress", "configuration": "Configuration WordPress"
+        },
+        "embed": {
+          "description": "Collez le code d’intégration dans WordPress sans le plugin : utilisez un bloc HTML personnalisé, un extrait de pied de page WPCode ou le pied de page de votre thème.", "iframeHint": "Ajoutez un bloc HTML personnalisé à une page et collez cette iframe pour une section de chat intégrée.", "floatingHint": "Collez-le dans Réglages → Insert Headers and Footers (pied de page) ou WPCode pour afficher une bulle flottante sur tout le site."
+        },
+        "install": {
+          "intro": "Suivez ces étapes pour connecter WordPress avec le plugin officiel Anselio. Pour une intégration manuelle sans plugin, utilisez l’onglet Code d’intégration.", "downloadTitle": "Télécharger le plugin", "downloadBefore": "Téléchargez", "downloadAfter": "depuis l’onglet Configuration.", "wordpressTitle": "Installer dans WordPress", "wordpressBodyBefore": "Dans wp-admin, allez dans", "wordpressBodyAfter": ", choisissez le fichier zip, puis", "uploadPlugin": "Extensions → Ajouter une extension → Téléverser une extension", "activate": "Activer", "configureTitle": "Configurer les identifiants", "configureBefore": "Ouvrez", "settingsAnselio": "Réglages → Anselio", "configureAfter": ". Collez l’URL de votre application Anselio, l’ID de l’agent et le jeton du widget (s’il est affiché dans Configuration). Choisissez", "floating": "Flottant", "configureMiddle": "pour une bulle sur tout le site ou", "shortcodeOnly": "Shortcode uniquement", "configureEnd": "pour placer le chat avec", "saveTitle": "Enregistrer et prévisualiser", "saveBody": "Visitez la partie publique de votre site (pas l’administration). Vous devriez voir la bulle de chat ou l’intégration par shortcode.", "withoutPlugin": "Sans le plugin", "withoutPluginBefore": "Installez", "withoutPluginAfter": "(ou un équivalent), collez l’extrait flottant de l’onglet Code d’intégration dans le pied de page ou utilisez un bloc HTML personnalisé pour les iframes intégrées.", "troubleshootingBefore": "Consultez", "troubleshootingAfter": "dans le dépôt Anselio pour résoudre les problèmes."
+        },
+        "setup": {
+          "disabled": "Activez le déploiement WordPress avec l’interrupteur ci-dessus pour configurer le plugin et le code d’intégration.", "prerequisites": "Prérequis", "prerequisitesDescription": "WordPress intègre votre widget de chat hébergé. Activez le widget de chat et rendez l’agent public et actif afin que les visiteurs puissent discuter.", "widgetEnabled": "Widget de chat activé", "enableWidget": "Activer le widget", "enabled": "Activé", "disabledStatus": "Désactivé", "agentPublic": "L’agent est public", "setVisibility": "Définir la visibilité", "public": "Public", "private": "Privé", "agentActive": "L’agent est actif", "active": "Actif", "draftInactive": "Brouillon / inactif", "widgetWarning": "Activez le widget de chat avant de l’intégrer dans WordPress.", "openWidgetSettings": "Ouvrir les paramètres du widget", "officialPlugin": "Plugin officiel", "officialPluginDescription": "Téléchargez le plugin Anselio, puis collez ces valeurs dans Réglages → Anselio dans WordPress.", "downloadPlugin": "Télécharger le plugin (.zip)", "appUrl": "URL de l’application Anselio", "appUrlDescription": "L’origine de votre tableau de bord Anselio (sans barre oblique finale).", "agentId": "ID de l’agent", "widgetToken": "Jeton du widget", "widgetTokenDescription": "Requis pour les agents privés — copiez-le depuis les paramètres de sécurité de votre agent si nécessaire.", "widgetTokenNotRequired": "Non requis pour les agents publics sans jeton de widget.", "embedUrl": "URL d’intégration du widget", "embedUrlDescription": "URL complète de l’iframe — utilisée par le plugin et les extraits d’intégration manuelle.", "copy": "Copier {label}"
+        }
+      },
+      "helpPage": {
+        "header": {
+          "tabs": { "settings": "Paramètres", "embed": "Intégrer" }, "backToDeploy": "Retour au déploiement", "title": "Page d’aide", "enabled": "Activée", "disabled": "Désactivée", "enable": "Activer la page d’aide", "configuration": "Configuration de la page d’aide"
+        },
+        "embed": {
+          "fallbackTitle": "Centre d’aide", "iframeTitle": "Aide — {title}", "linkText": "Ouvrir le centre d’aide", "pageLink": "Lien de la page", "pageLinkDescription": "Partagez cette URL afin que les clients puissent ouvrir votre page d’aide autonome. Ajoutez", "pageLinkDescriptionAfter": "pour l’accès public.", "copied": "Copié", "copyLink": "Copier le lien", "open": "Ouvrir", "embedDescription": "Vous pouvez aussi intégrer la page d’aide sur votre site. L’image de marque provient de vos paramètres enregistrés.", "embedIframe": "Intégrer une iframe", "htmlLink": "Lien HTML", "copyCode": "Copier le code"
+        },
+        "navigation": {
+          "title": "Navigation latérale", "info": "Boutons affichés dans la barre latérale de la page d’aide. Le bouton principal utilise un style rempli.", "description": "Ajoutez des liens pour vos clients (par exemple, documentation, tarifs). S’ouvre dans un nouvel onglet.", "empty": "Aucun lien latéral pour le moment", "primary": "Principal", "setPrimary": "Définir comme principal", "remove": "Supprimer le lien", "labelPlaceholder": "Libellé du bouton", "hrefPlaceholder": "https://example.com ou /docs", "add": "Ajouter un lien latéral"
+        },
+        "preview": "Aperçu",
+        "settingsSaved": "Paramètres de la page d’aide enregistrés",
+        "settings": {
+          "light": "Clair", "dark": "Sombre", "upload": "Téléverser", "pageTitle": "Titre de la page", "pageTitleDescription": "Affiché dans l’onglet du navigateur.", "headline": "Titre principal", "headlineDescription": "Grand texte au-dessus du champ de chat sur la page d’aide.", "favicon": "Favicon", "faviconDescription": "ICO, PNG ou SVG jusqu’à 1 Mo. Affiché dans l’onglet du navigateur.", "messagePlaceholder": "Texte indicatif du message", "enableThemeSwitch": "Activer le sélecteur de thème", "themeSwitchDescription": "Permettez aux visiteurs de basculer entre les modes clair et sombre.", "defaultTheme": "Thème par défaut", "lightPrimaryColor": "Couleur principale claire", "darkPrimaryColor": "Couleur principale sombre", "enableVoiceToText": "Activer la saisie vocale", "voiceToTextDescription": "Affiche un bouton de microphone dans le champ de chat. La parole est transcrite dans le champ du message.", "logo": "Logo", "logoDescription": "Affiché dans la barre latérale sur les arrière-plans clairs. JPG, PNG ou SVG jusqu’à 1 Mo.", "darkLogo": "Logo (mode sombre)", "darkLogoDescription": "Affiché dans la barre latérale sur les arrière-plans sombres.", "heroImage": "Image d’en-tête", "heroImageDescription": "Centrée au-dessus du titre principal sur les arrière-plans clairs.", "darkHeroImage": "Image d’en-tête (mode sombre)", "darkHeroImageDescription": "Centrée au-dessus du titre principal sur les arrière-plans sombres."
+        }
+      }
+    }
+  }
+}

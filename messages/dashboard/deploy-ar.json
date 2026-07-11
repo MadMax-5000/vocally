@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "deploy": {
+      "common": {
+        "backToDeploy": "العودة إلى النشر", "enabled": "مفعّل", "disabled": "معطّل", "manage": "إدارة",
+        "comingSoon": "قريبًا", "notAvailableYet": "غير متاح بعد", "saveChanges": "حفظ التغييرات",
+        "saving": "جارٍ الحفظ…", "unsavedChanges": "تغييرات غير محفوظة", "allChangesSaved": "تم حفظ كل التغييرات",
+        "failedToSave": "تعذر الحفظ", "failedToUpdate": "تعذّر التحديث", "preview": "معاينة",
+        "connection": "الاتصال", "settings": "الإعدادات", "setup": "الإعداد", "examples": "أمثلة",
+        "copy": "نسخ", "copied": "تم النسخ", "disconnect": "قطع الاتصال", "connected": "متصل",
+        "active": "نشط", "loading": "جارٍ التحميل…"
+      },
+      "integrationCard": {"enable": "تفعيل {title}"},
+      "featuredCard": {"enable": "تفعيل {title}"},
+      "comingSoonPanel": {
+        "description": "إعداد {title} غير متاح بعد. ستتمكن من توصيله وإدارته من هذه الصفحة عند إطلاقه.",
+        "roadmap": "هذه القناة ضمن خارطة الطريق لدينا. تفقّدها قريبًا."
+      },
+      "hero": {
+        "agentName": "وكيل أعمالك", "greeting": "مرحبًا! كيف يمكنني مساعدتك؟",
+        "helpHeading": "كيف يمكننا مساعدتك اليوم؟", "askQuestion": "اطرح سؤالًا..."
+      },
+      "api": {
+        "title": "واجهة برمجة التطبيقات", "subtitle": "وصّل وكيلك باستخدام واجهات REST",
+        "enable": "تفعيل نشر واجهة برمجة التطبيقات", "configuration": "إعداد واجهة برمجة التطبيقات",
+        "tryApi": "جرّب الواجهة", "resetSession": "إعادة تعيين الجلسة",
+        "empty": "أرسل رسالة اختبار لمعاينة ردود الواجهة. تُستخدم جلسة لوحة التحكم للاختبار قبل جعل الوكيل عامًا.",
+        "waiting": "بانتظار الرد…", "messagePlaceholder": "اكتب رسالة اختبار…",
+        "sendMessage": "إرسال رسالة الاختبار", "lastResponse": "آخر رد",
+        "networkError": "خطأ في الشبكة — تعذّر الوصول إلى الواجهة", "requestFailed": "فشل الطلب ({status})",
+        "failedToRegenerate": "تعذّر إعادة إنشاء المفتاح", "keyRegenerated": "تمت إعادة إنشاء مفتاح الواجهة",
+        "examplesDescription": "أرسل رسائل إلى وكيلك من الخادم الخلفي. ضمّن مفتاح API في ترويسة Authorization.",
+        "curl": "cURL", "javascript": "JavaScript", "python": "Python", "copyCode": "نسخ الكود",
+        "sessionHintBefore": "مرّر", "sessionHintAfter": "من الاستجابة لمتابعة المحادثة عبر الطلبات."
+      },
+      "chatWidget": {
+        "title": "أداة الدردشة", "content": "المحتوى", "style": "النمط", "embed": "تضمين",
+        "enable": "تفعيل أداة الدردشة", "configuration": "إعداد أداة الدردشة",
+        "settingsSaved": "تم حفظ إعدادات أداة الدردشة"
+      },
+      "email": {
+        "title": "Gmail", "subtitle": "وصّل صندوق الوارد حتى يتمكن هذا الوكيل من الرد على رسائل العملاء.",
+        "enable": "تفعيل قناة البريد الإلكتروني", "configuration": "إعداد Gmail",
+        "connected": "تم اتصال Gmail", "settingsSaved": "تم حفظ إعدادات البريد الإلكتروني"
+      },
+      "phone": {
+        "title": "الهاتف", "subtitle": "وصّل رقم Twilio عبر Vapi للمكالمات الصوتية بالذكاء الاصطناعي",
+        "numbers": "الأرقام", "enable": "تفعيل نشر الهاتف", "configuration": "إعداد الهاتف"
+      },
+      "generic": {
+        "preview": "معاينة", "connected": "متصل", "active": "نشط", "disconnect": "قطع الاتصال", "connectGmail": "ربط Gmail", "gmailAuthorize": "اسمح لـ Anselio بقراءة البريد وإرساله نيابةً عن هذا الوكيل. ستتم إعادة توجيهك إلى Google لتسجيل الدخول.", "gmailDisconnected": "تم قطع اتصال Gmail", "testEmailSent": "تم إرسال بريد اختباري", "couldNotDisconnect": "تعذر قطع الاتصال", "couldNotSendTestEmail": "تعذر إرسال البريد الاختباري", "connectedAt": "تم الاتصال في {date}", "watchRenews": "تتجدد المراقبة قبل {date}", "labels": "التصنيفات: {labels}", "loading": "جارٍ التحميل…", "sendTestEmail": "إرسال بريد اختباري", "gmailPubSub": "يتم تسليم البريد الوارد عبر Google Cloud Pub/Sub. تأكد من إعداد موضوع GCP واشتراك الدفع (راجع docs/gmail-deploy.md).", "loadingGmailLabels": "جارٍ تحميل تصنيفات Gmail…", "noLabels": "لم يتم العثور على تصنيفات في صندوق البريد هذا.", "system": "النظام",
+        "autoReply": "رد تلقائي", "autoReplyDescription": "عند إيقافه، تظل رسائل البريد الواردة مسجلة لكن الوكيل لن يرسل ردود الذكاء الاصطناعي.", "replySubjectPrefix": "بادئة موضوع الرد", "replySubjectPrefixDescription": "تُضاف إلى مواضيع العملاء (مثل \"Re:\").", "emailSignature": "توقيع البريد الإلكتروني", "emailSignatureDescription": "يُضاف إلى الردود الصادرة من هذا الوكيل.", "emailSignaturePlaceholder": "شكرًا،\nفريق الدعم", "watchLabels": "تصنيفات المراقبة", "watchLabelsDescription": "رسائل البريد التي تحمل تصنيفات Gmail هذه فقط تشغّل الوكيل.", "emailPreviewDisconnected": "اربط Gmail في تبويب الاتصال لتمكين أتمتة البريد الوارد. تعرض هذه المعاينة شكل الردود.", "from": "من:", "to": "إلى:", "customerEmail": "customer@example.com", "orderQuestion": "سؤال عن الطلب", "orderQuestionMessage": "مرحبًا، أجريت طلبًا أمس — هل يمكنك تأكيد موعد شحنه؟", "orderReply": "مرحبًا — شكرًا لتواصلك. طلبك في الطريق ومن المتوقع وصوله خلال يومين إلى ثلاثة أيام عمل.", "sentBy": "أرسل بواسطة {agentName}", "autoReplyOff": "الرد التلقائي متوقف",
+        "displayName": "اسم العرض", "widgetTitle": "عنوان الودجت", "initialMessage": "الرسالة الأولى", "mobileInitialMessage": "الرسالة الأولى على الجوال", "differentMobileWelcome": "استخدام رسالة أولى مختلفة على الجوال", "differentMobileWelcomeHint": "تظهر عندما تكتشف الودجت شاشة جوال.", "autoShowWelcome": "إظهار نافذة الترحيب تلقائيًا", "autoShowWelcomeHint": "إظهار فقاعة رسالة استباقية قبل أن يفتح الزائر الدردشة.", "delay": "التأخير (بالثواني)", "delayHint": "الوقت قبل ظهور النافذة.", "autoPopupMobile": "نافذة تلقائية على الجوال", "messagePlaceholder": "النص النائب للرسالة", "voiceToText": "تمكين تحويل الكلام إلى نص", "voiceToTextHint": "إظهار زر الميكروفون في إدخال الدردشة.", "attachments": "تمكين المرفقات", "comingSoon": "قريبًا",
+        "suggestedMessages": "رسائل مقترحة", "suggestedMessagesHint": "شرائح ردود سريعة يمكن للزوار النقر عليها لبدء محادثة.", "keepSuggestedMessages": "الاستمرار في إظهار الرسائل المقترحة", "keepSuggestedMessagesHint": "إظهار الرسائل المقترحة بعد أن يرسل الزائر رسالته الأولى.", "noSuggestedMessages": "لا توجد رسائل مقترحة بعد", "suggestedMessage": "رسالة مقترحة", "removeMessage": "إزالة الرسالة", "addSuggestedMessage": "إضافة رسالة مقترحة", "appearance": "المظهر", "light": "فاتح", "dark": "داكن", "profilePicture": "صورة الملف الشخصي", "chatIcon": "أيقونة الدردشة", "imageUploadHint": "JPG وPNG وSVG حتى 1 ميغابايت", "upload": "رفع", "primaryColor": "اللون الأساسي", "bubbleColor": "لون زر فقاعة الدردشة", "pickColor": "اختر لونًا", "resetColor": "إعادة تعيين اللون", "moreInformation": "معلومات إضافية", "aboutSuggestedMessages": "حول الرسائل المقترحة", "launcherPreview": "معاينة مشغّل الدردشة", "inline": "مضمن", "floatingBubble": "فقاعة عائمة", "desktop": "سطح المكتب", "mobile": "الجوال", "connectionUpdates": "تتحدث حالة الاتصال فورًا", "refreshing": "جارٍ التحديث…", "refresh": "تحديث", "inlineIframe": "إطار مضمّن", "openPreview": "فتح المعاينة", "copyCode": "نسخ الكود", "defaultEmbedTitle": "الدعم"
+      },
+      "apiSetup": {
+        "prerequisites": "المتطلبات الأساسية", "prerequisitesDescription": "تتطلب استدعاءات API الخارجية وكيلاً عامًا ونشطًا مع تمكين نشر API. يمكنك الاختبار من لوحة التجربة قبل النشر.", "agentPublic": "الوكيل عام", "setVisibility": "تعيين الظهور", "public": "عام", "private": "خاص", "agentActive": "الوكيل نشط", "draftInactive": "مسودة / غير نشط", "deploymentEnabled": "نشر API مفعّل", "apiKey": "مفتاح API", "apiKeyDescription": "استخدم هذا المفتاح في ترويسة Authorization. احتفظ به سرًا — غيّره إذا كُشف.", "hideApiKey": "إخفاء مفتاح API", "showApiKey": "إظهار مفتاح API", "copyApiKey": "نسخ مفتاح API", "regenerating": "جارٍ التجديد…", "regenerateKey": "تجديد المفتاح", "endpoint": "نقطة النهاية", "requestBody": "نص الطلب:", "regenerateTitle": "تجديد مفتاح API؟", "regenerateDescription": "سيتوقف المفتاح الحالي عن العمل فورًا. حدّث أي تكاملات تستخدم المفتاح القديم.", "cancel": "إلغاء", "regenerate": "تجديد"
+      }
+    }
+  }
+}
