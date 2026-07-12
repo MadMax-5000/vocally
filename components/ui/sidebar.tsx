@@ -7,6 +7,7 @@ import { VariantProps, cva } from "class-variance-authority"
 import { AppIcon } from "@/components/ui/app-icon"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
+import { useLocale } from "next-intl"
 import { PanelLeft } from "@/lib/icons/app-icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -261,8 +262,16 @@ const Sidebar = React.forwardRef<
               "fixed inset-y-0 z-50 hidden h-svh transition-[width,box-shadow] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:flex",
               side === "left" ? "left-0" : "right-0",
               state === "expanded"
-                ? "w-[--sidebar-width] shadow-[4px_0_12px_rgba(0,0,0,0.08)]"
-                : "w-[--sidebar-width-icon] border-r border-hairline",
+                ? cn(
+                    "w-[--sidebar-width]",
+                    side === "left"
+                      ? "shadow-[4px_0_12px_rgba(0,0,0,0.08)]"
+                      : "shadow-[-4px_0_12px_rgba(0,0,0,0.08)]",
+                  )
+                : cn(
+                    "w-[--sidebar-width-icon] border-hairline",
+                    side === "left" ? "border-r" : "border-l",
+                  ),
               className
             )}
             onMouseEnter={(e) => {
@@ -490,7 +499,7 @@ const SidebarGroupAction = React.forwardRef<
       ref={ref}
       data-sidebar="group-action"
       className={cn(
-        "absolute right-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-all hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong",
+        "absolute end-3 top-3.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-all hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong",
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         className
@@ -584,6 +593,7 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
+    const locale = useLocale()
 
     const button = (
       <Comp
@@ -614,7 +624,7 @@ const SidebarMenuButton = React.forwardRef<
       <Tooltip>
         <TooltipTrigger asChild>{button}</TooltipTrigger>
         <TooltipContent
-          side="right"
+          side={locale === "ar" ? "left" : "right"}
           align="center"
           hidden={state !== "collapsed" || isMobile}
           {...tooltip}
@@ -639,7 +649,7 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-1 top-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-transform hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong peer-hover/menu-button:text-ink [&>svg]:size-4 [&>svg]:shrink-0",
+        "absolute end-1 top-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-ink outline-none ring-offset-canvas transition-transform hover:bg-surface-strong hover:text-ink focus-visible:ring-2 focus-visible:ring-hairline-strong peer-hover/menu-button:text-ink [&>svg]:size-4 [&>svg]:shrink-0",
         "after:absolute after:-inset-2 after:md:hidden",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&

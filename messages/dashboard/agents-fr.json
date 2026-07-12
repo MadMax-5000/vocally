@@ -82,7 +82,7 @@
         "creativityTitle": "Quel niveau de créativité pour les réponses ?", "creativityDescription": "Cela détermine à quel point le modèle suit les faits connus ou les reformule.", "strict": "Strict", "balanced": "Équilibré", "creative": "Créatif",
         "languagesTitle": "Quelles langues votre agent doit-il parler ?", "languagesDescription": "Sélectionnez toutes les langues que cet agent doit gérer. Vous pourrez en ajouter plus tard.", "arabicMsa": "Arabe (MSA)", "continue": "Continuer",
         "knowledgeTitle": "Ancrez votre agent", "knowledgeDescription": "Associez des connaissances que votre agent peut citer. Des outils et intégrations pourront être ajoutés après la création.", "tools": "Outils", "toolsDescription": "Les recherches CRM, calendriers et tickets apparaîtront bientôt ici. Ignorez cette étape pour le moment : rien n'est requis pour continuer.", "knowledgeDocuments": "Documents de connaissance", "noDocuments": "Aucun document dans votre espace de travail. Importez des fichiers depuis la base de connaissances, puis modifiez cet agent pour les associer.", "skip": "Ignorer",
-        "completeTitle": "Finalisez votre agent", "completeDescription": "Nommez votre agent, décrivez son objectif et ajoutez éventuellement votre site web.", "agentName": "Nom de l'agent *", "agentNamePlaceholder": "Saisissez le nom de l'agent...", "website": "Site web (facultatif)", "websiteHint": "Nous accéderons uniquement aux informations publiques de votre site pour personnaliser votre agent.", "mainGoal": "Objectif principal *", "mainGoalPlaceholder": "Décrivez ce que vous voulez que votre agent accomplisse...", "humanHandoff": "Transfert à un humain", "humanHandoffDescription": "Permettez aux clients de joindre un agent humain lorsqu'ils le demandent.", "yes": "Oui", "no": "Non", "creating": "Création…", "createAgent": "Créer l'agent"
+        "completeTitle": "Finalisez votre agent", "completeDescription": "Nommez votre agent, décrivez son objectif et ajoutez éventuellement votre site web.", "agentName": "Nom de l'agent *", "agentNamePlaceholder": "Saisissez le nom de l'agent...", "website": "Site web (facultatif)", "websitePlaceholder": "https://example.com", "websiteHint": "Nous accéderons uniquement aux informations publiques de votre site pour personnaliser votre agent.", "mainGoal": "Objectif principal *", "mainGoalPlaceholder": "Décrivez ce que vous voulez que votre agent accomplisse...", "humanHandoff": "Transfert à un humain", "humanHandoffDescription": "Permettez aux clients de joindre un agent humain lorsqu'ils le demandent.", "yes": "Oui", "no": "Non", "creating": "Création…", "createAgent": "Créer l'agent"
       }
     },
     "agentDetail": {
@@ -228,7 +228,10 @@
         "contentPlaceholder": "Écrivez ou collez votre texte de connaissance ici…",
         "saving": "Enregistrement…",
         "saveDocument": "Enregistrer le document",
-        "textDocumentCreated": "Document texte créé"
+        "textDocumentCreated": "Document texte créé",
+        "sourceUrl": "URL",
+        "sourceFile": "Fichier",
+        "sourceText": "Texte"
       },
       "variablesSheet": {
         "title": "Variables",

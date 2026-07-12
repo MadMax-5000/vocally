@@ -120,6 +120,7 @@
         "agentName": "Agent name *",
         "agentNamePlaceholder": "Enter agent name...",
         "website": "Website (optional)",
+        "websitePlaceholder": "https://example.com",
         "websiteHint": "We'll only access publicly available information from your website to personalize your agent.",
         "mainGoal": "Main goal *",
         "mainGoalPlaceholder": "Describe what you want your agent to accomplish...",
@@ -274,7 +275,10 @@
         "contentPlaceholder": "Write or paste your knowledge text here…",
         "saving": "Saving…",
         "saveDocument": "Save Document",
-        "textDocumentCreated": "Text document created"
+        "textDocumentCreated": "Text document created",
+        "sourceUrl": "URL",
+        "sourceFile": "File",
+        "sourceText": "Text"
       },
       "variablesSheet": {
         "title": "Variables",

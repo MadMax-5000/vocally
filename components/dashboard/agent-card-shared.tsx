@@ -85,9 +85,9 @@ export function AgentCardMetaFooter({
   }
 
   return (
-    <div className="mt-3 flex items-center justify-between border-t border-hairline-soft pt-3">
+    <div className="mt-3 flex items-center justify-between gap-3 border-t border-hairline-soft pt-3">
       {hasChannels ? (
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {enabledChannels.map((channel) => (
             <Tooltip key={channel.value}>
               <TooltipTrigger asChild>
@@ -113,7 +113,7 @@ export function AgentCardMetaFooter({
       )}
 
       {hasLanguages ? (
-        <div className="ml-auto flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           {orderedLanguages.map((lang) => {
             const Flag = LANGUAGE_FLAG[lang];
             const label = t(lang.toLowerCase());

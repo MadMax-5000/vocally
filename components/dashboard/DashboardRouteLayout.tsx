@@ -9,7 +9,7 @@ import { ProductAssistantWidget } from "@/components/dashboard/ProductAssistantW
 
 /**
  * Fullscreen routes under /dashboard (no sidebar/topbar) must be listed here.
- * All dashboard routes live under `app/(shell)/dashboard/` and share this layout.
+ * All dashboard routes live under `app/[locale]/dashboard/` and share this layout.
  */
 const FULLSCREEN_DASHBOARD_PATHS = new Set<string>(["/dashboard/agents/new"]);
 

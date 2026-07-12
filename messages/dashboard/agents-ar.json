@@ -82,7 +82,7 @@
         "creativityTitle": "ما مدى إبداع الردود؟", "creativityDescription": "يتحكم هذا في مدى التزام النموذج بالحقائق المعروفة مقابل إعادة صياغتها.", "strict": "صارم", "balanced": "متوازن", "creative": "إبداعي",
         "languagesTitle": "ما اللغات التي ينبغي أن يتحدث بها وكيلك؟", "languagesDescription": "اختر كل اللغات التي ينبغي أن يعالجها هذا الوكيل. يمكنك إضافة المزيد لاحقًا.", "arabicMsa": "العربية (الفصحى)", "continue": "متابعة",
         "knowledgeTitle": "دعّم وكيلك بالمعرفة", "knowledgeDescription": "اربط المعرفة التي يمكن لوكيلك الاستناد إليها. يمكن إضافة الأدوات والتكاملات المتقدمة من لوحة التحكم بعد الإنشاء.", "tools": "الأدوات", "toolsDescription": "ستظهر عمليات بحث CRM والتقاويم والتذاكر هنا قريبًا. يمكنك التخطي الآن؛ لا شيء مطلوب للمتابعة.", "knowledgeDocuments": "وثائق المعرفة", "noDocuments": "لا توجد وثائق في مساحة العمل حتى الآن. ارفع ملفات من قاعدة المعرفة، ثم عدّل هذا الوكيل لإرفاقها.", "skip": "تخطي",
-        "completeTitle": "أكمل وكيلك", "completeDescription": "سمِّ وكيلك، وصف هدفه، وأضف موقعك اختياريًا.", "agentName": "اسم الوكيل *", "agentNamePlaceholder": "أدخل اسم الوكيل...", "website": "الموقع الإلكتروني (اختياري)", "websiteHint": "سنصل فقط إلى المعلومات المتاحة للعامة من موقعك لتخصيص وكيلك.", "mainGoal": "الهدف الرئيسي *", "mainGoalPlaceholder": "صف ما تريد أن ينجزه وكيلك...", "humanHandoff": "التحويل إلى موظف", "humanHandoffDescription": "اسمح للعملاء بالوصول إلى موظف مباشر عندما يطلبون شخصًا.", "yes": "نعم", "no": "لا", "creating": "جارٍ الإنشاء…", "createAgent": "إنشاء الوكيل"
+        "completeTitle": "أكمل وكيلك", "completeDescription": "سمِّ وكيلك، وصف هدفه، وأضف موقعك اختياريًا.", "agentName": "اسم الوكيل *", "agentNamePlaceholder": "أدخل اسم الوكيل...", "website": "الموقع الإلكتروني (اختياري)", "websitePlaceholder": "https://example.com", "websiteHint": "سنصل فقط إلى المعلومات المتاحة للعامة من موقعك لتخصيص وكيلك.", "mainGoal": "الهدف الرئيسي *", "mainGoalPlaceholder": "صف ما تريد أن ينجزه وكيلك...", "humanHandoff": "التحويل إلى موظف", "humanHandoffDescription": "اسمح للعملاء بالوصول إلى موظف مباشر عندما يطلبون شخصًا.", "yes": "نعم", "no": "لا", "creating": "جارٍ الإنشاء…", "createAgent": "إنشاء الوكيل"
       }
     },
     "agentDetail": {
@@ -228,7 +228,10 @@
         "contentPlaceholder": "اكتب أو الصق نص المعرفة هنا…",
         "saving": "جارٍ الحفظ…",
         "saveDocument": "حفظ المستند",
-        "textDocumentCreated": "تم إنشاء المستند النصي"
+        "textDocumentCreated": "تم إنشاء المستند النصي",
+        "sourceUrl": "رابط",
+        "sourceFile": "ملف",
+        "sourceText": "نص"
       },
       "variablesSheet": {
         "title": "المتغيرات",

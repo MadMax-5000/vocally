@@ -10,6 +10,7 @@ export default getRequestConfig(async ({requestLocale}) => {
   }
 
   const messages = (await import(`../messages/${locale}.json`)).default;
+  const shell = (await import(`../messages/dashboard/shell-${locale}.json`)).default;
   const operations = (await import(`../messages/dashboard/operations-${locale}.json`)).default;
   const deploy = (await import(`../messages/dashboard/deploy-${locale}.json`)).default;
   const deployChannels = (await import(`../messages/dashboard/deploy-channels-${locale}.json`)).default;
@@ -28,6 +29,7 @@ export default getRequestConfig(async ({requestLocale}) => {
       ...messages,
       dashboard: {
         ...messages.dashboard,
+        ...shell.dashboard,
         ...operations.dashboard,
         ...deploy.dashboard,
         ...agents.dashboard,

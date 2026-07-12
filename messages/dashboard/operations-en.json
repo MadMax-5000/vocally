@@ -38,6 +38,102 @@
       "chartTabs": {"count": "Number of calls", "avgDuration": "Average duration", "totalCost": "Total cost", "avgCost": "Average cost", "totalLlmCost": "Total LLM cost", "avgLlmCost": "Average LLM cost"},
       "credits": "{count} credits", "moreInfo": "More info", "linearScale": "Linear scale", "download": "Download", "noDataCollected": "No data has been collected", "filter": "Filter", "all": "All", "filteredCallHistory": "Filtered call history", "overallSuccessRate": "Overall Success Rate", "averageCsatRating": "Average CSAT Rating", "agentResponseTime": "Agent Response Time", "totalConversationDuration": "Total Conversation Duration", "sessionsByChannel": "Sessions by Channel", "sessions": "Sessions", "noChannelData": "No channel data available",
       "channels": {"voice": "Voice", "chat": "Chat", "sms": "SMS", "whatsapp": "WhatsApp", "email": "Email"}
+    },
+    "leads": {
+      "title": "Leads",
+      "description": "Contacts captured by your agents through lead collection and custom forms.",
+      "loading": "Loading…",
+      "clearFilters": "Clear filters",
+      "count": "{count, plural, one {# lead} other {# leads}}",
+      "viewConversation": "View conversation",
+      "fields": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "company": "Company",
+        "notes": "Notes",
+        "agent": "Agent",
+        "form": "Form",
+        "captured": "Captured",
+        "contact": "Contact",
+        "source": "Source",
+        "channel": "Channel"
+      },
+      "captureTypes": {
+        "collectLeads": "Lead collection",
+        "customForm": "Custom form"
+      },
+      "channels": {
+        "voice": "Voice",
+        "chat": "Chat",
+        "sms": "SMS",
+        "whatsApp": "WhatsApp",
+        "email": "Email"
+      },
+      "empty": {
+        "title": "No leads yet",
+        "description": "When customers submit lead forms or custom forms, their details will appear here."
+      }
+    },
+    "billing": {
+      "eyebrow": "Billing",
+      "title": "Plans & billing",
+      "description": "You are currently on the <plan></plan> plan. Upgrade to unlock more agents, channels, and usage.",
+      "upgradeTitle": "Upgrade your plan",
+      "checkoutCompleted": "Checkout completed — your plan will update shortly.",
+      "checkoutFailed": "Could not start checkout. Please try again.",
+      "plans": {
+        "FREE": "Free",
+        "STARTER": "Starter",
+        "PRO": "Pro",
+        "ENTERPRISE": "Enterprise"
+      },
+      "descriptions": {
+        "STARTER": "For small teams getting started with AI support.",
+        "PRO": "For growing teams with higher volume and advanced features.",
+        "ENTERPRISE": "Custom limits, SLAs, and dedicated support."
+      },
+      "cta": {
+        "startFreeTrial": "Start free trial",
+        "getStarted": "Get started",
+        "upgrade": "Upgrade",
+        "currentPlan": "Current plan",
+        "contactSales": "Contact sales",
+        "checkout": "Checkout",
+        "redirecting": "Redirecting…"
+      }
+    },
+    "live": {
+      "title": "Live monitor",
+      "activeCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}}",
+      "ai": "AI",
+      "empty": {
+        "title": "No active sessions",
+        "description": "When customers start conversations, live sessions will appear here in real time."
+      },
+      "columns": {
+        "channel": "Channel",
+        "customer": "Customer",
+        "agent": "Agent",
+        "duration": "Duration",
+        "sentiment": "Sentiment",
+        "lastActivity": "Last activity",
+        "messages": "Messages"
+      },
+      "channels": {
+        "voice": "Voice",
+        "chat": "Chat",
+        "sms": "SMS",
+        "whatsApp": "WhatsApp",
+        "email": "Email"
+      },
+      "statuses": {
+        "active": "Active",
+        "waiting": "Waiting",
+        "bot": "Bot",
+        "escalated": "Escalated",
+        "claimed": "Claimed"
+      }
     }
   }
 }

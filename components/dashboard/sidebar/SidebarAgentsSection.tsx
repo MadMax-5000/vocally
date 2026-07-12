@@ -5,7 +5,7 @@ import { MoreHorizontal, PlusIcon } from "@/lib/icons/app-icons"
 import * as React from "react";
 import { Link } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import {
   Popover,
@@ -59,6 +59,7 @@ function AgentsMorePopover({
   disabled?: boolean;
 }) {
   const t = useTranslations("dashboard.sidebar");
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -124,7 +125,7 @@ function AgentsMorePopover({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        side="right"
+        side={locale === "ar" ? "left" : "right"}
         align="start"
         sideOffset={8}
         className="w-[260px] gap-0 rounded-lg border border-hairline bg-surface-card p-0 shadow-md ring-0"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { ArabicFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 import {
@@ -23,6 +23,7 @@ type LocaleKey = keyof typeof flags;
 
 export function LanguageSwitcher() {
   const locale = useLocale() as LocaleKey;
+  const t = useTranslations("dashboard.topbar");
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -33,6 +34,7 @@ export function LanguageSwitcher() {
     if (newLocale === locale) return;
     startTransition(() => {
       router.replace(pathname, { locale: newLocale });
+      router.refresh();
     });
   }
 
@@ -40,7 +42,7 @@ export function LanguageSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger
         className="flex h-8 w-10 items-center justify-center rounded-md border border-hairline bg-surface-card transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2"
-        aria-label="Change language"
+        aria-label={t("language")}
         disabled={isPending}
       >
         <CurrentFlag className="h-5 w-5 shrink-0" />

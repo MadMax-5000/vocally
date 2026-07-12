@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "nav": {
+      "agents": "Agents",
+      "inbox": "Inbox",
+      "leads": "Leads",
+      "live": "Live monitor",
+      "analytics": "Analytics",
+      "knowledge": "Knowledge base",
+      "billing": "Billing",
+      "operations": "Operations",
+      "workspace": "Workspace"
+    },
+    "topbar": {
+      "feedback": "Feedback",
+      "docs": "Docs",
+      "notifications": "Notifications",
+      "language": "Change language"
+    },
+    "sidebar": {
+      "more": "More",
+      "searchAgents": "Search agents…",
+      "noAgentsFound": "No agents found.",
+      "createAgent": "Create agent",
+      "activeConversations": "{count} active conversations"
+    },
+    "userMenu": {
+      "profile": "Profile",
+      "accountSettings": "Account settings",
+      "keyboardShortcuts": "Keyboard shortcuts",
+      "lightTheme": "Light theme",
+      "signOut": "Sign out",
+      "signIn": "Sign in",
+      "avatar": "User avatar"
+    },
+    "organization": {
+      "personal": "Personal"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "nav": {
+      "agents": "Agents",
+      "inbox": "Boîte de réception",
+      "leads": "Prospects",
+      "live": "Moniteur en direct",
+      "analytics": "Analytique",
+      "knowledge": "Base de connaissances",
+      "billing": "Facturation",
+      "operations": "Opérations",
+      "workspace": "Espace de travail"
+    },
+    "topbar": {
+      "feedback": "Commentaires",
+      "docs": "Documentation",
+      "notifications": "Notifications",
+      "language": "Changer de langue"
+    },
+    "sidebar": {
+      "more": "Plus",
+      "searchAgents": "Rechercher des agents…",
+      "noAgentsFound": "Aucun agent trouvé.",
+      "createAgent": "Créer un agent",
+      "activeConversations": "{count} conversations actives"
+    },
+    "userMenu": {
+      "profile": "Profil",
+      "accountSettings": "Paramètres du compte",
+      "keyboardShortcuts": "Raccourcis clavier",
+      "lightTheme": "Thème clair",
+      "signOut": "Se déconnecter",
+      "signIn": "Se connecter",
+      "avatar": "Avatar utilisateur"
+    },
+    "organization": {
+      "personal": "Personnel"
+    }
+  }
+}

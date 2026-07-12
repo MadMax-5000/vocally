@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Link } from "@/i18n/routing"
 import { usePathname } from "@/i18n/routing"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import type { IconSvgElement } from "@/components/ui/app-icon"
 import { AppIcon } from "@/components/ui/app-icon"
@@ -97,6 +97,7 @@ function SidebarBrand() {
 
 export function AppSidebar() {
   const t = useTranslations("dashboard.nav")
+  const locale = useLocale()
   const pathname = usePathname()
   const { state, isMobile, openMobile } = useSidebar()
   const [escalationCount, setEscalationCount] = React.useState(0)
@@ -133,7 +134,7 @@ export function AppSidebar() {
   }, [])
 
   return (
-    <Sidebar collapsible="overlay">
+    <Sidebar collapsible="overlay" side={locale === "ar" ? "right" : "left"}>
       <SidebarBrand />
       <SidebarContent>
         <SidebarAgentsSection />
@@ -157,7 +158,7 @@ export function AppSidebar() {
                         (isMobile ? openMobile : state === "expanded") && (
                         <span
                           data-sidebar="menu-trailing"
-                          className="absolute right-1 top-1/2 -translate-y-1/2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white"
+                          className="absolute end-1 top-1/2 -translate-y-1/2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white"
                         >
                           {escalationCount > 99 ? "99+" : escalationCount}
                         </span>

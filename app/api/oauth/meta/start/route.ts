@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { buildMetaAuthUrl } from "@/lib/meta/oauth";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
 
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
@@ -34,7 +35,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(url);
   } catch (e) {
     const message = e instanceof Error ? e.message : "OAuth not configured";
-    const redirect = new URL(`/dashboard/agents/${agentId}/deploy/messenger`, req.url);
+    const locale = getRequestLocale(req.headers);
+    const redirect = new URL(`/${locale}/dashboard/agents/${agentId}/deploy/messenger`, req.url);
     redirect.searchParams.set("error", message);
     return NextResponse.redirect(redirect);
   }

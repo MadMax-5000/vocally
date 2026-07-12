@@ -26,6 +26,102 @@
       "chartTabs": {"count": "Nombre d’appels", "avgDuration": "Durée moyenne", "totalCost": "Coût total", "avgCost": "Coût moyen", "totalLlmCost": "Coût total du LLM", "avgLlmCost": "Coût moyen du LLM"},
       "credits": "{count} crédits", "moreInfo": "Plus d’informations", "linearScale": "Échelle linéaire", "download": "Télécharger", "noDataCollected": "Aucune donnée n’a été collectée", "filter": "Filtrer", "all": "Tous", "filteredCallHistory": "Historique des appels filtré", "overallSuccessRate": "Taux de réussite global", "averageCsatRating": "Note CSAT moyenne", "agentResponseTime": "Temps de réponse de l’agent", "totalConversationDuration": "Durée totale des conversations", "sessionsByChannel": "Sessions par canal", "sessions": "Sessions", "noChannelData": "Aucune donnée de canal disponible",
       "channels": {"voice": "Voix", "chat": "Chat", "sms": "SMS", "whatsapp": "WhatsApp", "email": "E-mail"}
+    },
+    "leads": {
+      "title": "Prospects",
+      "description": "Contacts capturés par vos agents via la collecte de prospects et les formulaires personnalisés.",
+      "loading": "Chargement…",
+      "clearFilters": "Effacer les filtres",
+      "count": "{count, plural, one {# prospect} other {# prospects}}",
+      "viewConversation": "Voir la conversation",
+      "fields": {
+        "name": "Nom",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "company": "Entreprise",
+        "notes": "Notes",
+        "agent": "Agent",
+        "form": "Formulaire",
+        "captured": "Capturé le",
+        "contact": "Contact",
+        "source": "Source",
+        "channel": "Canal"
+      },
+      "captureTypes": {
+        "collectLeads": "Collecte de prospects",
+        "customForm": "Formulaire personnalisé"
+      },
+      "channels": {
+        "voice": "Voix",
+        "chat": "Chat",
+        "sms": "SMS",
+        "whatsApp": "WhatsApp",
+        "email": "E-mail"
+      },
+      "empty": {
+        "title": "Aucun prospect pour le moment",
+        "description": "Lorsque des clients soumettent des formulaires, leurs informations apparaîtront ici."
+      }
+    },
+    "billing": {
+      "eyebrow": "Facturation",
+      "title": "Offres et facturation",
+      "description": "Vous êtes actuellement sur l’offre <plan></plan>. Passez à une offre supérieure pour débloquer plus d’agents, de canaux et d’utilisation.",
+      "upgradeTitle": "Passer à une offre supérieure",
+      "checkoutCompleted": "Paiement terminé — votre offre sera mise à jour sous peu.",
+      "checkoutFailed": "Impossible de démarrer le paiement. Veuillez réessayer.",
+      "plans": {
+        "FREE": "Gratuit",
+        "STARTER": "Starter",
+        "PRO": "Pro",
+        "ENTERPRISE": "Entreprise"
+      },
+      "descriptions": {
+        "STARTER": "Pour les petites équipes qui débutent avec le support IA.",
+        "PRO": "Pour les équipes en croissance avec un volume plus élevé et des fonctionnalités avancées.",
+        "ENTERPRISE": "Limites personnalisées, SLA et support dédié."
+      },
+      "cta": {
+        "startFreeTrial": "Essai gratuit",
+        "getStarted": "Commencer",
+        "upgrade": "Mettre à niveau",
+        "currentPlan": "Offre actuelle",
+        "contactSales": "Contacter les ventes",
+        "checkout": "Payer",
+        "redirecting": "Redirection…"
+      }
+    },
+    "live": {
+      "title": "Moniteur en direct",
+      "activeCount": "{count, plural, =0 {Aucune session active} one {# session active} other {# sessions actives}}",
+      "ai": "IA",
+      "empty": {
+        "title": "Aucune session active",
+        "description": "Lorsque des clients démarrent des conversations, les sessions en direct apparaîtront ici en temps réel."
+      },
+      "columns": {
+        "channel": "Canal",
+        "customer": "Client",
+        "agent": "Agent",
+        "duration": "Durée",
+        "sentiment": "Sentiment",
+        "lastActivity": "Dernière activité",
+        "messages": "Messages"
+      },
+      "channels": {
+        "voice": "Voix",
+        "chat": "Chat",
+        "sms": "SMS",
+        "whatsApp": "WhatsApp",
+        "email": "E-mail"
+      },
+      "statuses": {
+        "active": "Actif",
+        "waiting": "En attente",
+        "bot": "Bot",
+        "escalated": "Transféré",
+        "claimed": "Pris en charge"
+      }
     }
   }
 }

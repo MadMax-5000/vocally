@@ -26,6 +26,102 @@
       "chartTabs": {"count": "عدد المكالمات", "avgDuration": "متوسط المدة", "totalCost": "التكلفة الإجمالية", "avgCost": "متوسط التكلفة", "totalLlmCost": "إجمالي تكلفة النموذج", "avgLlmCost": "متوسط تكلفة النموذج"},
       "credits": "{count} رصيد", "moreInfo": "مزيد من المعلومات", "linearScale": "مقياس خطي", "download": "تنزيل", "noDataCollected": "لم يتم جمع أي بيانات", "filter": "تصفية", "all": "الكل", "filteredCallHistory": "سجل المكالمات المُصفّى", "overallSuccessRate": "معدل النجاح الإجمالي", "averageCsatRating": "متوسط تقييم رضا العملاء", "agentResponseTime": "وقت استجابة الوكيل", "totalConversationDuration": "إجمالي مدة المحادثات", "sessionsByChannel": "الجلسات حسب القناة", "sessions": "الجلسات", "noChannelData": "لا تتوفر بيانات للقنوات",
       "channels": {"voice": "الصوت", "chat": "الدردشة", "sms": "رسائل نصية", "whatsapp": "واتساب", "email": "البريد الإلكتروني"}
+    },
+    "leads": {
+      "title": "العملاء المحتملون",
+      "description": "جهات الاتصال التي يلتقطها وكلاؤك عبر جمع العملاء المحتملين والنماذج المخصصة.",
+      "loading": "جارٍ التحميل…",
+      "clearFilters": "مسح الفلاتر",
+      "count": "{count} عميل محتمل",
+      "viewConversation": "عرض المحادثة",
+      "fields": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "company": "الشركة",
+        "notes": "ملاحظات",
+        "agent": "الوكيل",
+        "form": "النموذج",
+        "captured": "تاريخ الالتقاط",
+        "contact": "جهة الاتصال",
+        "source": "المصدر",
+        "channel": "القناة"
+      },
+      "captureTypes": {
+        "collectLeads": "جمع العملاء المحتملين",
+        "customForm": "نموذج مخصص"
+      },
+      "channels": {
+        "voice": "الصوت",
+        "chat": "الدردشة",
+        "sms": "رسائل نصية",
+        "whatsApp": "واتساب",
+        "email": "البريد الإلكتروني"
+      },
+      "empty": {
+        "title": "لا يوجد عملاء محتملون بعد",
+        "description": "عندما يُرسل العملاء نماذج، ستظهر تفاصيلهم هنا."
+      }
+    },
+    "billing": {
+      "eyebrow": "الفوترة",
+      "title": "الخطط والفوترة",
+      "description": "أنت حاليًا على خطة <plan></plan>. قم بالترقية لفتح المزيد من الوكلاء والقنوات والاستخدام.",
+      "upgradeTitle": "ترقية خطتك",
+      "checkoutCompleted": "اكتمل الدفع — سيتم تحديث خطتك قريبًا.",
+      "checkoutFailed": "تعذّر بدء الدفع. يرجى المحاولة مرة أخرى.",
+      "plans": {
+        "FREE": "مجاني",
+        "STARTER": "Starter",
+        "PRO": "Pro",
+        "ENTERPRISE": "Enterprise"
+      },
+      "descriptions": {
+        "STARTER": "للفرق الصغيرة التي تبدأ مع دعم الذكاء الاصطناعي.",
+        "PRO": "للفرق المتنامية مع حجم أعلى وميزات متقدمة.",
+        "ENTERPRISE": "حدود مخصصة واتفاقيات مستوى الخدمة ودعم مخصص."
+      },
+      "cta": {
+        "startFreeTrial": "ابدأ التجربة المجانية",
+        "getStarted": "ابدأ",
+        "upgrade": "ترقية",
+        "currentPlan": "الخطة الحالية",
+        "contactSales": "تواصل مع المبيعات",
+        "checkout": "الدفع",
+        "redirecting": "جارٍ التوجيه…"
+      }
+    },
+    "live": {
+      "title": "المراقبة المباشرة",
+      "activeCount": "{count, plural, =0 {لا توجد جلسات نشطة} one {جلسة نشطة واحدة} other {# جلسات نشطة}}",
+      "ai": "الذكاء الاصطناعي",
+      "empty": {
+        "title": "لا توجد جلسات نشطة",
+        "description": "عندما يبدأ العملاء محادثات، ستظهر الجلسات المباشرة هنا في الوقت الفعلي."
+      },
+      "columns": {
+        "channel": "القناة",
+        "customer": "العميل",
+        "agent": "الوكيل",
+        "duration": "المدة",
+        "sentiment": "المشاعر",
+        "lastActivity": "آخر نشاط",
+        "messages": "الرسائل"
+      },
+      "channels": {
+        "voice": "الصوت",
+        "chat": "الدردشة",
+        "sms": "رسائل نصية",
+        "whatsApp": "واتساب",
+        "email": "البريد الإلكتروني"
+      },
+      "statuses": {
+        "active": "نشط",
+        "waiting": "قيد الانتظار",
+        "bot": "روبوت",
+        "escalated": "مُصعّد",
+        "claimed": "تم الاستلام"
+      }
     }
   }
 }

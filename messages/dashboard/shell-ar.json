@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "nav": {
+      "agents": "الوكلاء",
+      "inbox": "صندوق الوارد",
+      "leads": "العملاء المحتملون",
+      "live": "المراقبة المباشرة",
+      "analytics": "التحليلات",
+      "knowledge": "قاعدة المعرفة",
+      "billing": "الفوترة",
+      "operations": "العمليات",
+      "workspace": "مساحة العمل"
+    },
+    "topbar": {
+      "feedback": "ملاحظات",
+      "docs": "الوثائق",
+      "notifications": "الإشعارات",
+      "language": "تغيير اللغة"
+    },
+    "sidebar": {
+      "more": "المزيد",
+      "searchAgents": "البحث عن الوكلاء…",
+      "noAgentsFound": "لم يتم العثور على وكلاء.",
+      "createAgent": "إنشاء وكيل",
+      "activeConversations": "{count} محادثات نشطة"
+    },
+    "userMenu": {
+      "profile": "الملف الشخصي",
+      "accountSettings": "إعدادات الحساب",
+      "keyboardShortcuts": "اختصارات لوحة المفاتيح",
+      "lightTheme": "السمة الفاتحة",
+      "signOut": "تسجيل الخروج",
+      "signIn": "تسجيل الدخول",
+      "avatar": "صورة المستخدم"
+    },
+    "organization": {
+      "personal": "شخصي"
+    }
+  }
+}

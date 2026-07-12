@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/routing";
 
-export default function DashboardPage() {
-  redirect("/dashboard/agents");
+export default function DashboardPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  redirect({ href: "/dashboard/agents", locale });
 }
