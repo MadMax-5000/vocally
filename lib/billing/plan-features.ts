@@ -11,6 +11,14 @@ export type PlanMeta = {
   features: PlanFeature[];
 };
 
+/** Maximum phone numbers an org can provision per plan. */
+export const MAX_PHONE_NUMBERS: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", number> = {
+  FREE: 0,
+  STARTER: 1,
+  PRO: 3,
+  ENTERPRISE: Infinity,
+};
+
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
   FREE: { madCents: 0 },
   STARTER: { madCents: 99999 },

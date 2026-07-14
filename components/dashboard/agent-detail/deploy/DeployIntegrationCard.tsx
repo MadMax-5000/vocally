@@ -92,7 +92,7 @@ export function DeployIntegrationCard({
           <h3 className="text-title-sm font-medium text-ink">{title}</h3>
           {beta ? (
             <span className="shrink-0 rounded-pill bg-surface-strong px-2 py-0.5 text-caption-uppercase text-muted">
-              Beta
+              {t("common.beta")}
             </span>
           ) : null}
         </div>

@@ -4,6 +4,10 @@ const CRITICAL_VARS: { key: string; label: string }[] = [
   { key: "OPENROUTER_API_KEY", label: "OpenRouter API key for LLM/embeddings" },
   { key: "CLERK_SECRET_KEY", label: "Clerk secret key" },
   { key: "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", label: "Clerk publishable key" },
+  { key: "TWILIO_ACCOUNT_SID", label: "Twilio account SID" },
+  { key: "TWILIO_AUTH_TOKEN", label: "Twilio auth token" },
+  { key: "VAPI_API_KEY", label: "Vapi API key" },
+  { key: "HANDOFF_PHONE_NUMBER", label: "Human agent handoff phone number" },
 ];
 
 let _validated = false;

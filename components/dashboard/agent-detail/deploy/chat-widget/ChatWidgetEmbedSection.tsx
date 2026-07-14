@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { WidgetEmbedFromAgent } from "@/components/dashboard/agent-detail/deploy/WidgetEmbedSnippetSection";
 import { resolveWidgetDisplayName } from "@/lib/deploy/web-chat-config";
 
@@ -18,10 +19,11 @@ export function ChatWidgetEmbedSection({
   widgetToken,
   draft,
 }: ChatWidgetEmbedSectionProps) {
+  const t = useTranslations("dashboard.deploy.chatWidget");
   const title = resolveWidgetDisplayName(agentName, {
     displayName: draft.widget.displayName.trim() || undefined,
   });
-  const welcome = draft.welcomeMessage.trim() || "Hello! How can I help you today?";
+  const welcome = draft.welcomeMessage.trim() || t("welcomeFallback");
 
   return (
     <WidgetEmbedFromAgent
@@ -30,9 +32,9 @@ export function ChatWidgetEmbedSection({
       widgetToken={widgetToken}
       title={title}
       welcome={welcome}
-      description="Add this widget to your website. Snippets use your saved display name and welcome message — save any changes on Content before copying."
-      iframeHint="Paste this iframe tag anywhere in your HTML where you want the chat to appear."
-      floatingHint="Paste this snippet where you want the floating chat bubble to appear on your site."
+      description={t("embedDescription")}
+      iframeHint={t("iframeHint")}
+      floatingHint={t("floatingHint")}
     />
   );
 }

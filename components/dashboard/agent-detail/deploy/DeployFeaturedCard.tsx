@@ -27,10 +27,11 @@ export function DeployFeaturedCard({
   enabled,
   onEnabledChange,
   manageHref,
-  manageLabel = "Manage",
+  manageLabel,
   toggling = false,
 }: DeployFeaturedCardProps) {
   const t = useTranslations("dashboard.deploy");
+  const resolvedManageLabel = manageLabel ?? t("common.manage");
   return (
     <article
       className={cn(
@@ -53,7 +54,7 @@ export function DeployFeaturedCard({
           </p>
           <div className="flex shrink-0 items-center gap-2">
             <Link href={manageHref} className="btn-outline shrink-0">
-              {manageLabel}
+              {resolvedManageLabel}
             </Link>
             <Switch
               checked={enabled}

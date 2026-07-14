@@ -42,18 +42,16 @@
           "message": "Message…", "previewOnly": "Preview only — real replies are sent via your Page connection.", "todayAt": "{customer} • Today • {time}"
         },
         "phone": {
-          "connected": "Phone number connected", "connectFailed": "Failed to connect number", "disconnected": "Phone number disconnected", "disconnectFailed": "Failed to disconnect",
+          "connected": "Phone number connected", "connectFailed": "Failed to provision number", "disconnected": "Phone number disconnected", "disconnectFailed": "Failed to disconnect",
           "disabledTitle": "Phone deployment is disabled", "disabledDescription": "Enable the phone channel above to connect your business number.",
-          "forwardsTo": "Your number <number>{phoneNumber}</number> forwards calls to Anselio.", "forwardingDestination": "Forwarding destination",
-          "setupTitle": "One-time setup — dial this code from your phone", "setupDescription": "Copy the code below, open your phone’s dialer, type it in, and press call. Your carrier confirms activation in 2 seconds. That’s it.",
-          "forwardingType": "Forwarding type", "allCalls": "All calls", "whenBusy": "When I’m on another call", "whenNoAnswer": "When I don’t pick up", "whenUnreachable": "When my phone is off",
-          "copyCode": "Copy this code", "codeCopied": "Code copied to clipboard", "dialCode": "Dial the code",
-          "dialCodeDescription": "Open your phone dialer, paste or type the code, and press the call button. You’ll hear a confirmation message from your carrier.",
-          "disableForwarding": "Need to disable forwarding?", "disableForwardingDescription": "Dial <code>##002#</code> from your phone to turn off all forwarding. Or click Disconnect below to deactivate it from Anselio.",
-          "carrierQuestion": "What about Maroc Telecom / Orange / Inwi?", "carrierAnswer": "All three Moroccan carriers support the same USSD codes. Dial <code>*21*...</code> for unconditional forwarding. No special configuration needed.",
-          "connectBusinessNumber": "Connect your business number", "connectBusinessDescription": "Enter the phone number your customers call you on. We’ll give you a forwarding destination so calls reach your AI agent.",
-          "businessNumber": "Your business number", "numberFormat": "E.164 format including country code (e.g. +2126XXXXXXXX)", "connecting": "Connecting…", "connect": "Connect",
-          "activationNotice": "After connecting, you’ll dial a short code from your phone to activate forwarding. Takes 2 seconds. Your customers keep calling your usual number.",
+          "yourNumbers": "Your phone numbers", "yourNumbersDescription": "These numbers are active and can receive calls.",
+          "addPhoneNumber": "Add a phone number", "addPhoneNumberDescription": "Provision a new Moroccan phone number for your agent. Calls to this number will be handled by your AI agent automatically.",
+          "provisionNumber": "Provision number", "provisioning": "Provisioning number…", "numberProvisioned": "Number provisioned!",
+          "numberProvisionedDescription": "Your new number is ready. Calls to this number will be answered by your AI agent.",
+          "provisionLimit": "{current} of {max} numbers used", "planLimitReached": "Phone number limit reached",
+          "planLimitReachedDescription": "Upgrade your plan to provision more phone numbers.",
+          "inactive": "Inactive",
+          "unlimited": "unlimited",
           "settingsSaved": "Phone settings saved", "settingsSaveFailed": "Failed to save settings", "callBehavior": "Call behavior",
           "callBehaviorDescription": "Configure how the AI agent behaves during inbound phone calls.", "greeting": "Greeting message", "greetingDescription": "First message the caller hears when the call connects.",
           "voicemailDetection": "Voicemail detection", "voicemailDescription": "Automatically detect voicemail and leave a pre-recorded message.", "bargeIn": "Barge-in",
@@ -64,7 +62,18 @@
           "handoffNumberDescription": "E.164 format with country code (e.g. +212612345678). Required for phone escalations.", "handoffWarning": "Escalations are enabled on this agent but no handoff number is set. Calls cannot transfer to a human until you add one.",
           "important": "Important", "importantDescription": "Changes to call behavior settings take effect on the next inbound call. Active calls continue with their original configuration.",
           "live": "LIVE", "speaking": "Speaking", "listening": "Listening", "aiSpeaking": "AI is speaking…", "listeningHint": "Listening for your response…", "secureConnection": "Establishing secure connection",
-          "mute": "Mute", "unmute": "Unmute", "endCall": "End call", "defaultGreeting": "Hi, you’ve reached {agentName}. How can I help you today?"
+          "mute": "Mute", "unmute": "Unmute", "endCall": "End call", "defaultGreeting": "Hi, you've reached {agentName}. How can I help you today?",
+          "importExisting": "Use your existing number",
+          "importExistingDescription": "Already have a phone number from your carrier? Enter it below and we'll set up call forwarding so your customers can reach your AI agent.",
+          "importing": "Importing…",
+          "connectCarrier": "Connect",
+          "importLimit": "{current} of {max} numbers used",
+          "carrierImportSuccess": "Number connected!",
+          "carrierImportSuccessDescription": "Your carrier number is now connected. Use the forwarding code below to redirect calls to your AI agent.",
+          "yourCarrierNumber": "Your carrier number",
+          "aiAgentNumber": "AI agent number",
+          "forwardingInstructions": "Dial this code on your phone to activate call forwarding:",
+          "forwardingNote": "After dialing, all calls to your carrier number will be forwarded to the AI agent number. To cancel forwarding, dial #21#"
         }
       }
     }

@@ -1,113 +1,78 @@
 "use server";
 
-import { BRAND_URL } from "@/lib/constants/brand";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
-import { getTwilioVoiceNumber } from "@/lib/twilio/env";
+import {
+  importByoPhoneNumber,
+  deleteByoPhoneNumber,
+  getVapiTelnyxCredentialId,
+} from "@/lib/telephony/vapi-sip";
 
-export type AgentPhoneSettings = {
-  numbers: Array<{
-    id: string;
-    number: string;
-    vapiPhoneNumberId?: string | null;
-  }>;
-  /** The customer's own phone number that forwards to this Twilio number */
-  customerNumber?: string | null;
-  /** The Anselio forwarding number */
-  forwardingNumber?: string;
-};
-
-export async function getAgentPhoneSettings(agentId: string): Promise<{ success: boolean; data?: AgentPhoneSettings; error?: string }> {
+/**
+ * Imports a Telnyx phone number into Vapi as a BYO phone number.
+ *
+ * This registers the number with Vapi's BYOC SIP trunk so that
+ * incoming calls to the number are routed to Vapi's AI voice pipeline.
+ *
+ * @param number - The number in E.164 format (e.g. "+212522XXXXXX")
+ * @returns The Vapi phone number resource ID (stored in DB)
+ */
+export async function importByocNumberToVapi(
+  number: string,
+): Promise<{ success: boolean; vapiPhoneNumberId?: string; error?: string }> {
   const orgId = await getOrgPrismaId();
   if (!orgId) return { success: false, error: "Unauthorized" };
 
-  try {
-    const agent = await prisma.agent.findFirst({
-      where: { id: agentId, orgId },
-      select: { id: true },
-    });
-    if (!agent) return { success: false, error: "Agent not found" };
-
-    const numbers = await prisma.twilioPhoneNumber.findMany({
-      where: { orgId, agentId }
-    });
-
-    const first = numbers[0];
-
+  const credentialId = getVapiTelnyxCredentialId();
+  if (!credentialId) {
     return {
-      success: true,
-      data: {
-        numbers: numbers.map(n => ({
-          id: n.id,
-          number: n.twilioNumber,
-        })),
-        customerNumber: first?.customerNumber ?? null,
-        forwardingNumber: getTwilioVoiceNumber(),
-      }
+      success: false,
+      error:
+        "VAPI_TELNYX_CREDENTIAL_ID is not set. Create a Telnyx SIP credential in Vapi first.",
     };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
-export async function importTwilioNumberToVapi(agentId: string, number: string): Promise<{ success: boolean; error?: string }> {
-  const orgId = await getOrgPrismaId();
-  if (!orgId) return { success: false, error: "Unauthorized" };
-
-  const VAPI_API_KEY = process.env.VAPI_API_KEY;
-  const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-  const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-
-  if (!VAPI_API_KEY || !TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
-    return { success: false, error: "Missing required Vapi or Twilio environment variables." };
   }
 
-  // Find or create in our DB first to verify ownership
-  // Real implementation should verify Twilio ownership first
+  // Check if this number is already registered to another org
   const existing = await prisma.twilioPhoneNumber.findUnique({
-    where: { twilioNumber: number }
+    where: { twilioNumber: number },
   });
 
   if (existing && existing.orgId !== orgId) {
-    return { success: false, error: "Number is already registered to another organization." };
+    return {
+      success: false,
+      error: "Number is already registered to another organization.",
+    };
   }
 
   try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || BRAND_URL;
-    const response = await fetch("https://api.vapi.ai/phone-number", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${VAPI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        provider: "twilio",
-        number: number,
-        twilioAccountSid: TWILIO_ACCOUNT_SID,
-        twilioAuthToken: TWILIO_AUTH_TOKEN,
-        serverUrl: `${appUrl}/api/webhooks/vapi`
-      })
-    });
+    const vapiPhoneNumberId = await importByoPhoneNumber(number, credentialId);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { success: false, error: `Vapi import failed: ${errorText}` };
+    // Store the Vapi phone number ID in the DB
+    if (existing) {
+      await prisma.twilioPhoneNumber.update({
+        where: { twilioNumber: number },
+        data: { vapiPhoneNumberId },
+      });
     }
 
-    // Upsert local mapping
-    await prisma.twilioPhoneNumber.upsert({
-      where: { twilioNumber: number },
-      update: { agentId, isActive: true },
-      create: {
-        twilioNumber: number,
-        orgId,
-        agentId,
-        isActive: true,
-      }
-    });
+    return { success: true, vapiPhoneNumberId };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Vapi BYOC import failed",
+    };
+  }
+}
 
-    return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+/**
+ * Removes a BYO phone number from Vapi.
+ */
+export async function removeByocNumberFromVapi(
+  vapiPhoneNumberId: string,
+): Promise<void> {
+  try {
+    await deleteByoPhoneNumber(vapiPhoneNumberId);
+  } catch {
+    // Best-effort cleanup
   }
 }

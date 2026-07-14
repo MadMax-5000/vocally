@@ -24,7 +24,9 @@
         "disconnect": "Disconnect",
         "connected": "Connected",
         "active": "Active",
-        "loading": "Loading…"
+        "loading": "Loading…",
+        "all": "All",
+        "beta": "Beta"
       },
       "integrationCard": {
         "enable": "Enable {title}"
@@ -73,7 +75,11 @@
         "embed": "Embed",
         "enable": "Enable chat widget",
         "configuration": "Chat widget configuration",
-        "settingsSaved": "Chat widget settings saved"
+        "settingsSaved": "Chat widget settings saved",
+        "welcomeFallback": "Hello! How can I help you today?",
+        "embedDescription": "Add this widget to your website. Snippets use your saved display name and welcome message — save any changes on Content before copying.",
+        "iframeHint": "Paste this iframe tag anywhere in your HTML where you want the chat to appear.",
+        "floatingHint": "Paste this snippet where you want the floating chat bubble to appear on your site."
       },
       "email": {
         "title": "Gmail",

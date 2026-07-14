@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { AgentStatus, AgentVisibility } from "@prisma/client";
 
@@ -28,6 +29,8 @@ type Props = { agent: AgentDetailWithRelations };
 export function DeployWordPressManage({ agent }: Props) {
   const router = useRouter();
   const origin = useEmbedOrigin();
+  const tWidget = useTranslations("dashboard.deploy.chatWidget");
+  const tCommon = useTranslations("dashboard.deploy.common");
   const [togglePending, startToggleTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<WordPressConfigTabId>("setup");
   const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop");
@@ -43,7 +46,7 @@ export function DeployWordPressManage({ agent }: Props) {
   const title = resolveWidgetDisplayName(agent.name, {
     displayName: draft.widget.displayName.trim() || undefined,
   });
-  const welcome = draft.welcomeMessage.trim() || "Hello! How can I help you today?";
+  const welcome = draft.welcomeMessage.trim() || tWidget("welcomeFallback");
 
   const pluginDefaults = useMemo(
     () => buildWordPressPluginDefaults(origin, agent.id, agent.widgetToken, title, welcome),
@@ -71,7 +74,7 @@ export function DeployWordPressManage({ agent }: Props) {
       });
       if (!result.success) {
         setWordPressEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();

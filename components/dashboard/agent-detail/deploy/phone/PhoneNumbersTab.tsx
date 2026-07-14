@@ -1,38 +1,31 @@
 "use client";
 import { AppIcon } from "@/components/ui/app-icon"
-import { CheckCircle, InfoIcon, LoaderIcon, PhoneIcon, PhoneForwarded } from "@/lib/icons/app-icons"
+import { CheckCircle, LoaderIcon, PhoneIcon, PhoneForwarded, Trash2Icon, InfoIcon } from "@/lib/icons/app-icons"
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  setupPhoneForwarding,
-  disconnectPhoneForwarding,
+  connectPhoneNumber,
+  disconnectPhoneNumber,
+  importCarrierNumber,
   type PhoneConnectionSettings,
 } from "@/lib/actions/phone-connection";
-import { cn } from "@/lib/utils";
 
 type PhoneNumbersTabProps = {
   agentId: string;
   phoneEnabled: boolean;
   settings: PhoneConnectionSettings;
   onSettingsRefresh: () => Promise<void>;
+};
+
+const CARRIER_USSD: Record<string, string> = {
+  "Maroc Telecom": "*21*{number}#",
+  Orange: "*21*{number}#",
+  Inwi: "*21*{number}#",
 };
 
 export function PhoneNumbersTab({
@@ -43,51 +36,75 @@ export function PhoneNumbersTab({
 }: PhoneNumbersTabProps) {
   const t = useTranslations("dashboard.deploy.channels.phone");
   const tCommon = useTranslations("dashboard.deploy.channels.common");
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [customerNumber, setCustomerNumber] = useState(settings.customerNumber ?? "");
-  const [saved, setSaved] = useState(false);
-  const [forwardingType, setForwardingType] = useState("unconditional");
+  const [isProvisioning, setIsProvisioning] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState<string | null>(null);
+  const [newNumber, setNewNumber] = useState<string | null>(null);
 
-  useEffect(() => {
-    setCustomerNumber(settings.customerNumber ?? "");
-  }, [settings.customerNumber]);
+  // Carrier import state
+  const [carrierInput, setCarrierInput] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
+  const [carrierResult, setCarrierResult] = useState<{
+    didNumber: string;
+    carrierNumber: string;
+  } | null>(null);
+
+  const canProvision = settings.currentCount < settings.maxNumbers;
 
   const handleConnect = useCallback(async () => {
-    if (!customerNumber.trim() || !phoneEnabled) return;
+    if (!phoneEnabled || !canProvision) return;
 
-    setIsSaving(true);
-    setSaved(false);
+    setIsProvisioning(true);
+    setNewNumber(null);
 
-    const result = await setupPhoneForwarding(agentId, customerNumber.trim());
+    const result = await connectPhoneNumber(agentId);
 
-    setIsSaving(false);
+    setIsProvisioning(false);
 
     if (result.success) {
-      setSaved(true);
+      setNewNumber(result.data.number);
       toast.success(t("connected"));
-      setTimeout(() => setSaved(false), 3000);
       await onSettingsRefresh();
     } else {
       toast.error(result.error || t("connectFailed"));
     }
-  }, [agentId, customerNumber, phoneEnabled, onSettingsRefresh, t]);
+  }, [agentId, phoneEnabled, canProvision, onSettingsRefresh, t]);
 
-  const handleDisconnect = useCallback(async () => {
-    setIsDisconnecting(true);
+  const handleDisconnect = useCallback(async (phoneNumber: string) => {
+    setIsDisconnecting(phoneNumber);
 
-    const result = await disconnectPhoneForwarding(agentId);
+    const result = await disconnectPhoneNumber(phoneNumber);
 
-    setIsDisconnecting(false);
+    setIsDisconnecting(null);
 
     if (result.success) {
       toast.success(t("disconnected"));
-      setCustomerNumber("");
+      setNewNumber(null);
+      setCarrierResult(null);
       await onSettingsRefresh();
     } else {
       toast.error(result.error || t("disconnectFailed"));
     }
-  }, [agentId, onSettingsRefresh, t]);
+  }, [onSettingsRefresh, t]);
+
+  const handleCarrierImport = useCallback(async () => {
+    if (!phoneEnabled || !canProvision || !carrierInput.trim()) return;
+
+    setIsImporting(true);
+    setCarrierResult(null);
+
+    const result = await importCarrierNumber(agentId, carrierInput.trim());
+
+    setIsImporting(false);
+
+    if (result.success) {
+      setCarrierResult(result.data);
+      setCarrierInput("");
+      toast.success(t("connected"));
+      await onSettingsRefresh();
+    } else {
+      toast.error(result.error || t("connectFailed"));
+    }
+  }, [agentId, phoneEnabled, canProvision, carrierInput, onSettingsRefresh, t]);
 
   if (!phoneEnabled) {
     return (
@@ -107,232 +124,240 @@ export function PhoneNumbersTab({
     );
   }
 
-  const isConnected = settings.isActive && settings.connectionId;
-
-  if (isConnected) {
-    const rawNumber = settings.forwardingNumber.replace(/[^0-9]/g, "");
-    const ussdCodes = {
-      unconditional: `*21*${rawNumber}#`,
-      busy: `*67*${rawNumber}#`,
-      noAnswer: `*61*${rawNumber}#`,
-      unreachable: `*62*${rawNumber}#`,
-    };
-    const selectedCode = forwardingType === "unconditional"
-      ? ussdCodes.unconditional
-      : forwardingType === "busy"
-        ? ussdCodes.busy
-        : forwardingType === "noAnswer"
-          ? ussdCodes.noAnswer
-          : ussdCodes.unreachable;
-
-    return (
-      <div className="space-y-4">
-        <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-              <AppIcon icon={PhoneForwarded} className="size-5 text-emerald-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-title-sm font-medium text-ink">{tCommon("connected")}</p>
-              <p className="mt-1 text-body-sm text-muted">
-                {t.rich("forwardsTo", {
-                  number: (chunks) => <span className="font-mono text-ink">{chunks}</span>,
-                  phoneNumber: settings.customerNumber ?? "",
-                })}
-              </p>
-              <div className="mt-3 rounded-lg border border-hairline bg-canvas-soft/50 p-3">
-                <p className="text-caption font-medium text-ink">{t("forwardingDestination")}</p>
-                <p className="mt-0.5 font-mono text-body-sm text-ink">
-                  {settings.forwardingNumber}
-                </p>
-              </div>
-            </div>
-            <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-              {tCommon("active")}
-            </span>
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <h2 className="text-title-sm font-medium text-ink">{t("setupTitle")}</h2>
-          <p className="mt-1 text-body-sm leading-relaxed text-muted">
-            {t("setupDescription")}
-          </p>
-
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas-soft text-caption font-medium text-muted">
-                1
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">{t("forwardingType")}</p>
-                <Select value={forwardingType} onValueChange={setForwardingType}>
-                  <SelectTrigger className="h-10 w-full border-hairline-strong bg-surface-card text-body-sm sm:w-56">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unconditional">{t("allCalls")}</SelectItem>
-                    <SelectItem value="busy">{t("whenBusy")}</SelectItem>
-                    <SelectItem value="noAnswer">{t("whenNoAnswer")}</SelectItem>
-                    <SelectItem value="unreachable">{t("whenUnreachable")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas-soft text-caption font-medium text-muted">
-                2
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">{t("copyCode")}</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <code className="inline-flex items-center rounded-lg border border-hairline bg-canvas-soft px-3 py-2 font-mono text-body-sm text-ink">
-                    {selectedCode}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(selectedCode);
-                      toast.success(t("codeCopied"));
-                    }}
-                    className="btn-outline h-8 shrink-0 rounded-md px-3 text-caption"
-                  >
-                    {tCommon("copy")}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-canvas-soft text-caption font-medium text-muted">
-                3
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-body-sm font-medium text-ink">{t("dialCode")}</p>
-                <p className="mt-0.5 text-caption text-muted">
-                  {t("dialCodeDescription")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-hairline bg-surface-card p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50">
-              <AppIcon icon={InfoIcon} className="size-4 text-amber-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-body-sm font-medium text-ink">{t("disableForwarding")}</p>
-              <p className="mt-0.5 text-caption text-muted">
-                {t.rich("disableForwardingDescription", { code: (chunks) => <code className="font-mono text-ink">{chunks}</code> })}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 rounded-md text-red-600 hover:text-red-700"
-            disabled={isDisconnecting}
-            onClick={handleDisconnect}
-          >
-            {isDisconnecting ? <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" /> : null}
-            {tCommon("disconnect")}
-          </Button>
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="text-caption text-muted-soft underline decoration-dotted underline-offset-2 hover:text-muted"
-                >
-                  {t("carrierQuestion")}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="max-w-xs text-body-sm">
-                {t.rich("carrierAnswer", { code: (chunks) => <code className="font-mono">{chunks}</code> })}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-    );
-  }
+  const hasNumbers = settings.numbers.length > 0;
 
   return (
     <div className="space-y-4">
-      <section className="rounded-xl border border-hairline bg-surface-card p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-hairline bg-canvas-soft">
-            <AppIcon icon={PhoneIcon} className="size-5 text-muted-soft" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-title-sm font-medium text-ink">
-              {t("connectBusinessNumber")}
-            </h2>
-            <p className="mt-1 text-body-sm leading-relaxed text-muted">
-              {t("connectBusinessDescription")}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <p className="text-body-sm font-medium text-ink">{t("businessNumber")}</p>
-          <p className="text-caption text-muted-soft">
-            {t("numberFormat")}
+      {hasNumbers && (
+        <section className="rounded-xl border border-hairline bg-surface-card p-4">
+          <h2 className="text-title-sm font-medium text-ink">{t("yourNumbers")}</h2>
+          <p className="mt-1 text-body-sm leading-relaxed text-muted">
+            {t("yourNumbersDescription")}
           </p>
-          <div className="mt-1.5 flex items-center gap-2">
-            <div className="relative flex-1">
+
+          <div className="mt-3 space-y-2">
+            {settings.numbers.map((num) => (
+              <div
+                key={num.id}
+                className="flex items-center justify-between rounded-lg border border-hairline bg-canvas-soft/50 px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-8 items-center justify-center rounded-full bg-emerald-50">
+                    <AppIcon icon={PhoneForwarded} className="size-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="font-mono text-body-sm font-medium text-ink">
+                      {num.number}
+                    </p>
+                    <p className="text-caption text-muted-soft">
+                      {num.isActive ? tCommon("active") : t("inactive")}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-8 rounded-md text-red-600 hover:text-red-700"
+                  disabled={isDisconnecting === num.number}
+                  onClick={() => handleDisconnect(num.number)}
+                >
+                  {isDisconnecting === num.number ? (
+                    <AppIcon icon={LoaderIcon} className="size-4 animate-spin" />
+                  ) : (
+                    <AppIcon icon={Trash2Icon} className="size-4" />
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {newNumber && (
+        <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+              <AppIcon icon={CheckCircle} className="size-5 text-emerald-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-title-sm font-medium text-emerald-800">{t("numberProvisioned")}</p>
+              <p className="mt-1 font-mono text-body-sm font-medium text-emerald-700">
+                {newNumber}
+              </p>
+              <p className="mt-1 text-caption leading-relaxed text-emerald-600">
+                {t("numberProvisionedDescription")}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {carrierResult && (
+        <section className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100">
+              <AppIcon icon={CheckCircle} className="size-5 text-blue-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-title-sm font-medium text-blue-800">{t("carrierImportSuccess")}</p>
+              <p className="mt-1 text-body-sm text-blue-700">
+                {t("carrierImportSuccessDescription")}
+              </p>
+
+              <div className="mt-3 space-y-2">
+                <div className="rounded-lg bg-white/60 p-3">
+                  <p className="text-caption font-medium text-blue-600">{t("yourCarrierNumber")}</p>
+                  <p className="font-mono text-body-sm font-medium text-blue-800">
+                    {carrierResult.carrierNumber}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-white/60 p-3">
+                  <p className="text-caption font-medium text-blue-600">{t("aiAgentNumber")}</p>
+                  <p className="font-mono text-body-sm font-medium text-blue-800">
+                    {carrierResult.didNumber}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-lg bg-blue-100/50 p-3">
+                <div className="flex items-start gap-2">
+                  <AppIcon icon={InfoIcon} className="mt-0.5 size-4 shrink-0 text-blue-600" />
+                  <div>
+                    <p className="text-caption font-medium text-blue-700">{t("forwardingInstructions")}</p>
+                    <div className="mt-2 space-y-1.5">
+                      {Object.entries(CARRIER_USSD).map(([carrier, template]) => {
+                        const ussd = template.replace("{number}", carrierResult.didNumber);
+                        return (
+                          <div key={carrier} className="flex items-center gap-2">
+                            <span className="text-caption text-blue-600">{carrier}:</span>
+                            <code className="rounded bg-blue-100 px-1.5 py-0.5 font-mono text-caption font-medium text-blue-800">
+                              {ussd}
+                            </code>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-2 text-caption leading-relaxed text-blue-600">
+                      {t("forwardingNote")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {canProvision ? (
+        <div className="space-y-3">
+          <section className="rounded-xl border border-hairline bg-surface-card p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-hairline bg-canvas-soft">
+                <AppIcon icon={PhoneIcon} className="size-5 text-muted-soft" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-title-sm font-medium text-ink">
+                  {t("addPhoneNumber")}
+                </h2>
+                <p className="mt-1 text-body-sm leading-relaxed text-muted">
+                  {t("addPhoneNumberDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Button
+                type="button"
+                className="btn-primary h-10 shrink-0 rounded-md px-6"
+                disabled={isProvisioning || !canProvision}
+                onClick={handleConnect}
+              >
+                {isProvisioning ? (
+                  <>
+                    <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                    {t("provisioning")}
+                  </>
+                ) : (
+                  t("provisionNumber")
+                )}
+              </Button>
+            </div>
+
+            <div className="mt-3 text-caption text-muted-soft">
+              {t("provisionLimit", {
+                current: settings.currentCount,
+                max: settings.maxNumbers === Infinity ? t("unlimited") : settings.maxNumbers,
+              })}
+            </div>
+          </section>{/* provision section */}
+
+          <section className="rounded-xl border border-hairline bg-surface-card p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-hairline bg-canvas-soft">
+                <AppIcon icon={PhoneForwarded} className="size-5 text-muted-soft" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-title-sm font-medium text-ink">
+                  {t("importExisting")}
+                </h2>
+                <p className="mt-1 text-body-sm leading-relaxed text-muted">
+                  {t("importExistingDescription")}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2">
               <Input
                 type="tel"
-                value={customerNumber}
-                onChange={(e) => {
-                  setCustomerNumber(e.target.value);
-                  setSaved(false);
+                value={carrierInput}
+                onChange={(e) => setCarrierInput(e.target.value)}
+                placeholder="+2126XXXXXXXX"
+                className="h-10 flex-1 font-mono"
+                disabled={isImporting}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCarrierImport();
                 }}
-                placeholder={t("numberFormat")}
-                className={cn(
-                  "pr-10 font-mono",
-                  saved && "border-emerald-500 bg-emerald-50/50",
-                )}
-                autoComplete="tel"
-                disabled={isSaving}
               />
-              {saved && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <AppIcon icon={CheckCircle} className="size-5 text-emerald-600" />
-                </div>
-              )}
+              <Button
+                type="button"
+                className="btn-primary h-10 shrink-0 rounded-md px-6"
+                disabled={isImporting || !carrierInput.trim() || !canProvision}
+                onClick={handleCarrierImport}
+              >
+                {isImporting ? (
+                  <>
+                    <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                    {t("importing")}
+                  </>
+                ) : (
+                  t("connectCarrier")
+                )}
+              </Button>
             </div>
-            <Button
-              type="button"
-              className="btn-primary h-10 shrink-0 rounded-md"
-              disabled={isSaving || !customerNumber.trim()}
-              onClick={handleConnect}
-            >
-              {isSaving ? (
-                <>
-                  <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
-                  {t("connecting")}
-                </>
-              ) : (
-                t("connect")
-              )}
-            </Button>
-          </div>
-        </div>
 
-        <div className="mt-4 flex items-start gap-3 rounded-lg border border-hairline bg-canvas-soft/50 p-3">
-          <AppIcon icon={PhoneIcon} className="mt-0.5 size-4 shrink-0 text-muted" />
-          <p className="text-caption leading-relaxed text-muted">
-            {t("activationNotice")}
-          </p>
+            <div className="mt-3 text-caption text-muted-soft">
+              {t("importLimit", {
+                current: settings.currentCount,
+                max: settings.maxNumbers === Infinity ? t("unlimited") : settings.maxNumbers,
+              })}
+            </div>
+          </section>
         </div>
-      </section>
+      ) : (
+        <section className="rounded-xl border border-hairline bg-surface-card p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-50">
+              <AppIcon icon={PhoneIcon} className="size-4 text-amber-600" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-body-sm font-medium text-ink">{t("planLimitReached")}</p>
+              <p className="mt-0.5 text-caption text-muted">
+                {t("planLimitReachedDescription")}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { handleVapiWebhook } from "@/lib/vapi/webhook-handler";
+import { logServerWarning } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -17,13 +18,12 @@ export async function POST(req: Request) {
       const isValid = signature === expected || signature === `sha256=${expected}`;
       
       if (!isValid) {
-        console.warn("[Vapi Webhook] Invalid signature");
+        logServerWarning("[Vapi Webhook] Invalid signature", { source: "webhook-verify" });
         return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
       }
-    } else if (secret && req.headers.get("x-vapi-secret") !== secret && !signature) {
-      // Fallback for legacy X-Vapi-Secret
-      console.warn("[Vapi Webhook] Invalid secret");
-      return NextResponse.json({ error: "Invalid secret" }, { status: 401 });
+    } else if (secret && !signature) {
+      logServerWarning("[Vapi Webhook] Missing signature — webhook secret is set but no x-vapi-signature header", { source: "webhook-verify" });
+      return NextResponse.json({ error: "Missing signature" }, { status: 401 });
     }
 
     const payload = JSON.parse(rawBody);
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Vapi Webhook Error]", error);
+    logServerWarning("[Vapi Webhook Error]", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

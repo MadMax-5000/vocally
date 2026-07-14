@@ -13,7 +13,7 @@ import {
 } from "recharts";
 
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   getAgentAnalytics,
   type AgentAnalytics,
@@ -58,6 +58,7 @@ function MetricCard({
 
 export function AgentDetailAnalyticsTab({ agentId }: Props) {
   const t = useTranslations("dashboard.analytics");
+  const locale = useLocale();
   const [data, setData] = React.useState<AgentAnalytics | null>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -168,7 +169,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
                   dataKey="date"
                   tickFormatter={(v: string) => {
                     const d = new Date(`${v}T00:00:00Z`);
-                    return d.toLocaleDateString("en-US", {
+                    return d.toLocaleDateString(locale, {
                       month: "short",
                       day: "numeric",
                     });
@@ -232,7 +233,7 @@ export function AgentDetailAnalyticsTab({ agentId }: Props) {
                     dataKey="date"
                     tickFormatter={(v: string) => {
                       const d = new Date(`${v}T00:00:00Z`);
-                      return d.toLocaleDateString("en-US", {
+                      return d.toLocaleDateString(locale, {
                         month: "short",
                         day: "numeric",
                       });

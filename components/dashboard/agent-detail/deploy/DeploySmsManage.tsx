@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { updateAgentDeployment } from "@/lib/actions/agents";
@@ -31,6 +32,7 @@ function isSmsDeploymentEnabled(
 
 export function DeploySmsManage({ agent, initialSettings }: Props) {
   const router = useRouter();
+  const tCommon = useTranslations("dashboard.deploy.common");
   const [togglePending, startToggleTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<SmsConfigTabId>("setup");
   const [settings, setSettings] = useState(initialSettings);
@@ -70,7 +72,7 @@ export function DeploySmsManage({ agent, initialSettings }: Props) {
       });
       if (!result.success) {
         setSmsEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();

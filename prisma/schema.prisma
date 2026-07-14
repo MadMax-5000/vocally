@@ -561,8 +561,13 @@ model TwilioPhoneNumber {
   agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
   twilioNumber  String   @unique
-  customerNumber String? /// The customer's own phone number (e.g. +2126XXXXXXXX) that forwards to this Twilio number
+  customerNumber String? /// The customer's own phone number (e.g. +2126XXXXXXXX) that forwards to this DID
   isActive     Boolean  @default(true)
+
+  // Telnyx / Vapi BYOC fields
+  telnyxOrderId      String? /// Telnyx number order ID (for cleanup/release)
+  vapiPhoneNumberId  String? /// Vapi BYO phone number resource ID (for call routing)
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

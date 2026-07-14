@@ -8,7 +8,9 @@
         "failedToSave": "تعذر الحفظ", "failedToUpdate": "تعذّر التحديث", "preview": "معاينة",
         "connection": "الاتصال", "settings": "الإعدادات", "setup": "الإعداد", "examples": "أمثلة",
         "copy": "نسخ", "copied": "تم النسخ", "disconnect": "قطع الاتصال", "connected": "متصل",
-        "active": "نشط", "loading": "جارٍ التحميل…"
+        "active": "نشط", "loading": "جارٍ التحميل…",
+        "all": "الكل",
+        "beta": "تجريبي"
       },
       "integrationCard": {"enable": "تفعيل {title}"},
       "featuredCard": {"enable": "تفعيل {title}"},
@@ -36,7 +38,11 @@
       "chatWidget": {
         "title": "أداة الدردشة", "content": "المحتوى", "style": "النمط", "embed": "تضمين",
         "enable": "تفعيل أداة الدردشة", "configuration": "إعداد أداة الدردشة",
-        "settingsSaved": "تم حفظ إعدادات أداة الدردشة"
+        "settingsSaved": "تم حفظ إعدادات أداة الدردشة",
+        "welcomeFallback": "مرحبًا! كيف يمكنني مساعدتك؟",
+        "embedDescription": "أضف هذه الأداة إلى موقعك. تستخدم الأكواد اسم العرض ورسالة الترحيب المحفوظة — احفظ أي تغييرات في تبويب المحتوى قبل النسخ.",
+        "iframeHint": "الصق كود iframe هذا في أي مكان في HTML حيث تريد أن تظهر الدردشة.",
+        "floatingHint": "الصق هذا الكود في المكان الذي تريد أن تظهر فيه فقاعة الدردشة العائمة على موقعك."
       },
       "email": {
         "title": "Gmail", "subtitle": "وصّل صندوق الوارد حتى يتمكن هذا الوكيل من الرد على رسائل العملاء.",

@@ -24,7 +24,9 @@
         "disconnect": "Déconnecter",
         "connected": "Connecté",
         "active": "Actif",
-        "loading": "Chargement…"
+        "loading": "Chargement…",
+        "all": "Tous",
+        "beta": "Bêta"
       },
       "integrationCard": {"enable": "Activer {title}"},
       "featuredCard": {"enable": "Activer {title}"},
@@ -65,7 +67,11 @@
       "chatWidget": {
         "title": "Widget de chat", "content": "Contenu", "style": "Style", "embed": "Intégrer",
         "enable": "Activer le widget de chat", "configuration": "Configuration du widget de chat",
-        "settingsSaved": "Paramètres du widget de chat enregistrés"
+        "settingsSaved": "Paramètres du widget de chat enregistrés",
+        "welcomeFallback": "Bonjour ! Comment puis-je vous aider ?",
+        "embedDescription": "Ajoutez ce widget à votre site. Les extraits utilisent votre nom affiché et message de bienvenue enregistrés — enregistrez les modifications dans l'onglet Contenu avant de copier.",
+        "iframeHint": "Collez cette balise iframe n'importe où dans votre HTML où vous souhaitez que le chat apparaisse.",
+        "floatingHint": "Collez cet extrait là où vous souhaitez que la bulle de chat flottante apparaisse sur votre site."
       },
       "email": {
         "title": "Gmail", "subtitle": "Connectez votre boîte de réception afin que cet agent puisse répondre aux e-mails clients.",

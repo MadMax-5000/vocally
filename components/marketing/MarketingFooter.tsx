@@ -102,7 +102,7 @@ export function MarketingFooter() {
       <div className="border-t border-hairline">
         <div className={[container, "flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between"].join(" ")}>
           <div className="text-body-sm text-muted">
-            © {new Date().getFullYear()} {BRAND_LEGAL_NAME} &middot; Operated by Yassir Hannaoui
+            © {new Date().getFullYear()} {BRAND_LEGAL_NAME} &middot; Operated by Yassir Hannaoui &middot; DB Fouarat Lot Tafraout Rue 01 No 7 Hay Mohammadi, 20000 Casablanca, Morocco
           </div>
 
           <nav aria-label="Legal" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-body-sm text-muted">

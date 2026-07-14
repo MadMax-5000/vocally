@@ -1,8 +1,22 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { summarizeSession } from "@/lib/ai/summarize-session";
 import { logServerWarning } from "@/lib/logger";
 
-export async function handleEndOfCallReport(message: any) {
+type EndOfCallReportMessage = {
+  call?: { id?: string };
+  artifact?: {
+    transcript?: string;
+    messages?: Array<{ role?: string; message?: string }>;
+    recording?: { url?: string };
+  };
+  endedReason?: string;
+  durationSeconds?: number;
+  cost?: number;
+  costBreakdown?: unknown;
+};
+
+export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
   const call = message.call;
   const artifact = message.artifact;
   const vapiCallId = call?.id;
@@ -36,17 +50,16 @@ export async function handleEndOfCallReport(message: any) {
     }
   });
 
-  // Save message history to Session
-  // Typically we might want to store messages if we didn't store them in real-time
-  // In Vapi, we get them all at the end
+  // Only store BOT messages here — USER messages are stored in real-time
+  // by the escalation-handler to avoid duplicates.
   if (messages && messages.length > 0) {
     for (const msg of messages) {
-      if (msg.role !== 'system') {
+      if (msg.role === 'assistant' && msg.message) {
         await prisma.message.create({
           data: {
             sessionId,
-            role: msg.role === 'assistant' ? 'BOT' : 'USER',
-            content: msg.message || ""
+            role: 'BOT',
+            content: msg.message,
           }
         });
       }
@@ -61,12 +74,12 @@ export async function handleEndOfCallReport(message: any) {
       sessionId,
       pipelineMode: "vapi_ended",
       endedReason,
-      costBreakdown: message.costBreakdown || null,
+      costBreakdown: (message.costBreakdown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       transferOutcome: endedReason === "transfer" ? "success" : null
     },
     update: {
       endedReason,
-      costBreakdown: message.costBreakdown || null,
+      costBreakdown: (message.costBreakdown as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       transferOutcome: endedReason === "transfer" ? "success" : null
     }
   });
@@ -81,18 +94,24 @@ export async function handleEndOfCallReport(message: any) {
   }
 }
 
-export async function logVapiEvent(message: any) {
+type VapiEventMessage = {
+  type?: string;
+  call?: { id?: string };
+  status?: string;
+};
+
+export async function logVapiEvent(message: VapiEventMessage) {
   // For status-update, transcript, hang
   const callId = message.call?.id;
   if (!callId) return;
 
   if (message.type === "hang") {
-    logServerWarning(`[Vapi Observability] Call hung: ${callId}`, { message });
+    logServerWarning(`[Vapi Observability] Call hung: ${callId}`, { callId });
   } else if (message.type === "status-update") {
     if (message.status === "ended") {
       // Handled by end-of-call-report
     } else if (message.status === "failed") {
-      logServerWarning(`[Vapi Observability] Call failed: ${callId}`, { message });
+      logServerWarning(`[Vapi Observability] Call failed: ${callId}`, { callId, status: message.status });
     }
   } else if (message.type === "transcript") {
     // We could parse partial transcripts or detect language changes here

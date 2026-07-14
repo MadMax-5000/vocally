@@ -10,6 +10,7 @@ import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { getHandoffPhoneNumber } from "@/server/websocket/escalate-call";
+import { logServerWarning } from "@/lib/logger";
 
 import { buildVoiceEscalationPromptSection } from "./voice-escalation-prompt";
 
@@ -37,7 +38,7 @@ export async function handleAssistantRequest(message: {
   }
 
   if (!orgId) {
-    console.error(`[Vapi] Could not resolve orgId for Twilio number: ${twilioNumber}`);
+    logServerWarning(`[Vapi] Could not resolve orgId for phone number: ${twilioNumber}`, { twilioNumber: twilioNumber ?? "unknown" });
     return { assistant: null };
   }
 
@@ -46,7 +47,7 @@ export async function handleAssistantRequest(message: {
   }
 
   if (!agentId) {
-    console.error(`[Vapi] No active voice agent found for orgId: ${orgId}`);
+    logServerWarning(`[Vapi] No active voice agent found for orgId: ${orgId}`, { orgId });
     return { assistant: null };
   }
 
@@ -135,12 +136,16 @@ export async function handleAssistantRequest(message: {
       : undefined,
   });
 
-  const detectedLanguage: string = "en";
+  const detectedLanguage: string =
+    agent.defaultLanguage === "ARABIC"
+      ? "ar"
+      : agent.defaultLanguage === "DARIJA"
+        ? "ary"
+        : agent.defaultLanguage === "FRENCH"
+          ? "fr"
+          : "en";
   const isArabicOrDarija =
-    detectedLanguage === "ar" ||
-    detectedLanguage === "ary" ||
-    agent.defaultLanguage === "ARABIC" ||
-    agent.defaultLanguage === "DARIJA";
+    detectedLanguage === "ar" || detectedLanguage === "ary";
 
   let assistantConfig: Record<string, unknown> = {};
 
@@ -160,7 +165,13 @@ export async function handleAssistantRequest(message: {
         stability: 0.45,
         similarityBoost: 0.8,
       },
-      firstMessage: agent.welcomeMessage || "مرحباً، كيف يمكنني مساعدتك؟",
+      firstMessage:
+        agent.welcomeMessage ||
+        (detectedLanguage === "ar" || detectedLanguage === "ary"
+          ? "مرحباً، كيف يمكنني مساعدتك؟"
+          : detectedLanguage === "fr"
+            ? "Bonjour, comment puis-je vous aider aujourd'hui ?"
+            : "Hello, how can I help you today?"),
     };
   } else {
     assistantConfig = {
@@ -173,7 +184,11 @@ export async function handleAssistantRequest(message: {
         tools,
       },
       voice: VOICE_STACK_CONFIG.PIPELINES.realtime.voice,
-      firstMessage: agent.welcomeMessage || "Hello, how can I help you today?",
+      firstMessage:
+        agent.welcomeMessage ||
+        (detectedLanguage === "fr"
+          ? "Bonjour, comment puis-je vous aider aujourd'hui ?"
+          : "Hello, how can I help you today?"),
     };
   }
 
@@ -185,7 +200,7 @@ export async function handleAssistantRequest(message: {
   return {
     assistant: {
       ...assistantConfig,
-      recordingEnabled: false,
+      recordingEnabled: true,
       clientMessages: [
         "tool-calls",
         "end-of-call-report",

@@ -74,6 +74,7 @@ function FilterChip({
   value: string | null;
   onChange: (value: string | null) => void;
 }) {
+  const t = useTranslations("dashboard.leads");
   const activeOption =
     value !== null ? options.find((o) => o.value === value) : null;
 
@@ -102,7 +103,7 @@ function FilterChip({
           onClick={() => onChange(null)}
           className={cn("text-body-sm", value === null && "bg-surface-strong font-medium")}
         >
-          All
+          {t("all")}
         </DropdownMenuItem>
         {options.map((opt) => (
           <DropdownMenuItem

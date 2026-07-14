@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { AgentStatus, AgentVisibility } from "@prisma/client";
 
@@ -25,6 +26,7 @@ function isInstagramDeploymentEnabled(
 
 export function DeployInstagramManage({ agent }: Props) {
   const router = useRouter();
+  const tCommon = useTranslations("dashboard.deploy.common");
   const [togglePending, startToggleTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<InstagramConfigTabId>("setup");
   const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">(
@@ -55,7 +57,7 @@ export function DeployInstagramManage({ agent }: Props) {
       });
       if (!result.success) {
         setInstagramEnabled(previous);
-        toast.error(result.error ?? "Failed to update");
+        toast.error(result.error ?? tCommon("failedToUpdate"));
         return;
       }
       router.refresh();
