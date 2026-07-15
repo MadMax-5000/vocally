@@ -5,8 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { getZernioChannelsForAgent, removeZernioChannel } from "@/lib/actions/zernio";
-import { getZernioConnectUrl } from "@/lib/zernio/client";
+import { getZernioChannelsForAgent, removeZernioChannel, getZernioAuthUrl } from "@/lib/actions/zernio";
 
 type Props = {
   agentId: string;
@@ -41,8 +40,12 @@ export function ZernioConnectButton({ agentId, channelType, iconSrc, channelLabe
       try {
         const platform = channelType === "INSTAGRAM" ? "instagram" : "facebook";
         const callbackUrl = `${window.location.origin}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
-        const { authUrl } = await getZernioConnectUrl(platform, callbackUrl);
-        window.location.href = authUrl;
+        const result = await getZernioAuthUrl(platform, callbackUrl);
+        if (!result.success || !result.authUrl) {
+          toast.error("Failed to initiate connection");
+          return;
+        }
+        window.location.href = result.authUrl;
       } catch (err) {
         toast.error("Failed to initiate connection");
       }

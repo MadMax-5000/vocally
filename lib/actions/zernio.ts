@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { revalidatePath } from "next/cache";
+import { getZernioConnectUrl } from "@/lib/zernio/client";
 
 export async function saveZernioChannel(
   agentId: string,
@@ -40,6 +41,18 @@ export async function getZernioChannelsForAgent(agentId: string) {
   });
 
   return { success: true as const, data: channels };
+}
+
+export async function getZernioAuthUrl(
+  platform: "instagram" | "facebook",
+  redirectUrl: string,
+) {
+  try {
+    const { authUrl } = await getZernioConnectUrl(platform, redirectUrl);
+    return { success: true as const, authUrl };
+  } catch {
+    return { success: false as const, error: "Failed to get auth URL" };
+  }
 }
 
 export async function removeZernioChannel(agentId: string, accountId: string) {
