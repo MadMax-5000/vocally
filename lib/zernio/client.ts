@@ -63,3 +63,20 @@ export async function getZernioConnectUrl(
   });
   return zernioFetch(`/v1/connect/${platform}?${params.toString()}`);
 }
+
+export type ZernioAccount = {
+  _id: string;
+  platform: string;
+  username: string;
+  displayName: string | null;
+};
+
+export async function listZernioAccounts(
+  platform?: string,
+): Promise<ZernioAccount[]> {
+  const params = platform ? `?platform=${platform}` : "";
+  const data = await zernioFetch<{ accounts: ZernioAccount[] }>(
+    `/v1/accounts${params}`,
+  );
+  return data.accounts;
+}
