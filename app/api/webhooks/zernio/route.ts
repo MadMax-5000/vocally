@@ -16,10 +16,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload = JSON.parse(body);
-    await handleZernioInbound(payload);
+    handleZernioInbound(payload).catch((err) => {
+      console.error("Zernio background processing error:", err);
+    });
     return new Response("OK", { status: 200 });
   } catch (err) {
-    console.error("Zernio webhook error:", err);
+    console.error("Zernio webhook parse error:", err);
     return new Response("OK", { status: 200 });
   }
 }
