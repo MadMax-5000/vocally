@@ -4,10 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { revalidatePath } from "next/cache";
 
-export async function saveFiwanoChannel(
+export async function saveZernioChannel(
   agentId: string,
-  channelId: string,
+  accountId: string,
   channelType: "INSTAGRAM" | "MESSENGER",
+  platformUsername?: string,
 ) {
   const orgId = await getOrgPrismaId();
   if (!orgId) return { success: false, error: "Unauthorized" };
@@ -18,10 +19,10 @@ export async function saveFiwanoChannel(
   });
   if (!agent) return { success: false, error: "Agent not found" };
 
-  await prisma.fiwanoChannel.upsert({
-    where: { channelId },
-    update: { agentId, orgId, channelType },
-    create: { channelId, agentId, orgId, channelType },
+  await prisma.zernioChannel.upsert({
+    where: { accountId },
+    update: { agentId, orgId, channelType, platformUsername },
+    create: { accountId, agentId, orgId, channelType, platformUsername },
   });
 
   revalidatePath(`/dashboard/agents/${agentId}/deploy/instagram`);
@@ -29,24 +30,24 @@ export async function saveFiwanoChannel(
   return { success: true };
 }
 
-export async function getFiwanoChannelsForAgent(agentId: string) {
+export async function getZernioChannelsForAgent(agentId: string) {
   const orgId = await getOrgPrismaId();
   if (!orgId) return { success: false as const, error: "Unauthorized" };
 
-  const channels = await prisma.fiwanoChannel.findMany({
+  const channels = await prisma.zernioChannel.findMany({
     where: { agentId, orgId },
-    select: { channelId: true, channelType: true, createdAt: true },
+    select: { accountId: true, channelType: true, platformUsername: true, connectedAt: true },
   });
 
   return { success: true as const, data: channels };
 }
 
-export async function removeFiwanoChannel(agentId: string, channelId: string) {
+export async function removeZernioChannel(agentId: string, accountId: string) {
   const orgId = await getOrgPrismaId();
   if (!orgId) return { success: false as const, error: "Unauthorized" };
 
-  await prisma.fiwanoChannel.deleteMany({
-    where: { channelId, agentId, orgId },
+  await prisma.zernioChannel.deleteMany({
+    where: { accountId, agentId, orgId },
   });
 
   revalidatePath(`/dashboard/agents/${agentId}/deploy/instagram`);

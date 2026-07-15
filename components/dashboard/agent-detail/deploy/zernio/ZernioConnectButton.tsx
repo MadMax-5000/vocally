@@ -1,34 +1,36 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { saveFiwanoChannel, getFiwanoChannelsForAgent, removeFiwanoChannel } from "@/lib/actions/fiwano";
+import { getZernioChannelsForAgent, removeZernioChannel } from "@/lib/actions/zernio";
+import { getZernioConnectUrl } from "@/lib/zernio/client";
 
 type Props = {
   agentId: string;
   channelType: "INSTAGRAM" | "MESSENGER";
   iconSrc: string;
   channelLabel: string;
-  fiwanoChannelId: string;
 };
 
-export function FiwanoChannelStatus({ agentId, channelType, iconSrc, channelLabel, fiwanoChannelId }: Props) {
+export function ZernioConnectButton({ agentId, channelType, iconSrc, channelLabel }: Props) {
   const t = useTranslations("dashboard.deploy.channels.common");
   const [connected, setConnected] = useState(false);
-  const [channelId, setChannelId] = useState("");
+  const [accountId, setAccountId] = useState("");
+  const [username, setUsername] = useState("");
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
     startTransition(async () => {
-      const result = await getFiwanoChannelsForAgent(agentId);
+      const result = await getZernioChannelsForAgent(agentId);
       if (result.success) {
         const found = result.data.find((c: { channelType: string }) => c.channelType === channelType);
         if (found) {
           setConnected(true);
-          setChannelId(found.channelId);
+          setAccountId(found.accountId);
+          setUsername(found.platformUsername ?? "");
         }
       }
     });
@@ -36,23 +38,24 @@ export function FiwanoChannelStatus({ agentId, channelType, iconSrc, channelLabe
 
   function handleConnect() {
     startTransition(async () => {
-      const result = await saveFiwanoChannel(agentId, fiwanoChannelId, channelType);
-      if (!result.success) {
-        toast.error(result.error ?? "Failed to connect");
-        return;
+      try {
+        const platform = channelType === "INSTAGRAM" ? "instagram" : "facebook";
+        const callbackUrl = `${window.location.origin}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
+        const { authUrl } = await getZernioConnectUrl(platform, callbackUrl);
+        window.location.href = authUrl;
+      } catch (err) {
+        toast.error("Failed to initiate connection");
       }
-      setConnected(true);
-      setChannelId(fiwanoChannelId);
-      toast.success(`${channelLabel} connected via Fiwano`);
     });
   }
 
   function handleDisconnect() {
     startTransition(async () => {
-      const result = await removeFiwanoChannel(agentId, channelId);
+      const result = await removeZernioChannel(agentId, accountId);
       if (!result.success) return;
       setConnected(false);
-      setChannelId("");
+      setAccountId("");
+      setUsername("");
       toast.success(`${channelLabel} disconnected`);
     });
   }
@@ -66,7 +69,7 @@ export function FiwanoChannelStatus({ agentId, channelType, iconSrc, channelLabe
         <div className="max-w-sm space-y-1">
           <p className="text-body-sm font-medium text-ink">{channelLabel}</p>
           <p className="text-caption text-muted">
-            Connect via Fiwano — no Meta Business Verification required.
+            Connect your {channelLabel} account — no Meta Business Verification required.
           </p>
         </div>
         <button
@@ -89,7 +92,7 @@ export function FiwanoChannelStatus({ agentId, channelType, iconSrc, channelLabe
           <div className="min-w-0 flex-1">
             <p className="text-body-sm font-medium text-ink">{t("connected")}</p>
             <p className="mt-0.5 truncate text-body-sm text-muted">
-              {channelLabel} — Fiwano ({channelId.slice(0, 8)}...)
+              {username ? `${channelLabel} — ${username}` : channelLabel}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
@@ -101,9 +104,11 @@ export function FiwanoChannelStatus({ agentId, channelType, iconSrc, channelLabe
       <div className="rounded-xl border border-hairline bg-surface-card p-4">
         <p className="text-body-sm font-medium text-ink">Webhook</p>
         <p className="mt-1 text-caption text-muted">
-          Messages delivered to <code className="text-ink">/api/webhooks/fiwano</code>
+          Messages delivered to <code className="text-ink">/api/webhooks/zernio</code>
         </p>
-        <p className="mt-1 text-caption text-muted">Managed in Fiwano dashboard → Channel settings.</p>
+        <p className="mt-1 text-caption text-muted">
+          Managed automatically via Zernio.
+        </p>
       </div>
 
       <button

@@ -36,7 +36,7 @@ model Organization {
   tickets                    Ticket[]
   agentLeads                 AgentLead[]
   formSubmissions            FormSubmission[]
-  fiwanoChannels             FiwanoChannel[]
+  zernioChannels             ZernioChannel[]
 }
 
 model KnowledgeFolder {
@@ -98,7 +98,7 @@ model Agent {
   messengerConnection MessengerConnection?
   agentLeads          AgentLead[]
   formSubmissions     FormSubmission[]
-  fiwanoChannels      FiwanoChannel[]
+  zernioChannels      ZernioChannel[]
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
@@ -317,19 +317,20 @@ model Message {
   @@index([sessionId])
 }
 
-model FiwanoChannel {
+model ZernioChannel {
   id          String       @id @default(cuid())
   orgId       String
   org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
   agentId     String
   agent       Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  channelId   String       @unique
+  accountId   String       @unique
   channelType Channel
-  createdAt   DateTime     @default(now())
+  platformUsername String?
+  connectedAt   DateTime   @default(now())
 
   @@index([orgId])
   @@index([agentId])
-  @@index([channelId])
+  @@index([accountId])
 }
 
 model VapiCallMetadata {

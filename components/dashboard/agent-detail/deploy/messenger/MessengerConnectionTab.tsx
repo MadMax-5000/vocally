@@ -1,6 +1,6 @@
 "use client";
 
-import { FiwanoChannelStatus } from "../fiwano/FiwanoChannelStatus";
+import { ZernioConnectButton } from "../zernio/ZernioConnectButton";
 
 type Props = {
   agentId: string;
@@ -17,12 +17,11 @@ type Props = {
 
 export function MessengerConnectionTab({ agentId }: Props) {
   return (
-    <FiwanoChannelStatus
+    <ZernioConnectButton
       agentId={agentId}
       channelType="MESSENGER"
       iconSrc="/svg/messenger.svg"
       channelLabel="Facebook Messenger"
-      fiwanoChannelId="877747f18ed25ca2"
     />
   );
 }

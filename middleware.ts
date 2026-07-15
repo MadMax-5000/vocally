@@ -60,7 +60,11 @@ export default clerkMiddleware(async (auth, req) => {
     return handleI18nRouting(req);
   }
 
-  return;
+  // Catch-all: any bare URL without locale prefix → redirect to /{locale}/{path}
+  const locale = getRequestLocale(req.headers);
+  const url = req.nextUrl.clone();
+  url.pathname = `/${locale}${req.nextUrl.pathname}`;
+  return Response.redirect(url, 308);
 });
 
 export const config = {

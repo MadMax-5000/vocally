@@ -2,7 +2,11 @@ import { CreateOrganization } from "@clerk/nextjs";
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
 import { getTranslations } from "next-intl/server";
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   const t = await getTranslations("onboarding");
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-6">
@@ -37,7 +41,7 @@ export default async function OnboardingPage() {
                 alertText: "text-body-sm text-semantic-error",
               },
             }}
-            afterCreateOrganizationUrl="/dashboard/agents"
+            afterCreateOrganizationUrl={`/${locale}/dashboard/agents`}
           />
         </div>
       </div>

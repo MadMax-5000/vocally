@@ -1,21 +1,27 @@
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
-import { sendFiwanoText } from "@/lib/fiwano/client";
-import type { FiwanoWebhookPayload } from "@/lib/fiwano/types";
+import { sendZernioMessage } from "@/lib/zernio/client";
+import type { ZernioWebhookPayload } from "@/lib/zernio/types";
 
-const CHANNEL_TYPE_MAP: Record<string, string> = {
+const PLATFORM_TO_CHANNEL: Record<string, string> = {
   instagram: "INSTAGRAM",
   facebook: "MESSENGER",
   whatsapp: "WHATSAPP",
 };
 
-export async function handleFiwanoInbound(payload: FiwanoWebhookPayload) {
+export async function handleZernioInbound(payload: ZernioWebhookPayload) {
   if (payload.event !== "message.received") return;
-  const text = payload.data.text;
-  if (!text) return;
+  if (!payload.message.text) return;
+  if (payload.message.direction !== "incoming") return;
 
-  const channel = await prisma.fiwanoChannel.findUnique({
-    where: { channelId: payload.channel_id },
+  const accountId = payload.account.id;
+  const conversationId = payload.conversation.id;
+  const platform = payload.message.platform;
+  const channelType = PLATFORM_TO_CHANNEL[platform];
+  if (!channelType) return;
+
+  const channel = await prisma.zernioChannel.findUnique({
+    where: { accountId },
     include: {
       agent: {
         select: {
@@ -29,9 +35,6 @@ export async function handleFiwanoInbound(payload: FiwanoWebhookPayload) {
   if (!channel) return;
 
   const { agent } = channel;
-  const channelType = CHANNEL_TYPE_MAP[payload.data.channel_type];
-  if (!channelType) return;
-
   const agentChannel = agent.channels.find(
     (c: { channel: string; enabled: boolean }) => c.channel === channelType,
   );
@@ -40,15 +43,16 @@ export async function handleFiwanoInbound(payload: FiwanoWebhookPayload) {
   const session = await findOrCreateSession({
     orgId: agent.orgId,
     agentId: agent.id,
-    channelType: channelType as any,
-    senderId: payload.data.from,
+    channelType,
+    customerId: conversationId,
+    customerName: payload.conversation.participantName ?? undefined,
   });
 
   await prisma.message.create({
     data: {
       sessionId: session.id,
       role: "USER",
-      content: text,
+      content: payload.message.text,
     },
   });
 
@@ -56,7 +60,7 @@ export async function handleFiwanoInbound(payload: FiwanoWebhookPayload) {
     orgId: agent.orgId,
     agentId: agent.id,
     sessionId: session.id,
-    message: text,
+    message: payload.message.text,
     channel: channelType as any,
   });
 
@@ -69,9 +73,9 @@ export async function handleFiwanoInbound(payload: FiwanoWebhookPayload) {
   });
 
   try {
-    await sendFiwanoText(payload.channel_id, payload.data.from, result.botContent);
+    await sendZernioMessage(conversationId, accountId, result.botContent);
   } catch (err) {
-    console.error("Fiwano send failed:", err);
+    console.error("Zernio send failed:", err);
   }
 }
 
@@ -79,19 +83,21 @@ async function findOrCreateSession({
   orgId,
   agentId,
   channelType,
-  senderId,
+  customerId,
+  customerName,
 }: {
   orgId: string;
   agentId: string;
   channelType: string;
-  senderId: string;
+  customerId: string;
+  customerName?: string;
 }) {
   const existing = await prisma.session.findFirst({
     where: {
       orgId,
       agentId,
       channel: channelType as any,
-      customerId: senderId,
+      customerId,
       status: { in: ["ACTIVE", "WAITING", "BOT"] },
     },
     orderBy: { startedAt: "desc" },
@@ -103,7 +109,7 @@ async function findOrCreateSession({
       orgId,
       agentId,
       channel: channelType as any,
-      customerId: senderId,
+      customerId,
       status: "ACTIVE",
     },
   });

@@ -10,6 +10,7 @@ import {
 } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { usePathname } from "@/i18n/routing";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,13 +34,14 @@ async function copyToClipboard(text: string, successMessage: string, errorMessag
   }
 }
 
-async function copyShareableLink(agentId: string, successMessage: string, errorMessage: string) {
-  const url = `${window.location.origin}/agents/${agentId}`;
+async function copyShareableLink(agentId: string, pathname: string, successMessage: string, errorMessage: string) {
+  const url = `${window.location.origin}${pathname}`;
   await copyToClipboard(url, successMessage, errorMessage);
 }
 
 export function AgentMoreActionsMenu({ agentId }: AgentMoreActionsMenuProps) {
   const t = useTranslations("dashboard.agentDetail");
+  const pathname = usePathname();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -57,7 +59,7 @@ export function AgentMoreActionsMenu({ agentId }: AgentMoreActionsMenuProps) {
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
-            void copyShareableLink(agentId, t("shareableLinkCopied"), t("couldNotCopy"));
+            void copyShareableLink(agentId, pathname, t("shareableLinkCopied"), t("couldNotCopy"));
           }}
         >
           <AppIcon icon={LinkIcon} className="mr-2 h-3.5 w-3.5" />

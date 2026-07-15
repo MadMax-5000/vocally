@@ -46,8 +46,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="font-sans bg-canvas text-ink text-pretty">
         <ClerkProvider
           localization={localization}
-          signInFallbackRedirectUrl="/dashboard"
-          signUpFallbackRedirectUrl="/onboarding"
+          signInFallbackRedirectUrl={`/${locale}/dashboard`}
+          signUpFallbackRedirectUrl={`/${locale}/onboarding`}
         >
           {children}
         </ClerkProvider>

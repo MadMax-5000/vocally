@@ -1,6 +1,6 @@
 "use client";
 
-import { FiwanoChannelStatus } from "../fiwano/FiwanoChannelStatus";
+import { ZernioConnectButton } from "../zernio/ZernioConnectButton";
 
 type InstagramSetupTabProps = {
   agentId: string;
@@ -22,12 +22,11 @@ export function InstagramSetupTab({
   }
 
   return (
-    <FiwanoChannelStatus
+    <ZernioConnectButton
       agentId={agentId}
       channelType="INSTAGRAM"
       iconSrc="/svg/instagram-icon.svg"
       channelLabel="Instagram DM"
-      fiwanoChannelId="c20ab5497beab077"
     />
   );
 }

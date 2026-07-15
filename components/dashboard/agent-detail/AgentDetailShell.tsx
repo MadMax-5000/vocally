@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "@/i18n/routing";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { useSearchParams } from "next/navigation";
 
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
@@ -21,6 +21,7 @@ function isValidTab(value: string | null): value is AgentDetailTabId {
 
 export function AgentDetailShell({ agent }: AgentDetailShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
 
@@ -37,15 +38,16 @@ export function AgentDetailShell({ agent }: AgentDetailShellProps) {
   const handleTabChange = useCallback(
     (tab: AgentDetailTabId) => {
       setActiveTab(tab);
-      const url = new URL(window.location.href);
+      const params = new URLSearchParams(searchParams.toString());
       if (tab === "preview") {
-        url.searchParams.delete("tab");
+        params.delete("tab");
       } else {
-        url.searchParams.set("tab", tab);
+        params.set("tab", tab);
       }
-      router.replace(url.pathname + url.search, { scroll: false });
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
-    [router],
+    [router, pathname, searchParams],
   );
 
   return (
