@@ -32,10 +32,11 @@ model Organization {
   gmailConnections           GmailConnection[]
   instagramConnections       InstagramConnection[]
   messengerConnections       MessengerConnection[]
-  appointments               Appointment[]
+  appointments              Appointment[]
   tickets                    Ticket[]
   agentLeads                 AgentLead[]
   formSubmissions            FormSubmission[]
+  fiwanoChannels             FiwanoChannel[]
 }
 
 model KnowledgeFolder {
@@ -97,6 +98,7 @@ model Agent {
   messengerConnection MessengerConnection?
   agentLeads          AgentLead[]
   formSubmissions     FormSubmission[]
+  fiwanoChannels      FiwanoChannel[]
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
@@ -313,6 +315,21 @@ model Message {
   createdAt DateTime    @default(now())
 
   @@index([sessionId])
+}
+
+model FiwanoChannel {
+  id          String       @id @default(cuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  channelId   String       @unique
+  channelType Channel
+  createdAt   DateTime     @default(now())
+
+  @@index([orgId])
+  @@index([agentId])
+  @@index([channelId])
 }
 
 model VapiCallMetadata {
