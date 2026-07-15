@@ -48,6 +48,16 @@ export async function handleZernioInbound(payload: ZernioWebhookPayload) {
     customerName: payload.conversation.participantName ?? undefined,
   });
 
+  const recentDuplicate = await prisma.message.findFirst({
+    where: {
+      sessionId: session.id,
+      role: "USER",
+      content: payload.message.text,
+      createdAt: { gte: new Date(Date.now() - 60_000) },
+    },
+  });
+  if (recentDuplicate) return;
+
   await prisma.message.create({
     data: {
       sessionId: session.id,
