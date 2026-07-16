@@ -14,7 +14,7 @@ import {
 
 type Props = {
   agentId: string;
-  channelType: "INSTAGRAM" | "MESSENGER";
+  channelType: "INSTAGRAM" | "MESSENGER" | "WHATSAPP";
   iconSrc: string;
   channelLabel: string;
 };
@@ -45,7 +45,10 @@ export function ZernioConnectButton({ agentId, channelType, iconSrc, channelLabe
 
   function handleShowAccounts() {
     startTransition(async () => {
-      const platform = channelType === "INSTAGRAM" ? "instagram" : "facebook";
+      const platform =
+        channelType === "INSTAGRAM" ? "instagram"
+        : channelType === "WHATSAPP" ? "whatsapp"
+        : "facebook";
       const result = await getAvailableZernioAccounts(platform);
       if (!result.success) {
         toast.error(result.error);

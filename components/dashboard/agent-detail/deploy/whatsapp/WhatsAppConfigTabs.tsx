@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import type { AgentWhatsAppSettings } from "@/lib/actions/whatsapp-connection";
+import { ZernioConnectButton } from "../zernio/ZernioConnectButton";
 
-import { WhatsAppConnectFlow } from "./WhatsAppConnectFlow";
 import { WhatsAppSettingsTab } from "./WhatsAppSettingsTab";
 import { WhatsAppTestTab } from "./WhatsAppTestTab";
 
@@ -38,10 +38,11 @@ export function WhatsAppConfigTabs({
           transition={{ duration: 0.14 }}
         >
           {activeTab === "connect" ? (
-            <WhatsAppConnectFlow
+            <ZernioConnectButton
               agentId={agentId}
-              settings={settings}
-              onSettingsRefresh={onSettingsRefresh}
+              channelType="WHATSAPP"
+              iconSrc="/svg/whatsapp-icon.svg"
+              channelLabel="WhatsApp"
             />
           ) : activeTab === "settings" ? (
             <WhatsAppSettingsTab agentId={agentId} whatsappEnabled={whatsappEnabled} />

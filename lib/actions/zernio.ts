@@ -8,7 +8,7 @@ import { listZernioAccounts } from "@/lib/zernio/client";
 export async function saveZernioChannel(
   agentId: string,
   accountId: string,
-  channelType: "INSTAGRAM" | "MESSENGER",
+  channelType: "INSTAGRAM" | "MESSENGER" | "WHATSAPP",
   platformUsername?: string,
 ) {
   const orgId = await getOrgPrismaId();
@@ -28,6 +28,7 @@ export async function saveZernioChannel(
 
   revalidatePath(`/dashboard/agents/${agentId}/deploy/instagram`);
   revalidatePath(`/dashboard/agents/${agentId}/deploy/messenger`);
+  revalidatePath(`/dashboard/agents/${agentId}/deploy/whatsapp`);
   return { success: true };
 }
 
@@ -44,7 +45,7 @@ export async function getZernioChannelsForAgent(agentId: string) {
 }
 
 export async function getAvailableZernioAccounts(
-  platform: "instagram" | "facebook",
+  platform: "instagram" | "facebook" | "whatsapp",
 ) {
   try {
     const accounts = await listZernioAccounts(platform);
@@ -65,5 +66,6 @@ export async function removeZernioChannel(agentId: string, accountId: string) {
 
   revalidatePath(`/dashboard/agents/${agentId}/deploy/instagram`);
   revalidatePath(`/dashboard/agents/${agentId}/deploy/messenger`);
+  revalidatePath(`/dashboard/agents/${agentId}/deploy/whatsapp`);
   return { success: true as const };
 }
