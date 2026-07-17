@@ -1,6 +1,6 @@
 "use client";
 
-import { ZernioConnectButton } from "../zernio/ZernioConnectButton";
+import { ZernioOAuthButton } from "../zernio/ZernioOAuthButton";
 
 type InstagramSetupTabProps = {
   agentId: string;
@@ -22,9 +22,9 @@ export function InstagramSetupTab({
   }
 
   return (
-    <ZernioConnectButton
+    <ZernioOAuthButton
       agentId={agentId}
-      channelType="INSTAGRAM"
+      platform="instagram"
       iconSrc="/svg/instagram-icon.svg"
       channelLabel="Instagram DM"
     />

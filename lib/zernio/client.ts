@@ -54,14 +54,31 @@ export async function sendZernioMessage(
 }
 
 export async function getZernioConnectUrl(
-  platform: "instagram" | "facebook",
+  platform: string,
+  profileId: string,
   redirectUrl: string,
 ): Promise<ZernioConnectUrlResponse> {
   const params = new URLSearchParams({
-    profileId: ZERNIO_DEFAULT_PROFILE_ID,
+    profileId,
     redirect_url: redirectUrl,
   });
   return zernioFetch(`/v1/connect/${platform}?${params.toString()}`);
+}
+
+export type ZernioProfile = {
+  _id: string;
+  name: string;
+  description?: string;
+};
+
+export async function createZernioProfile(
+  name: string,
+  description?: string,
+): Promise<ZernioProfile> {
+  return zernioFetch("/v1/profiles", {
+    method: "POST",
+    body: JSON.stringify({ name, description }),
+  });
 }
 
 export type ZernioAccount = {

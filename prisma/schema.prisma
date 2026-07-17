@@ -36,6 +36,7 @@ model Organization {
   tickets                    Ticket[]
   agentLeads                 AgentLead[]
   formSubmissions            FormSubmission[]
+  zernioProfileId            String?
   zernioChannels             ZernioChannel[]
 }
 

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
+const SUPPORTED_PLATFORMS = ["instagram", "facebook", "whatsapp"];
+
+const CHANNEL_REDIRECTS: Record<string, string> = {
+  INSTAGRAM: "instagram",
+  MESSENGER: "messenger",
+  WHATSAPP: "whatsapp",
+};
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -16,7 +24,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  if (connected !== "instagram" && connected !== "facebook") {
+  if (!SUPPORTED_PLATFORMS.includes(connected)) {
     return NextResponse.redirect(
       new URL(`/dashboard/agents/${agentId}?error=Unsupported platform`, req.url),
     );
@@ -32,7 +40,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const channelType = channel === "INSTAGRAM" || channel === "MESSENGER" ? channel : null;
+  const channelType = CHANNEL_REDIRECTS[channel];
   if (!channelType) {
     return NextResponse.redirect(
       new URL(`/dashboard/agents/${agentId}?error=Invalid channel`, req.url),
@@ -41,14 +49,11 @@ export async function GET(req: NextRequest) {
 
   await prisma.zernioChannel.upsert({
     where: { accountId },
-    update: { agentId, orgId: agent.orgId, channelType, platformUsername: username },
-    create: { accountId, agentId, orgId: agent.orgId, channelType, platformUsername: username },
+    update: { agentId, orgId: agent.orgId, channelType: channel as any, platformUsername: username },
+    create: { accountId, agentId, orgId: agent.orgId, channelType: channel as any, platformUsername: username },
   });
 
-  const redirectPath =
-    channelType === "INSTAGRAM"
-      ? `/dashboard/agents/${agentId}/deploy/instagram`
-      : `/dashboard/agents/${agentId}/deploy/messenger`;
+  const redirectPath = `/dashboard/agents/${agentId}/deploy/${channelType}`;
 
   return NextResponse.redirect(new URL(redirectPath, req.url));
 }

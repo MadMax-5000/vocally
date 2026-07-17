@@ -1,6 +1,6 @@
 "use client";
 
-import { ZernioConnectButton } from "../zernio/ZernioConnectButton";
+import { ZernioOAuthButton } from "../zernio/ZernioOAuthButton";
 
 type Props = {
   agentId: string;
@@ -17,9 +17,9 @@ type Props = {
 
 export function MessengerConnectionTab({ agentId }: Props) {
   return (
-    <ZernioConnectButton
+    <ZernioOAuthButton
       agentId={agentId}
-      channelType="MESSENGER"
+      platform="facebook"
       iconSrc="/svg/messenger.svg"
       channelLabel="Facebook Messenger"
     />

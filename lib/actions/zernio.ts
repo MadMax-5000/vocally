@@ -3,7 +3,60 @@
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { revalidatePath } from "next/cache";
-import { listZernioAccounts } from "@/lib/zernio/client";
+import { listZernioAccounts, createZernioProfile, getZernioConnectUrl } from "@/lib/zernio/client";
+
+const PLATFORM_TO_CHANNEL: Record<string, string> = {
+  instagram: "INSTAGRAM",
+  facebook: "MESSENGER",
+  whatsapp: "WHATSAPP",
+};
+
+export async function getOrCreateZernioProfile(orgId: string): Promise<string | null> {
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { zernioProfileId: true, name: true },
+  });
+  if (!org) return null;
+  if (org.zernioProfileId) return org.zernioProfileId;
+
+  const profile = await createZernioProfile(`org_${orgId}`, org.name);
+  await prisma.organization.update({
+    where: { id: orgId },
+    data: { zernioProfileId: profile._id },
+  });
+  return profile._id;
+}
+
+export async function initiateZernioOAuth(
+  agentId: string,
+  platform: "instagram" | "facebook" | "whatsapp",
+) {
+  const orgId = await getOrgPrismaId();
+  if (!orgId) return { success: false as const, error: "Unauthorized" };
+
+  const agent = await prisma.agent.findFirst({
+    where: { id: agentId, orgId },
+    select: { id: true },
+  });
+  if (!agent) return { success: false as const, error: "Agent not found" };
+
+  const profileId = await getOrCreateZernioProfile(orgId);
+  if (!profileId) return { success: false as const, error: "Failed to create Zernio profile" };
+
+  const channelType = PLATFORM_TO_CHANNEL[platform];
+  if (!channelType) return { success: false as const, error: "Unsupported platform" };
+
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://anselio.com";
+  const redirectUrl = `${baseUrl}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
+
+  try {
+    const { authUrl } = await getZernioConnectUrl(platform, profileId, redirectUrl);
+    return { success: true as const, data: { authUrl } };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to initiate connection";
+    return { success: false as const, error: message };
+  }
+}
 
 export async function saveZernioChannel(
   agentId: string,
