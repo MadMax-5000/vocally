@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
+import { MAX_CALL_MINUTES } from "@/lib/billing/plan-features";
 
 export type ResolvedVoiceNumber = {
   orgId: string;
@@ -129,4 +130,24 @@ export async function handleVoiceUtterance(params: {
     botContent,
     escalation: !!escalation,
   };
+}
+
+export async function getMonthlyCallMinutes(orgId: string): Promise<{ used: number; max: number }> {
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { plan: true },
+  });
+  const plan = org?.plan ?? "FREE";
+  const max = MAX_CALL_MINUTES[plan as keyof typeof MAX_CALL_MINUTES] ?? 0;
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const result = await prisma.callLog.aggregate({
+    where: { orgId, createdAt: { gte: monthStart } },
+    _sum: { duration: true },
+  });
+
+  const usedSeconds = result._sum.duration ?? 0;
+  return { used: Math.ceil(usedSeconds / 60), max };
 }

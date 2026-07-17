@@ -4,6 +4,7 @@ import {
   resolveVoiceNumber,
   findOrCreateSession,
   resolveActiveAgent,
+  getMonthlyCallMinutes,
 } from "@/lib/twilio/voice/handler";
 import {
   buildStreamWelcomeTwiML,
@@ -49,6 +50,13 @@ export async function POST(req: NextRequest) {
     const resolved = await resolveVoiceNumber(called);
     if (!resolved) {
       return buildTwiLResponse(buildNoAgentTwiML());
+    }
+
+    const { used, max } = await getMonthlyCallMinutes(resolved.orgId);
+    if (max !== Infinity && used >= max) {
+      return buildTwiLResponse(
+        buildGoodbyeTwiML("Your organization has reached its monthly call minute limit. Please upgrade your plan to continue receiving calls. Goodbye."),
+      );
     }
 
     let agentId = resolved.agentId;

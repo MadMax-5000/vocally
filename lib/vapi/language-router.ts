@@ -3,6 +3,7 @@ import {
   resolveVoiceNumber,
   findOrCreateSession,
   resolveActiveAgent,
+  getMonthlyCallMinutes,
 } from "@/lib/twilio/voice/handler";
 import { getToolDefinitionsForAgent } from "@/lib/ai/tools/registry";
 import { prisma } from "@/lib/db/prisma";
@@ -39,6 +40,12 @@ export async function handleAssistantRequest(message: {
 
   if (!orgId) {
     logServerWarning(`[Vapi] Could not resolve orgId for phone number: ${twilioNumber}`, { twilioNumber: twilioNumber ?? "unknown" });
+    return { assistant: null };
+  }
+
+  const { used, max } = await getMonthlyCallMinutes(orgId);
+  if (max !== Infinity && used >= max) {
+    logServerWarning(`[Vapi] Monthly call minute limit reached for orgId: ${orgId}`, { orgId, used, max });
     return { assistant: null };
   }
 

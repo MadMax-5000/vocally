@@ -62,6 +62,14 @@ export const QA_SCORING_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE
   ENTERPRISE: true,
 };
 
+/** Maximum call minutes per month per org. */
+export const MAX_CALL_MINUTES: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", number> = {
+  FREE: 50,
+  STARTER: 2000,
+  PRO: 10000,
+  ENTERPRISE: Infinity,
+};
+
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
   FREE: { madCents: 0 },
   STARTER: { madCents: 99999 },
