@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
-import { getOrgPrismaId } from "@/lib/server/organization";
+import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
+import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
 import { revalidatePath } from "next/cache";
 import { listZernioAccounts, createZernioProfile, getZernioConnectUrl } from "@/lib/zernio/client";
 
@@ -39,6 +40,11 @@ export async function initiateZernioOAuth(
     select: { id: true },
   });
   if (!agent) return { success: false as const, error: "Agent not found" };
+
+  const plan = await getOrgPlan();
+  if (!plan || !SOCIAL_CHANNELS_ENABLED[plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
+    return { success: false as const, error: "Social channels are not available on your plan. Upgrade to continue." };
+  }
 
   const profileId = await getOrCreateZernioProfile(orgId);
   if (!profileId) return { success: false as const, error: "Failed to create Zernio profile" };
@@ -121,4 +127,13 @@ export async function removeZernioChannel(agentId: string, accountId: string) {
   revalidatePath(`/dashboard/agents/${agentId}/deploy/messenger`);
   revalidatePath(`/dashboard/agents/${agentId}/deploy/whatsapp`);
   return { success: true as const };
+}
+
+export async function checkSocialChannelsEnabled(): Promise<{ enabled: boolean; plan: string | null }> {
+  const plan = await getOrgPlan();
+  if (!plan) return { enabled: false, plan: null };
+  return {
+    enabled: SOCIAL_CHANNELS_ENABLED[plan as keyof typeof SOCIAL_CHANNELS_ENABLED] ?? false,
+    plan,
+  };
 }

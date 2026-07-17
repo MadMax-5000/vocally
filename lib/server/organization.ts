@@ -20,3 +20,17 @@ export async function getOrgPrismaId(): Promise<string | null> {
 
   return org.id;
 }
+
+/** Returns the Plan (FREE / STARTER / PRO / ENTERPRISE) for the current Clerk org. */
+export async function getOrgPlan(): Promise<string | null> {
+  const session = await auth();
+  const clerkOrgId = session.orgId;
+  if (!clerkOrgId) return null;
+
+  const org = await prisma.organization.findUnique({
+    where: { clerkOrgId },
+    select: { plan: true },
+  });
+
+  return org?.plan ?? null;
+}

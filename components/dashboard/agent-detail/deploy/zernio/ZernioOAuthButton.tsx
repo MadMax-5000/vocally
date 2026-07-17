@@ -5,10 +5,12 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import Link from "next/link";
 import {
   getZernioChannelsForAgent,
   removeZernioChannel,
   initiateZernioOAuth,
+  checkSocialChannelsEnabled,
 } from "@/lib/actions/zernio";
 
 type Props = {
@@ -23,15 +25,20 @@ export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: 
   const [connected, setConnected] = useState(false);
   const [accountId, setAccountId] = useState("");
   const [username, setUsername] = useState("");
+  const [socialEnabled, setSocialEnabled] = useState<boolean | null>(null);
   const [pending, startTransition] = useTransition();
 
   const channelType = platform === "instagram" ? "INSTAGRAM" : platform === "whatsapp" ? "WHATSAPP" : "MESSENGER";
 
   useEffect(() => {
     startTransition(async () => {
-      const result = await getZernioChannelsForAgent(agentId);
-      if (result.success) {
-        const found = result.data.find((c: { channelType: string }) => c.channelType === channelType);
+      const [channelsResult, enabledResult] = await Promise.all([
+        getZernioChannelsForAgent(agentId),
+        checkSocialChannelsEnabled(),
+      ]);
+      setSocialEnabled(enabledResult.enabled);
+      if (channelsResult.success) {
+        const found = channelsResult.data.find((c: { channelType: string }) => c.channelType === channelType);
         if (found) {
           setConnected(true);
           setAccountId(found.accountId);
@@ -89,6 +96,39 @@ export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: 
         >
           {t("disconnect")}
         </button>
+      </div>
+    );
+  }
+
+  if (socialEnabled === false) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-8 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl border border-hairline bg-canvas-soft">
+          <Image src={iconSrc} alt="" width={32} height={32} className="size-8" />
+        </div>
+        <div className="max-w-sm space-y-1">
+          <p className="text-body-sm font-medium text-ink">{channelLabel}</p>
+          <p className="text-caption text-muted">
+            Social channels are not available on your current plan.
+          </p>
+        </div>
+        <Link
+          href="/pricing"
+          className="btn-primary h-10 rounded-md px-5 inline-flex items-center"
+        >
+          Upgrade to Connect
+        </Link>
+      </div>
+    );
+  }
+
+  if (socialEnabled === null) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-8 text-center">
+        <div className="flex size-14 items-center justify-center rounded-2xl border border-hairline bg-canvas-soft">
+          <Image src={iconSrc} alt="" width={32} height={32} className="size-8" />
+        </div>
+        <p className="text-body-sm text-muted">Loading...</p>
       </div>
     );
   }

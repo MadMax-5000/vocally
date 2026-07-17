@@ -19,6 +19,13 @@ export const MAX_PHONE_NUMBERS: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE"
   ENTERPRISE: Infinity,
 };
 
+export const SOCIAL_CHANNELS_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
+  FREE: false,
+  STARTER: true,
+  PRO: true,
+  ENTERPRISE: true,
+};
+
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
   FREE: { madCents: 0 },
   STARTER: { madCents: 99999 },
