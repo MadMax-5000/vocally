@@ -53,6 +53,7 @@ import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { MAX_AGENTS } from "@/lib/billing/plan-features";
 
 export type GetAIAgentByIdErrorCode =
   | "UNAUTHORIZED"
@@ -169,6 +170,23 @@ export async function createAIAgentFromOnboarding(
     const dbOrgId = await getOrgPrismaId();
     if (!dbOrgId) {
       return { success: false as const, error: "Unauthorized" };
+    }
+
+    const org = await prisma.organization.findUnique({
+      where: { id: dbOrgId },
+      select: { plan: true },
+    });
+    if (!org) return { success: false as const, error: "Organization not found" };
+
+    const maxAgents = MAX_AGENTS[org.plan as keyof typeof MAX_AGENTS] ?? 0;
+    if (maxAgents !== Infinity) {
+      const existingCount = await prisma.agent.count({ where: { orgId: dbOrgId } });
+      if (existingCount >= maxAgents) {
+        return {
+          success: false as const,
+          error: `You've reached the maximum number of agents for your ${org.plan} plan. Upgrade to add more.`,
+        };
+      }
     }
 
     const validated = createAgentFromOnboardingSchema.parse(input);

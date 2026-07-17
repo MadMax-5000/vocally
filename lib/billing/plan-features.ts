@@ -19,6 +19,14 @@ export const MAX_PHONE_NUMBERS: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE"
   ENTERPRISE: Infinity,
 };
 
+/** Maximum AI agents an org can create per plan. */
+export const MAX_AGENTS: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", number> = {
+  FREE: 1,
+  STARTER: 3,
+  PRO: 8,
+  ENTERPRISE: Infinity,
+};
+
 export const SOCIAL_CHANNELS_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
   FREE: false,
   STARTER: true,

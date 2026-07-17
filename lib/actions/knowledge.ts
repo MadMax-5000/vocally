@@ -264,9 +264,15 @@ async function processFetchedPage(
   orgId: string,
   folderId: string | null,
   clerkUserId: string | null,
+  quotaBytes?: number,
+  usedBytes?: number,
 ): Promise<{ success: true; docId: string } | { success: false; error: string }> {
   try {
     const sizeBytes = Buffer.byteLength(page.content, "utf8");
+
+    if (quotaBytes !== undefined && usedBytes !== undefined && usedBytes + sizeBytes > quotaBytes) {
+      return { success: false, error: "Storage quota exceeded" };
+    }
 
     const doc = await prisma.knowledgeDoc.create({
       data: {
@@ -303,10 +309,13 @@ async function processPagesConcurrently(
   orgId: string,
   folderId: string | null,
   clerkUserId: string | null,
+  quotaBytes?: number,
+  initialUsedBytes?: number,
 ): Promise<{ imported: number; errors: number; docIds: string[] }> {
   let imported = 0;
   let errors = 0;
   const docIds: string[] = [];
+  let runningUsed = initialUsedBytes ?? 0;
 
   for (let i = 0; i < urls.length; i += FETCH_CONCURRENCY) {
     const batch = urls.slice(i, i + FETCH_CONCURRENCY);
@@ -315,9 +324,10 @@ async function processPagesConcurrently(
         try {
           const { fetchAndExtractText } = await import("@/lib/knowledge/fetch-url");
           const page = await fetchAndExtractText(u);
-          const result = await processFetchedPage(page, orgId, folderId, clerkUserId);
+          const sizeBytes = Buffer.byteLength(page.content, "utf8");
+          const result = await processFetchedPage(page, orgId, folderId, clerkUserId, quotaBytes, runningUsed);
           return result.success
-            ? ({ kind: "imported" as const, docId: result.docId })
+            ? ({ kind: "imported" as const, docId: result.docId, sizeBytes })
             : ({ kind: "error" as const });
         } catch (err) {
           return { kind: "error" as const };
@@ -329,6 +339,7 @@ async function processPagesConcurrently(
       if (r.kind === "imported") {
         imported++;
         docIds.push(r.docId);
+        if (quotaBytes !== undefined) runningUsed += r.sizeBytes ?? 0;
       } else {
         errors++;
       }
@@ -356,6 +367,14 @@ export async function createKnowledgeFromUrl(input: unknown) {
       return { success: false as const, error: "Invalid URL (use https://…)" };
     }
 
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { plan: true },
+    });
+    if (!org) return { success: false as const, error: "Organization not found" };
+    const quotaBytes = getKnowledgeStorageQuotaBytes(org.plan);
+    const used = await sumOrgStorageBytes(orgId);
+
     let folderId: string | null = parsed.data.folderId?.trim() || null;
     if (folderId && !(await assertFolderInOrg(folderId, orgId))) {
       return { success: false as const, error: "Invalid folder" };
@@ -377,7 +396,7 @@ export async function createKnowledgeFromUrl(input: unknown) {
         const message = err instanceof Error ? err.message : "Failed to fetch URL";
         return { success: false as const, error: message };
       }
-      const result = await processFetchedPage(page, orgId, folderId, clerkUserId);
+      const result = await processFetchedPage(page, orgId, folderId, clerkUserId, quotaBytes, used);
       if (!result.success) {
         return { success: false as const, error: result.error };
       }
@@ -404,6 +423,8 @@ export async function createKnowledgeFromUrl(input: unknown) {
         orgId,
         folderId,
         clerkUserId,
+        quotaBytes,
+        used,
       );
 
       revalidatePath("/dashboard/knowledge");
@@ -437,6 +458,8 @@ export async function createKnowledgeFromUrl(input: unknown) {
         orgId,
         folderId,
         clerkUserId,
+        quotaBytes,
+        used,
       );
 
       revalidatePath("/dashboard/knowledge");

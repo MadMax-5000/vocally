@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
 
 const SUPPORTED_PLATFORMS = ["instagram", "facebook", "whatsapp"];
 
@@ -37,6 +38,16 @@ export async function GET(req: NextRequest) {
   if (!agent) {
     return NextResponse.redirect(
       new URL("/dashboard/agents?error=Agent not found", req.url),
+    );
+  }
+
+  const org = await prisma.organization.findUnique({
+    where: { id: agent.orgId },
+    select: { plan: true },
+  });
+  if (!org || !SOCIAL_CHANNELS_ENABLED[org.plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
+    return NextResponse.redirect(
+      new URL(`/dashboard/agents/${agentId}?error=Social channels not available on your plan`, req.url),
     );
   }
 
