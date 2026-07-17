@@ -15,7 +15,8 @@ import { getGmailClientForAgent } from "@/lib/gmail/client";
 import { formatGmailApiError, listGmailLabels, type GmailLabelOption } from "@/lib/gmail/labels";
 import { appendSignature, sendGmailMessage } from "@/lib/gmail/send";
 import { logServerError } from "@/lib/logger";
-import { getOrgPrismaId } from "@/lib/server/organization";
+import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
+import { EMAIL_CHANNEL_ENABLED } from "@/lib/billing/plan-features";
 
 export type { GmailLabelOption };
 
@@ -116,12 +117,26 @@ export async function getGmailLabelOptions(agentId: string): Promise<
   }
 }
 
+async function ensurePlanAllowsEmail(orgId: string): Promise<string | null> {
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { plan: true },
+  });
+  if (!org || !EMAIL_CHANNEL_ENABLED[org.plan as keyof typeof EMAIL_CHANNEL_ENABLED]) {
+    return "Email channel is not available on your plan. Upgrade to continue.";
+  }
+  return null;
+}
+
 export async function disconnectGmail(agentId: string): Promise<
   { success: true } | { success: false; error: string }
 > {
   try {
     const orgId = await getOrgPrismaId();
     if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const planError = await ensurePlanAllowsEmail(orgId);
+    if (planError) return { success: false, error: planError };
 
     const agent = await prisma.agent.findFirst({
       where: { id: agentId, orgId },
@@ -144,6 +159,9 @@ export async function updateEmailChannelSettings(
   try {
     const orgId = await getOrgPrismaId();
     if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const planError = await ensurePlanAllowsEmail(orgId);
+    if (planError) return { success: false, error: planError };
 
     const parsed = updateEmailSettingsSchema.safeParse(input);
     if (!parsed.success) {
@@ -243,6 +261,9 @@ export async function sendGmailTestEmail(agentId: string): Promise<
   try {
     const orgId = await getOrgPrismaId();
     if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const planError = await ensurePlanAllowsEmail(orgId);
+    if (planError) return { success: false, error: planError };
 
     const agent = await prisma.agent.findFirst({
       where: { id: agentId, orgId },

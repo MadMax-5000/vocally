@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { connectGmailForAgent } from "@/lib/gmail/connect";
 import { verifyOAuthState } from "@/lib/gmail/oauth";
+import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { EMAIL_CHANNEL_ENABLED } from "@/lib/billing/plan-features";
 import { logServerError } from "@/lib/logger";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 
@@ -40,6 +42,16 @@ export async function GET(req: NextRequest) {
   if (!orgId || orgId !== payload.orgId) {
     const redirect = new URL(deployPath, req.url);
     redirect.searchParams.set("error", "unauthorized");
+    return NextResponse.redirect(redirect);
+  }
+
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { plan: true },
+  });
+  if (!org || !EMAIL_CHANNEL_ENABLED[org.plan as keyof typeof EMAIL_CHANNEL_ENABLED]) {
+    const redirect = new URL(deployPath, req.url);
+    redirect.searchParams.set("error", "Email channel not available on your plan");
     return NextResponse.redirect(redirect);
   }
 

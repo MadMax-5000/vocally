@@ -34,6 +34,34 @@ export const SOCIAL_CHANNELS_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTER
   ENTERPRISE: true,
 };
 
+export const ANALYTICS_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
+  FREE: false,
+  STARTER: true,
+  PRO: true,
+  ENTERPRISE: true,
+};
+
+export const SMS_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
+  FREE: false,
+  STARTER: false,
+  PRO: true,
+  ENTERPRISE: true,
+};
+
+export const EMAIL_CHANNEL_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
+  FREE: false,
+  STARTER: true,
+  PRO: true,
+  ENTERPRISE: true,
+};
+
+export const QA_SCORING_ENABLED: Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", boolean> = {
+  FREE: false,
+  STARTER: false,
+  PRO: true,
+  ENTERPRISE: true,
+};
+
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
   FREE: { madCents: 0 },
   STARTER: { madCents: 99999 },

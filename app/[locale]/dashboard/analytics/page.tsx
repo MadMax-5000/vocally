@@ -4,9 +4,17 @@ import { getTranslations } from "next-intl/server";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { getDashboardStats } from "@/lib/actions/sessions";
 import { Button } from "@/components/ui/button";
+import { getViewerPlan } from "@/lib/billing/get-viewer-plan";
+import { ANALYTICS_ENABLED } from "@/lib/billing/plan-features";
 
 export default async function AnalyticsPage() {
   const t = await getTranslations("dashboard.common");
+
+  const plan = await getViewerPlan();
+  if (!plan || !ANALYTICS_ENABLED[plan]) {
+    redirect("/dashboard/agents");
+  }
+
   const result = await getDashboardStats();
 
   if (!result.success) {

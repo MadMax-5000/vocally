@@ -35,7 +35,7 @@ import { AnselioLogo } from "@/components/brand/AnselioLogo"
 import { BRAND_NAME } from "@/lib/constants/brand"
 import { cn } from "@/lib/utils"
 import { OrgSwitcher } from "./OrgSwitcher"
-import { getEscalationCount } from "@/lib/actions/sessions"
+import { getEscalationCount, checkAnalyticsEnabled } from "@/lib/actions/sessions"
 import { getSupabaseBrowser } from "@/lib/supabase/client"
 
 type SidebarIcon = IconSvgElement | typeof KnowledgeIcon
@@ -101,11 +101,13 @@ export function AppSidebar() {
   const pathname = usePathname()
   const { state, isMobile, openMobile } = useSidebar()
   const [escalationCount, setEscalationCount] = React.useState(0)
+  const [analyticsEnabled, setAnalyticsEnabled] = React.useState(true)
 
   React.useEffect(() => {
     getEscalationCount().then((res) => {
       if (res.success) setEscalationCount(res.data)
     })
+    checkAnalyticsEnabled().then((res) => setAnalyticsEnabled(res.enabled))
 
     const supabase = getSupabaseBrowser()
     if (!supabase) return
@@ -143,7 +145,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>{t("operations")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {operationsItems.map((item) => (
+              {operationsItems.filter((item) => item.key !== "analytics" || analyticsEnabled).map((item) => (
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton
                     asChild

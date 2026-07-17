@@ -5,6 +5,7 @@ import { buildGoogleAuthUrl } from "@/lib/gmail/oauth";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
+import { EMAIL_CHANNEL_ENABLED } from "@/lib/billing/plan-features";
 
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
@@ -15,6 +16,15 @@ export async function GET(req: NextRequest) {
   const orgId = await getOrgPrismaId();
   if (!orgId) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
+  }
+
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: { plan: true },
+  });
+  if (!org || !EMAIL_CHANNEL_ENABLED[org.plan as keyof typeof EMAIL_CHANNEL_ENABLED]) {
+    const locale = getRequestLocale(req.headers);
+    return NextResponse.redirect(new URL(`/${locale}/dashboard/agents`, req.url));
   }
 
   const agentId = req.nextUrl.searchParams.get("agentId");

@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db/prisma";
-import { getOrgPrismaId } from "@/lib/server/organization";
+import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
+import { EMAIL_CHANNEL_ENABLED } from "@/lib/billing/plan-features";
 
 export type OrgEmailRow = {
   id: string;
@@ -91,6 +92,11 @@ export async function createOrgEmailAddress(input: unknown): Promise<
   const orgId = await getOrgPrismaId();
   if (!orgId) {
     return { success: false, error: "Select an organization first." };
+  }
+
+  const plan = await getOrgPlan();
+  if (!plan || !EMAIL_CHANNEL_ENABLED[plan as keyof typeof EMAIL_CHANNEL_ENABLED]) {
+    return { success: false, error: "Inbound email is not available on your plan. Upgrade to continue." };
   }
 
   const parsed = createSchema.safeParse(input);

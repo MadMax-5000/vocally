@@ -2,7 +2,8 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
-import { getOrgPrismaId } from "@/lib/server/organization";
+import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
+import { ANALYTICS_ENABLED, QA_SCORING_ENABLED } from "@/lib/billing/plan-features";
 import type { SessionStatus } from "@prisma/client";
 
 export type DashboardStats = {
@@ -610,6 +611,9 @@ export async function getAgentAnalytics(
     });
     if (!agent) return { success: false, error: "Agent not found" };
 
+    const plan = await getOrgPlan();
+    const qaEnabled = plan ? (QA_SCORING_ENABLED[plan as keyof typeof QA_SCORING_ENABLED] ?? false) : false;
+
     const now = new Date();
     const fourteenDaysAgo = new Date(now);
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 13);
@@ -624,7 +628,7 @@ export async function getAgentAnalytics(
         }),
         prisma.callLog.aggregate({
           where: { session: { agentId } },
-          _avg: { duration: true, qaScore: true, cost: true, llmCost: true },
+          _avg: { duration: true, ...(qaEnabled ? { qaScore: true } : {}), cost: true, llmCost: true },
           _sum: { cost: true, llmCost: true },
         }),
         prisma.session.groupBy({
@@ -673,7 +677,7 @@ export async function getAgentAnalytics(
         aiResolutionRate: totalSessions > 0 ? (resolvedByAI / totalSessions) * 100 : 0,
         averageSentiment: sentimentAgg._avg.sentiment ?? null,
         averageDuration: callLogAgg._avg.duration ?? null,
-        averageQaScore: callLogAgg._avg.qaScore ?? null,
+        averageQaScore: qaEnabled ? (callLogAgg._avg.qaScore ?? null) : null,
         totalCost: callLogAgg._sum.cost ?? 0,
         totalLlmCost: callLogAgg._sum.llmCost ?? 0,
         sessionsByChannel: channelGroups.map((g) => ({
@@ -820,4 +824,10 @@ export async function getLiveSessions(): Promise<
   } catch (err) {
     return { success: false, error: "Failed to load live sessions" };
   }
+}
+
+export async function checkAnalyticsEnabled(): Promise<{ enabled: boolean }> {
+  const plan = await getOrgPlan();
+  if (!plan) return { enabled: false };
+  return { enabled: ANALYTICS_ENABLED[plan as keyof typeof ANALYTICS_ENABLED] ?? false };
 }

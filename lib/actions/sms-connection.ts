@@ -12,7 +12,8 @@ import {
   getSmsWebhookUrl,
   isTwilioPlatformConfigured,
 } from "@/lib/deploy/sms-config";
-import { getOrgPrismaId } from "@/lib/server/organization";
+import { getOrgPlan, getOrgPrismaId } from "@/lib/server/organization";
+import { SMS_ENABLED } from "@/lib/billing/plan-features";
 
 export type AgentSmsSettings = {
   platformConfigured: boolean;
@@ -104,6 +105,11 @@ export async function connectSmsForAgent(
   try {
     const orgId = await getOrgPrismaId();
     if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const plan = await getOrgPlan();
+    if (!plan || !SMS_ENABLED[plan as keyof typeof SMS_ENABLED]) {
+      return { success: false, error: "SMS is not available on your plan. Upgrade to continue." };
+    }
 
     if (!isTwilioPlatformConfigured()) {
       return {

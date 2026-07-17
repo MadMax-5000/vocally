@@ -6,7 +6,7 @@ const MIB = 1024 * 1024;
 export function getKnowledgeStorageQuotaBytes(plan: Plan): number {
   switch (plan) {
     case Plan.FREE:
-      return 1 * MIB;
+      return 10 * MIB;
     case Plan.STARTER:
       return 50 * MIB;
     case Plan.PRO:
