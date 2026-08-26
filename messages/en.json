@@ -106,6 +106,24 @@
         }
       }
     },
+    "deployChannels": {
+      "title": "Build once and deploy everywhere.",
+      "cta": "Create Agent",
+      "steps": {
+        "chat": {
+          "label": "Chat",
+          "body": "Your customers can talk to your agent on your website, WhatsApp, Messenger, and more — one agent, every conversation."
+        },
+        "email": {
+          "label": "Email",
+          "body": "Handle inbound support emails automatically. Your agent reads, responds, and resolves — around the clock, without a queue."
+        },
+        "voice": {
+          "label": "Voice",
+          "body": "Let customers call and get instant answers. Your agent handles questions over voice with natural, conversational responses."
+        }
+      }
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
@@ -176,6 +194,54 @@
           "title": "Darija voice support is now live on Anselio",
           "description": "Deploy AI agents that speak natural Moroccan Arabic across voice and chat channels."
         }
+      }
+    },
+    "footer": {
+      "headline": "The AI concierge for every customer.",
+      "columns": {
+        "product": "Product",
+        "industries": "Industries",
+        "resources": "Resources",
+        "company": "Company"
+      },
+      "links": {
+        "overview": "Overview",
+        "aops": "AOPs",
+        "chat": "Chat",
+        "email": "Email",
+        "voice": "Voice",
+        "integrations": "Integrations",
+        "experiments": "Experiments",
+        "insights": "Insights & Reporting",
+        "customerSupport": "Customer Support",
+        "salesAgent": "Sales Agent",
+        "helpdesk": "HelpDesk",
+        "pricing": "Pricing",
+        "enterprise": "Enterprise",
+        "retail": "Retail",
+        "travel": "Travel & Hospitality",
+        "technology": "Technology",
+        "financial": "Financial Services",
+        "health": "Health & Wellness",
+        "media": "Media",
+        "telecom": "Telecommunication",
+        "education": "Education",
+        "fitness": "Fitness",
+        "customers": "Customers",
+        "resourcesHub": "Resources Hub",
+        "glossary": "Glossary",
+        "guide": "Guide",
+        "blog": "Blog",
+        "docs": "Docs",
+        "changelog": "Changelog",
+        "about": "About",
+        "careers": "Careers",
+        "privacy": "Privacy Policy",
+        "security": "Security",
+        "contactSales": "Contact Sales",
+        "contactSupport": "Contact Support",
+        "terms": "Terms of Service",
+        "cookies": "Cookie Notice"
       }
     }
   },

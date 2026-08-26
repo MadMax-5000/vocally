@@ -3,6 +3,7 @@ import { LandingHero } from "@/components/marketing/LandingHero";
 import { BentoShowcase } from "@/components/marketing/BentoShowcase";
 import { TrustShowcase } from "@/components/marketing/TrustShowcase";
 import { AgentLifecycle } from "@/components/marketing/agent-lifecycle/AgentLifecycle";
+import { DeployChannels } from "@/components/marketing/deploy-channels/DeployChannels";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 export default function HomePage() {
@@ -12,6 +13,7 @@ export default function HomePage() {
       <LandingHero />
       <TrustShowcase />
       <AgentLifecycle />
+      <DeployChannels />
       <BentoShowcase />
       <MarketingFooter />
     </main>

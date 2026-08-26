@@ -106,6 +106,24 @@
         }
       }
     },
+    "deployChannels": {
+      "title": "Construisez une fois, déployez partout.",
+      "cta": "Créer un agent",
+      "steps": {
+        "chat": {
+          "label": "Chat",
+          "body": "Vos clients parlent à votre agent sur le site, WhatsApp, Messenger et plus encore — un agent, chaque conversation."
+        },
+        "email": {
+          "label": "E-mail",
+          "body": "Traitez les e-mails de support automatiquement. Votre agent lit, répond et résout — 24h/24, sans file d'attente."
+        },
+        "voice": {
+          "label": "Voix",
+          "body": "Vos clients appellent et obtiennent une réponse immédiate. Votre agent gère les questions à la voix, de façon naturelle."
+        }
+      }
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
@@ -176,6 +194,54 @@
           "title": "Le support vocal Darija est maintenant disponible",
           "description": "Déployez des agents IA qui parlent un darija marocain naturel sur la voix et le chat."
         }
+      }
+    },
+    "footer": {
+      "headline": "Le concierge IA de chaque client.",
+      "columns": {
+        "product": "Produit",
+        "industries": "Secteurs",
+        "resources": "Ressources",
+        "company": "Entreprise"
+      },
+      "links": {
+        "overview": "Aperçu",
+        "aops": "AOPs",
+        "chat": "Chat",
+        "email": "E-mail",
+        "voice": "Voix",
+        "integrations": "Intégrations",
+        "experiments": "Expériences",
+        "insights": "Insights & Rapports",
+        "customerSupport": "Support client",
+        "salesAgent": "Agent commercial",
+        "helpdesk": "HelpDesk",
+        "pricing": "Tarifs",
+        "enterprise": "Entreprise",
+        "retail": "Retail",
+        "travel": "Voyage & Hôtellerie",
+        "technology": "Technologie",
+        "financial": "Services financiers",
+        "health": "Santé & Bien-être",
+        "media": "Médias",
+        "telecom": "Télécommunications",
+        "education": "Éducation",
+        "fitness": "Fitness",
+        "customers": "Clients",
+        "resourcesHub": "Centre de ressources",
+        "glossary": "Glossaire",
+        "guide": "Guide",
+        "blog": "Blog",
+        "docs": "Documentation",
+        "changelog": "Journal des modifications",
+        "about": "À propos",
+        "careers": "Carrières",
+        "privacy": "Politique de confidentialité",
+        "security": "Sécurité",
+        "contactSales": "Contacter les ventes",
+        "contactSupport": "Contacter le support",
+        "terms": "Conditions d'utilisation",
+        "cookies": "Politique des cookies"
       }
     }
   },
