@@ -14,9 +14,9 @@
     },
     "productAssistant": {
       "fallbackName": "هناك",
-      "welcomeMessage": "مرحبًا {firstName}! أنا مساعد منتجات Vocally. اسألني عن الميزات أو الإعداد أو الفوترة أو استكشاف الأخطاء وإصلاحها.",
-      "agentName": "اسأل Vocally",
-      "placeholder": "اسأل عن Vocally...",
+      "welcomeMessage": "مرحبًا {firstName}! أنا مساعد منتجات Anselio. اسألني عن الميزات أو الإعداد أو الفوترة أو استكشاف الأخطاء وإصلاحها.",
+      "agentName": "اسأل Anselio",
+      "placeholder": "اسأل عن Anselio...",
       "contactSupport": "اتصل بالدعم",
       "suggestions": {"createAgent": "كيف أنشئ أول وكيل ذكاء اصطناعي؟", "plans": "ما الخطط التي تقدمونها؟", "connectTwilio": "كيف أوصل Twilio؟", "deployWidget": "كيف أنشر أداة الدردشة؟", "knowledgeBase": "كيف تعمل قاعدة المعرفة؟"}
     },

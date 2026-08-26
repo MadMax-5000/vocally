@@ -27,6 +27,7 @@ model Organization {
   knowledgeFolders           KnowledgeFolder[]
   whatsappNumbers            WhatsappPhoneNumber[]
   twilioNumbers              TwilioPhoneNumber[]
+  sipCredentials             SipCredential[]
   smsNumbers                 SmsPhoneNumber[]
   emailAddresses             EmailAddress[]
   gmailConnections           GmailConnection[]
@@ -579,19 +580,42 @@ model TwilioPhoneNumber {
   agentId String?
   agent   Agent?       @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
-  twilioNumber  String   @unique
-  customerNumber String? /// The customer's own phone number (e.g. +2126XXXXXXXX) that forwards to this DID
-  isActive     Boolean  @default(true)
+  twilioNumber   String   @unique
+  customerNumber String?  @unique /// The customer's own phone number (e.g. +2126XXXXXXXX) that forwards to this DID
+  isActive       Boolean  @default(true)
+  forwardingVerifiedAt DateTime? /// Set when the first inbound call hits this DID with a customerNumber
 
-  // Telnyx / Vapi BYOC fields
-  telnyxOrderId      String? /// Telnyx number order ID (for cleanup/release)
-  vapiPhoneNumberId  String? /// Vapi BYO phone number resource ID (for call routing)
+  // BYO SIP fields
+  sipCredentialId String?
+  sipCredential   SipCredential? @relation(fields: [sipCredentialId], references: [id], onDelete: SetNull)
+  vapiPhoneNumberId String?  /// Vapi phone number resource ID (for call routing)
+
+  // DIDWW managed number fields
+  didwwNumberId String?  /// DIDWW DID resource ID (for managed numbers)
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@index([orgId])
   @@index([twilioNumber])
+  @@index([didwwNumberId])
+}
+
+model SipCredential {
+  id                String   @id @default(cuid())
+  orgId             String
+  org               Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name              String   /// Provider label: "Telnyx", "Plivo", "DIDHub", etc.
+  sipServer         String   /// SIP gateway hostname: "sip.telnyx.com", "sip.plivo.com"
+  sipUsername       String
+  sipPassword       String
+  vapiCredentialId  String?  /// Vapi BYO SIP credential ID
+  phoneNumbers      TwilioPhoneNumber[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([orgId, sipServer, sipUsername])
+  @@index([orgId])
 }
 
 model SmsPhoneNumber {

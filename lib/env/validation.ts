@@ -10,6 +10,14 @@ const CRITICAL_VARS: { key: string; label: string }[] = [
   { key: "HANDOFF_PHONE_NUMBER", label: "Human agent handoff phone number" },
 ];
 
+/** Required to provision / receive phone calls (checked at deploy time). */
+const PHONE_DEPLOY_VARS: { key: string; label: string }[] = [
+  { key: "NEXT_PUBLIC_APP_URL", label: "Public app URL (Vapi phone serverUrl)" },
+  { key: "VAPI_API_KEY", label: "Vapi API key" },
+  { key: "PBXME_USERNAME", label: "PBXme username (Moroccan number provisioning)" },
+  { key: "PBXME_PASSWORD", label: "PBXme password" },
+];
+
 let _validated = false;
 
 export function validateEnv(): void {
@@ -33,7 +41,21 @@ export function validateEnv(): void {
     throw new Error(
       `Missing critical environment variables:\n${details}\n\n` +
         `Set them in your .env.local file or environment configuration.\n` +
-        `See .env.example for the full list of available variables.`,
+        `See .env.example and docs/phone-setup.md for phone channel setup.`,
     );
   }
+}
+
+/**
+ * Throws if phone deploy env is incomplete.
+ * Call before Vapi provisioning.
+ */
+export function assertPhoneDeployEnv(): void {
+  const missing = PHONE_DEPLOY_VARS.filter((v) => !process.env[v.key]?.trim());
+  if (missing.length === 0) return;
+
+  const details = missing.map((m) => `  • ${m.key} — ${m.label}`).join("\n");
+  throw new Error(
+    `Phone deploy is not configured:\n${details}\n\nSee docs/phone-setup.md.`,
+  );
 }

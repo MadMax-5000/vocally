@@ -17,18 +17,20 @@
   },
   "landing": {
     "hero": {
-      "titlePart1": "AI Agents that take care of your",
-      "subtitle": "Replace rigid IVR menus with conversational AI that actually resolves issues. Available in French, Arabic, and Darija.",
-      "tryForFree": "Try for free",
-      "noCreditCard": "No credit card required"
+      "titleLine1": "Conversational",
+      "titleAccent": "agents",
+      "titleLine2": "for your",
+      "subtitle": "AI agents that meet customers at every stage of their journey, across chat, email, and voice, to resolve issues end to end and increase revenue.",
+      "startFreeTrial": "Start free trial",
+      "getDemo": "Get a demo"
     },
     "rotatingWords": {
       "bakery": "bakery",
       "clinic": "clinic",
       "agency": "agency",
-      "salons": "salons",
-      "lawyer": "lawyer",
-      "stores": "stores"
+      "salons": "salon",
+      "lawyer": "office",
+      "stores": "store"
     },
     "voiceSpheres": {
       "spheres": {
@@ -79,8 +81,30 @@
       "headerTitle": "Deploy AI agents that deliver premium customer experiences across every channel"
     },
     "trust": {
-      "title": "Trusted by modern teams",
-      "subtitle": "Join thousands of businesses that automate support with Anselio."
+      "title": "One agent for every customer interaction,",
+      "subtitle": "runs support, sales, and product guidance 24/7"
+    },
+    "lifecycle": {
+      "title": "The agent lifecycle",
+      "cta": "Create Agent",
+      "steps": {
+        "build": {
+          "label": "Build",
+          "body": "Connect your data sources, define your agent's role, and set guardrails. No code required — ready in minutes."
+        },
+        "test": {
+          "label": "Test",
+          "body": "Run real customer scenarios before going live. Validate accuracy, brand consistency, and edge case handling across every channel."
+        },
+        "deploy": {
+          "label": "Deploy",
+          "body": "Publish your agent across chat, WhatsApp, email, Slack, and more with a single click. Goes live instantly."
+        },
+        "optimize": {
+          "label": "Optimize",
+          "body": "Track resolution rates, review escalations, and refine instructions. Your agent improves with every conversation."
+        }
+      }
     },
     "nav": {
       "labels": {

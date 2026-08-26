@@ -24,7 +24,7 @@ function MegaTrigger({ id, label }: { id: MegaId; label: string }) {
       onFocus={() => openMega(id)}
       onBlur={scheduleClose}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md px-3 py-2 text-nav-link transition-colors duration-150 ease-out",
+        "inline-flex h-8 items-center gap-1 rounded-md px-3 text-nav-link leading-none transition-colors duration-150 ease-out",
         isActive ? "text-ink" : "text-ink/70 hover:text-ink",
       )}
     >
@@ -61,7 +61,7 @@ export function LandingNavDesktop() {
         <Link
           key={link.id}
           href={link.href}
-          className="rounded-md px-3 py-2 text-nav-link text-ink/70 transition-colors duration-150 ease-out hover:text-ink"
+          className="inline-flex h-8 items-center rounded-md px-3 text-nav-link leading-none text-ink/70 transition-colors duration-150 ease-out hover:text-ink"
         >
           {t(`labels.${link.labelKey}`)}
         </Link>

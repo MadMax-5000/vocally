@@ -5,6 +5,7 @@ import {
   resolveActiveAgent,
   getMonthlyCallMinutes,
 } from "@/lib/twilio/voice/handler";
+import { markForwardingVerified } from "@/lib/twilio/provision-number";
 import { getToolDefinitionsForAgent } from "@/lib/ai/tools/registry";
 import { prisma } from "@/lib/db/prisma";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
@@ -12,8 +13,112 @@ import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-acti
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { getHandoffPhoneNumber } from "@/server/websocket/escalate-call";
 import { logServerWarning } from "@/lib/logger";
+import { generateEmbedding } from "@/lib/ai/embeddings";
+import { similaritySearch } from "@/lib/knowledge/vector-store";
 
 import { buildVoiceEscalationPromptSection } from "./voice-escalation-prompt";
+
+type VoiceChannelConfig = {
+  greeting?: string;
+  language?: string;
+  bargeIn?: boolean;
+  timeout?: number;
+  voicemailDetection?: boolean;
+  handoffPhone?: string;
+};
+
+function mapLanguageCode(
+  channelLanguage: string | undefined,
+  agentDefault: string,
+): { promptLanguage: string; detectedLanguage: string; isArabicOrDarija: boolean } {
+  const fromChannel = channelLanguage && channelLanguage !== "auto" ? channelLanguage : null;
+
+  if (fromChannel === "ar" || fromChannel === "arabic") {
+    return { promptLanguage: "Arabic", detectedLanguage: "ar", isArabicOrDarija: true };
+  }
+  if (fromChannel === "ary" || fromChannel === "darija") {
+    return { promptLanguage: "Darija", detectedLanguage: "ary", isArabicOrDarija: true };
+  }
+  if (fromChannel === "fr" || fromChannel === "french") {
+    return { promptLanguage: "French", detectedLanguage: "fr", isArabicOrDarija: false };
+  }
+  if (fromChannel === "en" || fromChannel === "english") {
+    return { promptLanguage: "English", detectedLanguage: "en", isArabicOrDarija: false };
+  }
+
+  const detectedLanguage =
+    agentDefault === "ARABIC"
+      ? "ar"
+      : agentDefault === "DARIJA"
+        ? "ary"
+        : agentDefault === "FRENCH"
+          ? "fr"
+          : "en";
+
+  const promptLanguage =
+    detectedLanguage === "ar"
+      ? "Arabic"
+      : detectedLanguage === "ary"
+        ? "Darija"
+        : detectedLanguage === "fr"
+          ? "French"
+          : "English";
+
+  return {
+    promptLanguage,
+    detectedLanguage,
+    isArabicOrDarija: detectedLanguage === "ar" || detectedLanguage === "ary",
+  };
+}
+
+function resolveGreeting(
+  config: VoiceChannelConfig,
+  agentName: string,
+  welcomeMessage: string | null,
+  detectedLanguage: string,
+): string {
+  if (typeof config.greeting === "string" && config.greeting.trim().length > 0) {
+    return config.greeting.replaceAll("{agentName}", agentName).trim();
+  }
+  if (welcomeMessage?.trim()) return welcomeMessage.trim();
+
+  if (detectedLanguage === "ar" || detectedLanguage === "ary") {
+    return "مرحباً، كيف يمكنني مساعدتك؟";
+  }
+  if (detectedLanguage === "fr") {
+    return "Bonjour, comment puis-je vous aider aujourd'hui ?";
+  }
+  return "Hello, how can I help you today?";
+}
+
+async function retrieveVoiceKnowledgeContext(params: {
+  orgId: string;
+  agentId: string;
+  seedQuery: string;
+}): Promise<string> {
+  try {
+    const agentDocs = await prisma.agentKnowledgeDoc.findMany({
+      where: { agentId: params.agentId },
+      select: { knowledgeDocId: true },
+    });
+    const attachedDocIds = agentDocs.map((d) => d.knowledgeDocId);
+
+    const { embedding } = await generateEmbedding(params.seedQuery);
+    let results = await similaritySearch(embedding, params.orgId, 5, 0.7, attachedDocIds);
+
+    if (results.length === 0 && attachedDocIds.length > 0) {
+      results = await similaritySearch(embedding, params.orgId, 5, 0.55, attachedDocIds);
+    }
+
+    if (results.length === 0) return "";
+    return results.map((r) => `[${r.docTitle}] ${r.content}`).join("\n\n");
+  } catch (err) {
+    logServerWarning("[Vapi] Voice knowledge retrieval failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return "";
+  }
+}
 
 export async function handleAssistantRequest(message: {
   call?: {
@@ -39,13 +144,19 @@ export async function handleAssistantRequest(message: {
   }
 
   if (!orgId) {
-    logServerWarning(`[Vapi] Could not resolve orgId for phone number: ${twilioNumber}`, { twilioNumber: twilioNumber ?? "unknown" });
+    logServerWarning(`[Vapi] Could not resolve orgId for phone number: ${twilioNumber}`, {
+      twilioNumber: twilioNumber ?? "unknown",
+    });
     return { assistant: null };
   }
 
   const { used, max } = await getMonthlyCallMinutes(orgId);
   if (max !== Infinity && used >= max) {
-    logServerWarning(`[Vapi] Monthly call minute limit reached for orgId: ${orgId}`, { orgId, used, max });
+    logServerWarning(`[Vapi] Monthly call minute limit reached for orgId: ${orgId}`, {
+      orgId,
+      used,
+      max,
+    });
     return { assistant: null };
   }
 
@@ -63,12 +174,18 @@ export async function handleAssistantRequest(message: {
     agentId,
     callerNumber: callerNumber || "Unknown",
     callSid: call?.id || "unknown-vapi-call",
+    vapiCallId: vapiCallId ?? null,
   });
 
-  await prisma.callLog.update({
-    where: { sessionId },
-    data: { vapiCallId },
-  });
+  if (twilioNumber) {
+    try {
+      await markForwardingVerified(twilioNumber);
+    } catch (err) {
+      logServerWarning("[Vapi] Failed to mark forwarding verified", {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
 
   const agent = await prisma.agent.findUnique({
     where: { id: agentId },
@@ -82,19 +199,40 @@ export async function handleAssistantRequest(message: {
     return { assistant: null };
   }
 
+  const voiceChannel = agent.channels.find((c) => c.channel === "VOICE_CALLS");
+  const voiceConfig = (voiceChannel?.config ?? {}) as VoiceChannelConfig;
+
+  const { promptLanguage, detectedLanguage, isArabicOrDarija } = mapLanguageCode(
+    voiceConfig.language,
+    agent.defaultLanguage,
+  );
+
+  const firstMessage = resolveGreeting(
+    voiceConfig,
+    agent.name,
+    agent.welcomeMessage,
+    detectedLanguage,
+  );
+
+  const bargeIn = voiceConfig.bargeIn !== false;
+  const silenceTimeoutSeconds =
+    typeof voiceConfig.timeout === "number" && voiceConfig.timeout > 0
+      ? Math.min(Math.max(voiceConfig.timeout, 5), 60)
+      : 15;
+
   const escalationConfig = resolveEscalationAction(agent.channels);
   const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
-  const handoffActive = agent.handoffEnabled && escalationConfig.enabled;
 
+  // Voice transfer depends on Phone settings handoff number (or HANDOFF_PHONE_NUMBER),
+  // not Web Chat escalations.
   let handoffAvailable = false;
-  if (handoffActive) {
-    try {
-      await getHandoffPhoneNumber(agentId);
-      handoffAvailable = true;
-    } catch {
-      handoffAvailable = false;
-    }
+  try {
+    await getHandoffPhoneNumber(agentId);
+    handoffAvailable = true;
+  } catch {
+    handoffAvailable = false;
   }
+  const handoffActive = handoffAvailable;
 
   const tools = getToolDefinitionsForAgent({
     allowCreateTicket: escalationConfig.allowCreateTicketTool,
@@ -131,28 +269,25 @@ export async function handleAssistantRequest(message: {
 
   const instructions = [agent.instructions, escalationPrompt].filter(Boolean).join("\n\n");
 
+  const knowledgeContext = await retrieveVoiceKnowledgeContext({
+    orgId,
+    agentId,
+    seedQuery: `${agent.name}. ${agent.instructions?.slice(0, 400) ?? ""}`,
+  });
+
   const systemPrompt = voiceBotSystemPromptV1({
     agentName: agent.name,
     orgName: agent.org.name,
     instructions,
-    knowledgeContext: "",
-    language: agent.defaultLanguage,
+    knowledgeContext,
+    language: promptLanguage,
     toolDefinitions: tools,
-    bookAppointment: bookAppointmentAction.enabled
-      ? bookAppointmentAction
-      : undefined,
+    bookAppointment: bookAppointmentAction.enabled ? bookAppointmentAction : undefined,
   });
 
-  const detectedLanguage: string =
-    agent.defaultLanguage === "ARABIC"
-      ? "ar"
-      : agent.defaultLanguage === "DARIJA"
-        ? "ary"
-        : agent.defaultLanguage === "FRENCH"
-          ? "fr"
-          : "en";
-  const isArabicOrDarija =
-    detectedLanguage === "ar" || detectedLanguage === "ary";
+  const interruptionSettings = bargeIn
+    ? { numWordsToInterruptAssistant: 2 }
+    : { numWordsToInterruptAssistant: 100 };
 
   let assistantConfig: Record<string, unknown> = {};
 
@@ -172,13 +307,10 @@ export async function handleAssistantRequest(message: {
         stability: 0.45,
         similarityBoost: 0.8,
       },
-      firstMessage:
-        agent.welcomeMessage ||
-        (detectedLanguage === "ar" || detectedLanguage === "ary"
-          ? "مرحباً، كيف يمكنني مساعدتك؟"
-          : detectedLanguage === "fr"
-            ? "Bonjour, comment puis-je vous aider aujourd'hui ?"
-            : "Hello, how can I help you today?"),
+      firstMessage,
+      silenceTimeoutSeconds,
+      ...interruptionSettings,
+      voicemailDetectionEnabled: voiceConfig.voicemailDetection === true,
     };
   } else {
     assistantConfig = {
@@ -191,11 +323,10 @@ export async function handleAssistantRequest(message: {
         tools,
       },
       voice: VOICE_STACK_CONFIG.PIPELINES.realtime.voice,
-      firstMessage:
-        agent.welcomeMessage ||
-        (detectedLanguage === "fr"
-          ? "Bonjour, comment puis-je vous aider aujourd'hui ?"
-          : "Hello, how can I help you today?"),
+      firstMessage,
+      silenceTimeoutSeconds,
+      ...interruptionSettings,
+      voicemailDetectionEnabled: voiceConfig.voicemailDetection === true,
     };
   }
 

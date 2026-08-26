@@ -14,9 +14,9 @@
     },
     "productAssistant": {
       "fallbackName": "vous",
-      "welcomeMessage": "Bonjour {firstName} ! Je suis votre assistant produit Vocally. Posez-moi vos questions sur les fonctionnalités, la configuration, la facturation ou le dépannage.",
-      "agentName": "Demander à Vocally",
-      "placeholder": "Demander à Vocally...",
+      "welcomeMessage": "Bonjour {firstName} ! Je suis votre assistant produit Anselio. Posez-moi vos questions sur les fonctionnalités, la configuration, la facturation ou le dépannage.",
+      "agentName": "Demander à Anselio",
+      "placeholder": "Demander à Anselio...",
       "contactSupport": "Contacter l’assistance",
       "suggestions": {"createAgent": "Comment créer mon premier agent IA ?", "plans": "Quelles offres proposez-vous ?", "connectTwilio": "Comment connecter Twilio ?", "deployWidget": "Comment déployer le widget de chat ?", "knowledgeBase": "Comment fonctionne la base de connaissances ?"}
     },

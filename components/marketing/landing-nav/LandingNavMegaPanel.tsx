@@ -190,60 +190,67 @@ export function LandingNavMegaPanel() {
     <div
       className={[
         "absolute inset-x-0 top-full z-40 hidden lg:block",
-        isOpen ? "pointer-events-auto" : "pointer-events-none",
+        // Outer shell stays non-interactive so left/right exits aren't trapped
+        // by the full-width inset-x-0 hit area; hover lives on the panel width.
+        "pointer-events-none",
       ].join(" ")}
-      onMouseEnter={cancelClose}
-      onMouseLeave={scheduleClose}
     >
       <div className={[container, "flex justify-center"].join(" ")}>
-        <div className="w-[660px] max-w-full">
-        {/* Invisible hover bridge between triggers and panel */}
-        <div className="h-2.5" aria-hidden />
+        <div
+          className={[
+            "w-[660px] max-w-full",
+            isOpen ? "pointer-events-auto" : "pointer-events-none",
+          ].join(" ")}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
+          {/* Invisible hover bridge between triggers and panel */}
+          <div className="h-2.5" aria-hidden />
 
-        <AnimatePresence initial={false}>
-          {isOpen && activeMega ? (
-            <motion.div
-              key="shell"
-              initial={reduced ? { opacity: 0 } : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduced ? { opacity: 0 } : { opacity: 0, y: 4 }}
-              transition={isOpen ? PANEL_OPEN : PANEL_CLOSE}
-              className="w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card shadow-[0_16px_48px_-8px_rgba(12,10,9,0.12)]"
-            >
-              {/* Real-height morph — smooth, no distortion, no push-down */}
+          <AnimatePresence initial={false}>
+            {isOpen && activeMega ? (
               <motion.div
-                animate={{ height: height ?? "auto" }}
-                transition={reduced ? { duration: 0 } : HEIGHT_MORPH}
-                style={{ overflow: "hidden" }}
+                key="shell"
+                initial={reduced ? { opacity: 0 } : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, y: 4 }}
+                transition={isOpen ? PANEL_OPEN : PANEL_CLOSE}
+                className="w-full overflow-hidden rounded-2xl border border-hairline bg-surface-card shadow-[0_16px_48px_-8px_rgba(12,10,9,0.12)]"
               >
-                {/* popLayout keeps the exiting panel out of flow so the two
-                    never stack — they overlap and crossfade instead. */}
-                <AnimatePresence
-                  mode="popLayout"
-                  initial={false}
-                  custom={direction}
+                {/* Real-height morph — smooth, no distortion, no push-down */}
+                <motion.div
+                  animate={{ height: height ?? "auto" }}
+                  transition={reduced ? { duration: 0 } : HEIGHT_MORPH}
+                  style={{ overflow: "hidden" }}
                 >
-                  <motion.div
-                    key={activeMega}
-                    ref={measureRef}
+                  {/* popLayout keeps the exiting panel out of flow so the two
+                      never stack — they overlap and crossfade instead. */}
+                  <AnimatePresence
+                    mode="popLayout"
+                    initial={false}
                     custom={direction}
-                    variants={contentVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={reduced ? { duration: 0 } : CONTENT_SWAP}
                   >
-                    {activeMega === "solutions" ? (
-                      <SolutionsContent />
-                    ) : (
-                      <ResourcesContent />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
+                    <motion.div
+                      key={activeMega}
+                      ref={measureRef}
+                      custom={direction}
+                      variants={contentVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={reduced ? { duration: 0 } : CONTENT_SWAP}
+                    >
+                      {activeMega === "solutions" ? (
+                        <SolutionsContent />
+                      ) : (
+                        <ResourcesContent />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
     </div>

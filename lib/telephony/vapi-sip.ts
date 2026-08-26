@@ -1,4 +1,6 @@
+import { getAppOrigin } from "@/lib/deploy/sms-config";
 import { logServerWarning } from "@/lib/logger";
+import { normalizeE164 } from "@/lib/telephony/e164";
 
 const VAPI_BASE = "https://api.vapi.ai";
 
@@ -20,7 +22,7 @@ function vapiHeaders() {
 type VapiCredentialResponse = {
   id: string;
   provider: string;
-  name: string;
+  name?: string;
 };
 
 type VapiPhoneNumberResponse = {
@@ -30,25 +32,18 @@ type VapiPhoneNumberResponse = {
   name?: string;
 };
 
-// ── Telnyx SIP Trunk Credential ────────────────────────────────────────────
-
-/**
- * Cached credential ID to avoid creating duplicates.
- * In production, store this in DB or env. For now, use env var as source of truth.
- */
-export function getVapiTelnyxCredentialId(): string | null {
-  return process.env.VAPI_TELNYX_CREDENTIAL_ID ?? null;
+/** Vapi server webhook for assistant-request / tool-calls / end-of-call. */
+export function getVapiWebhookUrl(): string {
+  return `${getAppOrigin()}/api/webhooks/vapi`;
 }
 
 /**
- * Create a BYOC SIP trunk credential in Vapi for Telnyx.
- * Returns the credential ID. Only call this once during setup.
- *
- * Telnyx gateway IPs are static — these are the standard Telnyx SIP ingress points.
- * See: https://docs.vapi.ai/advanced/sip/telnyx
+ * Create a BYO SIP trunk credential in Vapi for any provider.
+ * Works with Telnyx, Plivo, DIDHub, didlogic, or any standard SIP provider.
  */
-export async function createTelnyxSipCredential(options: {
-  name?: string;
+export async function createByoSipCredential(options: {
+  name: string;
+  sipServer: string;
   sipUsername: string;
   sipPassword: string;
 }): Promise<string> {
@@ -57,16 +52,15 @@ export async function createTelnyxSipCredential(options: {
     headers: vapiHeaders(),
     body: JSON.stringify({
       provider: "byo-sip-trunk",
-      name: options.name ?? "telnyx-prod",
+      name: options.name,
       gateways: [
-        { ip: "192.76.120.10", inboundEnabled: true },
-        { ip: "64.16.250.10", inboundEnabled: true },
+        { ip: options.sipServer, inboundEnabled: true },
       ],
       outboundAuthenticationPlan: {
         authUsername: options.sipUsername,
         authPassword: options.sipPassword,
         sipRegisterPlan: {
-          realm: "sip.telnyx.com",
+          realm: options.sipServer,
         },
       },
       outboundLeadingPlusEnabled: true,
@@ -75,36 +69,39 @@ export async function createTelnyxSipCredential(options: {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Vapi Telnyx credential creation failed: ${res.status} ${text}`);
+    throw new Error(`Vapi BYO SIP credential creation failed: ${res.status} ${text}`);
   }
 
   const data: VapiCredentialResponse = await res.json();
-  logServerWarning("[Vapi SIP] Created Telnyx credential", { credentialId: data.id });
+  logServerWarning("[Vapi SIP] Created BYO SIP credential", {
+    name: options.name,
+    credentialId: data.id,
+    sipServer: options.sipServer,
+  });
   return data.id;
 }
 
-// ── BYO Phone Number ───────────────────────────────────────────────────────
-
 /**
- * Import a Telnyx phone number into Vapi as a BYO phone number.
- *
- * @param number - The number in E.164 format (e.g. "+212522XXXXXX")
- * @param credentialId - The Vapi SIP trunk credential ID for Telnyx
- * @returns The Vapi phone number ID
+ * Import a BYO phone number into Vapi with a given credential.
+ * The number must already be active on the SIP provider's side.
  */
 export async function importByoPhoneNumber(
   number: string,
   credentialId: string,
 ): Promise<string> {
+  const e164 = normalizeE164(number);
+  const serverUrl = getVapiWebhookUrl();
+
   const res = await fetch(`${VAPI_BASE}/phone-number`, {
     method: "POST",
     headers: vapiHeaders(),
     body: JSON.stringify({
       provider: "byo-phone-number",
-      name: `telnyx-${number}`,
-      number,
+      name: `byo-${e164}`,
+      number: e164,
       numberE164CheckEnabled: false,
       credentialId,
+      server: { url: serverUrl },
     }),
   });
 
@@ -114,12 +111,12 @@ export async function importByoPhoneNumber(
   }
 
   const data: VapiPhoneNumberResponse = await res.json();
-  logServerWarning("[Vapi SIP] Imported BYO number", { number, vapiId: data.id });
+  logServerWarning("[Vapi SIP] Imported BYO number", { number: e164, vapiId: data.id });
   return data.id;
 }
 
 /**
- * Delete a BYO phone number from Vapi.
+ * Delete a phone number from Vapi.
  */
 export async function deleteByoPhoneNumber(
   vapiPhoneNumberId: string,
@@ -131,16 +128,13 @@ export async function deleteByoPhoneNumber(
 
   if (!res.ok && res.status !== 404) {
     const text = await res.text();
-    logServerWarning("[Vapi SIP] Failed to delete phone number", {
+    logServerWarning("[Vapi] Failed to delete phone number", {
       vapiPhoneNumberId,
       error: text,
     });
   }
 }
 
-/**
- * Get a Vapi phone number by ID.
- */
 export async function getVapiPhoneNumber(
   vapiPhoneNumberId: string,
 ): Promise<VapiPhoneNumberResponse | null> {

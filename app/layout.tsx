@@ -6,7 +6,7 @@ import { BRAND_NAME } from "@/lib/constants/brand";
 import { getLocale } from "next-intl/server";
 
 import "./globals.css";
-import { inter } from "./fonts";
+import { inter, instrumentSerif } from "./fonts";
 
 export const metadata: Metadata = {
   title: BRAND_NAME,
@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   if (locale === "ar") localization = arSA;
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} antialiased`}>
+    <html lang={locale} dir={dir} className={`${inter.variable} ${instrumentSerif.variable} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
         <ClerkProvider
           localization={localization}

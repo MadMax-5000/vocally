@@ -10,8 +10,6 @@ const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   experimental: {
-    // Reduce peak RAM during webpack compile (Next.js 14.2+).
-    webpackMemoryOptimizations: true,
     // Run webpack in a worker process to lower main-process memory.
     webpackBuildWorker: true,
   },

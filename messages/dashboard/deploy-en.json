@@ -91,7 +91,7 @@
       },
       "phone": {
         "title": "Phone",
-        "subtitle": "Connect a Twilio number via Vapi for AI voice calls",
+        "subtitle": "Connect your Moroccan number so AI agents can answer inbound calls",
         "numbers": "Numbers",
         "enable": "Enable phone deployment",
         "configuration": "Phone configuration"

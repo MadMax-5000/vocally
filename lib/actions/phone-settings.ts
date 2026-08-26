@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
-import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
 export type PhoneSettings = {
@@ -11,6 +10,7 @@ export type PhoneSettings = {
   timeout: number;
   voicemailDetection: boolean;
   handoffPhone: string;
+  /** True when a handoff number is set — voice transfer does not require Web Chat escalations. */
   escalationsEnabled: boolean;
 };
 
@@ -37,8 +37,6 @@ export async function getPhoneSettings(
       select: {
         id: true,
         name: true,
-        handoffEnabled: true,
-        channels: { select: { channel: true, enabled: true, config: true } },
       },
     });
     if (!agent) return { success: false, error: "Agent not found" };
@@ -49,7 +47,8 @@ export async function getPhoneSettings(
     });
 
     const config = (channel?.config ?? {}) as Record<string, unknown>;
-    const escalation = resolveEscalationAction(agent.channels);
+    const handoffPhone =
+      typeof config.handoffPhone === "string" ? config.handoffPhone : "";
 
     return {
       success: true,
@@ -61,8 +60,8 @@ export async function getPhoneSettings(
         timeout: (config.timeout as number) ?? DEFAULT_SETTINGS.timeout,
         voicemailDetection:
           (config.voicemailDetection as boolean) ?? DEFAULT_SETTINGS.voicemailDetection,
-        handoffPhone: (config.handoffPhone as string) ?? "",
-        escalationsEnabled: agent.handoffEnabled && escalation.enabled,
+        handoffPhone,
+        escalationsEnabled: handoffPhone.trim().length > 0,
       },
     };
   } catch (error: unknown) {

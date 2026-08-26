@@ -230,28 +230,16 @@ function TrustCard({ bgSrc, bgAlt, overlay, eyebrow, body }: TrustCardProps) {
 
 export async function TrustShowcase() {
   const t = await getTranslations("landing.trust");
-  const tc = await getTranslations("common");
   return (
-    <section id="trust" className="border-t border-hairline bg-canvas py-section">
+    <section id="trust" className="border-t border-hairline bg-surface-card py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}
-        <div className="max-w-[800px]">
-          <div className="text-[12px] font-semibold tracking-[0.96px] uppercase text-muted">
-            Trust &amp; security
-          </div>
-          <h2 className="mt-4 font-display text-display-lg tracking-tighter text-ink text-balance md:text-display-xl">
-            {t("title")}
+        <div className="max-w-[900px]">
+          <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-balance md:text-[2.5rem]">
+            <span className="text-ink">{t("title")}</span>{" "}
+            <span className="text-muted">{t("subtitle")}</span>
           </h2>
-          <p className="mt-4 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty">
-            {t("subtitle")}
-          </p>
-          <a
-            href="/dashboard"
-            className="mt-6 inline-flex h-9 items-center rounded-md bg-ink px-4 py-1.5 text-button text-on-primary transition-colors hover:bg-body-strong"
-          >
-            {tc("learnMore")}
-          </a>
         </div>
 
         {/* ── 3-up cards ── */}

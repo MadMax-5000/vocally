@@ -139,14 +139,13 @@ enum AgentRole { AGENT SUPERVISOR ADMIN }
 ## 6. Core Feature Modules
 
 ### 6.1 Voice AI Pipeline (Inbound Calls)
-- Twilio webhook hits `/api/webhooks/twilio/voice`
-- Stream audio via Twilio Media Streams WebSocket → OpenAI Whisper (streaming ASR)
-- Feed transcript chunks into LLM (via OpenRouter) with org-specific system prompt
-- LLM response → Amazon Polly/Azure TTS → audio back to caller
+- **Default (`VOICE_PIPELINE=vapi`)**: Telnyx Moroccan DID → Vapi → `POST /api/webhooks/vapi` (`assistant-request` builds the agent). Dashboard: Deploy → Phone. See `docs/phone-setup.md`.
+- Businesses keep their carrier `+212` number via USSD call forwarding to the Telnyx DID (or use a provisioned DID directly).
+- Legacy Twilio Media Streams (`/api/webhooks/twilio/voice` → `/ws/media-streams`) only when `VOICE_PIPELINE` is not `vapi`.
 - Support **barge-in**: caller can interrupt prompts naturally
 - Use DTMF (keypad) for sensitive data (PINs, card numbers) — never ask for these in voice
-- Keep latency < 800ms round-trip; use streaming APIs everywhere possible
-- Detect language automatically via Whisper; switch LLM system prompt language accordingly
+- Keep latency low; prefer streaming / realtime APIs
+- Language: phone settings + agent default language; AR/Darija use cascaded STT+LLM+TTS
 - Always provide fallback: if confidence is low or user says "human" / "agent", escalate
 
 ### 6.2 Chat & Messaging (Text Channels)

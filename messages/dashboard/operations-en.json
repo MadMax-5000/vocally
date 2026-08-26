@@ -26,9 +26,9 @@
     },
     "productAssistant": {
       "fallbackName": "there",
-      "welcomeMessage": "Hi {firstName}! I'm your Vocally product assistant. Ask me anything about features, setup, billing, or troubleshooting.",
-      "agentName": "Ask Vocally",
-      "placeholder": "Ask about Vocally...",
+      "welcomeMessage": "Hi {firstName}! I'm your Anselio product assistant. Ask me anything about features, setup, billing, or troubleshooting.",
+      "agentName": "Ask Anselio",
+      "placeholder": "Ask about Anselio...",
       "contactSupport": "Contact Support",
       "suggestions": {"createAgent": "How do I create my first AI agent?", "plans": "What plans do you offer?", "connectTwilio": "How do I connect Twilio?", "deployWidget": "How do I deploy the chat widget?", "knowledgeBase": "How does the knowledge base work?"}
     },

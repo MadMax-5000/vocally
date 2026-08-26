@@ -1,96 +1,172 @@
 import { prisma } from "@/lib/db/prisma";
-import { searchAndOrderNumber, releaseNumber } from "@/lib/telephony/telnyx";
+import { normalizeE164 } from "@/lib/telephony/e164";
 import {
+  createByoSipCredential,
   importByoPhoneNumber,
   deleteByoPhoneNumber,
-  getVapiTelnyxCredentialId,
 } from "@/lib/telephony/vapi-sip";
 
-type ProvisionResult = {
+export type ImportSipNumberOptions = {
+  didNumber: string;
+  sipServer: string;
+  sipUsername: string;
+  sipPassword: string;
+  providerName?: string;
+  /** Business carrier number that will USSD-forward to this DID. */
+  customerNumber?: string | null;
+};
+
+type ImportSipResult = {
   phoneNumber: string;
-  telnyxOrderId: string;
-  friendlyName: string;
+  vapiPhoneNumberId: string;
 };
 
 /**
- * Provisions a Moroccan (+212) phone number via Telnyx
- * and registers it in Vapi as a BYO phone number.
+ * Imports a BYO SIP phone number from any provider into Vapi.
  *
- * 1. Searches + orders a new number from Telnyx inventory.
- * 2. Imports the number into Vapi as a BYO phone number.
- * 3. Stores the mapping in TwilioPhoneNumber table.
- *
- * Returns the provisioned number details.
+ * 1. Finds or creates a SipCredential for this provider + server + username.
+ * 2. Creates a Vapi BYO SIP credential if one doesn't exist yet.
+ * 3. Imports the number into Vapi with the credential.
+ * 4. Stores the mapping in TwilioPhoneNumber table.
  */
-export async function provisionPhoneNumber(
+export async function importSipNumber(
   orgId: string,
   agentId: string,
-): Promise<ProvisionResult> {
-  // 1. Search and order a Moroccan number from Telnyx
-  const { phoneNumber, orderId } = await searchAndOrderNumber();
+  options: ImportSipNumberOptions,
+): Promise<ImportSipResult> {
+  const e164 = normalizeE164(options.didNumber);
+  const customerNumber = options.customerNumber
+    ? normalizeE164(options.customerNumber)
+    : null;
 
-  // 2. Import into Vapi as BYO phone number
-  const credentialId = getVapiTelnyxCredentialId();
-  if (!credentialId) {
-    throw new Error(
-      "VAPI_TELNYX_CREDENTIAL_ID is not set. Create a Telnyx SIP credential in Vapi first.",
-    );
+  const sipServer = options.sipServer.trim();
+  const sipUsername = options.sipUsername.trim();
+  const sipPassword = options.sipPassword.trim();
+
+  if (!sipServer || !sipUsername || !sipPassword) {
+    throw new Error("SIP server, username, and password are required");
   }
-  const vapiPhoneNumberId = await importByoPhoneNumber(phoneNumber, credentialId);
 
-  // 3. Store mapping in DB
-  await prisma.twilioPhoneNumber.upsert({
-    where: { twilioNumber: phoneNumber },
-    update: {
-      orgId,
-      agentId,
-      isActive: true,
-      customerNumber: null,
-      telnyxOrderId: orderId,
-      vapiPhoneNumberId,
-    },
-    create: {
-      twilioNumber: phoneNumber,
-      orgId,
-      agentId,
-      isActive: true,
-      telnyxOrderId: orderId,
-      vapiPhoneNumberId,
+  // Find or create SipCredential
+  let sipCredential = await prisma.sipCredential.findUnique({
+    where: {
+      orgId_sipServer_sipUsername: {
+        orgId,
+        sipServer,
+        sipUsername,
+      },
     },
   });
 
-  return {
-    phoneNumber,
-    telnyxOrderId: orderId,
-    friendlyName: phoneNumber,
-  };
+  if (!sipCredential) {
+    sipCredential = await prisma.sipCredential.create({
+      data: {
+        orgId,
+        name: options.providerName || sipServer,
+        sipServer,
+        sipUsername,
+        sipPassword,
+      },
+    });
+  }
+
+  // Create Vapi BYO SIP credential if not yet done
+  let vapiCredentialId = sipCredential.vapiCredentialId;
+  if (!vapiCredentialId) {
+    vapiCredentialId = await createByoSipCredential({
+      name: `${options.providerName || sipServer}-${orgId.slice(0, 8)}`,
+      sipServer,
+      sipUsername,
+      sipPassword,
+    });
+
+    await prisma.sipCredential.update({
+      where: { id: sipCredential.id },
+      data: { vapiCredentialId },
+    });
+  }
+
+  // Import number into Vapi
+  let vapiPhoneNumberId: string;
+  try {
+    vapiPhoneNumberId = await importByoPhoneNumber(e164, vapiCredentialId);
+  } catch (err) {
+    throw err;
+  }
+
+  // Save to DB
+  try {
+    await prisma.twilioPhoneNumber.upsert({
+      where: { twilioNumber: e164 },
+      update: {
+        orgId,
+        agentId,
+        isActive: true,
+        customerNumber,
+        forwardingVerifiedAt: null,
+        sipCredentialId: sipCredential.id,
+        vapiPhoneNumberId,
+      },
+      create: {
+        twilioNumber: e164,
+        orgId,
+        agentId,
+        isActive: true,
+        customerNumber,
+        forwardingVerifiedAt: null,
+        sipCredentialId: sipCredential.id,
+        vapiPhoneNumberId,
+      },
+    });
+  } catch (err) {
+    try {
+      await deleteByoPhoneNumber(vapiPhoneNumberId);
+    } catch {
+      // best-effort cleanup
+    }
+    throw err;
+  }
+
+  return { phoneNumber: e164, vapiPhoneNumberId };
 }
 
 /**
  * Releases a provisioned phone number.
- * Deactivates the mapping in DB, removes from Vapi, and releases from Telnyx.
+ * Deactivates the mapping in DB and removes from Vapi.
  */
 export async function releasePhoneNumber(
   orgId: string,
   phoneNumber: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const e164 = normalizeE164(phoneNumber);
     const mapping = await prisma.twilioPhoneNumber.findUnique({
-      where: { twilioNumber: phoneNumber },
-      select: { orgId: true, isActive: true, vapiPhoneNumberId: true, telnyxOrderId: true },
+      where: { twilioNumber: e164 },
+      select: {
+        orgId: true,
+        isActive: true,
+        vapiPhoneNumberId: true,
+        sipCredentialId: true,
+      },
     });
 
     if (!mapping || mapping.orgId !== orgId) {
       return { success: false, error: "Number not found or not owned by this organization" };
     }
 
-    // Deactivate in DB first
+    // Deactivate the number
     await prisma.twilioPhoneNumber.update({
-      where: { twilioNumber: phoneNumber },
-      data: { isActive: false, agentId: null, customerNumber: null },
+      where: { twilioNumber: e164 },
+      data: {
+        isActive: false,
+        agentId: null,
+        customerNumber: null,
+        forwardingVerifiedAt: null,
+        sipCredentialId: null,
+      },
     });
 
-    // Remove from Vapi (best-effort)
+    // Remove from Vapi
     if (mapping.vapiPhoneNumberId) {
       try {
         await deleteByoPhoneNumber(mapping.vapiPhoneNumberId);
@@ -99,12 +175,21 @@ export async function releasePhoneNumber(
       }
     }
 
-    // Release from Telnyx (best-effort)
-    if (mapping.telnyxOrderId) {
-      try {
-        await releaseNumber(mapping.telnyxOrderId);
-      } catch {
-        // Telnyx cleanup failed — DB is already updated
+    // Clean up orphaned SipCredential (no other active numbers reference it)
+    if (mapping.sipCredentialId) {
+      const remaining = await prisma.twilioPhoneNumber.count({
+        where: {
+          sipCredentialId: mapping.sipCredentialId,
+          isActive: true,
+        },
+      });
+
+      if (remaining === 0) {
+        await prisma.sipCredential.delete({
+          where: { id: mapping.sipCredentialId },
+        }).catch(() => {
+          // best-effort cleanup
+        });
       }
     }
 
@@ -123,5 +208,21 @@ export async function releasePhoneNumber(
 export async function countOrgPhoneNumbers(orgId: string): Promise<number> {
   return prisma.twilioPhoneNumber.count({
     where: { orgId, isActive: true },
+  });
+}
+
+/**
+ * Marks carrier→DID forwarding as verified after the first successful inbound call.
+ */
+export async function markForwardingVerified(didE164: string): Promise<void> {
+  const e164 = normalizeE164(didE164);
+  await prisma.twilioPhoneNumber.updateMany({
+    where: {
+      twilioNumber: e164,
+      isActive: true,
+      customerNumber: { not: null },
+      forwardingVerifiedAt: null,
+    },
+    data: { forwardingVerifiedAt: new Date() },
   });
 }

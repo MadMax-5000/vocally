@@ -79,7 +79,7 @@
         "connected": "Gmail connecté", "settingsSaved": "Paramètres e-mail enregistrés"
       },
       "phone": {
-        "title": "Téléphone", "subtitle": "Connectez un numéro Twilio via Vapi pour les appels vocaux IA",
+        "title": "Téléphone", "subtitle": "Connectez votre numéro marocain pour que l’IA réponde aux appels entrants",
         "numbers": "Numéros", "enable": "Activer le déploiement téléphonique",
         "configuration": "Configuration téléphonique"
       },

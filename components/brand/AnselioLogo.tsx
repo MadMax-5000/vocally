@@ -54,7 +54,7 @@ export function AnselioLogo({
       width={asset.width}
       height={asset.height}
       priority={priority}
-      className={cn("shrink-0 object-contain", SIZE_CLASS[size], className)}
+      className={cn("block shrink-0 object-contain", SIZE_CLASS[size], className)}
     />
   );
 
@@ -65,7 +65,7 @@ export function AnselioLogo({
   return (
     <Link
       href={href}
-      className="inline-flex shrink-0 items-center rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      className="inline-flex shrink-0 items-center leading-none rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
       aria-label={BRAND_NAME}
     >
       {image}

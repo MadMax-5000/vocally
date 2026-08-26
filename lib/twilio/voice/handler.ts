@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
 import { MAX_CALL_MINUTES } from "@/lib/billing/plan-features";
+import { normalizeE164 } from "@/lib/telephony/e164";
 
 export type ResolvedVoiceNumber = {
   orgId: string;
@@ -10,8 +11,9 @@ export type ResolvedVoiceNumber = {
 export async function resolveVoiceNumber(
   twilioNumber: string,
 ): Promise<ResolvedVoiceNumber | null> {
+  const e164 = normalizeE164(twilioNumber);
   const mapping = await prisma.twilioPhoneNumber.findUnique({
-    where: { twilioNumber },
+    where: { twilioNumber: e164 },
     include: { org: { select: { id: true } } },
   });
 
@@ -24,14 +26,32 @@ export async function findOrCreateSession(params: {
   agentId: string | null;
   callerNumber: string;
   callSid: string;
+  /** When set (Vapi path), stored on CallLog.vapiCallId and used for end-of-call lookup. */
+  vapiCallId?: string | null;
 }): Promise<{ sessionId: string; isNew: boolean }> {
-  const { orgId, agentId, callerNumber, callSid } = params;
+  const { orgId, agentId, callerNumber, callSid, vapiCallId } = params;
+
+  if (vapiCallId) {
+    const byVapi = await prisma.callLog.findUnique({
+      where: { vapiCallId },
+      select: { sessionId: true },
+    });
+    if (byVapi) {
+      return { sessionId: byVapi.sessionId, isNew: false };
+    }
+  }
 
   const existingCallLog = await prisma.callLog.findFirst({
     where: { twilioCallSid: callSid },
   });
 
   if (existingCallLog) {
+    if (vapiCallId && !existingCallLog.vapiCallId) {
+      await prisma.callLog.update({
+        where: { sessionId: existingCallLog.sessionId },
+        data: { vapiCallId },
+      });
+    }
     return { sessionId: existingCallLog.sessionId, isNew: false };
   }
 
@@ -51,6 +71,7 @@ export async function findOrCreateSession(params: {
       orgId,
       sessionId: session.id,
       twilioCallSid: callSid,
+      ...(vapiCallId ? { vapiCallId } : {}),
     },
   });
 

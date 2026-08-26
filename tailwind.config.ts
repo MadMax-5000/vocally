@@ -37,7 +37,9 @@ const config: Config = {
       fontFamily: {
         // Nimbus Sans L isn't on Google Fonts; we use a local/system fallback.
         display: ["Nimbus Sans L", "Helvetica", "Arial", "sans-serif"],
-        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Instrument Serif italic — marketing hero accent line
+        accent: ["var(--font-accent)", "Georgia", "Times New Roman", "serif"]
       },
       letterSpacing: {
         tighter: "-0.04em",

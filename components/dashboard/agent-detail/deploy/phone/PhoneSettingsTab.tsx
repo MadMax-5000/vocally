@@ -37,12 +37,11 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
   const [greeting, setGreeting] = useState(
     t("defaultGreeting", { agentName }),
   );
-  const [voicemailDetection, setVoicemailDetection] = useState(true);
+  const [voicemailDetection, setVoicemailDetection] = useState(false);
   const [bargeIn, setBargeIn] = useState(true);
   const [timeout, setTimeout_] = useState(15);
   const [language, setLanguage] = useState("auto");
   const [handoffPhone, setHandoffPhone] = useState("");
-  const [escalationsEnabled, setEscalationsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -58,7 +57,6 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
         setTimeout_(result.data.timeout);
         setLanguage(result.data.language);
         setHandoffPhone(result.data.handoffPhone);
-        setEscalationsEnabled(result.data.escalationsEnabled);
       }
       setIsLoading(false);
     }
@@ -86,8 +84,8 @@ export function PhoneSettingsTab({ agentId, agentName }: PhoneSettingsTabProps) 
     }
   }, [agentId, greeting, voicemailDetection, bargeIn, timeout, language, handoffPhone, t]);
 
-  const showHandoffWarning =
-    escalationsEnabled && handoffPhone.trim().length === 0;
+  // Soft nudge: human transfer is available once a handoff number is saved.
+  const showHandoffWarning = handoffPhone.trim().length === 0;
 
   if (isLoading) {
     return (

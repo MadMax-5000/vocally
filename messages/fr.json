@@ -17,13 +17,15 @@
   },
   "landing": {
     "hero": {
-      "titlePart1": "Des agents IA qui s'occupent de votre",
-      "subtitle": "Remplacez les menus SVI rigides par une IA conversationnelle qui résout vraiment les problèmes. Disponible en français, arabe et darija.",
-      "tryForFree": "Essayer gratuitement",
-      "noCreditCard": "Sans carte de crédit"
+      "titleLine1": "Des",
+      "titleAccent": "agents",
+      "titleLine2": "conversationnels pour votre",
+      "subtitle": "Des agents IA qui accompagnent vos clients à chaque étape de leur parcours, sur le chat, l'email et la voix, pour résoudre les demandes de bout en bout et augmenter le chiffre d'affaires.",
+      "startFreeTrial": "Démarrer l'essai gratuit",
+      "getDemo": "Obtenir une démo"
     },
     "rotatingWords": {
-      "bakery": "boulangerie",
+      "bakery": "épicerie",
       "clinic": "clinique",
       "agency": "agence",
       "salons": "salon",
@@ -79,8 +81,30 @@
       "headerTitle": "Déployez des agents IA qui offrent des expériences client premium sur tous les canaux"
     },
     "trust": {
-      "title": "Fait confiance par les équipes modernes",
-      "subtitle": "Rejoignez des milliers d'entreprises qui automatisent leur support avec Anselio."
+      "title": "Un agent pour chaque interaction client,",
+      "subtitle": "gère le support, les ventes et le guidage produit 24h/24"
+    },
+    "lifecycle": {
+      "title": "Le cycle de vie de l'agent",
+      "cta": "Créer un agent",
+      "steps": {
+        "build": {
+          "label": "Construire",
+          "body": "Connectez vos sources de données, définissez le rôle de votre agent et posez des garde-fous. Sans code — prêt en quelques minutes."
+        },
+        "test": {
+          "label": "Tester",
+          "body": "Simulez de vrais scénarios clients avant la mise en ligne. Validez la précision, la cohérence de marque et les cas limites sur chaque canal."
+        },
+        "deploy": {
+          "label": "Déployer",
+          "body": "Publiez votre agent sur le chat, WhatsApp, l'e-mail, Slack et plus encore en un clic. En ligne instantanément."
+        },
+        "optimize": {
+          "label": "Optimiser",
+          "body": "Suivez les taux de résolution, examinez les escalades et affinez les instructions. Votre agent s'améliore à chaque conversation."
+        }
+      }
     },
     "nav": {
       "labels": {
