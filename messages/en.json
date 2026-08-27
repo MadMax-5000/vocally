@@ -124,6 +124,39 @@
         }
       }
     },
+    "industries": {
+      "title": "Built for your industry",
+      "agentLabel": "AI Agent",
+      "prev": "Previous industry",
+      "next": "Next industry",
+      "cards": {
+        "retail": {
+          "label": "Retail & E-commerce",
+          "user": "The sneakers I ordered Tuesday still say processing.",
+          "agent": "They're packed. You'll get a tracking SMS before 6pm."
+        },
+        "technology": {
+          "label": "Technology",
+          "user": "Our webhook keeps retrying with 401.",
+          "agent": "Rotated the secret. The new key is in your dashboard — the old one expires at midnight."
+        },
+        "travel": {
+          "label": "Travel & Hospitality",
+          "user": "Our flight into CMN is delayed. Can we keep the room?",
+          "agent": "Held until 11pm. Front desk has your name on the late-arrival list."
+        },
+        "finance": {
+          "label": "Financial Services",
+          "user": "I don't recognize a 1,200 MAD charge from last night.",
+          "agent": "I've flagged it. The merchant hold is frozen until you confirm."
+        },
+        "healthcare": {
+          "label": "Healthcare",
+          "user": "Can I move Thursday's scan to Friday morning?",
+          "agent": "Friday 9:40 is free. Confirmation is on its way to your phone."
+        }
+      }
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
@@ -198,6 +231,7 @@
     },
     "footer": {
       "headline": "The AI concierge for every customer.",
+      "createAgent": "Create agent",
       "columns": {
         "product": "Product",
         "industries": "Industries",
@@ -341,11 +375,6 @@
     "phone": {
       "title": "Phone",
       "number": "+212 6 09 08 02 57"
-    },
-    "address": {
-      "title": "Address",
-      "line1": "DB Fouarat Lot Tafraout Rue 01 No 7 Hay Mohammadi",
-      "line2": "20000 Casablanca, Morocco"
     },
     "sales": {
       "title": "Talk to our sales team",

@@ -33,14 +33,6 @@ export default async function ContactPage() {
               </h2>
               <p>{t("phone.number")}</p>
             </div>
-
-            <div>
-              <h2 className="text-display-xs font-display tracking-tight text-ink mb-2">
-                {t("address.title")}
-              </h2>
-              <p>{t("address.line1")}</p>
-              <p>{t("address.line2")}</p>
-            </div>
           </div>
         </div>
       </div>

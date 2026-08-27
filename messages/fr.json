@@ -124,6 +124,39 @@
         }
       }
     },
+    "industries": {
+      "title": "Conçu pour votre secteur",
+      "agentLabel": "Agent IA",
+      "prev": "Secteur précédent",
+      "next": "Secteur suivant",
+      "cards": {
+        "retail": {
+          "label": "Retail & E-commerce",
+          "user": "Les baskets commandées mardi sont encore « en traitement ».",
+          "agent": "Elles sont emballées. Un SMS de suivi arrive avant 18h."
+        },
+        "technology": {
+          "label": "Technologie",
+          "user": "Notre webhook retente en boucle avec un 401.",
+          "agent": "Secret régénéré. La nouvelle clé est dans le tableau de bord — l'ancienne expire à minuit."
+        },
+        "travel": {
+          "label": "Voyage & Hôtellerie",
+          "user": "Notre vol vers CMN a du retard. On peut garder la chambre ?",
+          "agent": "Retenue jusqu'à 23h. La réception a votre nom sur la liste d'arrivée tardive."
+        },
+        "finance": {
+          "label": "Services financiers",
+          "user": "Je ne reconnais pas un prélèvement de 1 200 MAD cette nuit.",
+          "agent": "Signalé. Le blocage commerçant reste gelé jusqu'à votre confirmation."
+        },
+        "healthcare": {
+          "label": "Santé",
+          "user": "Je peux déplacer le scanner de jeudi à vendredi matin ?",
+          "agent": "Vendredi 9h40 est libre. La confirmation part sur votre téléphone."
+        }
+      }
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
@@ -198,6 +231,7 @@
     },
     "footer": {
       "headline": "Le concierge IA de chaque client.",
+      "createAgent": "Créer un agent",
       "columns": {
         "product": "Produit",
         "industries": "Secteurs",
@@ -341,11 +375,6 @@
     "phone": {
       "title": "Téléphone",
       "number": "+212 6 09 08 02 57"
-    },
-    "address": {
-      "title": "Adresse",
-      "line1": "DB Fouarat Lot Tafraout Rue 01 No 7 Hay Mohammadi",
-      "line2": "20000 Casablanca, Maroc"
     },
     "sales": {
       "title": "Parlez à notre équipe commerciale",

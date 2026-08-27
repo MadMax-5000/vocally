@@ -57,9 +57,6 @@ export default async function ContactSalesPage() {
             <div className="rounded-xxl border border-hairline bg-surface-card p-6 text-body-sm leading-relaxed text-body">
               <p className="text-caption-uppercase text-muted">{tc("phone.title")}</p>
               <p className="mt-2 text-ink">{tc("phone.number")}</p>
-              <p className="mt-6 text-caption-uppercase text-muted">{tc("address.title")}</p>
-              <p className="mt-2">{tc("address.line1")}</p>
-              <p>{tc("address.line2")}</p>
             </div>
           </aside>
         </div>

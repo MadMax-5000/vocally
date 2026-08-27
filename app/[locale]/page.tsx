@@ -4,6 +4,7 @@ import { BentoShowcase } from "@/components/marketing/BentoShowcase";
 import { TrustShowcase } from "@/components/marketing/TrustShowcase";
 import { AgentLifecycle } from "@/components/marketing/agent-lifecycle/AgentLifecycle";
 import { DeployChannels } from "@/components/marketing/deploy-channels/DeployChannels";
+import { Industries } from "@/components/marketing/industries/Industries";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 export default function HomePage() {
@@ -14,6 +15,7 @@ export default function HomePage() {
       <TrustShowcase />
       <AgentLifecycle />
       <DeployChannels />
+      <Industries />
       <BentoShowcase />
       <MarketingFooter />
     </main>

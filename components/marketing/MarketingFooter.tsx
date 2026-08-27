@@ -48,18 +48,20 @@ export async function MarketingFooter() {
             <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-balance text-white md:text-[2.5rem]">
               {t("headline")}
             </h2>
-            <Link
-              href="/contact/sales"
-              className={`group relative mt-8 inline-flex rounded-full p-[1px] ${focusRing}`}
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-primary via-[#C026D3] to-secondary"
-              />
-              <span className="relative inline-flex items-center rounded-full bg-ink px-6 py-2.5 text-button text-white transition-opacity group-hover:opacity-90">
+            <div className="mt-8 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
+              <Link
+                href="/dashboard/agents/new"
+                className={`btn-primary w-full justify-center sm:w-auto ${focusRing}`}
+              >
+                {t("createAgent")}
+              </Link>
+              <Link
+                href="/contact/sales"
+                className={`inline-flex h-8 w-full items-center justify-center rounded-md border border-white/35 bg-transparent px-3 py-1 text-button text-white transition-colors hover:bg-white/10 sm:w-auto ${focusRing}`}
+              >
                 {tHero("getDemo")}
-              </span>
-            </Link>
+              </Link>
+            </div>
           </div>
 
           <div
@@ -128,8 +130,7 @@ export async function MarketingFooter() {
           </div>
 
           <p className="mt-12 text-[12px] leading-relaxed text-white/40">
-            © {new Date().getFullYear()} {BRAND_LEGAL_NAME} · Operated by Yassir Hannaoui · DB
-            Fouarat Lot Tafraout Rue 01 No 7 Hay Mohammadi, 20000 Casablanca, Morocco
+            © {new Date().getFullYear()} {BRAND_LEGAL_NAME} · Operated by Madmax
           </p>
         </div>
       </div>

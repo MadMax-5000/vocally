@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
-export const RAIL_COLOR = "#C026D3";
+export const RAIL_COLOR = "#FF5A36";
 
 export function DashIn({
   delay = 0,
