@@ -12,6 +12,8 @@
       "workspace": "Workspace"
     },
     "topbar": {
+      "openSidebar": "Open sidebar",
+      "closeSidebar": "Close sidebar",
       "feedback": "Feedback",
       "docs": "Docs",
       "notifications": "Notifications",

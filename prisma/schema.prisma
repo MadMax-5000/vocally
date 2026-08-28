@@ -37,6 +37,8 @@ model Organization {
   tickets                    Ticket[]
   agentLeads                 AgentLead[]
   formSubmissions            FormSubmission[]
+  agentTestQuestions         AgentTestQuestion[]
+  agentTestRuns              AgentTestRun[]
   zernioProfileId            String?
   zernioChannels             ZernioChannel[]
 }
@@ -80,6 +82,16 @@ model Agent {
   status         AgentStatus     @default(ACTIVE)
   visibility     AgentVisibility @default(PRIVATE)
 
+  allowedHostnames            String[] @default([])
+  chatRateLimitPerMinute      Int?
+  recordingConsentEnabled     Boolean  @default(true)
+  saveRecordings              Boolean  @default(true)
+  conversationRetentionDays   Int?
+  piiRedactionEnabled         Boolean  @default(false)
+  guardrailStayOnTopic        Boolean  @default(false)
+  guardrailRefuseSensitive    Boolean  @default(false)
+  guardrailEscalateWhenUnsure Boolean  @default(false)
+
   defaultLanguage SupportedLanguage @default(ENGLISH)
   llmProvider     LlmProvider       @default(OPENAI)
   llmModel        String            @default("openai/gpt-4.1-mini")
@@ -101,6 +113,8 @@ model Agent {
   agentLeads          AgentLead[]
   formSubmissions     FormSubmission[]
   zernioChannels      ZernioChannel[]
+  testQuestions       AgentTestQuestion[]
+  testRuns            AgentTestRun[]
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 
@@ -253,6 +267,41 @@ model AgentVariable {
   @@index([agentId])
 }
 
+model AgentTestQuestion {
+  id        String   @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent        @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  prompt    String       @db.Text
+  sortOrder Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  runs      AgentTestRun[]
+
+  @@index([orgId])
+  @@index([agentId, sortOrder])
+}
+
+model AgentTestRun {
+  id          String               @id @default(cuid())
+  orgId       String
+  org         Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       Agent                @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    AgentTestQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  status      AgentTestRunStatus
+  response    String?              @db.Text
+  judgeReason String?              @db.Text
+  testedAs    String?
+  createdAt   DateTime             @default(now())
+
+  @@index([orgId])
+  @@index([agentId])
+  @@index([questionId, createdAt(sort: Desc)])
+}
+
 model Session {
   id              String        @id @default(cuid())
   orgId           String
@@ -262,7 +311,7 @@ model Session {
   status          SessionStatus
   customerId      String?
   agentId         String?
-  agent           Agent?        @relation(fields: [agentId], references: [id])
+  agent           Agent?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
   messages        Message[]
   summary         String?
   sentiment       Float?
@@ -721,4 +770,12 @@ enum TicketStatus {
 enum VoiceProvider {
   ELEVENLABS
   OPENROUTER
+}
+
+enum AgentTestRunStatus {
+  PENDING
+  RUNNING
+  PASSED
+  FAILED
+  ERROR
 }

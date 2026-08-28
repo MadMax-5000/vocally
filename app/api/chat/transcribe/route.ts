@@ -8,6 +8,10 @@ import {
   parseWebChatConfig,
 } from "@/lib/deploy/web-chat-config";
 import { transcribeAudio, SttError } from "@/lib/voice/stt";
+import {
+  denyIfChatRateLimited,
+  denyIfOriginNotAllowed,
+} from "@/lib/agent-security/widget-access";
 
 const MAX_AUDIO_BASE64_BYTES = 5 * 1024 * 1024;
 
@@ -77,6 +81,26 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           { success: false, error: "Help page is not enabled for this agent" },
           { status: 403 },
+        );
+      }
+
+      const originDenial = denyIfOriginNotAllowed(req.headers, agent.allowedHostnames);
+      if (originDenial) {
+        return NextResponse.json(
+          { success: false, error: originDenial.error },
+          { status: originDenial.status },
+        );
+      }
+
+      const rateDenial = denyIfChatRateLimited(
+        req.headers,
+        agent.id,
+        agent.chatRateLimitPerMinute,
+      );
+      if (rateDenial) {
+        return NextResponse.json(
+          { success: false, error: rateDenial.error },
+          { status: rateDenial.status },
         );
       }
     }

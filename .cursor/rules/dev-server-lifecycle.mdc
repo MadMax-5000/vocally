@@ -1,0 +1,25 @@
+---
+description: Do not spawn extra Next.js/dev servers. Reuse the user's running server; kill only servers this agent started.
+alwaysApply: true
+---
+
+# Dev server lifecycle
+
+Agents leave behind extra `next dev` / `npm run dev` processes because Next auto-binds 3001, 3002, … when 3000 is taken. That piles up.
+
+## Before starting a server
+
+1. Check existing terminals. If `npm run dev`, `next dev`, or similar is already running and healthy, **reuse it**. Do not start another.
+2. Prefer the user's already-running app (usually port 3000). Hit that URL for browser/API checks.
+
+## If you start a server
+
+You own it. Stop it when verification is done and **before you end the turn** — even if the task failed or you no longer need the browser.
+
+- Stop **only** the Shell job / PID you spawned.
+- Do **not** `taskkill` / `killall` all `node` processes.
+- Do **not** stop terminals the user started (sessions that already existed, or that you did not launch).
+
+## Do not start a server unless you need it
+
+Typecheck, lint, unit tests, and most code edits do not need `npm run dev`. Start one only for UI/browser or HTTP verification against a live app, and only after confirming none is running.

@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { summarizeSession } from "@/lib/ai/summarize-session";
 import { logServerWarning } from "@/lib/logger";
+import { maybeRedactPii } from "@/lib/agent-security/pii";
 
 type EndOfCallReportMessage = {
   call?: { id?: string };
@@ -32,12 +33,25 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
 
   const sessionId = callLog.sessionId;
 
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    select: {
+      agent: {
+        select: { saveRecordings: true, piiRedactionEnabled: true },
+      },
+    },
+  });
+  const saveRecordings = session?.agent?.saveRecordings !== false;
+  const redact = session?.agent?.piiRedactionEnabled === true;
+
   const endedReason = message.endedReason;
-  const transcript = artifact?.transcript || "";
+  const transcript = maybeRedactPii(artifact?.transcript || "", redact);
   const durationSeconds = message.durationSeconds || 0;
   const cost = message.cost || 0;
   const messages = artifact?.messages || [];
-  const recordingUrl = artifact?.recording?.url || null;
+  const recordingUrl = saveRecordings
+    ? artifact?.recording?.url || null
+    : null;
 
   // Save transcript and duration
   await prisma.callLog.update({
@@ -59,7 +73,7 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
           data: {
             sessionId,
             role: 'BOT',
-            content: msg.message,
+            content: maybeRedactPii(msg.message, redact),
           }
         });
       }

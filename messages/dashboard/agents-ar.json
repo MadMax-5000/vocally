@@ -57,6 +57,7 @@
         "technologySoftware": "التكنولوجيا والبرمجيات",
         "governmentPublic": "الحكومة والقطاع العام",
         "foodBeverage": "الأغذية والمشروبات",
+        "manufacturing": "التصنيع",
         "custom": "مخصص"
       },
       "channels": {
@@ -97,6 +98,7 @@
       "copyShareableLink": "نسخ الرابط القابل للمشاركة",
       "copyAgentId": "نسخ معرّف الوكيل",
       "archiveAgent": "أرشفة الوكيل",
+      "unarchiveAgent": "إلغاء أرشفة الوكيل",
       "deleteAgent": "حذف الوكيل",
       "shareableLinkCopied": "تم نسخ الرابط القابل للمشاركة",
       "agentIdCopied": "تم نسخ معرّف الوكيل",
@@ -118,6 +120,36 @@
         "advanced": "متقدم",
         "sections": "أقسام الوكيل",
         "placeholder": "قريبًا — {label}"
+      },
+      "tests": {
+        "questionCount": "{count, plural, one {سؤال واحد} other {# أسئلة}}",
+        "testingAs": "الاختبار بصفة {name}",
+        "previewUser": "مستخدم المعاينة",
+        "addQuestion": "+ إضافة سؤال",
+        "addPlaceholder": "اكتب سؤال عميل…",
+        "question": "السؤال",
+        "status": "الحالة",
+        "idle": "قيد الانتظار",
+        "inProgress": "جارٍ التنفيذ",
+        "passed": "ناجح",
+        "failed": "فشل",
+        "error": "خطأ",
+        "run": "تشغيل",
+        "running": "جارٍ التشغيل…",
+        "empty": "أضف الأسئلة التي يطرحها عملاؤك فعلًا، ثم شغّلها على هذا الوكيل.",
+        "demoUnavailable": "العرض التجريبي غير متاح.",
+        "failedLoad": "تعذر تحميل الاختبارات.",
+        "failedAdd": "تعذر إضافة السؤال.",
+        "failedRun": "تعذر تشغيل هذا الاختبار.",
+        "deleteQuestion": "حذف السؤال",
+        "cancelAdd": "إلغاء",
+        "seeds": {
+          "q1": "ما خيارات الدفع التي تقدمونها؟",
+          "q2": "هل تقدمون خطط تقسيط؟",
+          "q3": "هل يمكنني الدفع بفاتورة شركة؟",
+          "q4": "كيف تعمل الاستردادات بعد 30 يومًا؟",
+          "q5": "هل تقبلون البطاقات الدولية؟"
+        }
       },
       "agent": {
         "voices": "الأصوات",
@@ -266,6 +298,110 @@
         "addVariable": "إضافة متغير",
         "key": "المفتاح (snake_case)",
         "keyPlaceholder": "مثل brand_voice"
+      },
+      "security": {
+        "failedSave": "تعذر تحديث إعدادات الأمان",
+        "tokenCopied": "تم نسخ رمز الواجهة",
+        "tokenRotated": "تم تدوير رمز الواجهة",
+        "tokenGenerated": "تم إنشاء رمز الواجهة",
+        "couldNotCopy": "تعذر النسخ إلى الحافظة",
+        "couldNotRotate": "تعذر تدوير رمز الواجهة",
+        "access": {
+          "title": "الوصول",
+          "description": "حدد من يمكنه التحدث مع هذا الوكيل من ودجة الموقع وصفحة المساعدة.",
+          "visibility": "الظهور",
+          "public": "عام",
+          "private": "خاص",
+          "publicHint": "أي شخص على نطاق مسموح يمكنه الدردشة. يبقى رمز الواجهة في شفرة التضمين.",
+          "privateHint": "لا يصل زوار الموقع إلى هذا الوكيل حتى يصبح عامًا.",
+          "widgetToken": "رمز الواجهة",
+          "widgetTokenDescription": "مطلوب في تضمين المواقع. أعد إصداره إذا تسرب.",
+          "showToken": "إظهار رمز الواجهة",
+          "hideToken": "إخفاء رمز الواجهة",
+          "copyToken": "نسخ رمز الواجهة",
+          "rotateToken": "تدوير الرمز",
+          "generateToken": "إنشاء رمز",
+          "rotateTitle": "تدوير رمز الواجهة؟",
+          "rotateDescription": "ستتوقف التضمينات التي تستخدم الرمز الحالي حتى تحدّثها.",
+          "rotateConfirm": "تدوير",
+          "cancel": "إلغاء",
+          "apiTokenLink": "رمز واجهة البرمجة",
+          "apiTokenLinkLabel": "إدارة رمز واجهة البرمجة في النشر"
+        },
+        "domains": {
+          "title": "النطاقات المسموح بها",
+          "description": "عند التعيين، تعمل الواجهة وصفحة المساعدة فقط على أسماء المضيف هذه. اترك الحقل فارغًا للسماح لأي موقع.",
+          "list": "أسماء المضيف",
+          "placeholder": "example.com\nwww.example.com\nlocalhost:3000",
+          "hint": "اسم مضيف واحد في كل سطر. بدون https://. أضف كل نطاق فرعي على حدة."
+        },
+        "rateLimit": {
+          "title": "حدود الإساءة",
+          "description": "حدد عدد رسائل الدردشة التي يمكن لزائر واحد إرسالها في الدقيقة.",
+          "perMinute": "رسائل في الدقيقة",
+          "none": "اتركه فارغًا بلا حد إضافي. معاينة لوحة التحكم غير محدودة.",
+          "placeholder": "بلا حد"
+        },
+        "privacy": {
+          "title": "الخصوصية",
+          "description": "حدد ما يخزّنه هذا الوكيل من المحادثات والمكالمات.",
+          "recordingConsent": "تنبيه موافقة التسجيل",
+          "recordingConsentDescription": "تشغيل جملة قصيرة «قد يتم تسجيل هذه المكالمة» في بداية المكالمات الصوتية.",
+          "saveRecordings": "حفظ تسجيلات المكالمات",
+          "saveRecordingsDescription": "الاحتفاظ بالصوت في السجل. تُحفظ النصوص المكتوبة أيضًا.",
+          "retention": "مدة الاحتفاظ بالمحادثات",
+          "retentionDescription": "حذف محادثات هذا الوكيل تلقائيًا بعد الفترة المحددة.",
+          "keep": "الاحتفاظ",
+          "days7": "7 أيام",
+          "days30": "30 يومًا",
+          "days90": "90 يومًا",
+          "days365": "سنة واحدة",
+          "piiRedaction": "إخفاء البيانات الشخصية في النصوص المحفوظة",
+          "piiRedactionDescription": "إخفاء البريد والهاتف وأرقام البطاقات وبطاقات الهوية عند الحفظ.",
+          "neverCollect": "عدم جمع أرقام البطاقات أو الرموز السرية",
+          "neverCollectDescription": "مفعّل دائمًا. لن يطلب الوكيل أرقام بطاقات الدفع أو الرموز السرية أو كلمات المرور."
+        },
+        "guardrails": {
+          "title": "حواجز الأمان",
+          "description": "قواعد أمان تُطبَّق في كل دور، مستقلة عن توجيه النظام.",
+          "stayOnTopic": "البقاء في الموضوع",
+          "stayOnTopicDescription": "رفض الأسئلة الخارجة عن النشاط وإعادة الحديث إلى هذا العمل.",
+          "refuseSensitive": "رفض النصائح الطبية والقانونية والمالية",
+          "refuseSensitiveDescription": "عدم التشخيص أو تقديم استشارة قانونية أو نصيحة مالية شخصية.",
+          "escalateWhenUnsure": "التحويل عند عدم اليقين",
+          "escalateWhenUnsureDescription": "إذا لم يكن الوكيل واثقًا، يعرض التحويل إلى إنسان بدل التخمين."
+        }
+      },
+      "advanced": {
+        "failedSave": "تعذر تحديث الإعدادات المتقدمة",
+        "identity": {
+          "title": "الهوية",
+          "description": "الاسم والدور والهدف الذي أُنشئ من أجله هذا الوكيل.",
+          "name": "الاسم",
+          "nameDescription": "يظهر في لوحة التحكم ويُستخدم عندما يقدّم الوكيل نفسه.",
+          "type": "النوع",
+          "typeDescription": "السياق القطاعي لهذا الوكيل.",
+          "customRole": "دور مخصص",
+          "customRoleDescription": "الغرض من هذا الوكيل المخصص.",
+          "customRolePlaceholder": "صف الدور…",
+          "mainGoal": "الهدف الرئيسي",
+          "mainGoalDescription": "ما ينبغي أن ينجزه هذا الوكيل.",
+          "mainGoalPlaceholder": "صف ما تريد أن ينجزه وكيلك…",
+          "website": "الموقع",
+          "websiteDescription": "مشاركة هذا الرابط عند الحاجة. اتركه فارغًا إن لم يوجد.",
+          "websitePlaceholder": "https://example.com"
+        },
+        "personality": {
+          "title": "الشخصية",
+          "description": "كيف يتحدث هذا الوكيل ومدى حريته في إعادة الصياغة.",
+          "tone": "النبرة",
+          "toneDescription": "أسلوب الحديث الافتراضي. يمكنك إضافة ملاحظات أدناه.",
+          "customTone": "ملاحظات النبرة",
+          "customToneDescription": "أسلوب إضافي اختياري، مثل «دارجة دافئة وجمل قصيرة».",
+          "customTonePlaceholder": "صف النبرة…",
+          "creativity": "الإبداع",
+          "creativityDescription": "يحدد مدى التزام الردود بالحقائق المعروفة مقابل إعادة الصياغة."
+        }
       },
       "previewFallback": "مرحبًا! كيف يمكنني مساعدتك اليوم؟"
     },

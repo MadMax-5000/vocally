@@ -4,6 +4,10 @@ import { prisma } from "@/lib/db/prisma";
 import { handleAgentChatMessage } from "@/lib/api/agent-chat-handler";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
+import {
+  denyIfChatRateLimited,
+  denyIfOriginNotAllowed,
+} from "@/lib/agent-security/widget-access";
 
 const chatRequestSchema = z.object({
   agentId: z.string().min(1),
@@ -74,6 +78,26 @@ export async function POST(req: NextRequest) {
             { status: 403 },
           );
         }
+      }
+
+      const originDenial = denyIfOriginNotAllowed(req.headers, agent.allowedHostnames);
+      if (originDenial) {
+        return NextResponse.json(
+          { success: false, error: originDenial.error },
+          { status: originDenial.status },
+        );
+      }
+
+      const rateDenial = denyIfChatRateLimited(
+        req.headers,
+        agent.id,
+        agent.chatRateLimitPerMinute,
+      );
+      if (rateDenial) {
+        return NextResponse.json(
+          { success: false, error: rateDenial.error },
+          { status: rateDenial.status },
+        );
       }
     }
 

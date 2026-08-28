@@ -4,6 +4,7 @@ import { z } from "zod";
 import { handleFormSubmit } from "@/lib/api/form-submit-handler";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
+import { denyIfOriginNotAllowed } from "@/lib/agent-security/widget-access";
 
 const formSubmitSchema = z.object({
   agentId: z.string().min(1),
@@ -58,6 +59,13 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      const originDenial = denyIfOriginNotAllowed(req.headers, agent.allowedHostnames);
+      if (originDenial) {
+        return NextResponse.json(
+          { success: false, error: originDenial.error },
+          { status: originDenial.status },
+        );
+      }
     }
 
     const result = await handleFormSubmit({

@@ -54,6 +54,15 @@ import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { MAX_AGENTS } from "@/lib/billing/plan-features";
+import {
+  MAX_CHAT_RATE_LIMIT_PER_MINUTE,
+  MIN_CHAT_RATE_LIMIT_PER_MINUTE,
+} from "@/lib/agent-security/constants";
+import { parseHostnameList } from "@/lib/agent-security/hostnames";
+import {
+  isRetentionDays,
+  purgeExpiredSessionsForAgent,
+} from "@/lib/agent-security/retention";
 
 export type GetAIAgentByIdErrorCode =
   | "UNAUTHORIZED"
@@ -2189,6 +2198,114 @@ export async function updateAgentPromptSettings(
   }
 }
 
+const updateAgentAdvancedSettingsSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Agent name is required")
+      .max(50, "Name is too long")
+      .optional(),
+    agentType: z.nativeEnum(AgentType).optional(),
+    customRole: z.string().max(120).nullable().optional(),
+    description: z
+      .string()
+      .min(1, "Main goal is required")
+      .max(500, "Main goal is too long")
+      .optional(),
+    websiteUrl: z.string().max(500).nullable().optional(),
+    tone: z.nativeEnum(AgentTone).optional(),
+    customTone: z.string().max(120).nullable().optional(),
+    creativity: z.nativeEnum(CreativityLevel).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.websiteUrl === undefined || data.websiteUrl === null) return;
+    const site = data.websiteUrl.trim();
+    if (site.length > 0 && !isValidHttpUrl(site)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Invalid website URL (use https://…)",
+        path: ["websiteUrl"],
+      });
+    }
+  });
+
+export async function updateAgentAdvancedSettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentAdvancedSettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentAdvancedSettingsSchema.parse(input);
+
+    if (validated.name !== undefined) {
+      const clash = await prisma.agent.findFirst({
+        where: {
+          orgId: dbOrgId,
+          name: validated.name.trim(),
+          NOT: { id: agentId },
+        },
+        select: { id: true },
+      });
+      if (clash) {
+        return {
+          success: false as const,
+          error: "An agent with this name already exists",
+        };
+      }
+    }
+
+    const updated = await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: {
+        name: validated.name === undefined ? undefined : validated.name.trim(),
+        agentType: validated.agentType,
+        customRole:
+          validated.customRole === undefined
+            ? undefined
+            : validated.customRole?.trim() || null,
+        description:
+          validated.description === undefined
+            ? undefined
+            : validated.description.trim(),
+        websiteUrl:
+          validated.websiteUrl === undefined
+            ? undefined
+            : websiteToDb(validated.websiteUrl ?? undefined),
+        tone: validated.tone,
+        customTone:
+          validated.customTone === undefined
+            ? undefined
+            : validated.customTone?.trim() || null,
+        creativity: validated.creativity,
+      },
+    });
+
+    if (updated.count === 0) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    revalidatePath("/dashboard/agents");
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return {
+        success: false as const,
+        error: "An agent with this name already exists",
+      };
+    }
+    return { success: false as const, error: "Failed to update advanced settings" };
+  }
+}
+
 export async function listAgentVariables(agentId: string) {
   try {
     const dbOrgId = await getOrgPrismaId();
@@ -2560,6 +2677,15 @@ export async function duplicateAgent(agentId: string) {
         llmModel: original.llmModel,
         widgetToken: crypto.randomUUID(),
         apiToken: crypto.randomUUID(),
+        allowedHostnames: original.allowedHostnames,
+        chatRateLimitPerMinute: original.chatRateLimitPerMinute,
+        recordingConsentEnabled: original.recordingConsentEnabled,
+        saveRecordings: original.saveRecordings,
+        conversationRetentionDays: original.conversationRetentionDays,
+        piiRedactionEnabled: original.piiRedactionEnabled,
+        guardrailStayOnTopic: original.guardrailStayOnTopic,
+        guardrailRefuseSensitive: original.guardrailRefuseSensitive,
+        guardrailEscalateWhenUnsure: original.guardrailEscalateWhenUnsure,
         languages: {
           create: original.languages.map((l) => ({ language: l.language })),
         },
@@ -2605,7 +2731,13 @@ export async function deleteAgent(agentId: string) {
     });
     if (!agent) return { success: false as const, error: "Agent not found" };
 
-    await prisma.agent.delete({ where: { id: agentId } });
+    await prisma.$transaction([
+      prisma.session.updateMany({
+        where: { agentId, orgId: dbOrgId },
+        data: { agentId: null },
+      }),
+      prisma.agent.delete({ where: { id: agentId } }),
+    ]);
 
     revalidatePath("/dashboard/agents");
     return { success: true as const };
@@ -2663,5 +2795,142 @@ export async function regenerateAgentApiToken(agentId: string) {
     return { success: true as const, data: { apiToken } };
   } catch {
     return { success: false as const, error: "Failed to regenerate API token" };
+  }
+}
+
+export async function regenerateAgentWidgetToken(agentId: string) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId: dbOrgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false as const, error: "Agent not found" };
+
+    const widgetToken = crypto.randomUUID();
+    await prisma.agent.update({
+      where: { id: agentId },
+      data: { widgetToken },
+    });
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const, data: { widgetToken } };
+  } catch {
+    return { success: false as const, error: "Failed to regenerate widget token" };
+  }
+}
+
+const updateAgentSecuritySettingsSchema = z.object({
+  allowedHostnames: z.array(z.string().min(1).max(253)).max(10).optional(),
+  allowedHostnamesText: z.string().max(4000).optional(),
+  chatRateLimitPerMinute: z
+    .number()
+    .int()
+    .min(MIN_CHAT_RATE_LIMIT_PER_MINUTE)
+    .max(MAX_CHAT_RATE_LIMIT_PER_MINUTE)
+    .nullable()
+    .optional(),
+  recordingConsentEnabled: z.boolean().optional(),
+  saveRecordings: z.boolean().optional(),
+  conversationRetentionDays: z
+    .union([z.literal(7), z.literal(30), z.literal(90), z.literal(365)])
+    .nullable()
+    .optional(),
+  piiRedactionEnabled: z.boolean().optional(),
+  guardrailStayOnTopic: z.boolean().optional(),
+  guardrailRefuseSensitive: z.boolean().optional(),
+  guardrailEscalateWhenUnsure: z.boolean().optional(),
+});
+
+export async function updateAgentSecuritySettings(
+  agentId: string,
+  input: z.infer<typeof updateAgentSecuritySettingsSchema>,
+) {
+  try {
+    const dbOrgId = await getOrgPrismaId();
+    if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
+
+    const validated = updateAgentSecuritySettingsSchema.parse(input);
+
+    let allowedHostnames: string[] | undefined;
+    if (validated.allowedHostnamesText !== undefined) {
+      const parsed = parseHostnameList(validated.allowedHostnamesText);
+      if (parsed.error === "invalid") {
+        return { success: false as const, error: "Invalid hostname" };
+      }
+      if (parsed.error === "tooMany") {
+        return { success: false as const, error: "Too many hostnames" };
+      }
+      allowedHostnames = parsed.hostnames;
+    } else if (validated.allowedHostnames !== undefined) {
+      const parsed = parseHostnameList(validated.allowedHostnames.join("\n"));
+      if (parsed.error) {
+        return { success: false as const, error: "Invalid hostname" };
+      }
+      allowedHostnames = parsed.hostnames;
+    }
+
+    if (
+      validated.conversationRetentionDays !== undefined &&
+      validated.conversationRetentionDays !== null &&
+      !isRetentionDays(validated.conversationRetentionDays)
+    ) {
+      return { success: false as const, error: "Invalid retention period" };
+    }
+
+    const updated = await prisma.agent.updateMany({
+      where: { id: agentId, orgId: dbOrgId },
+      data: {
+        ...(allowedHostnames !== undefined ? { allowedHostnames } : {}),
+        ...(validated.chatRateLimitPerMinute !== undefined
+          ? { chatRateLimitPerMinute: validated.chatRateLimitPerMinute }
+          : {}),
+        ...(validated.recordingConsentEnabled !== undefined
+          ? { recordingConsentEnabled: validated.recordingConsentEnabled }
+          : {}),
+        ...(validated.saveRecordings !== undefined
+          ? { saveRecordings: validated.saveRecordings }
+          : {}),
+        ...(validated.conversationRetentionDays !== undefined
+          ? { conversationRetentionDays: validated.conversationRetentionDays }
+          : {}),
+        ...(validated.piiRedactionEnabled !== undefined
+          ? { piiRedactionEnabled: validated.piiRedactionEnabled }
+          : {}),
+        ...(validated.guardrailStayOnTopic !== undefined
+          ? { guardrailStayOnTopic: validated.guardrailStayOnTopic }
+          : {}),
+        ...(validated.guardrailRefuseSensitive !== undefined
+          ? { guardrailRefuseSensitive: validated.guardrailRefuseSensitive }
+          : {}),
+        ...(validated.guardrailEscalateWhenUnsure !== undefined
+          ? { guardrailEscalateWhenUnsure: validated.guardrailEscalateWhenUnsure }
+          : {}),
+      },
+    });
+
+    if (updated.count === 0) {
+      return { success: false as const, error: "Agent not found" };
+    }
+
+    if (validated.conversationRetentionDays) {
+      await purgeExpiredSessionsForAgent(
+        agentId,
+        validated.conversationRetentionDays,
+      );
+    }
+
+    revalidatePath(`/dashboard/agents/${agentId}`);
+    return { success: true as const };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return {
+        success: false as const,
+        error: err.issues[0]?.message ?? "Invalid input",
+      };
+    }
+    return { success: false as const, error: "Failed to update security settings" };
   }
 }

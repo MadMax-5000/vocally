@@ -28,6 +28,7 @@ import {
 import type { ChatFormUi } from "@/lib/chat/form-ui";
 import { customFormRequestStore } from "@/lib/ai/tools/handlers/show-custom-form";
 import { getToolDefinitionsForAgent, getToolHandler } from "@/lib/ai/tools/registry";
+import { buildGuardrailPromptSection } from "@/lib/agent-security/guardrails";
 import type { ToolCall, ToolContext } from "@/lib/ai/tools/types";
 import { dtmfRequestStore } from "@/lib/ai/tools/handlers";
 import type { DtmfRequest } from "@/lib/ai/tools/handlers";
@@ -205,7 +206,17 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       "If you escalate or cannot resolve an issue, use create_ticket when you have subject, description, priority, and the customer's email.";
   }
 
-  const instructionsWithEscalation = [agent.instructions, escalationPromptExtra]
+  const guardrailSection = buildGuardrailPromptSection({
+    stayOnTopic: agent.guardrailStayOnTopic,
+    refuseSensitive: agent.guardrailRefuseSensitive,
+    escalateWhenUnsure: agent.guardrailEscalateWhenUnsure,
+  });
+
+  const instructionsWithEscalation = [
+    agent.instructions,
+    escalationPromptExtra,
+    guardrailSection,
+  ]
     .filter(Boolean)
     .join("\n\n");
 
@@ -215,6 +226,14 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           agentName: agent.name,
           orgName: agent.org.name,
           instructions: instructionsWithEscalation,
+          personality: {
+            agentType: agent.agentType,
+            customRole: agent.customRole,
+            tone: agent.tone,
+            customTone: agent.customTone,
+            description: agent.description,
+            websiteUrl: agent.websiteUrl,
+          },
           knowledgeContext,
           language: promptLanguage,
           toolDefinitions,
@@ -227,6 +246,14 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           agentName: agent.name,
           orgName: agent.org.name,
           instructions: instructionsWithEscalation,
+          personality: {
+            agentType: agent.agentType,
+            customRole: agent.customRole,
+            tone: agent.tone,
+            customTone: agent.customTone,
+            description: agent.description,
+            websiteUrl: agent.websiteUrl,
+          },
           knowledgeContext,
           language: promptLanguage,
           toolDefinitions,

@@ -40,7 +40,7 @@ export function DashboardRouteLayout({
   }
 
   return (
-    <SidebarProvider defaultOpen={false} expandOnHover persistCookie={false}>
+    <SidebarProvider defaultOpen={false} persistCookie={false}>
       <AppSidebar />
       <div className="flex min-h-dvh flex-1 flex-col bg-surface-card">
         {hideDashboardTopbar ? null : <DashboardTopbar />}

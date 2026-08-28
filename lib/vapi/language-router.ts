@@ -17,6 +17,8 @@ import { generateEmbedding } from "@/lib/ai/embeddings";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
 
 import { buildVoiceEscalationPromptSection } from "./voice-escalation-prompt";
+import { buildGuardrailPromptSection } from "@/lib/agent-security/guardrails";
+import { prependRecordingConsent } from "@/lib/agent-security/consent";
 
 type VoiceChannelConfig = {
   greeting?: string;
@@ -207,10 +209,14 @@ export async function handleAssistantRequest(message: {
     agent.defaultLanguage,
   );
 
-  const firstMessage = resolveGreeting(
-    voiceConfig,
-    agent.name,
-    agent.welcomeMessage,
+  const firstMessage = prependRecordingConsent(
+    resolveGreeting(
+      voiceConfig,
+      agent.name,
+      agent.welcomeMessage,
+      detectedLanguage,
+    ),
+    agent.recordingConsentEnabled,
     detectedLanguage,
   );
 
@@ -267,7 +273,15 @@ export async function handleAssistantRequest(message: {
     ? buildVoiceEscalationPromptSection(escalationConfig.triggers, handoffAvailable)
     : "";
 
-  const instructions = [agent.instructions, escalationPrompt].filter(Boolean).join("\n\n");
+  const guardrailSection = buildGuardrailPromptSection({
+    stayOnTopic: agent.guardrailStayOnTopic,
+    refuseSensitive: agent.guardrailRefuseSensitive,
+    escalateWhenUnsure: agent.guardrailEscalateWhenUnsure,
+  });
+
+  const instructions = [agent.instructions, escalationPrompt, guardrailSection]
+    .filter(Boolean)
+    .join("\n\n");
 
   const knowledgeContext = await retrieveVoiceKnowledgeContext({
     orgId,
@@ -279,6 +293,14 @@ export async function handleAssistantRequest(message: {
     agentName: agent.name,
     orgName: agent.org.name,
     instructions,
+    personality: {
+      agentType: agent.agentType,
+      customRole: agent.customRole,
+      tone: agent.tone,
+      customTone: agent.customTone,
+      description: agent.description,
+      websiteUrl: agent.websiteUrl,
+    },
     knowledgeContext,
     language: promptLanguage,
     toolDefinitions: tools,
@@ -338,7 +360,7 @@ export async function handleAssistantRequest(message: {
   return {
     assistant: {
       ...assistantConfig,
-      recordingEnabled: true,
+      recordingEnabled: agent.saveRecordings,
       clientMessages: [
         "tool-calls",
         "end-of-call-report",

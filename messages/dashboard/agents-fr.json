@@ -57,6 +57,7 @@
         "technologySoftware": "Technologie et logiciels",
         "governmentPublic": "Gouvernement et secteur public",
         "foodBeverage": "Alimentation et boissons",
+        "manufacturing": "Industrie",
         "custom": "Personnalisé"
       },
       "channels": {
@@ -97,6 +98,7 @@
       "copyShareableLink": "Copier le lien partageable",
       "copyAgentId": "Copier l'identifiant de l'agent",
       "archiveAgent": "Archiver l'agent",
+      "unarchiveAgent": "Désarchiver l'agent",
       "deleteAgent": "Supprimer l'agent",
       "shareableLinkCopied": "Lien partageable copié",
       "agentIdCopied": "Identifiant de l'agent copié",
@@ -118,6 +120,36 @@
         "advanced": "Avancé",
         "sections": "Sections de l'agent",
         "placeholder": "Bientôt disponible — {label}"
+      },
+      "tests": {
+        "questionCount": "{count, plural, one {# question} other {# questions}}",
+        "testingAs": "Test en tant que {name}",
+        "previewUser": "Utilisateur d’aperçu",
+        "addQuestion": "+ Ajouter une question",
+        "addPlaceholder": "Saisissez une question client…",
+        "question": "Question",
+        "status": "Statut",
+        "idle": "En attente",
+        "inProgress": "En cours",
+        "passed": "Réussi",
+        "failed": "Échoué",
+        "error": "Erreur",
+        "run": "Lancer",
+        "running": "Exécution…",
+        "empty": "Ajoutez les questions que posent vraiment vos clients, puis lancez-les contre cet agent.",
+        "demoUnavailable": "La démo n’est pas disponible.",
+        "failedLoad": "Impossible de charger les tests.",
+        "failedAdd": "Impossible d’ajouter la question.",
+        "failedRun": "Impossible d’exécuter ce test.",
+        "deleteQuestion": "Supprimer la question",
+        "cancelAdd": "Annuler",
+        "seeds": {
+          "q1": "Quelles options de paiement proposez-vous ?",
+          "q2": "Proposez-vous des paiements en plusieurs fois ?",
+          "q3": "Puis-je payer avec une facture d’entreprise ?",
+          "q4": "Comment fonctionnent les remboursements après 30 jours ?",
+          "q5": "Acceptez-vous les cartes internationales ?"
+        }
       },
       "agent": {
         "voices": "Voix",
@@ -266,6 +298,110 @@
         "addVariable": "Ajouter une variable",
         "key": "Clé (snake_case)",
         "keyPlaceholder": "ex. brand_voice"
+      },
+      "security": {
+        "failedSave": "Impossible de mettre à jour les paramètres de sécurité",
+        "tokenCopied": "Jeton du widget copié",
+        "tokenRotated": "Jeton du widget renouvelé",
+        "tokenGenerated": "Jeton du widget généré",
+        "couldNotCopy": "Impossible de copier dans le presse-papiers",
+        "couldNotRotate": "Impossible de renouveler le jeton du widget",
+        "access": {
+          "title": "Accès",
+          "description": "Contrôlez qui peut parler à cet agent depuis le widget web et la page d’aide.",
+          "visibility": "Visibilité",
+          "public": "Public",
+          "private": "Privé",
+          "publicHint": "Toute personne sur un domaine autorisé peut discuter. Le jeton du widget reste dans le code d’intégration.",
+          "privateHint": "Les visiteurs du site ne peuvent pas joindre cet agent tant qu’il n’est pas Public.",
+          "widgetToken": "Jeton du widget",
+          "widgetTokenDescription": "Requis dans les intégrations de site. Renouvelez-le s’il a fuité.",
+          "showToken": "Afficher le jeton du widget",
+          "hideToken": "Masquer le jeton du widget",
+          "copyToken": "Copier le jeton du widget",
+          "rotateToken": "Renouveler le jeton",
+          "generateToken": "Générer un jeton",
+          "rotateTitle": "Renouveler le jeton du widget ?",
+          "rotateDescription": "Les intégrations qui utilisent le jeton actuel cesseront de fonctionner jusqu’à ce que vous les mettiez à jour.",
+          "rotateConfirm": "Renouveler",
+          "cancel": "Annuler",
+          "apiTokenLink": "Jeton API",
+          "apiTokenLinkLabel": "Gérer le jeton API dans Déploiement"
+        },
+        "domains": {
+          "title": "Domaines autorisés",
+          "description": "Une fois renseignés, le widget et la page d’aide ne fonctionnent que sur ces noms d’hôte. Laissez vide pour autoriser tous les sites.",
+          "list": "Noms d’hôte",
+          "placeholder": "example.com\nwww.example.com\nlocalhost:3000",
+          "hint": "Un nom d’hôte par ligne. Sans https://. Ajoutez chaque sous-domaine séparément."
+        },
+        "rateLimit": {
+          "title": "Limites d’abus",
+          "description": "Limitez le nombre de messages web-chat qu’un visiteur peut envoyer par minute.",
+          "perMinute": "Messages par minute",
+          "none": "Laissez vide pour aucune limite supplémentaire. L’aperçu du tableau de bord n’est pas limité.",
+          "placeholder": "Illimité"
+        },
+        "privacy": {
+          "title": "Confidentialité",
+          "description": "Contrôlez ce que cet agent conserve des conversations et des appels.",
+          "recordingConsent": "Mention de consentement à l’enregistrement",
+          "recordingConsentDescription": "Lire une courte phrase « cet appel peut être enregistré » au début des appels vocaux.",
+          "saveRecordings": "Enregistrer les appels",
+          "saveRecordingsDescription": "Conserver l’audio dans l’historique. Les transcriptions restent stockées.",
+          "retention": "Rétention des conversations",
+          "retentionDescription": "Supprimer automatiquement les conversations de cet agent après la période choisie.",
+          "keep": "Conserver",
+          "days7": "7 jours",
+          "days30": "30 jours",
+          "days90": "90 jours",
+          "days365": "1 an",
+          "piiRedaction": "Masquer les données personnelles dans les transcriptions",
+          "piiRedactionDescription": "Masquer e-mails, téléphones, numéros de carte et pièces d’identité à l’enregistrement.",
+          "neverCollect": "Ne jamais collecter de cartes ou de codes PIN",
+          "neverCollectDescription": "Toujours actif. L’agent ne demandera pas de cartes de paiement, de codes PIN ni de mots de passe."
+        },
+        "guardrails": {
+          "title": "Garde-fous",
+          "description": "Règles de sécurité appliquées à chaque tour, indépendamment du prompt système.",
+          "stayOnTopic": "Rester dans le sujet",
+          "stayOnTopicDescription": "Refuser les questions hors sujet et ramener la conversation vers cette activité.",
+          "refuseSensitive": "Refuser les conseils médicaux, juridiques et financiers",
+          "refuseSensitiveDescription": "Ne pas diagnostiquer, donner un avis juridique ni un conseil financier personnalisé.",
+          "escalateWhenUnsure": "Transférer en cas de doute",
+          "escalateWhenUnsureDescription": "Si l’agent n’est pas sûr, il propose un humain au lieu d’inventer."
+        }
+      },
+      "advanced": {
+        "failedSave": "Impossible de mettre à jour les paramètres avancés",
+        "identity": {
+          "title": "Identité",
+          "description": "Nom, rôle et objectif pour lesquels cet agent a été créé.",
+          "name": "Nom",
+          "nameDescription": "Affiché dans le tableau de bord et utilisé quand l’agent se présente.",
+          "type": "Type",
+          "typeDescription": "Contexte sectoriel de cet agent.",
+          "customRole": "Rôle personnalisé",
+          "customRoleDescription": "À quoi sert cet agent personnalisé.",
+          "customRolePlaceholder": "Décrivez le rôle…",
+          "mainGoal": "Objectif principal",
+          "mainGoalDescription": "Ce que cet agent doit accomplir.",
+          "mainGoalPlaceholder": "Décrivez ce que vous voulez que votre agent accomplisse…",
+          "website": "Site web",
+          "websiteDescription": "Partager cette URL lorsqu’elle est pertinente. Laissez vide pour aucun.",
+          "websitePlaceholder": "https://example.com"
+        },
+        "personality": {
+          "title": "Personnalité",
+          "description": "Comment cet agent s’exprime et à quel point il paraphrase.",
+          "tone": "Ton",
+          "toneDescription": "Style d’expression par défaut. Vous pouvez ajouter des précisions ci-dessous.",
+          "customTone": "Notes de ton",
+          "customToneDescription": "Style optionnel, par exemple « darija chaleureux, phrases courtes ».",
+          "customTonePlaceholder": "Décrivez le ton…",
+          "creativity": "Créativité",
+          "creativityDescription": "Contrôle à quel point les réponses s’en tiennent aux faits connus plutôt qu’à la paraphrase."
+        }
       },
       "previewFallback": "Bonjour ! Comment puis-je vous aider aujourd'hui ?"
     },

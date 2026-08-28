@@ -12,6 +12,8 @@
       "workspace": "Espace de travail"
     },
     "topbar": {
+      "openSidebar": "Ouvrir la barre latérale",
+      "closeSidebar": "Fermer la barre latérale",
       "feedback": "Commentaires",
       "docs": "Documentation",
       "notifications": "Notifications",

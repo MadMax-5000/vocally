@@ -9,6 +9,7 @@ import { KnowledgeIcon } from "@/components/ui/icons"
 import { Bell, MessageCircle } from "@/lib/icons/app-icons"
 
 import { Button } from "@/components/ui/button"
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import {
   Tooltip,
   TooltipContent,
@@ -19,10 +20,15 @@ import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher"
 
 export function DashboardTopbar() {
   const t = useTranslations("dashboard.topbar")
+  const { state, isMobile, openMobile } = useSidebar()
+  const isOpen = isMobile ? openMobile : state === "expanded"
 
   return (
     <header className="sticky top-0 z-40 flex h-12 w-full shrink-0 items-center border-b border-hairline bg-surface-card px-3">
-      {/* Right cluster */}
+      <SidebarTrigger
+        aria-label={isOpen ? t("closeSidebar") : t("openSidebar")}
+        className="rtl:-scale-x-100"
+      />
       <div className="ml-auto flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>

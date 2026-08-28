@@ -12,6 +12,8 @@
       "workspace": "مساحة العمل"
     },
     "topbar": {
+      "openSidebar": "فتح الشريط الجانبي",
+      "closeSidebar": "إغلاق الشريط الجانبي",
       "feedback": "ملاحظات",
       "docs": "الوثائق",
       "notifications": "الإشعارات",

@@ -9,6 +9,7 @@ const handleI18nRouting = createMiddleware(routing);
 const isLocalizedDashboardRoute = createRouteMatcher(["/(fr|en|ar)/dashboard(.*)"]);
 const isOnboardingRoute = createRouteMatcher(["/(fr|en|ar)/onboarding", "/onboarding"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)", "/api/cron(.*)"]);
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
 
 const isI18nRoute = createRouteMatcher([
   '/',
@@ -23,7 +24,7 @@ const isI18nRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isWebhookRoute(req)) return;
+  if (isWebhookRoute(req) || isApiRoute(req)) return;
 
   const session = await auth();
 

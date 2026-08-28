@@ -1,5 +1,9 @@
 import { buildBookAppointmentPromptSection } from "@/lib/ai/prompts/book-appointment-prompt";
 import { buildCollectLeadsPromptSection } from "@/lib/ai/prompts/collect-leads-prompt";
+import {
+  buildAgentPersonalityPromptSection,
+  type AgentPersonalityInput,
+} from "@/lib/ai/prompts/agent-personality";
 import { getAllToolDefinitions } from "@/lib/ai/tools/registry";
 import type { ToolDefinition } from "@/lib/ai/tools/types";
 import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
@@ -9,6 +13,7 @@ export type VoiceBotPromptInput = {
   agentName: string;
   orgName: string;
   instructions?: string | null;
+  personality?: AgentPersonalityInput;
   knowledgeContext: string;
   language: string;
   toolDefinitions?: ToolDefinition[];
@@ -22,6 +27,13 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
     `You are speaking with a customer over the phone. Keep responses short — 1 to 3 sentences maximum.`,
     `Always respond in ${input.language}.`,
   ];
+
+  const personalitySection = input.personality
+    ? buildAgentPersonalityPromptSection(input.personality)
+    : "";
+  if (personalitySection) {
+    sections.push(personalitySection);
+  }
 
   if (input.instructions) {
     sections.push(`Follow these instructions: ${input.instructions}`);

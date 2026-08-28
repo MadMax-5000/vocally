@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { ArrowLeftIcon, Eye } from "@/lib/icons/app-icons";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -34,12 +35,19 @@ export function AgentDetailTopbar({
   onTabChange,
 }: AgentDetailTopbarProps) {
   const t = useTranslations("dashboard.agentDetail");
+  const tTopbar = useTranslations("dashboard.topbar");
+  const { state, isMobile, openMobile } = useSidebar();
+  const isSidebarOpen = isMobile ? openMobile : state === "expanded";
   const isPreviewActive = activeTab === "preview";
 
   return (
     <div className="-mx-4 bg-surface-card px-4">
       <div className="flex h-12 items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
+          <SidebarTrigger
+            aria-label={isSidebarOpen ? tTopbar("closeSidebar") : tTopbar("openSidebar")}
+            className="rtl:-scale-x-100"
+          />
           <Button
             variant="ghost"
             size="icon-sm"
@@ -100,7 +108,11 @@ export function AgentDetailTopbar({
 
           <AgentPublishButton />
 
-          <AgentMoreActionsMenu agentId={agent.id} />
+          <AgentMoreActionsMenu
+            agentId={agent.id}
+            agentName={agent.name}
+            status={agent.status}
+          />
         </div>
       </div>
     </div>

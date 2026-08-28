@@ -10,7 +10,9 @@ import {
 } from "@/lib/icons/app-icons";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { usePathname } from "@/i18n/routing";
+import { usePathname, useRouter } from "@/i18n/routing";
+import { AgentStatus } from "@prisma/client";
+import { archiveAgent, deleteAgent } from "@/lib/actions/agents";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,8 @@ import {
 
 type AgentMoreActionsMenuProps = {
   agentId: string;
+  agentName: string;
+  status: AgentStatus;
 };
 
 async function copyToClipboard(text: string, successMessage: string, errorMessage: string) {
@@ -39,9 +43,16 @@ async function copyShareableLink(agentId: string, pathname: string, successMessa
   await copyToClipboard(url, successMessage, errorMessage);
 }
 
-export function AgentMoreActionsMenu({ agentId }: AgentMoreActionsMenuProps) {
+export function AgentMoreActionsMenu({
+  agentId,
+  agentName,
+  status,
+}: AgentMoreActionsMenuProps) {
   const t = useTranslations("dashboard.agentDetail");
+  const tList = useTranslations("dashboard.agents");
   const pathname = usePathname();
+  const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -77,18 +88,41 @@ export function AgentMoreActionsMenu({ agentId }: AgentMoreActionsMenuProps) {
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
-            toast.message(t("archiveAgent"), { description: t("comingSoon") });
+            void (async () => {
+              const res = await archiveAgent(agentId);
+              if (res.success) {
+                toast.success(
+                  res.status === "PAUSED" ? tList("agentArchived") : tList("agentUnarchived"),
+                );
+                router.refresh();
+              } else {
+                toast.error(res.error ?? tList("failedToArchive"));
+              }
+            })();
           }}
         >
           <AppIcon icon={ArchiveIcon} className="mr-2 h-3.5 w-3.5" />
-          {t("archiveAgent")}
+          {status === "PAUSED" ? t("unarchiveAgent") : t("archiveAgent")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-semantic-error focus:text-semantic-error"
           onSelect={(e) => {
             e.preventDefault();
-            toast.message(t("deleteAgent"), { description: t("comingSoon") });
+            const confirmed = window.confirm(
+              tList("deleteConfirmation", { name: agentName }),
+            );
+            if (!confirmed) return;
+            void (async () => {
+              const res = await deleteAgent(agentId);
+              if (res.success) {
+                toast.success(tList("agentDeleted"));
+                router.push("/dashboard/agents");
+                router.refresh();
+              } else {
+                toast.error(res.error ?? tList("failedToDelete"));
+              }
+            })();
           }}
         >
           <AppIcon icon={Trash2Icon} className="mr-2 h-3.5 w-3.5" />

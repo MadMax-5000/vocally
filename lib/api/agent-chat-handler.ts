@@ -14,6 +14,7 @@ import {
   resolveSuggestedMessagesAction,
 } from "@/lib/deploy/suggested-messages-action";
 import { prisma } from "@/lib/db/prisma";
+import { maybeRedactPii } from "@/lib/agent-security/pii";
 
 export type AgentForApiAccess = Pick<
   Agent,
@@ -139,8 +140,15 @@ export async function handleAgentChatMessage({
     sessionId = session.id;
   }
 
+  const security = await prisma.agent.findFirst({
+    where: { id: agentId, orgId },
+    select: { piiRedactionEnabled: true },
+  });
+  const redact = security?.piiRedactionEnabled === true;
+  const storedUserContent = maybeRedactPii(message, redact);
+
   const userMessage = await prisma.message.create({
-    data: { sessionId, role: "USER", content: message },
+    data: { sessionId, role: "USER", content: storedUserContent },
   });
 
   const effectiveMessage = context ? `[Context: ${context}]\n${message}` : message;
@@ -160,7 +168,11 @@ export async function handleAgentChatMessage({
       : botContent;
 
   const botMessage = await prisma.message.create({
-    data: { sessionId, role: "BOT", content: replyContent },
+    data: {
+      sessionId,
+      role: "BOT",
+      content: maybeRedactPii(replyContent, redact),
+    },
   });
 
   const agent = await prisma.agent.findFirst({
@@ -262,13 +274,13 @@ export async function handleAgentChatMessage({
       userMessage: {
         id: userMessage.id,
         role: "USER",
-        content: userMessage.content,
+        content: message,
         createdAt: userMessage.createdAt.toISOString(),
       },
       message: {
         id: botMessage.id,
         role: "BOT",
-        content: botMessage.content,
+        content: replyContent,
         createdAt: botMessage.createdAt.toISOString(),
         ...(formUi ? { ui: formUi } : {}),
       },

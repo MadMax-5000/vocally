@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
 import { MAX_CALL_MINUTES } from "@/lib/billing/plan-features";
 import { normalizeE164 } from "@/lib/telephony/e164";
+import { prependRecordingConsent } from "@/lib/agent-security/consent";
 
 export type ResolvedVoiceNumber = {
   orgId: string;
@@ -94,9 +95,27 @@ export async function resolveWelcomeMessage(agentId: string | null): Promise<str
   if (!agentId) return null;
   const agent = await prisma.agent.findUnique({
     where: { id: agentId },
-    select: { welcomeMessage: true, name: true },
+    select: {
+      welcomeMessage: true,
+      recordingConsentEnabled: true,
+      defaultLanguage: true,
+    },
   });
-  return agent?.welcomeMessage ?? null;
+  const greeting = agent?.welcomeMessage ?? null;
+  const language =
+    agent?.defaultLanguage === "ARABIC"
+      ? "ar"
+      : agent?.defaultLanguage === "DARIJA"
+        ? "ary"
+        : agent?.defaultLanguage === "FRENCH"
+          ? "fr"
+          : "en";
+  const withConsent = prependRecordingConsent(
+    greeting ?? "",
+    agent?.recordingConsentEnabled !== false,
+    language,
+  );
+  return withConsent || null;
 }
 
 export async function handleVoiceUtterance(params: {

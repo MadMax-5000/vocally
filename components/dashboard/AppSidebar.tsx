@@ -44,7 +44,13 @@ function SidebarNavIcon({ icon }: { icon: SidebarIcon }) {
   if (icon === KnowledgeIcon) {
     return <KnowledgeIcon />
   }
-  return <AppIcon icon={icon as IconSvgElement} size={16} />
+  return (
+    <AppIcon
+      icon={icon as IconSvgElement}
+      size={16}
+      className={icon === BarChart2Icon ? "rotate-180" : undefined}
+    />
+  )
 }
 
 const operationsItems: { key: "inbox" | "leads" | "live" | "analytics"; url: string; icon: IconSvgElement }[] = [
@@ -60,6 +66,7 @@ const workspaceItems: { key: "knowledge" | "billing"; url: string; icon: Sidebar
 ]
 
 function SidebarBrand() {
+  const t = useTranslations("dashboard.topbar")
   const { state, isMobile, openMobile, expandOnHover } = useSidebar()
   const isExpanded = isMobile ? openMobile : state === "expanded"
 
@@ -90,7 +97,12 @@ function SidebarBrand() {
           </span>
         ) : null}
       </Link>
-      {!expandOnHover && isExpanded ? <SidebarTrigger /> : null}
+      {!expandOnHover && isExpanded ? (
+        <SidebarTrigger
+          aria-label={t("closeSidebar")}
+          className="rtl:-scale-x-100"
+        />
+      ) : null}
     </SidebarHeader>
   )
 }

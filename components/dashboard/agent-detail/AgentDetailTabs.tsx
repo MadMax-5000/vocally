@@ -1,13 +1,17 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
+
+import { useEffect, useState } from "react";
 import { DashboardTabBar } from "@/components/dashboard/DashboardTabBar";
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
-import { AgentDetailAnalyticsTab } from "./AgentDetailAnalyticsTab";
 import { AgentDetailKnowledgeTab } from "./AgentDetailKnowledgeTab";
 import { AgentDetailPreviewTab } from "./AgentDetailPreviewTab";
 import { AgentDetailDeployTab } from "./AgentDetailDeployTab";
 import { AgentDetailActionsTab } from "./AgentDetailActionsTab";
+import { AgentTestsPanel } from "./tests/AgentTestsPanel";
+import { AgentDetailSecurityTab } from "./AgentDetailSecurityTab";
+import { AgentDetailAdvancedTab } from "./AgentDetailAdvancedTab";
+import { resolveTestingAsLabel } from "@/lib/agent-tests/context";
 import { useTranslations } from "next-intl";
 
 export const AGENT_DETAIL_TAB_IDS: AgentDetailTabId[] = [
@@ -19,6 +23,13 @@ export const AGENT_DETAIL_TAB_IDS: AgentDetailTabId[] = [
   "security",
   "tests",
   "advanced",
+];
+
+const IDLE_PREMOUNT_TABS: AgentDetailTabId[] = [
+  "actions",
+  "deploy",
+  "security",
+  "tests",
 ];
 
 type AgentDetailTabsProps = {
@@ -36,6 +47,48 @@ function TabPlaceholder({ label }: { label: string }) {
   );
 }
 
+function TabPanelContent({
+  tabId,
+  agent,
+  label,
+}: {
+  tabId: AgentDetailTabId;
+  agent: AgentDetailWithRelations;
+  label: string;
+}) {
+  const tTests = useTranslations("dashboard.agentDetail.tests");
+
+  switch (tabId) {
+    case "agent":
+      return <AgentDetailAgentTab agent={agent} />;
+    case "knowledge":
+      return <AgentDetailKnowledgeTab agentId={agent.id} />;
+    case "actions":
+      return <AgentDetailActionsTab agent={agent} />;
+    case "preview":
+      return <AgentDetailPreviewTab agent={agent} />;
+    case "deploy":
+      return <AgentDetailDeployTab agent={agent} />;
+    case "tests":
+      return (
+        <AgentTestsPanel
+          variant="dashboard"
+          agentId={agent.id}
+          testingAs={resolveTestingAsLabel(
+            agent.variables,
+            tTests("previewUser"),
+          )}
+        />
+      );
+    case "security":
+      return <AgentDetailSecurityTab agent={agent} />;
+    case "advanced":
+      return <AgentDetailAdvancedTab agent={agent} />;
+    default:
+      return <TabPlaceholder label={label} />;
+  }
+}
+
 export function AgentDetailTabs({
   agent,
   activeTab,
@@ -43,7 +96,36 @@ export function AgentDetailTabs({
 }: AgentDetailTabsProps) {
   const t = useTranslations("dashboard.agentDetail.tabs");
   const tabConfig = AGENT_DETAIL_TAB_IDS.map((id) => ({ id, label: t(id) }));
-  const activeLabel = tabConfig.find((tab) => tab.id === activeTab)?.label ?? "";
+  const [mountedTabs, setMountedTabs] = useState<Set<AgentDetailTabId>>(
+    () => new Set([activeTab]),
+  );
+
+  useEffect(() => {
+    setMountedTabs((prev) => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    const premount = () => {
+      setMountedTabs((prev) => {
+        const next = new Set(prev);
+        for (const id of IDLE_PREMOUNT_TABS) next.add(id);
+        return next;
+      });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(premount);
+      return () => window.cancelIdleCallback(id);
+    }
+
+    const timeout = window.setTimeout(premount, 200);
+    return () => window.clearTimeout(timeout);
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -56,33 +138,20 @@ export function AgentDetailTabs({
         className="-mx-4 -mt-1 px-4"
       />
 
-      {/* Tab content with fade+slide transition */}
       <div className="pt-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.14 }}
-          >
-            {activeTab === "agent" ? (
-              <AgentDetailAgentTab agent={agent} />
-            ) : activeTab === "analysis" ? (
-              <AgentDetailAnalyticsTab agentId={agent.id} />
-            ) : activeTab === "knowledge" ? (
-              <AgentDetailKnowledgeTab agentId={agent.id} />
-            ) : activeTab === "actions" ? (
-              <AgentDetailActionsTab agent={agent} />
-            ) : activeTab === "preview" ? (
-              <AgentDetailPreviewTab agent={agent} />
-            ) : activeTab === "deploy" ? (
-              <AgentDetailDeployTab agent={agent} />
-            ) : (
-              <TabPlaceholder label={activeLabel} />
-            )}
-          </motion.div>
-        </AnimatePresence>
+        {AGENT_DETAIL_TAB_IDS.map((id) => {
+          if (!mountedTabs.has(id)) return null;
+          const isActive = id === activeTab;
+          return (
+            <div key={id} hidden={!isActive} inert={!isActive}>
+              <TabPanelContent
+                tabId={id}
+                agent={agent}
+                label={tabConfig.find((tab) => tab.id === id)?.label ?? ""}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -57,6 +57,7 @@
         "technologySoftware": "Technology & software",
         "governmentPublic": "Government & public",
         "foodBeverage": "Food & beverage",
+        "manufacturing": "Manufacturing",
         "custom": "Custom"
       },
       "channels": {
@@ -144,6 +145,7 @@
       "copyShareableLink": "Copy shareable link",
       "copyAgentId": "Copy agent ID",
       "archiveAgent": "Archive agent",
+      "unarchiveAgent": "Unarchive agent",
       "deleteAgent": "Delete agent",
       "shareableLinkCopied": "Shareable link copied",
       "agentIdCopied": "Agent ID copied",
@@ -165,6 +167,36 @@
         "advanced": "Advanced",
         "sections": "Agent sections",
         "placeholder": "Coming soon — {label}"
+      },
+      "tests": {
+        "questionCount": "{count, plural, one {# question} other {# questions}}",
+        "testingAs": "Testing as {name}",
+        "previewUser": "Preview user",
+        "addQuestion": "+ Add question",
+        "addPlaceholder": "Type a customer question…",
+        "question": "Question",
+        "status": "Status",
+        "idle": "Idle",
+        "inProgress": "In-progress",
+        "passed": "Passed",
+        "failed": "Failed",
+        "error": "Error",
+        "run": "Run",
+        "running": "Running…",
+        "empty": "Add questions customers actually ask, then run them against this agent.",
+        "demoUnavailable": "Demo is unavailable.",
+        "failedLoad": "Could not load tests.",
+        "failedAdd": "Could not add question.",
+        "failedRun": "Could not run this test.",
+        "deleteQuestion": "Remove question",
+        "cancelAdd": "Cancel",
+        "seeds": {
+          "q1": "What payment options do you offer?",
+          "q2": "Do you offer installment plans?",
+          "q3": "Can I pay with a company invoice?",
+          "q4": "How do refunds work after 30 days?",
+          "q5": "Do you accept international cards?"
+        }
       },
       "agent": {
         "voices": "Voices",
@@ -313,6 +345,110 @@
         "addVariable": "Add variable",
         "key": "Key (snake_case)",
         "keyPlaceholder": "e.g. brand_voice"
+      },
+      "security": {
+        "failedSave": "Could not update security settings",
+        "tokenCopied": "Widget token copied",
+        "tokenRotated": "Widget token rotated",
+        "tokenGenerated": "Widget token generated",
+        "couldNotCopy": "Could not copy to clipboard",
+        "couldNotRotate": "Could not rotate widget token",
+        "access": {
+          "title": "Access",
+          "description": "Control who can talk to this agent from the web widget and help page.",
+          "visibility": "Visibility",
+          "public": "Public",
+          "private": "Private",
+          "publicHint": "Anyone on an allowed domain can chat. The widget token stays in the embed.",
+          "privateHint": "Website visitors cannot reach this agent until it is Public.",
+          "widgetToken": "Widget token",
+          "widgetTokenDescription": "Required in website embeds. Rotate it if it was exposed.",
+          "showToken": "Show widget token",
+          "hideToken": "Hide widget token",
+          "copyToken": "Copy widget token",
+          "rotateToken": "Rotate token",
+          "generateToken": "Generate token",
+          "rotateTitle": "Rotate widget token?",
+          "rotateDescription": "Existing embeds using the current token will stop working until you update them.",
+          "rotateConfirm": "Rotate",
+          "cancel": "Cancel",
+          "apiTokenLink": "API token",
+          "apiTokenLinkLabel": "Manage the API token in Deploy"
+        },
+        "domains": {
+          "title": "Allowed domains",
+          "description": "When set, the widget and help page only work on these hostnames. Leave empty to allow any site.",
+          "list": "Hostnames",
+          "placeholder": "example.com\nwww.example.com\nlocalhost:3000",
+          "hint": "One hostname per line. No https://. Add each subdomain separately."
+        },
+        "rateLimit": {
+          "title": "Abuse limits",
+          "description": "Cap how many web-chat messages one visitor can send per minute.",
+          "perMinute": "Messages per minute",
+          "none": "Leave empty for no extra cap. Dashboard preview is not limited.",
+          "placeholder": "Unlimited"
+        },
+        "privacy": {
+          "title": "Privacy",
+          "description": "Control what this agent stores from conversations and calls.",
+          "recordingConsent": "Recording consent prompt",
+          "recordingConsentDescription": "Play a short “this call may be recorded” line at the start of voice calls.",
+          "saveRecordings": "Save call recordings",
+          "saveRecordingsDescription": "Keep audio in call history. Transcripts are still stored.",
+          "retention": "Conversation retention",
+          "retentionDescription": "Automatically delete this agent’s conversations after the selected period.",
+          "keep": "Keep",
+          "days7": "7 days",
+          "days30": "30 days",
+          "days90": "90 days",
+          "days365": "1 year",
+          "piiRedaction": "Redact PII in stored transcripts",
+          "piiRedactionDescription": "Mask emails, phones, card numbers, and ID numbers when saving transcripts.",
+          "neverCollect": "Never collect cards or PINs",
+          "neverCollectDescription": "Always on. The agent will not ask for payment cards, PINs, or passwords."
+        },
+        "guardrails": {
+          "title": "Guardrails",
+          "description": "Safety rules applied on every turn, independently of the system prompt.",
+          "stayOnTopic": "Stay on topic",
+          "stayOnTopicDescription": "Decline unrelated questions and steer back to this business.",
+          "refuseSensitive": "Refuse medical, legal, and financial advice",
+          "refuseSensitiveDescription": "Do not diagnose, give legal counsel, or offer personalized financial advice.",
+          "escalateWhenUnsure": "Escalate when unsure",
+          "escalateWhenUnsureDescription": "If the agent is not confident, it offers a human instead of guessing."
+        }
+      },
+      "advanced": {
+        "failedSave": "Could not update advanced settings",
+        "identity": {
+          "title": "Identity",
+          "description": "Name, role, and the goal this agent was created for.",
+          "name": "Name",
+          "nameDescription": "Shown in the dashboard and used when the agent introduces itself.",
+          "type": "Type",
+          "typeDescription": "Industry context for this agent.",
+          "customRole": "Custom role",
+          "customRoleDescription": "What this custom agent is for.",
+          "customRolePlaceholder": "Describe the role…",
+          "mainGoal": "Main goal",
+          "mainGoalDescription": "What this agent should accomplish.",
+          "mainGoalPlaceholder": "Describe what you want your agent to accomplish…",
+          "website": "Website",
+          "websiteDescription": "Share this URL when it is relevant. Leave empty for none.",
+          "websitePlaceholder": "https://example.com"
+        },
+        "personality": {
+          "title": "Personality",
+          "description": "How this agent sounds and how freely it paraphrases.",
+          "tone": "Tone",
+          "toneDescription": "Default speaking style. You can add extra notes below.",
+          "customTone": "Custom tone notes",
+          "customToneDescription": "Optional extra style, for example “warm Darija, short sentences”.",
+          "customTonePlaceholder": "Describe tone…",
+          "creativity": "Creativity",
+          "creativityDescription": "Controls how tightly replies stick to known facts versus paraphrasing."
+        }
       },
       "previewFallback": "Hello! How can I help you today?"
     },

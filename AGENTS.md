@@ -333,7 +333,7 @@ export async function POST(req: Request) {
 # Install dependencies
 npm install
 
-# Dev server
+# Dev server (reuse if already running; agents must not spawn extras)
 npm run dev
 
 # DB — push schema changes
@@ -348,6 +348,12 @@ npx tsc --noEmit
 # Lint
 npm run lint
 ```
+
+### Dev servers (agents)
+
+- Reuse a server that is already running. Do not start another `npm run dev` / `next dev` if one is healthy (Next will bind 3001, 3002, … and leave leftovers).
+- Typecheck, lint, and most edits do not need a live server.
+- If you start a server for UI/HTTP checks, **stop that process when done** — only the job you spawned. Never kill the user's own terminal or all `node` processes.
 
 ### Knowledge base (pgvector)
 
