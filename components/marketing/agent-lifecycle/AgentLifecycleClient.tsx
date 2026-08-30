@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Link } from "@/i18n/routing";
-import { cn } from "@/lib/utils";
 
 import { BuildVisual } from "./visuals/BuildVisual";
 import { DeployVisual } from "./visuals/DeployVisual";
@@ -42,7 +41,6 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
   const barRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
   const inViewRef = useRef(false);
-  const pauseAutoplayRef = useRef(false);
 
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
@@ -57,10 +55,6 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
   useEffect(() => {
     inViewRef.current = inView;
   }, [inView]);
-
-  const current = steps[active] ?? steps[0];
-  const pauseAutoplay = current?.id === "test";
-  pauseAutoplayRef.current = pauseAutoplay;
 
   useLayoutEffect(() => {
     setBar(0);
@@ -87,7 +81,7 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      if (inViewRef.current && !pauseAutoplayRef.current) {
+      if (inViewRef.current) {
         const next = Math.min(1, progressRef.current + dt / STEP_MS);
         if (next >= 1) {
           setBar(0);
@@ -107,6 +101,8 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
     if (index === active) return;
     setActive(index);
   };
+
+  const current = steps[active] ?? steps[0];
 
   return (
     <section
@@ -208,16 +204,9 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
               <DiamondOverlay />
               <div
                 className="relative z-10 flex h-full items-center justify-center p-5 sm:p-8 lg:p-10"
-                aria-hidden={current.id !== "test"}
+                aria-hidden
               >
-                <div
-                  className={cn(
-                    "flex w-full justify-center",
-                    current.id === "test"
-                      ? "pointer-events-auto"
-                      : "pointer-events-none select-none",
-                  )}
-                >
+                <div className="pointer-events-none flex w-full justify-center select-none">
                   {current.id === "build" ? <BuildVisual /> : null}
                   {current.id === "test" ? <TestVisual /> : null}
                   {current.id === "deploy" ? <DeployVisual /> : null}

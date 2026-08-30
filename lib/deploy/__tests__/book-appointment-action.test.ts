@@ -13,11 +13,18 @@ describe("book-appointment-action", () => {
       whenToOffer: "proactive",
       departments: ["Sales", "Support"],
       notifyEmail: "team@example.com",
+      calendarProvider: "google",
+      timezone: "Africa/Casablanca",
+      durationMinutes: 45,
+      workingHours: { days: [1, 2, 3], start: "09:00", end: "17:00" },
     });
     expect(parsed.enabled).toBe(true);
     expect(parsed.whenToOffer).toBe("proactive");
     expect(parsed.departments).toEqual(["sales", "support"]);
     expect(parsed.notifyEmail).toBe("team@example.com");
+    expect(parsed.calendarProvider).toBe("google");
+    expect(parsed.durationMinutes).toBe(45);
+    expect(parsed.workingHours).toEqual({ days: [1, 2, 3], start: "09:00", end: "17:00" });
   });
 
   it("resolves defaults when channel config is missing", () => {
@@ -27,6 +34,9 @@ describe("book-appointment-action", () => {
     expect(resolved.departments).toContain("support");
     expect(resolved.departments).toContain("general");
     expect(resolved.notifyEmail).toBeNull();
+    expect(resolved.calendarProvider).toBe("none");
+    expect(resolved.timezone).toBe("Africa/Casablanca");
+    expect(resolved.durationMinutes).toBe(30);
   });
 
   it("resolves from WEB_CHAT channel config", () => {

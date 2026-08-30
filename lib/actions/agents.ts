@@ -35,6 +35,8 @@ import type {
   BookAppointmentActionConfig,
   BookAppointmentWhenToOffer,
 } from "@/lib/deploy/book-appointment-action";
+import { isValidTimeZone } from "@/lib/deploy/book-appointment-action";
+import { disconnectCalendarForAgent } from "@/lib/calendar/connect";
 import type {
   CollectLeadsActionConfig,
   CollectLeadsFieldsConfig,
@@ -1108,6 +1110,8 @@ export async function listAgentLeads(
   }
 }
 
+const hhMm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+
 const updateBookAppointmentActionSettingsSchema = z.object({
   enabled: z.boolean().optional(),
   whenToOffer: z.enum(["proactive", "intent_only"]).optional(),
@@ -1116,6 +1120,19 @@ const updateBookAppointmentActionSettingsSchema = z.object({
     .max(12)
     .optional(),
   notifyEmail: z.union([z.string().email().max(320), z.literal("")]).optional(),
+  calendarProvider: z.enum(["none", "google", "calendly"]).optional(),
+  timezone: z.string().trim().min(1).max(80).optional(),
+  durationMinutes: z.number().int().min(5).max(240).optional(),
+  slotIntervalMinutes: z.number().int().min(5).max(120).optional(),
+  maxDaysAhead: z.number().int().min(1).max(31).optional(),
+  workingHours: z
+    .object({
+      days: z.array(z.number().int().min(0).max(6)).min(1).max(7),
+      start: hhMm,
+      end: hhMm,
+    })
+    .optional(),
+  eventTypeUri: z.union([z.string().trim().url().max(500), z.literal("")]).optional(),
 });
 
 export async function updateBookAppointmentActionSettings(
@@ -1171,6 +1188,41 @@ export async function updateBookAppointmentActionSettings(
     if (incoming.notifyEmail !== undefined) {
       const trimmed = incoming.notifyEmail.trim();
       nextAction.notifyEmail = trimmed || undefined;
+    }
+    if (incoming.calendarProvider !== undefined) {
+      nextAction.calendarProvider = incoming.calendarProvider;
+    }
+    if (incoming.timezone !== undefined) {
+      if (!isValidTimeZone(incoming.timezone)) {
+        return { success: false as const, error: "Invalid timezone" };
+      }
+      nextAction.timezone = incoming.timezone;
+    }
+    if (incoming.durationMinutes !== undefined) {
+      nextAction.durationMinutes = incoming.durationMinutes;
+    }
+    if (incoming.slotIntervalMinutes !== undefined) {
+      nextAction.slotIntervalMinutes = incoming.slotIntervalMinutes;
+    }
+    if (incoming.maxDaysAhead !== undefined) {
+      nextAction.maxDaysAhead = incoming.maxDaysAhead;
+    }
+    if (incoming.workingHours !== undefined) {
+      if (incoming.workingHours.start >= incoming.workingHours.end) {
+        return { success: false as const, error: "Working hours end must be after start" };
+      }
+      nextAction.workingHours = {
+        days: Array.from(new Set(incoming.workingHours.days)).sort((a, b) => a - b),
+        start: incoming.workingHours.start,
+        end: incoming.workingHours.end,
+      };
+    }
+    if (incoming.eventTypeUri !== undefined) {
+      nextAction.eventTypeUri = incoming.eventTypeUri.trim() || undefined;
+    }
+
+    if (incoming.calendarProvider === "none") {
+      await disconnectCalendarForAgent(agentId, dbOrgId);
     }
 
     const nextConfig = {

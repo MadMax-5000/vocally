@@ -137,19 +137,11 @@
         "run": "Lancer",
         "running": "Exécution…",
         "empty": "Ajoutez les questions que posent vraiment vos clients, puis lancez-les contre cet agent.",
-        "demoUnavailable": "La démo n’est pas disponible.",
         "failedLoad": "Impossible de charger les tests.",
         "failedAdd": "Impossible d’ajouter la question.",
         "failedRun": "Impossible d’exécuter ce test.",
         "deleteQuestion": "Supprimer la question",
-        "cancelAdd": "Annuler",
-        "seeds": {
-          "q1": "Quelles options de paiement proposez-vous ?",
-          "q2": "Proposez-vous des paiements en plusieurs fois ?",
-          "q3": "Puis-je payer avec une facture d’entreprise ?",
-          "q4": "Comment fonctionnent les remboursements après 30 jours ?",
-          "q5": "Acceptez-vous les cartes internationales ?"
-        }
+        "cancelAdd": "Annuler"
       },
       "agent": {
         "voices": "Voix",

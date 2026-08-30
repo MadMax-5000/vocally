@@ -6,18 +6,33 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppIcon } from "@/components/ui/app-icon";
-import { PlusIcon, Trash2Icon } from "@/lib/icons/app-icons";
+import { LoaderIcon, PlusIcon, Trash2Icon, UnplugIcon } from "@/lib/icons/app-icons";
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import {
   listAgentAppointments,
   updateBookAppointmentActionSettings,
   type AgentAppointmentListItem,
 } from "@/lib/actions/agents";
+import {
+  disconnectCalendar,
+  listConnectedCalendlyEventTypes,
+  listConnectedGoogleCalendars,
+  updateConnectedGoogleCalendarId,
+} from "@/lib/actions/calendar-connection";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import type { BookAppointmentCalendarProvider } from "@/lib/deploy/book-appointment-action";
 
 import {
   ActionSheetEmpty,
@@ -37,6 +52,8 @@ import {
 } from "./book-appointment-action-draft";
 
 const MAX_DEPARTMENTS = 12;
+const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 type BookAppointmentActionSheetProps = {
   agent: AgentDetailWithRelations;
@@ -74,6 +91,7 @@ export function BookAppointmentActionSheet({
   const t = useTranslations("dashboard.actions");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [disconnectPending, startDisconnect] = useTransition();
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
   const [recentAppointments, setRecentAppointments] = useState<
     AgentAppointmentListItem[]
@@ -85,6 +103,17 @@ export function BookAppointmentActionSheet({
     buildBookAppointmentActionDraft(agent),
   );
   const [newDepartment, setNewDepartment] = useState("");
+  const [googleCalendars, setGoogleCalendars] = useState<
+    { id: string; summary: string; primary: boolean }[]
+  >([]);
+  const [eventTypes, setEventTypes] = useState<
+    { uri: string; name: string; duration: number | null }[]
+  >([]);
+  const [optionsLoading, setOptionsLoading] = useState(false);
+
+  const connection = agent.calendarConnection;
+  const googleConnected = connection?.provider === "GOOGLE";
+  const calendlyConnected = connection?.provider === "CALENDLY";
 
   useEffect(() => {
     if (!open) return;
@@ -100,6 +129,23 @@ export function BookAppointmentActionSheet({
         setRecentAppointments(result.data);
       }
     });
+
+    if (agent.calendarConnection?.provider === "GOOGLE") {
+      setOptionsLoading(true);
+      void listConnectedGoogleCalendars(agent.id).then((result) => {
+        setOptionsLoading(false);
+        if (result.success) setGoogleCalendars(result.data);
+      });
+    } else if (agent.calendarConnection?.provider === "CALENDLY") {
+      setOptionsLoading(true);
+      void listConnectedCalendlyEventTypes(agent.id).then((result) => {
+        setOptionsLoading(false);
+        if (result.success) setEventTypes(result.data);
+      });
+    } else {
+      setGoogleCalendars([]);
+      setEventTypes([]);
+    }
   }, [agent, open]);
 
   const isDirty = !draftsEqual(draft, savedDraft);
@@ -126,6 +172,16 @@ export function BookAppointmentActionSheet({
     }));
   }
 
+  function toggleWeekday(day: number) {
+    setDraft((d) => {
+      const has = d.workingHours.days.includes(day);
+      const days = has
+        ? d.workingHours.days.filter((item) => item !== day)
+        : [...d.workingHours.days, day].sort((a, b) => a - b);
+      return { ...d, workingHours: { ...d.workingHours, days } };
+    });
+  }
+
   function handleSave() {
     const err = validateBookAppointmentDraft(draft);
     if (err) {
@@ -141,6 +197,12 @@ export function BookAppointmentActionSheet({
           ? draft.departments.map((d) => d.trim().toLowerCase()).filter(Boolean)
           : draft.departments,
         notifyEmail: draft.notifyEmail,
+        calendarProvider: draft.calendarProvider,
+        timezone: draft.timezone.trim(),
+        durationMinutes: draft.durationMinutes,
+        slotIntervalMinutes: draft.slotIntervalMinutes,
+        workingHours: draft.workingHours,
+        eventTypeUri: draft.eventTypeUri,
       });
       if (!result.success) {
         toast.error(result.error ?? t("sheet.saveFailed"));
@@ -152,6 +214,30 @@ export function BookAppointmentActionSheet({
       router.refresh();
       toast.success(t("sheet.bookAppointment.saved"));
       onOpenChange(false);
+    });
+  }
+
+  function handleDisconnect() {
+    startDisconnect(async () => {
+      const result = await disconnectCalendar(agent.id);
+      if (!result.success) {
+        toast.error(result.error ?? t("sheet.bookAppointment.couldNotDisconnect"));
+        return;
+      }
+      toast.success(t("sheet.bookAppointment.calendarDisconnected"));
+      setDraft((d) => ({ ...d, calendarProvider: "none", eventTypeUri: "" }));
+      router.refresh();
+    });
+  }
+
+  function handleCalendarIdChange(calendarId: string) {
+    startTransition(async () => {
+      const result = await updateConnectedGoogleCalendarId(agent.id, { calendarId });
+      if (!result.success) {
+        toast.error(result.error ?? t("sheet.saveFailed"));
+        return;
+      }
+      router.refresh();
     });
   }
 
@@ -175,6 +261,256 @@ export function BookAppointmentActionSheet({
 
       {draft.enabled ? (
         <>
+          <ActionSheetSection
+            title={t("sheet.bookAppointment.calendarSource")}
+            description={t("sheet.bookAppointment.calendarSourceDescription")}
+          >
+            <RadioGroup
+              value={draft.calendarProvider}
+              onValueChange={(value) =>
+                setDraft((d) => ({
+                  ...d,
+                  calendarProvider: value as BookAppointmentCalendarProvider,
+                }))
+              }
+              className="flex flex-col gap-2"
+            >
+              {(["none", "google", "calendly"] as const).map((value) => (
+                <label
+                  key={value}
+                  htmlFor={`calendar-provider-${value}`}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2 transition-colors",
+                    draft.calendarProvider === value
+                      ? "border-hairline-strong bg-surface-card"
+                      : "border-hairline bg-surface-card hover:bg-canvas-soft",
+                  )}
+                >
+                  <RadioGroupItem value={value} id={`calendar-provider-${value}`} />
+                  <span className="text-body-sm text-ink">
+                    {t(`sheet.bookAppointment.calendar${value.charAt(0).toUpperCase()}${value.slice(1)}`)}
+                  </span>
+                </label>
+              ))}
+            </RadioGroup>
+
+            {draft.calendarProvider === "google" ? (
+              <div className="mt-3 space-y-3">
+                {googleConnected ? (
+                  <div className="rounded-md border border-hairline bg-surface-card px-3 py-3">
+                    <p className="text-body-sm font-medium text-ink">
+                      {t("sheet.bookAppointment.connectedAs", {
+                        account: connection?.accountEmail ?? connection?.calendarId ?? "",
+                      })}
+                    </p>
+                    <div className="mt-2">
+                      <Select
+                        value={connection?.calendarId ?? "primary"}
+                        onValueChange={handleCalendarIdChange}
+                        disabled={optionsLoading || pending}
+                      >
+                        <SelectTrigger className="h-9 w-full">
+                          <SelectValue placeholder={t("sheet.bookAppointment.googleCalendar")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {googleCalendars.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.summary}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 h-8 border-hairline text-red-600 hover:text-red-700"
+                      disabled={disconnectPending}
+                      onClick={handleDisconnect}
+                    >
+                      {disconnectPending ? (
+                        <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                      ) : (
+                        <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
+                      )}
+                      {t("sheet.bookAppointment.disconnectCalendar")}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-caption text-muted">
+                      {t("sheet.bookAppointment.googleAuthorize")}
+                    </p>
+                    <Button
+                      type="button"
+                      className="btn-primary h-9 rounded-md px-4"
+                      onClick={() => {
+                        window.location.href = `/api/oauth/google-calendar/start?agentId=${encodeURIComponent(agent.id)}`;
+                      }}
+                    >
+                      {t("sheet.bookAppointment.connectGoogle")}
+                    </Button>
+                  </div>
+                )}
+
+                <ActionSheetField
+                  label={t("sheet.bookAppointment.timezone")}
+                  description={t("sheet.bookAppointment.timezoneDescription")}
+                >
+                  <Input
+                    value={draft.timezone}
+                    onChange={(e) => setDraft((d) => ({ ...d, timezone: e.target.value }))}
+                    className={actionSheetInputClass}
+                  />
+                </ActionSheetField>
+                <ActionSheetField
+                  label={t("sheet.bookAppointment.durationMinutes")}
+                  description={t("sheet.bookAppointment.durationDescription")}
+                >
+                  <Input
+                    type="number"
+                    min={5}
+                    max={240}
+                    value={draft.durationMinutes}
+                    onChange={(e) =>
+                      setDraft((d) => ({
+                        ...d,
+                        durationMinutes: Number(e.target.value) || 30,
+                      }))
+                    }
+                    className={actionSheetInputClass}
+                  />
+                </ActionSheetField>
+                <ActionSheetSection
+                  title={t("sheet.bookAppointment.workingHours")}
+                  description={t("sheet.bookAppointment.workingHoursDescription")}
+                >
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {WEEKDAY_ORDER.map((day) => (
+                      <label
+                        key={day}
+                        className="flex items-center gap-1.5 text-caption text-ink"
+                      >
+                        <Checkbox
+                          checked={draft.workingHours.days.includes(day)}
+                          onCheckedChange={() => toggleWeekday(day)}
+                        />
+                        {t(`sheet.bookAppointment.weekday.${WEEKDAY_KEYS[day]}`)}
+                      </label>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      type="time"
+                      value={draft.workingHours.start}
+                      onChange={(e) =>
+                        setDraft((d) => ({
+                          ...d,
+                          workingHours: { ...d.workingHours, start: e.target.value },
+                        }))
+                      }
+                      className={actionSheetInputClass}
+                    />
+                    <Input
+                      type="time"
+                      value={draft.workingHours.end}
+                      onChange={(e) =>
+                        setDraft((d) => ({
+                          ...d,
+                          workingHours: { ...d.workingHours, end: e.target.value },
+                        }))
+                      }
+                      className={actionSheetInputClass}
+                    />
+                  </div>
+                </ActionSheetSection>
+              </div>
+            ) : null}
+
+            {draft.calendarProvider === "calendly" ? (
+              <div className="mt-3 space-y-3">
+                <p className="text-caption text-muted">
+                  {t("sheet.bookAppointment.calendlyPaidPlan")}
+                </p>
+                {calendlyConnected ? (
+                  <div className="rounded-md border border-hairline bg-surface-card px-3 py-3">
+                    <p className="text-body-sm font-medium text-ink">
+                      {t("sheet.bookAppointment.connectedAs", {
+                        account: connection?.accountEmail ?? "",
+                      })}
+                    </p>
+                    <div className="mt-2">
+                      <Select
+                        value={draft.eventTypeUri || undefined}
+                        onValueChange={(eventTypeUri) =>
+                          setDraft((d) => ({ ...d, eventTypeUri }))
+                        }
+                        disabled={optionsLoading}
+                      >
+                        <SelectTrigger className="h-9 w-full">
+                          <SelectValue placeholder={t("sheet.bookAppointment.selectEventType")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {eventTypes.map((item) => (
+                            <SelectItem key={item.uri} value={item.uri}>
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {eventTypes.length === 0 && !optionsLoading ? (
+                      <p className="mt-2 text-caption text-muted-soft">
+                        {t("sheet.bookAppointment.noEventTypes")}
+                      </p>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 h-8 border-hairline text-red-600 hover:text-red-700"
+                      disabled={disconnectPending}
+                      onClick={handleDisconnect}
+                    >
+                      {disconnectPending ? (
+                        <AppIcon icon={LoaderIcon} className="mr-2 size-4 animate-spin" />
+                      ) : (
+                        <AppIcon icon={UnplugIcon} className="mr-2 size-4" />
+                      )}
+                      {t("sheet.bookAppointment.disconnectCalendar")}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-caption text-muted">
+                      {t("sheet.bookAppointment.calendlyAuthorize")}
+                    </p>
+                    <Button
+                      type="button"
+                      className="btn-primary h-9 rounded-md px-4"
+                      onClick={() => {
+                        window.location.href = `/api/oauth/calendly/start?agentId=${encodeURIComponent(agent.id)}`;
+                      }}
+                    >
+                      {t("sheet.bookAppointment.connectCalendly")}
+                    </Button>
+                  </div>
+                )}
+                <ActionSheetField
+                  label={t("sheet.bookAppointment.timezone")}
+                  description={t("sheet.bookAppointment.timezoneDescription")}
+                >
+                  <Input
+                    value={draft.timezone}
+                    onChange={(e) => setDraft((d) => ({ ...d, timezone: e.target.value }))}
+                    className={actionSheetInputClass}
+                  />
+                </ActionSheetField>
+              </div>
+            ) : null}
+          </ActionSheetSection>
+
           <ActionSheetSection
             title={t("sheet.bookAppointment.whenToOffer")}
             description={t("sheet.bookAppointment.whenToOfferDescription")}

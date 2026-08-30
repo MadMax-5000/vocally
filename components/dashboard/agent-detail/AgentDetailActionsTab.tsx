@@ -3,6 +3,7 @@ import { AppIcon } from "@/components/ui/app-icon"
 import { PlusIcon, SearchIcon } from "@/lib/icons/app-icons"
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -42,6 +43,7 @@ type AgentDetailActionsTabProps = {
 
 export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
   const t = useTranslations("dashboard.actions");
+  const searchParams = useSearchParams();
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState<ActionCatalogType>("all");
   const [suggestedMessagesOpen, setSuggestedMessagesOpen] = React.useState(false);
@@ -80,6 +82,24 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
     () => resolveBookAppointmentAction(agent.channels),
     [agent.channels],
   );
+
+  React.useEffect(() => {
+    const calendar = searchParams.get("calendar");
+    const error = searchParams.get("error");
+    if (calendar !== "connected" && !error) return;
+    if (calendar === "connected") {
+      setBookAppointmentOpen(true);
+      toast.success(t("sheet.bookAppointment.calendarConnected"));
+    }
+    if (error) {
+      setBookAppointmentOpen(true);
+      toast.error(error);
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete("calendar");
+    url.searchParams.delete("error");
+    window.history.replaceState(window.history.state, "", url);
+  }, [searchParams, t]);
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();

@@ -4,13 +4,19 @@ import { frFR, arSA, enUS } from "@clerk/localizations";
 import { Toaster } from "sonner";
 import { BRAND_NAME } from "@/lib/constants/brand";
 import { getLocale } from "next-intl/server";
+import {
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_PATH,
+  OG_IMAGE_WIDTH,
+  SITE_METADATA_BASE,
+} from "@/lib/seo/metadata";
 
 import "./globals.css";
 import { inter, instrumentSerif } from "./fonts";
 
 export const metadata: Metadata = {
+  metadataBase: SITE_METADATA_BASE,
   title: BRAND_NAME,
-  description: "AI-first Contact Center as a Service (CCaaS)",
   verification: {
     other: {
       "facebook-domain-verification": "qmpiaomgr6t1kzar7bomnz1kkve7yr",
@@ -18,18 +24,23 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [{ url: "/images/favicon.ico", sizes: "any" }],
-    apple: [{ url: "/images/favicon.ico" }],
+    apple: [{ url: "/images/logo-primary-color.png" }],
   },
   openGraph: {
-    title: BRAND_NAME,
-    description: "AI-first Contact Center as a Service (CCaaS)",
-    images: [{ url: "/images/logo-primary-color.png", width: 1254, height: 1254, alt: BRAND_NAME }],
+    type: "website",
+    siteName: BRAND_NAME,
+    images: [
+      {
+        url: OG_IMAGE_PATH,
+        width: OG_IMAGE_WIDTH,
+        height: OG_IMAGE_HEIGHT,
+        alt: BRAND_NAME,
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: BRAND_NAME,
-    description: "AI-first Contact Center as a Service (CCaaS)",
-    images: ["/images/logo-primary-color.png"],
+    card: "summary_large_image",
+    images: [OG_IMAGE_PATH],
   },
 };
 

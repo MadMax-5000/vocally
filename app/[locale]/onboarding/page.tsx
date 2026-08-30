@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { CreateOrganization } from "@clerk/nextjs";
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
 import { getTranslations } from "next-intl/server";
+import { noIndexMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = noIndexMetadata;
 
 export default async function OnboardingPage({
   params: { locale },

@@ -4,6 +4,16 @@ import {
   notifyLeadCaptured,
 } from "@/lib/leads/notify-lead";
 import { isDepartmentAllowed } from "@/lib/deploy/book-appointment-action";
+import {
+  bookExternalSlot,
+  isExternalCalendarActive,
+} from "@/lib/calendar/service";
+import { parseHhMm, zonedWallClockToUtc } from "@/lib/calendar/slots";
+import {
+  CalendlyPaidPlanError,
+  CalendarNotConnectedError,
+  CalendarSlotTakenError,
+} from "@/lib/calendar/types";
 
 function getMockOrder(orderId: string): string {
   const mockOrders: Record<string, unknown> = {
@@ -122,9 +132,76 @@ export async function handleBookAppointment(
     return JSON.stringify({ error: "Date and time are required." });
   }
 
-  const parsedDate = new Date(dateStr);
-  if (Number.isNaN(parsedDate.getTime())) {
+  const parsedTime = parseHhMm(timeStr);
+  if (!parsedTime) {
+    return JSON.stringify({ error: "Invalid time format. Use HH:MM (24-hour)." });
+  }
+
+  const parsedDate = new Date(`${dateStr}T00:00:00.000Z`);
+  if (Number.isNaN(parsedDate.getTime()) || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     return JSON.stringify({ error: "Invalid date format. Use YYYY-MM-DD." });
+  }
+
+  const customerEmail = args.customerEmail ? String(args.customerEmail).trim() : null;
+  const notes = args.notes ? String(args.notes).trim() : null;
+  const usesExternalCalendar = isExternalCalendarActive(
+    action,
+    ctx.calendarConnection ?? null,
+  );
+
+  if (
+    action.calendarProvider === "google" ||
+    action.calendarProvider === "calendly"
+  ) {
+    if (!usesExternalCalendar) {
+      return JSON.stringify({
+        error:
+          action.calendarProvider === "calendly" && !action.eventTypeUri
+            ? "Select a Calendly event type in the dashboard before booking."
+            : "Calendar is not connected. Connect Google Calendar or Calendly, then try again.",
+      });
+    }
+    if (action.calendarProvider === "calendly" && !customerEmail) {
+      return JSON.stringify({
+        error: "Customer email is required to book on Calendly.",
+      });
+    }
+  }
+
+  let start: Date;
+  try {
+    start = zonedWallClockToUtc(dateStr, timeStr, action.timezone);
+  } catch {
+    return JSON.stringify({ error: "Invalid date or time for the clinic timezone." });
+  }
+
+  let externalProvider: "GOOGLE" | "CALENDLY" | null = null;
+  let externalEventId: string | null = null;
+
+  if (usesExternalCalendar && ctx.calendarConnection) {
+    try {
+      const booked = await bookExternalSlot(action, ctx.calendarConnection, {
+        start,
+        department,
+        customerName,
+        customerEmail,
+        notes,
+      });
+      externalEventId = booked.eventId;
+      externalProvider = ctx.calendarConnection.provider;
+    } catch (err) {
+      if (err instanceof CalendarSlotTakenError) {
+        return JSON.stringify({
+          error: "That time is no longer available. Call list_available_slots and offer another time.",
+        });
+      }
+      if (err instanceof CalendlyPaidPlanError || err instanceof CalendarNotConnectedError) {
+        return JSON.stringify({ error: err.message });
+      }
+      return JSON.stringify({
+        error: err instanceof Error ? err.message : "Could not book the calendar event.",
+      });
+    }
   }
 
   const { prisma } = await import("@/lib/db/prisma");
@@ -134,11 +211,14 @@ export async function handleBookAppointment(
       orgId: ctx.orgId,
       sessionId: ctx.sessionId,
       customerName,
-      customerEmail: args.customerEmail ? String(args.customerEmail).trim() : null,
+      customerEmail,
       department: department.toLowerCase(),
       date: parsedDate,
       time: timeStr,
-      notes: args.notes ? String(args.notes).trim() : null,
+      durationMinutes: usesExternalCalendar ? action.durationMinutes : null,
+      notes,
+      externalProvider,
+      externalEventId,
     },
   });
 

@@ -1,6 +1,7 @@
 import { getToolHandler } from "@/lib/ai/tools/registry";
 import { EscalationTrigger } from "@/lib/ai/escalation-service";
 import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
+import { loadCalendarConnection } from "@/lib/calendar/service";
 import { prisma } from "@/lib/db/prisma";
 
 import { runVoiceEscalation } from "../escalation-handler";
@@ -34,6 +35,9 @@ export async function handleToolCalls(message: VapiToolCallsMessage) {
   let bookAppointmentContext:
     | ReturnType<typeof resolveBookAppointmentAction>
     | undefined;
+  let calendarConnectionContext: Awaited<
+    ReturnType<typeof loadCalendarConnection>
+  > = null;
 
   if (callId) {
     const callLog = await prisma.callLog.findUnique({
@@ -60,6 +64,9 @@ export async function handleToolCalls(message: VapiToolCallsMessage) {
       const resolved = resolveBookAppointmentAction(agent.channels);
       if (resolved.enabled) {
         bookAppointmentContext = resolved;
+      }
+      if (orgId) {
+        calendarConnectionContext = await loadCalendarConnection(agentId, orgId);
       }
     }
   }
@@ -115,6 +122,7 @@ export async function handleToolCalls(message: VapiToolCallsMessage) {
             agentId,
             channel: "VOICE",
             bookAppointment: bookAppointmentContext,
+            calendarConnection: calendarConnectionContext,
           });
           success = true;
         } else {

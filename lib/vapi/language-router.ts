@@ -10,6 +10,7 @@ import { getToolDefinitionsForAgent } from "@/lib/ai/tools/registry";
 import { prisma } from "@/lib/db/prisma";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
+import { isExternalCalendarActive, loadCalendarConnection } from "@/lib/calendar/service";
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
 import { getHandoffPhoneNumber } from "@/server/websocket/escalate-call";
 import { logServerWarning } from "@/lib/logger";
@@ -228,6 +229,7 @@ export async function handleAssistantRequest(message: {
 
   const escalationConfig = resolveEscalationAction(agent.channels);
   const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
+  const calendarConnection = await loadCalendarConnection(agentId, orgId);
 
   // Voice transfer depends on Phone settings handoff number (or HANDOFF_PHONE_NUMBER),
   // not Web Chat escalations.
@@ -245,6 +247,10 @@ export async function handleAssistantRequest(message: {
     includeCollectLeads: false,
     includeCustomForm: false,
     includeBookAppointment: bookAppointmentAction.enabled,
+    includeListAvailableSlots: isExternalCalendarActive(
+      bookAppointmentAction,
+      calendarConnection,
+    ),
     bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 

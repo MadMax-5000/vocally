@@ -15,13 +15,7 @@ import {
   runAgentTestQuestionAction,
   type AgentTestQuestionRow,
 } from "@/lib/actions/agent-tests";
-import {
-  MAX_AGENT_TEST_QUESTIONS,
-  MAX_DEMO_TEST_QUESTIONS,
-} from "@/lib/agent-tests/constants";
-import { cn } from "@/lib/utils";
-
-export type AgentTestsPanelVariant = "dashboard" | "marketing";
+import { MAX_AGENT_TEST_QUESTIONS } from "@/lib/agent-tests/constants";
 
 type RowStatus = "idle" | "in_progress" | "passed" | "failed" | "error";
 
@@ -33,28 +27,10 @@ type PanelRow = {
   judgeReason: string | null;
 };
 
-type DemoRunResponse = {
-  success: boolean;
-  error?: string;
-  code?: string;
-  data?: {
-    available?: boolean;
-    response?: string;
-    passed?: boolean;
-    judgeReason?: string;
-    status?: "PASSED" | "FAILED" | "ERROR";
-  };
+type Props = {
+  agentId: string;
+  testingAs: string;
 };
-
-type Props =
-  | {
-      variant: "dashboard";
-      agentId: string;
-      testingAs: string;
-    }
-  | {
-      variant: "marketing";
-    };
 
 function statusFromRun(
   run: AgentTestQuestionRow["latestRun"],
@@ -136,11 +112,8 @@ function StatusCell({ status, t }: { status: RowStatus; t: (key: string) => stri
   return <span className="text-[12px] font-medium text-muted">{t("idle")}</span>;
 }
 
-export function AgentTestsPanel(props: Props) {
+export function AgentTestsPanel({ agentId, testingAs }: Props) {
   const t = useTranslations("dashboard.agentDetail.tests");
-  const isMarketing = props.variant === "marketing";
-  const testingAs = isMarketing ? "Floyd Miles" : props.testingAs;
-  const dashboardAgentId = props.variant === "dashboard" ? props.agentId : null;
   const addInputId = useId();
 
   const [rows, setRows] = useState<PanelRow[]>([]);
@@ -149,13 +122,10 @@ export function AgentTestsPanel(props: Props) {
   const [draft, setDraft] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [runningAll, setRunningAll] = useState(false);
-  const [demoAvailable, setDemoAvailable] = useState<boolean | null>(isMarketing ? null : true);
-  const autoRan = useRef(false);
   const runningIds = useRef(new Set<string>());
 
   const anyRunning = rows.some((row) => row.status === "in_progress") || runningAll;
-  const questionCap = isMarketing ? MAX_DEMO_TEST_QUESTIONS : MAX_AGENT_TEST_QUESTIONS;
-  const canAdd = rows.length < questionCap && !anyRunning && demoAvailable !== false;
+  const canAdd = rows.length < MAX_AGENT_TEST_QUESTIONS && !anyRunning;
 
   const applyResult = useCallback((id: string, result: {
     status: RowStatus;
@@ -167,51 +137,7 @@ export function AgentTestsPanel(props: Props) {
     );
   }, []);
 
-  const runDemoQuestion = useCallback(async (row: PanelRow) => {
-    if (runningIds.current.has(row.id)) return;
-    runningIds.current.add(row.id);
-    applyResult(row.id, { status: "in_progress", response: null, judgeReason: null });
-    try {
-      const res = await fetch("/api/public/demo-tests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: row.prompt }),
-      });
-      const json = (await res.json()) as DemoRunResponse;
-      if (!res.ok || !json.success || !json.data) {
-        if (json.code === "DEMO_UNAVAILABLE" || res.status === 503) {
-          setDemoAvailable(false);
-        }
-        applyResult(row.id, {
-          status: "error",
-          response: null,
-          judgeReason: json.error ?? t("failedRun"),
-        });
-        return;
-      }
-      const status: RowStatus =
-        json.data.status === "PASSED"
-          ? "passed"
-          : json.data.status === "FAILED"
-            ? "failed"
-            : "error";
-      applyResult(row.id, {
-        status,
-        response: json.data.response ?? null,
-        judgeReason: json.data.judgeReason ?? null,
-      });
-    } catch {
-      applyResult(row.id, {
-        status: "error",
-        response: null,
-        judgeReason: t("failedRun"),
-      });
-    } finally {
-      runningIds.current.delete(row.id);
-    }
-  }, [applyResult, t]);
-
-  const runPersistedQuestion = useCallback(async (row: PanelRow) => {
+  const runQuestion = useCallback(async (row: PanelRow) => {
     if (runningIds.current.has(row.id)) return;
     runningIds.current.add(row.id);
     applyResult(row.id, { status: "in_progress", response: row.response, judgeReason: row.judgeReason });
@@ -235,13 +161,10 @@ export function AgentTestsPanel(props: Props) {
     }
   }, [applyResult, t]);
 
-  const runRow = isMarketing ? runDemoQuestion : runPersistedQuestion;
-
   useEffect(() => {
-    if (!dashboardAgentId) return;
     let cancelled = false;
     (async () => {
-      const result = await listAgentTestQuestions(dashboardAgentId);
+      const result = await listAgentTestQuestions(agentId);
       if (cancelled) return;
       if (!result.success) {
         toast.error(result.error);
@@ -252,72 +175,13 @@ export function AgentTestsPanel(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [dashboardAgentId]);
-
-  useEffect(() => {
-    if (!isMarketing) return;
-    const seeds: PanelRow[] = [
-      t("seeds.q1"),
-      t("seeds.q2"),
-      t("seeds.q3"),
-      t("seeds.q4"),
-      t("seeds.q5"),
-    ].map((prompt, index) => ({
-      id: `demo-${index}`,
-      prompt,
-      status: "idle",
-      response: null,
-      judgeReason: null,
-    }));
-    setRows(seeds);
-    setLoading(false);
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/public/demo-tests");
-        const json = (await res.json()) as DemoRunResponse;
-        if (cancelled) return;
-        const available = Boolean(json.success && json.data?.available);
-        setDemoAvailable(available);
-      } catch {
-        if (!cancelled) setDemoAvailable(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isMarketing, t]);
-
-  useEffect(() => {
-    if (!isMarketing || demoAvailable !== true || autoRan.current) return;
-    const first = rows[0];
-    if (!first || first.status !== "idle") return;
-    autoRan.current = true;
-    void runDemoQuestion(first);
-  }, [demoAvailable, isMarketing, rows, runDemoQuestion]);
+  }, [agentId]);
 
   const handleAdd = async () => {
     const prompt = draft.trim();
     if (!prompt || !canAdd) return;
 
-    if (props.variant === "marketing") {
-      const id = `demo-${Date.now()}`;
-      const row: PanelRow = {
-        id,
-        prompt,
-        status: "idle",
-        response: null,
-        judgeReason: null,
-      };
-      setRows((prev) => [...prev, row]);
-      setDraft("");
-      setAdding(false);
-      await runDemoQuestion(row);
-      return;
-    }
-
-    const result = await addAgentTestQuestion(props.agentId, prompt);
+    const result = await addAgentTestQuestion(agentId, prompt);
     if (!result.success) {
       toast.error(result.error);
       return;
@@ -326,24 +190,22 @@ export function AgentTestsPanel(props: Props) {
     setRows((prev) => [...prev, row]);
     setDraft("");
     setAdding(false);
-    await runPersistedQuestion(row);
+    await runQuestion(row);
   };
 
   const handleDelete = async (id: string) => {
     if (anyRunning) return;
-    if (!isMarketing) {
-      const result = await deleteAgentTestQuestion(id);
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
+    const result = await deleteAgentTestQuestion(id);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
     }
     setRows((prev) => prev.filter((row) => row.id !== id));
     setExpandedId((current) => (current === id ? null : current));
   };
 
   const handleRunAll = async () => {
-    if (anyRunning || demoAvailable === false) return;
+    if (anyRunning) return;
     const unanswered = rows.filter(
       (row) => row.status === "idle" || row.status === "error",
     );
@@ -355,146 +217,136 @@ export function AgentTestsPanel(props: Props) {
     setRunningAll(true);
     try {
       for (const row of targets) {
-        await runRow(row);
+        await runQuestion(row);
       }
     } finally {
       setRunningAll(false);
     }
   };
 
-  const shellClass = isMarketing
-    ? "rounded-xl bg-surface-card p-0 shadow-[0_8px_28px_rgba(12,10,9,0.10)]"
-    : "rounded-xl border border-hairline bg-surface-card";
-
   return (
-    <div className={cn(isMarketing && "mx-auto w-full max-w-[440px]")}>
-      <div className={shellClass}>
-        <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
-          <div>
-            <p className="text-[14px] font-semibold leading-none text-ink">
-              {t("questionCount", { count: rows.length })}
-            </p>
-            <p className="mt-1.5 text-[12px] text-muted">{t("testingAs", { name: testingAs })}</p>
+    <div className="rounded-xl border border-hairline bg-surface-card">
+      <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
+        <div>
+          <p className="text-[14px] font-semibold leading-none text-ink">
+            {t("questionCount", { count: rows.length })}
+          </p>
+          <p className="mt-1.5 text-[12px] text-muted">{t("testingAs", { name: testingAs })}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            onClick={() => void handleRunAll()}
+            disabled={rows.length === 0 || anyRunning}
+          >
+            {anyRunning ? t("running") : t("run")}
+          </Button>
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            disabled={!canAdd}
+            className="inline-flex h-8 shrink-0 items-center rounded-md border border-hairline bg-surface-card px-2.5 text-[12px] font-medium text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {t("addQuestion")}
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 pb-2">
+        <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-hairline pb-1.5 text-[11px] font-medium text-muted">
+          <span>{t("question")}</span>
+          <span className="w-[7.25rem]">{t("status")}</span>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-10 text-muted">
+            <AppIcon icon={LoaderIcon} size={16} className="animate-spin" />
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+        ) : rows.length === 0 && !adding ? (
+          <p className="py-8 text-center text-[12.5px] text-muted">{t("empty")}</p>
+        ) : (
+          <ul>
+            {rows.map((row) => {
+              const open = expandedId === row.id && Boolean(row.response || row.judgeReason);
+              return (
+                <li key={row.id} className="border-b border-hairline-soft last:border-b-0">
+                  <div className="flex items-center gap-2 py-2.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpandedId((current) => (current === row.id ? null : row.id))
+                      }
+                      className="grid min-w-0 flex-1 grid-cols-[1fr_auto] items-center gap-3 text-start"
+                    >
+                      <span className="truncate text-[12.5px] text-ink">{row.prompt}</span>
+                      <span className="w-[7.25rem]">
+                        <StatusCell status={row.status} t={t} />
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleDelete(row.id)}
+                      disabled={anyRunning}
+                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted hover:bg-canvas-soft hover:text-ink disabled:opacity-40"
+                      aria-label={t("deleteQuestion")}
+                    >
+                      <AppIcon icon={XIcon} size={12} />
+                    </button>
+                  </div>
+                  {open ? (
+                    <div className="pb-3 pe-8">
+                      {row.response ? (
+                        <p className="text-[12.5px] leading-relaxed text-body">{row.response}</p>
+                      ) : null}
+                      {row.judgeReason ? (
+                        <p className="mt-1.5 text-[11.5px] text-muted">{row.judgeReason}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {adding ? (
+          <form
+            className="flex items-center gap-2 py-2.5"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleAdd();
+            }}
+          >
+            <label htmlFor={addInputId} className="sr-only">
+              {t("addPlaceholder")}
+            </label>
+            <Input
+              id={addInputId}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder={t("addPlaceholder")}
+              className="h-8 text-[12.5px]"
+              autoFocus
+              maxLength={500}
+            />
+            <Button type="submit" size="xs" disabled={!draft.trim()}>
+              <AppIcon icon={PlusIcon} size={12} />
+            </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="xs"
-              onClick={() => void handleRunAll()}
-              disabled={rows.length === 0 || anyRunning || demoAvailable === false}
-            >
-              {anyRunning ? t("running") : t("run")}
-            </Button>
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              disabled={!canAdd}
-              className="inline-flex h-8 shrink-0 items-center rounded-md border border-hairline bg-surface-card px-2.5 text-[12px] font-medium text-ink disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {t("addQuestion")}
-            </button>
-          </div>
-        </div>
-
-        {demoAvailable === false && isMarketing ? (
-          <p className="px-4 pb-2 text-[12px] text-muted">{t("demoUnavailable")}</p>
-        ) : null}
-
-        <div className="px-4 pb-2">
-          <div className="grid grid-cols-[1fr_auto] gap-3 border-b border-hairline pb-1.5 text-[11px] font-medium text-muted">
-            <span>{t("question")}</span>
-            <span className="w-[7.25rem]">{t("status")}</span>
-          </div>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-10 text-muted">
-              <AppIcon icon={LoaderIcon} size={16} className="animate-spin" />
-            </div>
-          ) : rows.length === 0 && !adding ? (
-            <p className="py-8 text-center text-[12.5px] text-muted">{t("empty")}</p>
-          ) : (
-            <ul>
-              {rows.map((row) => {
-                const open = expandedId === row.id && Boolean(row.response || row.judgeReason);
-                return (
-                  <li key={row.id} className="border-b border-hairline-soft last:border-b-0">
-                    <div className="flex items-center gap-2 py-2.5">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedId((current) => (current === row.id ? null : row.id))
-                        }
-                        className="grid min-w-0 flex-1 grid-cols-[1fr_auto] items-center gap-3 text-start"
-                      >
-                        <span className="truncate text-[12.5px] text-ink">{row.prompt}</span>
-                        <span className="w-[7.25rem]">
-                          <StatusCell status={row.status} t={t} />
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(row.id)}
-                        disabled={anyRunning}
-                        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted hover:bg-canvas-soft hover:text-ink disabled:opacity-40"
-                        aria-label={t("deleteQuestion")}
-                      >
-                        <AppIcon icon={XIcon} size={12} />
-                      </button>
-                    </div>
-                    {open ? (
-                      <div className="pb-3 pe-8">
-                        {row.response ? (
-                          <p className="text-[12.5px] leading-relaxed text-body">{row.response}</p>
-                        ) : null}
-                        {row.judgeReason ? (
-                          <p className="mt-1.5 text-[11.5px] text-muted">{row.judgeReason}</p>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-
-          {adding ? (
-            <form
-              className="flex items-center gap-2 py-2.5"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void handleAdd();
+              onClick={() => {
+                setAdding(false);
+                setDraft("");
               }}
             >
-              <label htmlFor={addInputId} className="sr-only">
-                {t("addPlaceholder")}
-              </label>
-              <Input
-                id={addInputId}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder={t("addPlaceholder")}
-                className="h-8 text-[12.5px]"
-                autoFocus
-                maxLength={500}
-              />
-              <Button type="submit" size="xs" disabled={!draft.trim()}>
-                <AppIcon icon={PlusIcon} size={12} />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="xs"
-                onClick={() => {
-                  setAdding(false);
-                  setDraft("");
-                }}
-              >
-                {t("cancelAdd")}
-              </Button>
-            </form>
-          ) : null}
-        </div>
+              {t("cancelAdd")}
+            </Button>
+          </form>
+        ) : null}
       </div>
     </div>
   );

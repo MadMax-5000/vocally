@@ -72,7 +72,6 @@ function TabPanelContent({
     case "tests":
       return (
         <AgentTestsPanel
-          variant="dashboard"
           agentId={agent.id}
           testingAs={resolveTestingAsLabel(
             agent.variables,

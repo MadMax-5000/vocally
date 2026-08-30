@@ -31,6 +31,7 @@ model Organization {
   smsNumbers                 SmsPhoneNumber[]
   emailAddresses             EmailAddress[]
   gmailConnections           GmailConnection[]
+  calendarConnections        CalendarConnection[]
   instagramConnections       InstagramConnection[]
   messengerConnections       MessengerConnection[]
   appointments              Appointment[]
@@ -108,6 +109,7 @@ model Agent {
   smsNumbers      SmsPhoneNumber[]
   emailAddresses  EmailAddress[]
   gmailConnection GmailConnection?
+  calendarConnection CalendarConnection?
   instagramConnection InstagramConnection?
   messengerConnection MessengerConnection?
   agentLeads          AgentLead[]
@@ -182,6 +184,31 @@ model GmailConnection {
 
   @@unique([orgId, googleEmail])
   @@index([googleEmail])
+}
+
+enum CalendarProvider {
+  GOOGLE
+  CALENDLY
+}
+
+model CalendarConnection {
+  id              String           @id @default(cuid())
+  orgId           String
+  org             Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId         String           @unique
+  agent           Agent            @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  provider        CalendarProvider
+  refreshTokenEnc String
+  accessTokenEnc  String?
+  tokenExpiresAt  DateTime?
+  accountEmail    String?
+  calendarId      String?
+  externalUserUri String?
+  externalOrgUri  String?
+  connectedAt     DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([orgId])
 }
 
 model MessengerConnection {
@@ -715,18 +742,21 @@ model InboundEmailDedupe {
 }
 
 model Appointment {
-  id            String            @id @default(cuid())
-  orgId         String
-  organization  Organization      @relation(fields: [orgId], references: [id])
-  sessionId     String?
-  customerName  String
-  customerEmail String?
-  department    String
-  date          DateTime
-  time          String
-  status        AppointmentStatus @default(CONFIRMED)
-  notes         String?
-  createdAt     DateTime          @default(now())
+  id               String            @id @default(cuid())
+  orgId            String
+  organization     Organization      @relation(fields: [orgId], references: [id])
+  sessionId        String?
+  customerName     String
+  customerEmail    String?
+  department       String
+  date             DateTime
+  time             String
+  durationMinutes  Int?
+  status           AppointmentStatus @default(CONFIRMED)
+  notes            String?
+  externalProvider CalendarProvider?
+  externalEventId  String?
+  createdAt        DateTime          @default(now())
 
   @@index([orgId])
 }

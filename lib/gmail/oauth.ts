@@ -1,9 +1,11 @@
-import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 import { google } from "googleapis";
 
 import { decryptToken, encryptToken } from "@/lib/crypto/token-encryption";
+import { newOAuthNonce, signOAuthState } from "@/lib/oauth/signed-state";
 
 import { GMAIL_SCOPES } from "./constants";
+
+export { signOAuthState, verifyOAuthState } from "@/lib/oauth/signed-state";
 
 function getClientId(): string {
   const id = process.env.GOOGLE_CLIENT_ID;
@@ -37,53 +39,13 @@ export function createOAuth2Client(refreshToken?: string) {
 
 export function buildGoogleAuthUrl(agentId: string, orgId: string): string {
   const client = createOAuth2Client();
-  const state = signOAuthState({ agentId, orgId, nonce: randomBytes(16).toString("hex") });
+  const state = signOAuthState({ agentId, orgId, nonce: newOAuthNonce() });
   return client.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
     scope: GMAIL_SCOPES,
     state,
   });
-}
-
-type OAuthStatePayload = {
-  agentId: string;
-  orgId: string;
-  nonce: string;
-};
-
-function stateSecret(): string {
-  const key = process.env.TOKEN_ENCRYPTION_KEY;
-  if (!key) throw new Error("TOKEN_ENCRYPTION_KEY is not configured");
-  return key;
-}
-
-export function signOAuthState(payload: OAuthStatePayload): string {
-  const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const sig = createHmac("sha256", stateSecret()).update(data).digest("base64url");
-  return `${data}.${sig}`;
-}
-
-export function verifyOAuthState(state: string): OAuthStatePayload | null {
-  const dot = state.lastIndexOf(".");
-  if (dot <= 0) return null;
-  const data = state.slice(0, dot);
-  const sig = state.slice(dot + 1);
-  const expected = createHmac("sha256", stateSecret()).update(data).digest("base64url");
-  try {
-    const a = Buffer.from(sig);
-    const b = Buffer.from(expected);
-    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-  } catch {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(Buffer.from(data, "base64url").toString("utf8")) as OAuthStatePayload;
-    if (!parsed.agentId || !parsed.orgId || !parsed.nonce) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
 }
 
 export async function exchangeCodeForTokens(code: string): Promise<{

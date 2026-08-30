@@ -42,6 +42,7 @@ import type { Channel } from "@prisma/client";
 import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import type { ResolvedCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import type { ResolvedCustomFormAction } from "@/lib/deploy/custom-form-action";
+import type { CalendarConnectionRecord } from "@/lib/calendar/types";
 
 export type ToolContext = {
   orgId: string;
@@ -51,4 +52,5 @@ export type ToolContext = {
   collectLeads?: ResolvedCollectLeadsAction;
   customForm?: ResolvedCustomFormAction;
   bookAppointment?: ResolvedBookAppointmentAction;
+  calendarConnection?: CalendarConnectionRecord | null;
 };

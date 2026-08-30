@@ -1,6 +1,34 @@
 {
   "metadata": {
-    "description": "AI-first Contact Center as a Service (CCaaS)"
+    "description": "Anselio builds AI agents that handle chat, email, and voice in Arabic, French, and English — resolving customer issues end to end for Moroccan businesses.",
+    "home": {
+      "title": "Anselio — Conversational AI agents for your business",
+      "description": "Anselio builds AI agents that handle chat, email, and voice in Arabic, French, and English — resolving customer issues end to end for Moroccan businesses."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "description": "Anselio plans in Moroccan Dirham. Start a 14-day free trial with no credit card. Conversational AI agents for chat, email, and voice."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Contact Anselio for support, privacy, or legal questions. Email and phone for conversational AI agents in Arabic, French, and English."
+    },
+    "sales": {
+      "title": "Contact sales",
+      "description": "Talk to Anselio sales about conversational AI agents for your team. Chat, email, and voice in Arabic, French, and English — built for Morocco."
+    },
+    "privacy": {
+      "title": "Privacy notice",
+      "description": "How Anselio collects, uses, and protects personal data on our conversational AI platform for chat, email, and voice."
+    },
+    "terms": {
+      "title": "Terms of service",
+      "description": "Terms of service for Anselio, the conversational AI platform that handles customer chat, email, and voice."
+    },
+    "cookies": {
+      "title": "Cookie notice",
+      "description": "How Anselio uses cookies and similar technologies on anselio.com, and the choices available to you."
+    }
   },
   "common": {
     "getStarted": "Get started",

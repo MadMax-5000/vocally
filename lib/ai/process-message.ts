@@ -20,6 +20,7 @@ import {
 } from "@/lib/deploy/escalation-action";
 import { getWebChatChannel, parseWebChatConfig } from "@/lib/deploy/web-chat-config";
 import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
+import { isExternalCalendarActive, loadCalendarConnection } from "@/lib/calendar/service";
 import { resolveCollectLeadsAction } from "@/lib/deploy/collect-leads-action";
 import {
   isCustomFormConfigured,
@@ -174,6 +175,11 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const hasEscalationConfig = webChatParsed.actions?.escalations !== undefined;
   const collectLeadsAction = resolveCollectLeadsAction(agent.channels);
   const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
+  const calendarConnection = await loadCalendarConnection(agentId, orgId);
+  const listAvailableSlots = isExternalCalendarActive(
+    bookAppointmentAction,
+    calendarConnection,
+  );
   const customFormAction = resolveCustomFormAction(agent.channels);
   const customFormActive =
     customFormAction.enabled && isCustomFormConfigured(customFormAction);
@@ -194,6 +200,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     includeCustomForm:
       customFormActive && customFormAction.allowLlmTrigger,
     includeBookAppointment: bookAppointmentAction.enabled,
+    includeListAvailableSlots: listAvailableSlots,
     bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 
@@ -293,6 +300,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     bookAppointment: bookAppointmentAction.enabled
       ? bookAppointmentAction
       : undefined,
+    calendarConnection,
   };
 
   try {

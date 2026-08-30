@@ -82,6 +82,28 @@ export function buildBookAppointmentDefinition(
   };
 }
 
+export const LIST_AVAILABLE_SLOTS: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "list_available_slots",
+    description:
+      "List real available appointment times from the connected calendar. Always call this before booking when a calendar is connected. Never invent times.",
+    parameters: {
+      type: "object",
+      properties: {
+        fromDate: {
+          type: "string",
+          description: "Start date in YYYY-MM-DD (optional; defaults to today)",
+        },
+        toDate: {
+          type: "string",
+          description: "End date in YYYY-MM-DD (optional; defaults to a few days ahead)",
+        },
+      },
+    },
+  },
+};
+
 export const CREATE_TICKET: ToolDefinition = {
   type: "function",
   function: {

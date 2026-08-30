@@ -1,6 +1,34 @@
 {
   "metadata": {
-    "description": "Centre de contact IA en tant que service (CCaaS)"
+    "description": "Anselio crée des agents IA qui gèrent le chat, l'e-mail et la voix en arabe, français et anglais — pour les entreprises marocaines, de bout en bout.",
+    "home": {
+      "title": "Anselio — Agents conversationnels IA pour votre entreprise",
+      "description": "Anselio crée des agents IA qui gèrent le chat, l'e-mail et la voix en arabe, français et anglais — pour que les entreprises marocaines résolvent les demandes de bout en bout."
+    },
+    "pricing": {
+      "title": "Tarifs",
+      "description": "Les offres Anselio en dirham marocain. Essai gratuit de 14 jours, sans carte bancaire. Agents conversationnels pour le chat, l'e-mail et la voix."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Contactez Anselio pour le support, la confidentialité ou les questions juridiques. E-mail et téléphone pour vos agents conversationnels."
+    },
+    "sales": {
+      "title": "Contacter les ventes",
+      "description": "Parlez à l'équipe commerciale Anselio d'agents conversationnels pour votre entreprise. Chat, e-mail et voix en arabe, français et anglais."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "description": "Comment Anselio collecte, utilise et protège les données personnelles sur sa plateforme d'agents conversationnels."
+    },
+    "terms": {
+      "title": "Conditions d'utilisation",
+      "description": "Conditions d'utilisation d'Anselio, la plateforme d'IA conversationnelle pour le chat, l'e-mail et la voix."
+    },
+    "cookies": {
+      "title": "Politique des cookies",
+      "description": "Comment Anselio utilise les cookies et technologies similaires sur anselio.com, et les choix dont vous disposez."
+    }
   },
   "common": {
     "getStarted": "Commencer",

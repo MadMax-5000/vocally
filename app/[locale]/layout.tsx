@@ -3,19 +3,27 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n/config';
 import { BRAND_NAME } from "@/lib/constants/brand";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import type { Metadata } from "next";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("metadata");
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: "metadata" });
   return {
-    title: BRAND_NAME,
+    title: {
+      default: BRAND_NAME,
+      template: `%s | ${BRAND_NAME}`,
+    },
     description: t("description"),
     openGraph: {
-      title: BRAND_NAME,
+      siteName: BRAND_NAME,
       description: t("description"),
     },
     twitter: {
-      title: BRAND_NAME,
       description: t("description"),
     },
   };
@@ -36,8 +44,11 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages} key={locale}>
-      {children}
-    </NextIntlClientProvider>
+    <>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+      <NextIntlClientProvider locale={locale} messages={messages} key={locale}>
+        {children}
+      </NextIntlClientProvider>
+    </>
   );
 }

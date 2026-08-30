@@ -13,13 +13,38 @@ export const DEFAULT_APPOINTMENT_DEPARTMENTS = [
   "general",
 ] as const;
 
+export const DEFAULT_APPOINTMENT_TIMEZONE = "Africa/Casablanca";
+export const DEFAULT_DURATION_MINUTES = 30;
+export const DEFAULT_SLOT_INTERVAL_MINUTES = 30;
+export const DEFAULT_MAX_DAYS_AHEAD = 14;
+
+export const DEFAULT_WORKING_HOURS: WorkingHoursConfig = {
+  days: [1, 2, 3, 4, 5],
+  start: "09:00",
+  end: "18:00",
+};
+
 export type BookAppointmentWhenToOffer = "proactive" | "intent_only";
+export type BookAppointmentCalendarProvider = "none" | "google" | "calendly";
+
+export type WorkingHoursConfig = {
+  days: number[];
+  start: string;
+  end: string;
+};
 
 export type BookAppointmentActionConfig = {
   enabled?: boolean;
   departments?: string[];
   whenToOffer?: BookAppointmentWhenToOffer;
   notifyEmail?: string;
+  calendarProvider?: BookAppointmentCalendarProvider;
+  timezone?: string;
+  durationMinutes?: number;
+  slotIntervalMinutes?: number;
+  workingHours?: WorkingHoursConfig;
+  maxDaysAhead?: number;
+  eventTypeUri?: string;
 };
 
 export type ResolvedBookAppointmentAction = {
@@ -27,7 +52,16 @@ export type ResolvedBookAppointmentAction = {
   departments: string[];
   whenToOffer: BookAppointmentWhenToOffer;
   notifyEmail: string | null;
+  calendarProvider: BookAppointmentCalendarProvider;
+  timezone: string;
+  durationMinutes: number;
+  slotIntervalMinutes: number;
+  workingHours: WorkingHoursConfig;
+  maxDaysAhead: number;
+  eventTypeUri: string | null;
 };
+
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function parseDepartments(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) return undefined;
@@ -36,6 +70,39 @@ function parseDepartments(value: unknown): string[] | undefined {
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
   return items.length > 0 ? Array.from(new Set(items)) : undefined;
+}
+
+export function isValidTimeZone(tz: string): boolean {
+  try {
+    Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function parseWorkingHours(value: unknown): WorkingHoursConfig | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const raw = value as Record<string, unknown>;
+  if (typeof raw.start !== "string" || typeof raw.end !== "string") return undefined;
+  if (!TIME_RE.test(raw.start) || !TIME_RE.test(raw.end)) return undefined;
+  if (!Array.isArray(raw.days)) return undefined;
+  const days = raw.days.filter(
+    (d): d is number => typeof d === "number" && Number.isInteger(d) && d >= 0 && d <= 6,
+  );
+  if (days.length === 0) return undefined;
+  if (raw.start >= raw.end) return undefined;
+  return {
+    days: Array.from(new Set(days)).sort((a, b) => a - b),
+    start: raw.start,
+    end: raw.end,
+  };
+}
+
+function parsePositiveInt(value: unknown, min: number, max: number): number | undefined {
+  if (typeof value !== "number" || !Number.isInteger(value)) return undefined;
+  if (value < min || value > max) return undefined;
+  return value;
 }
 
 export function parseBookAppointmentActionConfig(
@@ -61,6 +128,28 @@ export function parseBookAppointmentActionConfig(
     const trimmed = raw.notifyEmail.trim();
     if (trimmed) result.notifyEmail = trimmed;
   }
+  if (
+    raw.calendarProvider === "none" ||
+    raw.calendarProvider === "google" ||
+    raw.calendarProvider === "calendly"
+  ) {
+    result.calendarProvider = raw.calendarProvider;
+  }
+  if (typeof raw.timezone === "string" && isValidTimeZone(raw.timezone.trim())) {
+    result.timezone = raw.timezone.trim();
+  }
+  const durationMinutes = parsePositiveInt(raw.durationMinutes, 5, 240);
+  if (durationMinutes !== undefined) result.durationMinutes = durationMinutes;
+  const slotIntervalMinutes = parsePositiveInt(raw.slotIntervalMinutes, 5, 120);
+  if (slotIntervalMinutes !== undefined) result.slotIntervalMinutes = slotIntervalMinutes;
+  const maxDaysAhead = parsePositiveInt(raw.maxDaysAhead, 1, 31);
+  if (maxDaysAhead !== undefined) result.maxDaysAhead = maxDaysAhead;
+  const workingHours = parseWorkingHours(raw.workingHours);
+  if (workingHours) result.workingHours = workingHours;
+  if (typeof raw.eventTypeUri === "string") {
+    const trimmed = raw.eventTypeUri.trim();
+    if (trimmed) result.eventTypeUri = trimmed;
+  }
 
   return result;
 }
@@ -77,6 +166,13 @@ export function resolveBookAppointmentAction(
     departments: action.departments ?? [...DEFAULT_APPOINTMENT_DEPARTMENTS],
     whenToOffer: action.whenToOffer ?? "intent_only",
     notifyEmail: action.notifyEmail ?? null,
+    calendarProvider: action.calendarProvider ?? "none",
+    timezone: action.timezone ?? DEFAULT_APPOINTMENT_TIMEZONE,
+    durationMinutes: action.durationMinutes ?? DEFAULT_DURATION_MINUTES,
+    slotIntervalMinutes: action.slotIntervalMinutes ?? DEFAULT_SLOT_INTERVAL_MINUTES,
+    workingHours: action.workingHours ?? { ...DEFAULT_WORKING_HOURS },
+    maxDaysAhead: action.maxDaysAhead ?? DEFAULT_MAX_DAYS_AHEAD,
+    eventTypeUri: action.eventTypeUri ?? null,
   };
 }
 
@@ -90,4 +186,12 @@ export function isDepartmentAllowed(
 ): boolean {
   const normalized = normalizeDepartment(department);
   return action.departments.some((d) => normalizeDepartment(d) === normalized);
+}
+
+export function isExternalCalendarConfigured(
+  action: Pick<ResolvedBookAppointmentAction, "calendarProvider" | "eventTypeUri">,
+): boolean {
+  if (action.calendarProvider === "google") return true;
+  if (action.calendarProvider === "calendly") return Boolean(action.eventTypeUri);
+  return false;
 }

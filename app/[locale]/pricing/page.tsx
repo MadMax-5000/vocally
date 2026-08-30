@@ -14,6 +14,15 @@ import { type PlanCtaLabelKey, resolvePlanCta } from "@/lib/billing/plan-cta";
 import { PLAN_PRICES } from "@/lib/billing/plan-features";
 import { planFromMetaKey } from "@/lib/billing/plan-rank";
 import { getOverageRate } from "@/lib/billing/overage";
+import { localizedPageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return localizedPageMetadata(locale, "pricing");
+}
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 

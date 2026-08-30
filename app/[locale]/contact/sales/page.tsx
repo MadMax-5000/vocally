@@ -5,6 +5,15 @@ import { HeaderAuth } from "@/components/marketing/HeaderAuth";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { AppIcon } from "@/components/ui/app-icon";
 import { CheckIcon } from "@/lib/icons/app-icons";
+import { localizedPageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return localizedPageMetadata(locale, "sales");
+}
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 

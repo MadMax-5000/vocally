@@ -1,5 +1,14 @@
 import { LegalPageHeader } from "@/components/marketing/LegalPageHeader";
 import { getTranslations } from "next-intl/server";
+import { localizedPageMetadata } from "@/lib/seo/metadata";
+
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  return localizedPageMetadata(locale, "cookies");
+}
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
