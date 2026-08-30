@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 import {
   GRAIN_IMAGE,
   INDUSTRY_CARDS,
-  INDUSTRY_IMAGE,
   type IndustryCopy,
 } from "./industry-cards";
 import { useTypewriter } from "./use-typewriter";
@@ -112,7 +111,7 @@ export function IndustriesClient({
     <section
       id="industries"
       ref={sectionRef}
-      className="scroll-mt-16 border-t border-hairline bg-surface-card"
+      className="scroll-mt-16 bg-surface-card"
     >
       <div className="mx-auto w-full max-w-[1200px] px-6 py-section">
         <div className="flex items-center justify-between gap-4">
@@ -146,6 +145,7 @@ export function IndustriesClient({
                 copy={copy}
                 accent={def.accent}
                 icon={def.icon}
+                image={def.image}
                 isActive={isActive}
                 reduceMotion={reduceMotion}
                 agentLabel={agentLabel}
@@ -198,6 +198,7 @@ function IndustryCard({
   copy,
   accent,
   icon,
+  image,
   isActive,
   reduceMotion,
   agentLabel,
@@ -206,6 +207,7 @@ function IndustryCard({
   copy: IndustryCopy;
   accent: string;
   icon: (typeof INDUSTRY_CARDS)[number]["icon"];
+  image: string;
   isActive: boolean;
   reduceMotion: boolean;
   agentLabel: string;
@@ -235,7 +237,7 @@ function IndustryCard({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={INDUSTRY_IMAGE}
+        src={image}
         alt=""
         className={cn(
           "absolute inset-0 h-full w-full object-cover",

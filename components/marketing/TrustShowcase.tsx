@@ -231,7 +231,7 @@ function TrustCard({ bgSrc, bgAlt, overlay, eyebrow, body }: TrustCardProps) {
 export async function TrustShowcase() {
   const t = await getTranslations("landing.trust");
   return (
-    <section id="trust" className="border-t border-hairline bg-surface-card py-section">
+    <section id="trust" className="bg-surface-card py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}

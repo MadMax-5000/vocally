@@ -107,7 +107,7 @@ export function DeployChannelsClient({ title, cta, steps }: Props) {
     <section
       id="deploy-channels"
       ref={sectionRef}
-      className="border-t border-hairline bg-surface-card"
+      className="bg-surface-card"
     >
       <div className="mx-auto grid w-full max-w-[1200px] items-stretch gap-8 px-6 py-section lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
         <div className="relative order-2 min-h-[480px] overflow-hidden rounded-xxl sm:min-h-[540px] lg:order-1 lg:min-h-[620px]">

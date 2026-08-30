@@ -108,7 +108,7 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
     <section
       id="lifecycle"
       ref={sectionRef}
-      className="border-t border-hairline bg-surface-card"
+      className="bg-surface-card"
     >
       <div className="mx-auto grid w-full max-w-[1200px] items-stretch gap-8 px-6 py-section lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
         <div className="flex flex-col">

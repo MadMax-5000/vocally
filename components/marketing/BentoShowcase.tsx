@@ -44,7 +44,7 @@ export async function BentoShowcase() {
   ];
 
   return (
-    <section className="border-t border-hairline bg-canvas py-section">
+    <section className="bg-canvas py-section">
       <div className={container}>
 
         {/* ── Heading band ── */}
