@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
-import { handleAgentChatMessage } from "@/lib/api/agent-chat-handler";
+import { handleAgentChatMessage, createAgentChatSseStream } from "@/lib/api/agent-chat-handler";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
 import {
@@ -16,6 +16,7 @@ const chatRequestSchema = z.object({
   message: z.string().min(1).max(4000),
   deployment: z.enum(["widget", "help"]).optional(),
   context: z.string().max(500).optional(),
+  stream: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       message,
       deployment = "widget",
       context,
+      stream: wantStream = false,
     } = parsed.data;
 
     const agent = await prisma.agent.findUnique({
@@ -102,6 +104,33 @@ export async function POST(req: NextRequest) {
     }
 
     const orgId = agent.org.id;
+
+    if (wantStream) {
+      const streamed = await createAgentChatSseStream({
+        orgId,
+        agentId,
+        sessionId: existingSessionId,
+        message,
+        deployment,
+        context,
+      });
+
+      if (!streamed.ok) {
+        return NextResponse.json(
+          { success: false, error: streamed.error.message },
+          { status: streamed.error.status },
+        );
+      }
+
+      return new Response(streamed.stream, {
+        headers: {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
+    }
 
     const result = await handleAgentChatMessage({
       orgId,

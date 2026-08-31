@@ -10,6 +10,11 @@ const isLocalizedDashboardRoute = createRouteMatcher(["/(fr|en|ar)/dashboard(.*)
 const isOnboardingRoute = createRouteMatcher(["/(fr|en|ar)/onboarding", "/onboarding"]);
 const isWebhookRoute = createRouteMatcher(["/api/webhooks(.*)", "/api/cron(.*)"]);
 const isApiRoute = createRouteMatcher(["/api(.*)"]);
+const isPublicEmbedRoute = createRouteMatcher(["/help(.*)", "/widget(.*)"]);
+const isLocalizedEmbedRoute = createRouteMatcher([
+  "/(fr|en|ar)/help(.*)",
+  "/(fr|en|ar)/widget(.*)",
+]);
 
 const isI18nRoute = createRouteMatcher([
   '/',
@@ -55,6 +60,17 @@ export default clerkMiddleware(async (auth, req) => {
       return Response.redirect(new URL(`/${locale}/dashboard`, req.url));
     }
     return handleI18nRouting(req);
+  }
+
+  if (isLocalizedEmbedRoute(req)) {
+    const locale = req.nextUrl.pathname.split("/")[1];
+    const url = req.nextUrl.clone();
+    url.pathname = req.nextUrl.pathname.slice(`/${locale}`.length) || "/";
+    return Response.redirect(url, 308);
+  }
+
+  if (isPublicEmbedRoute(req)) {
+    return;
   }
 
   if (isI18nRoute(req)) {

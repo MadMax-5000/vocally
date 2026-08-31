@@ -3,7 +3,7 @@ import {
   formatAppointmentEmailLines,
   notifyLeadCaptured,
 } from "@/lib/leads/notify-lead";
-import { isDepartmentAllowed } from "@/lib/deploy/book-appointment-action";
+import { resolveDepartmentMatch } from "@/lib/deploy/book-appointment-action";
 import {
   bookExternalSlot,
   isExternalCalendarActive,
@@ -111,13 +111,14 @@ export async function handleBookAppointment(
     });
   }
 
-  const department = String(args.department ?? "").trim();
-  if (!department) {
+  const departmentInput = String(args.department ?? "").trim();
+  if (!departmentInput) {
     return JSON.stringify({ error: "Department is required." });
   }
-  if (!isDepartmentAllowed(action, department)) {
+  const department = resolveDepartmentMatch(action, departmentInput);
+  if (!department) {
     return JSON.stringify({
-      error: `Department "${department}" is not available. Allowed: ${action.departments.join(", ")}.`,
+      error: `Department "${departmentInput}" is not available. Allowed: ${action.departments.join(", ")}.`,
     });
   }
 
@@ -212,7 +213,7 @@ export async function handleBookAppointment(
       sessionId: ctx.sessionId,
       customerName,
       customerEmail,
-      department: department.toLowerCase(),
+      department,
       date: parsedDate,
       time: timeStr,
       durationMinutes: usesExternalCalendar ? action.durationMinutes : null,

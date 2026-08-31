@@ -9,6 +9,7 @@ import { markForwardingVerified } from "@/lib/twilio/provision-number";
 import { getToolDefinitionsForAgent } from "@/lib/ai/tools/registry";
 import { prisma } from "@/lib/db/prisma";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
+import { buildDateTimeContextSection } from "@/lib/ai/prompts/datetime-context";
 import { resolveBookAppointmentAction } from "@/lib/deploy/book-appointment-action";
 import { isExternalCalendarActive, loadCalendarConnection } from "@/lib/calendar/service";
 import { resolveEscalationAction } from "@/lib/deploy/escalation-action";
@@ -228,7 +229,9 @@ export async function handleAssistantRequest(message: {
       : 15;
 
   const escalationConfig = resolveEscalationAction(agent.channels);
-  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels, {
+    agentType: agent.agentType,
+  });
   const calendarConnection = await loadCalendarConnection(agentId, orgId);
 
   // Voice transfer depends on Phone settings handoff number (or HANDOFF_PHONE_NUMBER),
@@ -309,6 +312,7 @@ export async function handleAssistantRequest(message: {
     },
     knowledgeContext,
     language: promptLanguage,
+    dateTimeContext: buildDateTimeContextSection(bookAppointmentAction.timezone),
     toolDefinitions: tools,
     bookAppointment: bookAppointmentAction.enabled ? bookAppointmentAction : undefined,
   });

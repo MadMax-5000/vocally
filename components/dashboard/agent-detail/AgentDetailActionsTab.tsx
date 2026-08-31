@@ -79,8 +79,8 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
   );
 
   const bookAppointmentAction = React.useMemo(
-    () => resolveBookAppointmentAction(agent.channels),
-    [agent.channels],
+    () => resolveBookAppointmentAction(agent.channels, { agentType: agent.agentType }),
+    [agent.channels, agent.agentType],
   );
 
   React.useEffect(() => {

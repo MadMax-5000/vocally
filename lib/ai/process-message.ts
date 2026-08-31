@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
-import { generateEmbedding } from "@/lib/ai/embeddings";
 import { logServerWarning } from "@/lib/logger";
-import { similaritySearch } from "@/lib/knowledge/vector-store";
-import { callLLM } from "@/lib/ai/llm";
-import type { LLMMessage } from "@/lib/ai/llm";
+import { callLLM, streamLLM } from "@/lib/ai/llm";
+import type { CallLLMOptions, CallLLMResult, LLMMessage } from "@/lib/ai/llm";
+import { retrieveKnowledgeContext } from "@/lib/ai/retrieve-knowledge-context";
 import { resolveLlmModelId } from "@/lib/ai/model-registry";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
+import { buildDateTimeContextSection } from "@/lib/ai/prompts/datetime-context";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import {
   evaluateEscalation,
@@ -35,12 +35,17 @@ import { dtmfRequestStore } from "@/lib/ai/tools/handlers";
 import type { DtmfRequest } from "@/lib/ai/tools/handlers";
 import type { Channel } from "@prisma/client";
 
+export type ProcessStreamEvent =
+  | { type: "status"; phase: "thinking" | "tools" }
+  | { type: "delta"; text: string };
+
 export type ProcessMessageInput = {
   orgId: string;
   agentId: string;
   sessionId: string;
   message: string;
   channel?: Channel;
+  onStreamEvent?: (event: ProcessStreamEvent) => void;
 };
 
 export type ProcessMessageResult = {
@@ -63,45 +68,52 @@ const TEMPERATURE_MAP: Record<string, number> = {
 
 const MAX_TOOL_ITERATIONS = 5;
 
-/** Strong match: high precision snippets for RAG injection. */
-const RAG_PRIMARY_TOP_K = 5;
-const RAG_PRIMARY_MIN_SCORE = 0.7;
-/** When nothing passes the primary bar but the agent has attached docs, retrieve broader matches for paraphrased queries. */
-const RAG_FALLBACK_TOP_K = 8;
-const RAG_FALLBACK_MIN_SCORE = 0.5;
+async function executeOneTool(
+  tc: ToolCall,
+  ctx: ToolContext,
+): Promise<LLMMessage> {
+  const handler = getToolHandler(tc.function.name);
+  let content: string;
+
+  if (!handler) {
+    content = JSON.stringify({ error: `Unknown tool: ${tc.function.name}` });
+  } else {
+    try {
+      const args = JSON.parse(tc.function.arguments);
+      content = await handler(args, ctx);
+    } catch (err) {
+      content = JSON.stringify({
+        error: `Tool execution failed: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
+  }
+
+  return {
+    role: "tool",
+    tool_call_id: tc.id,
+    name: tc.function.name,
+    content,
+  };
+}
 
 async function executeToolCalls(
   toolCalls: ToolCall[],
   ctx: ToolContext,
 ): Promise<LLMMessage[]> {
-  const results: LLMMessage[] = [];
+  return Promise.all(toolCalls.map((tc) => executeOneTool(tc, ctx)));
+}
 
-  for (const tc of toolCalls) {
-    const handler = getToolHandler(tc.function.name);
-    let content: string;
-
-    if (!handler) {
-      content = JSON.stringify({ error: `Unknown tool: ${tc.function.name}` });
-    } else {
-      try {
-        const args = JSON.parse(tc.function.arguments);
-        content = await handler(args, ctx);
-      } catch (err) {
-        content = JSON.stringify({
-          error: `Tool execution failed: ${err instanceof Error ? err.message : String(err)}`,
-        });
-      }
-    }
-
-    results.push({
-      role: "tool",
-      tool_call_id: tc.id,
-      name: tc.function.name,
-      content,
-    });
+async function invokeLlm(
+  options: CallLLMOptions,
+  onStreamEvent?: (event: ProcessStreamEvent) => void,
+): Promise<CallLLMResult> {
+  if (!onStreamEvent) {
+    return callLLM(options);
   }
-
-  return results;
+  return streamLLM({
+    ...options,
+    onDelta: (text) => onStreamEvent({ type: "delta", text }),
+  });
 }
 
 export async function processMessage(input: ProcessMessageInput): Promise<ProcessMessageResult> {
@@ -121,51 +133,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   }
 
   const attachedDocIds = agent.knowledgeDocs.map((akd) => akd.knowledgeDocId);
-
-  let knowledgeContext = "";
-  try {
-    const { embedding } = await generateEmbedding(message);
-    let results = await similaritySearch(
-      embedding,
-      orgId,
-      RAG_PRIMARY_TOP_K,
-      RAG_PRIMARY_MIN_SCORE,
-      attachedDocIds,
-    );
-
-    if (results.length === 0 && attachedDocIds.length > 0) {
-      results = await similaritySearch(
-        embedding,
-        orgId,
-        RAG_FALLBACK_TOP_K,
-        RAG_FALLBACK_MIN_SCORE,
-        attachedDocIds,
-      );
-    }
-
-    if (results.length > 0) {
-      knowledgeContext = results.map((r) => `[${r.docTitle}] ${r.content}`).join("\n\n");
-    } else if (attachedDocIds.length > 0) {
-      logServerWarning("rag_retrieval_empty_after_fallback", {
-        attachedDocCount: attachedDocIds.length,
-        primaryMinScore: RAG_PRIMARY_MIN_SCORE,
-        fallbackMinScore: RAG_FALLBACK_MIN_SCORE,
-        messageCharLength: message.length,
-      });
-    }
-  } catch (err) {
-    logServerWarning("rag_retrieval_failed", {
-      attachedDocCount: attachedDocIds.length,
-      messageCharLength: message.length,
-      errorName: err instanceof Error ? err.name : "unknown",
-    });
-  }
-
-  const history = await prisma.message.findMany({
-    where: { sessionId },
-    orderBy: { createdAt: "asc" },
-    take: 20,
-  });
+  const { onStreamEvent } = input;
 
   const promptLanguage = "the same language the customer is using";
 
@@ -174,12 +142,9 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const webChatParsed = webChatRow ? parseWebChatConfig(webChatRow.config) : {};
   const hasEscalationConfig = webChatParsed.actions?.escalations !== undefined;
   const collectLeadsAction = resolveCollectLeadsAction(agent.channels);
-  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
-  const calendarConnection = await loadCalendarConnection(agentId, orgId);
-  const listAvailableSlots = isExternalCalendarActive(
-    bookAppointmentAction,
-    calendarConnection,
-  );
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels, {
+    agentType: agent.agentType,
+  });
   const customFormAction = resolveCustomFormAction(agent.channels);
   const customFormActive =
     customFormAction.enabled && isCustomFormConfigured(customFormAction);
@@ -188,10 +153,25 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     (escalationConfig.enabled || (!hasEscalationConfig && agent.handoffEnabled));
   const enabledTriggers = resolveEscalationTriggers(escalationConfig.triggers);
 
-  const sessionRow = await prisma.session.findFirst({
-    where: { id: sessionId, orgId },
-    select: { channel: true },
-  });
+  const [knowledgeContext, history, calendarConnection, sessionRow] =
+    await Promise.all([
+      retrieveKnowledgeContext(message, orgId, attachedDocIds),
+      prisma.message.findMany({
+        where: { sessionId },
+        orderBy: { createdAt: "asc" },
+        take: 20,
+      }),
+      loadCalendarConnection(agentId, orgId),
+      prisma.session.findFirst({
+        where: { id: sessionId, orgId },
+        select: { channel: true },
+      }),
+    ]);
+
+  const listAvailableSlots = isExternalCalendarActive(
+    bookAppointmentAction,
+    calendarConnection,
+  );
   const messageChannel = input.channel ?? sessionRow?.channel ?? "CHAT";
 
   const toolDefinitions = getToolDefinitionsForAgent({
@@ -227,6 +207,8 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     .filter(Boolean)
     .join("\n\n");
 
+  const dateTimeContext = buildDateTimeContextSection(bookAppointmentAction.timezone);
+
   const systemPrompt =
     input.channel === "VOICE"
       ? voiceBotSystemPromptV1({
@@ -243,6 +225,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           },
           knowledgeContext,
           language: promptLanguage,
+          dateTimeContext,
           toolDefinitions,
           collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
           bookAppointment: bookAppointmentAction.enabled
@@ -263,6 +246,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
           },
           knowledgeContext,
           language: promptLanguage,
+          dateTimeContext,
           toolDefinitions,
           collectLeads: collectLeadsAction.enabled ? collectLeadsAction : undefined,
           customForm: customFormActive ? customFormAction : undefined,
@@ -304,15 +288,20 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   };
 
   try {
-    const firstResult = await callLLM({
-      model: llmModel,
-      system: systemPrompt,
-      messages: llmMessages,
-      maxTokens: 1024,
-      temperature,
-      tools: toolDefinitions,
-      tool_choice: "auto",
-    });
+    onStreamEvent?.({ type: "status", phase: "thinking" });
+
+    const firstResult = await invokeLlm(
+      {
+        model: llmModel,
+        system: systemPrompt,
+        messages: llmMessages,
+        maxTokens: 1024,
+        temperature,
+        tools: toolDefinitions,
+        tool_choice: "auto",
+      },
+      onStreamEvent,
+    );
 
     logServerWarning("debug_llm_first_result", {
       hasToolCalls: firstResult.tool_calls !== undefined && firstResult.tool_calls.length > 0,
@@ -338,6 +327,8 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     while (activeToolCalls && activeToolCalls.length > 0 && toolCallCount < MAX_TOOL_ITERATIONS) {
       toolCallCount++;
 
+      onStreamEvent?.({ type: "status", phase: "tools" });
+
       logServerWarning("debug_llm_tool_execution", {
         iteration: toolCallCount,
         toolCount: activeToolCalls.length,
@@ -347,13 +338,16 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       const toolResults = await executeToolCalls(activeToolCalls, toolCtx);
       currentMessages.push(...toolResults);
 
-      const followUp = await callLLM({
-        model: llmModel,
-        system: systemPrompt,
-        messages: currentMessages,
-        maxTokens: 1024,
-        temperature,
-      });
+      const followUp = await invokeLlm(
+        {
+          model: llmModel,
+          system: systemPrompt,
+          messages: currentMessages,
+          maxTokens: 1024,
+          temperature,
+        },
+        onStreamEvent,
+      );
 
       currentMessages.push({
         role: "assistant",

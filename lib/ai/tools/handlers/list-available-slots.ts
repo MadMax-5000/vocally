@@ -2,6 +2,7 @@ import {
   isExternalCalendarActive,
   listExternalSlots,
 } from "@/lib/calendar/service";
+import { resolveNaturalDate } from "@/lib/calendar/resolve-natural-datetime";
 import {
   addMinutes,
   formatInTimeZone,
@@ -10,10 +11,9 @@ import {
 import { CalendlyPaidPlanError, CalendarNotConnectedError } from "@/lib/calendar/types";
 import type { ToolContext } from "../types";
 
-function parseYmd(value: unknown): string | null {
+function parseYmd(value: unknown, timeZone: string): string | null {
   if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null;
+  return resolveNaturalDate(value, timeZone);
 }
 
 export async function handleListAvailableSlots(
@@ -33,8 +33,8 @@ export async function handleListAvailableSlots(
 
   const timeZone = action.timezone;
   const now = new Date();
-  const fromDate = parseYmd(args.fromDate);
-  const toDate = parseYmd(args.toDate);
+  const fromDate = parseYmd(args.fromDate, timeZone);
+  const toDate = parseYmd(args.toDate, timeZone);
 
   let from = now;
   if (fromDate) {

@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
+import { ChatLottieLoader } from "@/components/chat/ChatLottieLoader";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import {
   ChatMessageComposer,
@@ -51,6 +52,7 @@ export function HelpCenterChat({
     isEscalated,
     escalationMessage,
     isLoading,
+    isStreaming,
     error,
     activeForm,
     formSubmitting,
@@ -277,19 +279,26 @@ export function HelpCenterChat({
                   isDark ? "bg-[#292524] text-[#fafaf9]" : "bg-surface-strong text-ink",
                 )}
               >
-                <ChatMarkdown content={msg.content} variant="assistant" />
+                <ChatMarkdown
+                  content={msg.content}
+                  variant="assistant"
+                  isStreaming={Boolean(msg.streaming)}
+                />
               </div>
             )}
           </div>
         ))}
 
-        {isBusy && (
+        {isBusy && !isStreaming && (
           <div className="flex justify-start">
-            <span className="flex items-center gap-1 py-1">
-              <span className="size-1.5 animate-bounce rounded-full bg-muted" />
-              <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:0.1s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:0.2s]" />
-            </span>
+            <div
+              className={cn(
+                "rounded-xl px-2 py-1",
+                isDark ? "bg-[#292524]" : "bg-surface-strong",
+              )}
+            >
+              <ChatLottieLoader />
+            </div>
           </div>
         )}
 

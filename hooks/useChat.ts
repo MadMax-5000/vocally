@@ -8,6 +8,8 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { ChatFormUi } from "@/lib/chat/form-ui";
+import { pullChatSseEvents } from "@/lib/chat/sse";
+import type { ChatStreamEvent } from "@/lib/chat/stream-events";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 
 export type ChatSessionStatus =
@@ -26,7 +28,10 @@ export type ChatMessage = {
   content: string;
   createdAt: string;
   ui?: ChatFormUi;
+  streaming?: boolean;
 };
+
+const STREAMING_BOT_ID = "streaming-bot";
 
 export type ChatDeployment = "widget" | "help";
 
@@ -78,6 +83,7 @@ export function useChat({
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const initialSuggestedRef = useRef(resolvedInitialSuggested);
@@ -108,6 +114,7 @@ export function useChat({
 
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
+  const abortRef = useRef<AbortController | null>(null);
 
   const isVoiceSupported = useSyncExternalStore(
     () => () => {},
@@ -148,6 +155,7 @@ export function useChat({
           };
           setMessages((prev) => {
             if (prev.some((m) => m.id === msg.id)) return prev;
+            if (msg.role === "BOT" && prev.some((m) => m.streaming)) return prev;
             return [...prev, msg];
           });
         },
@@ -175,7 +183,15 @@ export function useChat({
     };
   }, [sessionId]);
 
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
   const clearMessages = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
     setMessages([]);
     setSessionId(null);
     setError(null);
@@ -184,13 +200,20 @@ export function useChat({
     setSuggestedMessages(initialSuggestedRef.current);
     setActiveForm(null);
     setFormSubmitted(false);
+    setIsLoading(false);
+    setIsStreaming(false);
   }, []);
 
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isLoading || isEscalated) return;
 
+      abortRef.current?.abort();
+      const abort = new AbortController();
+      abortRef.current = abort;
+
       setIsLoading(true);
+      setIsStreaming(false);
       setError(null);
 
       const trimmed = content.trim();
@@ -205,6 +228,38 @@ export function useChat({
         },
       ]);
 
+      const applyDone = (event: Extract<ChatStreamEvent, { type: "done" }>) => {
+        if (event.sessionStatus) {
+          setSessionStatus(event.sessionStatus);
+        }
+        if (event.escalation?.escalated) {
+          setEscalationMessage(event.escalation.message);
+          setSessionStatus("ESCALATED");
+          setSuggestedMessages([]);
+        }
+        const formUi = event.ui ?? event.message.ui ?? null;
+        if (formUi?.type === "form" && !formSubmitted) {
+          setActiveForm(formUi);
+        }
+        setMessages((prev) => {
+          const withoutStreaming = prev.filter((m) => m.id !== STREAMING_BOT_ID);
+          if (withoutStreaming.some((m) => m.id === event.message.id)) {
+            return withoutStreaming;
+          }
+          return [
+            ...withoutStreaming,
+            {
+              id: event.message.id,
+              role: "BOT" as const,
+              content: event.message.content,
+              createdAt: event.message.createdAt,
+              ...(formUi ? { ui: formUi } : {}),
+            },
+          ];
+        });
+        setIsStreaming(false);
+      };
+
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -214,65 +269,155 @@ export function useChat({
             ...(widgetToken ? { widgetToken } : {}),
             sessionId: sessionIdRef.current,
             message: trimmed,
+            stream: true,
             ...(deployment === "help" ? { deployment: "help" as const } : {}),
             ...(context ? { context } : {}),
           }),
+          signal: abort.signal,
         });
 
-        const json = await res.json();
-        if (!json.success) {
-          throw new Error(json.error ?? "Failed to send message");
+        const contentType = res.headers.get("content-type") ?? "";
+        if (!contentType.includes("text/event-stream")) {
+          const json = await res.json();
+          if (!json.success) {
+            throw new Error(json.error ?? "Failed to send message");
+          }
+
+          if (json.data.sessionId && !sessionIdRef.current) {
+            setSessionId(json.data.sessionId);
+          }
+          if (json.data.suggestedMessages !== undefined) {
+            setSuggestedMessages(json.data.suggestedMessages);
+          }
+          if (json.data.sessionStatus) {
+            setSessionStatus(json.data.sessionStatus);
+          }
+          if (json.data.escalation?.escalated) {
+            setEscalationMessage(json.data.escalation.message);
+            setSessionStatus("ESCALATED");
+            setSuggestedMessages([]);
+          }
+          const userId = json.data.userMessage.id;
+          const botId = json.data.message.id;
+          const formUi = json.data.ui ?? json.data.message?.ui ?? null;
+          if (formUi?.type === "form" && !formSubmitted) {
+            setActiveForm(formUi);
+          }
+          setMessages((prev) => {
+            const withRealUser = prev.map((m) =>
+              m.id === tempId
+                ? { ...m, id: userId, createdAt: json.data.userMessage.createdAt }
+                : m,
+            );
+            if (withRealUser.some((m) => m.id === botId)) return withRealUser;
+            return [
+              ...withRealUser,
+              {
+                id: botId,
+                role: "BOT" as const,
+                content: json.data.message.content,
+                createdAt: json.data.message.createdAt,
+                ...(formUi ? { ui: formUi } : {}),
+              },
+            ];
+          });
+          return;
         }
 
-        if (json.data.sessionId && !sessionIdRef.current) {
-          setSessionId(json.data.sessionId);
+        if (!res.body) {
+          throw new Error("Failed to send message");
         }
 
-        if (json.data.suggestedMessages !== undefined) {
-          setSuggestedMessages(json.data.suggestedMessages);
-        }
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-        if (json.data.sessionStatus) {
-          setSessionStatus(json.data.sessionStatus);
-        }
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const pulled = pullChatSseEvents(buffer);
+          buffer = pulled.rest;
 
-        if (json.data.escalation?.escalated) {
-          setEscalationMessage(json.data.escalation.message);
-          setSessionStatus("ESCALATED");
-          setSuggestedMessages([]);
+          for (const event of pulled.events) {
+            switch (event.type) {
+              case "meta": {
+                if (event.sessionId && !sessionIdRef.current) {
+                  setSessionId(event.sessionId);
+                }
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === tempId
+                      ? {
+                          ...m,
+                          id: event.userMessage.id,
+                          createdAt: event.userMessage.createdAt,
+                        }
+                      : m,
+                  ),
+                );
+                break;
+              }
+              case "status": {
+                if (event.phase === "tools") {
+                  setIsStreaming(false);
+                  setMessages((prev) =>
+                    prev.filter((m) => m.id !== STREAMING_BOT_ID),
+                  );
+                }
+                break;
+              }
+              case "delta": {
+                setIsStreaming(true);
+                setMessages((prev) => {
+                  const idx = prev.findIndex((m) => m.id === STREAMING_BOT_ID);
+                  if (idx >= 0) {
+                    const next = [...prev];
+                    const current = next[idx];
+                    next[idx] = {
+                      ...current,
+                      content: current.content + event.text,
+                    };
+                    return next;
+                  }
+                  return [
+                    ...prev,
+                    {
+                      id: STREAMING_BOT_ID,
+                      role: "BOT" as const,
+                      content: event.text,
+                      createdAt: new Date().toISOString(),
+                      streaming: true,
+                    },
+                  ];
+                });
+                break;
+              }
+              case "done":
+                applyDone(event);
+                break;
+              case "suggestions":
+                setSuggestedMessages(event.suggestedMessages);
+                break;
+              case "error":
+                throw new Error(event.message);
+            }
+          }
         }
-
-        const userId = json.data.userMessage.id;
-        const botId = json.data.message.id;
-        const formUi =
-          json.data.ui ?? json.data.message?.ui ?? null;
-        if (formUi?.type === "form" && !formSubmitted) {
-          setActiveForm(formUi);
-        }
-
-        setMessages((prev) => {
-          const withRealUser = prev.map((m) =>
-            m.id === tempId
-              ? { ...m, id: userId, createdAt: json.data.userMessage.createdAt }
-              : m,
-          );
-          if (withRealUser.some((m) => m.id === botId)) return withRealUser;
-          return [
-            ...withRealUser,
-            {
-              id: botId,
-              role: "BOT" as const,
-              content: json.data.message.content,
-              createdAt: json.data.message.createdAt,
-              ...(formUi ? { ui: formUi } : {}),
-            },
-          ];
-        });
       } catch (err) {
-        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        setMessages((prev) =>
+          prev.filter((m) => m.id !== tempId && m.id !== STREAMING_BOT_ID),
+        );
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
+        if (abortRef.current === abort) {
+          abortRef.current = null;
+        }
         setIsLoading(false);
+        setIsStreaming(false);
       }
     },
     [agentId, widgetToken, isLoading, isEscalated, deployment, formSubmitted, context],
@@ -466,6 +611,7 @@ export function useChat({
     escalationMessage,
     isEscalated,
     isLoading,
+    isStreaming,
     isProcessingVoice,
     isVoiceSupported,
     error,

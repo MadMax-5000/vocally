@@ -22,6 +22,7 @@ export type ChatBotPromptInput = {
   collectLeads?: ResolvedCollectLeadsAction;
   customForm?: ResolvedCustomFormAction;
   bookAppointment?: ResolvedBookAppointmentAction;
+  dateTimeContext?: string;
 };
 
 export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
@@ -29,6 +30,10 @@ export const chatBotSystemPromptV1 = (input: ChatBotPromptInput) => {
     `You are ${input.agentName}, an AI assistant for ${input.orgName}'s customer support team.`,
     `Always respond in ${input.language}.`,
   ];
+
+  if (input.dateTimeContext) {
+    sections.push(input.dateTimeContext);
+  }
 
   const personalitySection = input.personality
     ? buildAgentPersonalityPromptSection(input.personality)

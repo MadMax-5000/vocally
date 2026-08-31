@@ -14,6 +14,7 @@ type ChatMarkdownProps = {
   content: string;
   variant: ChatMarkdownVariant;
   className?: string;
+  isStreaming?: boolean;
 };
 
 /** Block unsafe hrefs (e.g. javascript:) while keeping http(s) / mailto / same-path links. */
@@ -264,14 +265,32 @@ function rootClassForVariant(variant: ChatMarkdownVariant): string {
  * Renders markdown in chat bubbles. HTML in source is escaped (no rehype-raw).
  * Models often emit **bold**, lists, and fenced code — styled with DESIGN.md tokens per variant.
  */
-export function ChatMarkdown({ content, variant, className }: ChatMarkdownProps) {
+export function ChatMarkdown({
+  content,
+  variant,
+  className,
+  isStreaming = false,
+}: ChatMarkdownProps) {
   const components = buildComponents(variant);
 
   return (
-    <div className={cn(rootClassForVariant(variant), "[&_*]:max-w-full", className)}>
+    <div
+      className={cn(
+        rootClassForVariant(variant),
+        "[&_*]:max-w-full",
+        isStreaming && "[&_p:last-child]:inline",
+        className,
+      )}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
         {content}
       </ReactMarkdown>
+      {isStreaming ? (
+        <span
+          className="ml-0.5 inline-block h-[0.9em] w-0.5 translate-y-[0.12em] animate-pulse bg-current align-text-bottom"
+          aria-hidden
+        />
+      ) : null}
     </div>
   );
 }

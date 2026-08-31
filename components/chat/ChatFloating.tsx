@@ -40,7 +40,7 @@ export function ChatFloating({
     [play],
   );
 
-  const { messages, isLoading, isProcessingVoice, isVoiceSupported, error, sendMessage, sendVoiceMessage } =
+  const { messages, isLoading, isStreaming, isProcessingVoice, isVoiceSupported, error, sendMessage, sendVoiceMessage } =
     useChat({
       agentId,
       sessionId: initialSessionId,
@@ -157,6 +157,7 @@ export function ChatFloating({
                   <ChatMarkdown
                     content={msg.content}
                     variant={msg.role === "USER" ? "user" : "assistant"}
+                    isStreaming={msg.role === "BOT" && Boolean(msg.streaming)}
                   />
                 </div>
               </div>
@@ -230,7 +231,7 @@ export function ChatFloating({
               disabled={isBusy}
               className="btn-primary shrink-0 disabled:opacity-50"
             >
-              {isBusy ? (
+              {isBusy && !isStreaming ? (
                 <span className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce" />
                   <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:0.1s]" />

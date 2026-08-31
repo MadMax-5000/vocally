@@ -99,6 +99,40 @@ describe("handleBookAppointment", () => {
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
+  it("maps cardio to cardiologie before creating the appointment", async () => {
+    mockCreate.mockResolvedValue({
+      id: "appt-1",
+      customerName: "Ahmed",
+      customerEmail: null,
+      department: "cardiologie",
+      time: "10:00",
+    });
+    const result = await handleBookAppointment(
+      {
+        date: "2026-07-10",
+        time: "10:00",
+        department: "cardio",
+        customerName: "Ahmed",
+      },
+      {
+        orgId: "org-1",
+        sessionId: "sess-1",
+        bookAppointment: {
+          ...baseAction,
+          departments: ["cardiologie", "general"],
+        },
+      },
+    );
+    const parsed = JSON.parse(result);
+    expect(parsed.success).toBe(true);
+    expect(parsed.department).toBe("cardiologie");
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ department: "cardiologie" }),
+      }),
+    );
+  });
+
   it("creates appointment when valid", async () => {
     const result = await handleBookAppointment(
       {

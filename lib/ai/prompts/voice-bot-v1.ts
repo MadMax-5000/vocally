@@ -19,6 +19,7 @@ export type VoiceBotPromptInput = {
   toolDefinitions?: ToolDefinition[];
   collectLeads?: ResolvedCollectLeadsAction;
   bookAppointment?: ResolvedBookAppointmentAction;
+  dateTimeContext?: string;
 };
 
 export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
@@ -27,6 +28,10 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
     `You are speaking with a customer over the phone. Keep responses short — 1 to 3 sentences maximum.`,
     `Always respond in ${input.language}.`,
   ];
+
+  if (input.dateTimeContext) {
+    sections.push(input.dateTimeContext);
+  }
 
   const personalitySection = input.personality
     ? buildAgentPersonalityPromptSection(input.personality)

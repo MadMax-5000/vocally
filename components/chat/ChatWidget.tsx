@@ -6,6 +6,7 @@ import { useEffect, useRef, FormEvent, useMemo, useState } from "react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
+import { ChatLottieLoader } from "@/components/chat/ChatLottieLoader";
 import {
   ChatMessageComposer,
   chatComposerFormatDuration,
@@ -91,6 +92,7 @@ export function ChatWidget({
     isEscalated,
     escalationMessage,
     isLoading,
+    isStreaming,
     error,
     activeForm,
     formSubmitting,
@@ -323,19 +325,19 @@ export function ChatWidget({
                   isDark ? "text-[#fafaf9]" : "text-ink",
                 )}
               >
-                <ChatMarkdown content={msg.content} variant="assistant" />
+                <ChatMarkdown
+                  content={msg.content}
+                  variant="assistant"
+                  isStreaming={Boolean(msg.streaming)}
+                />
               </div>
             )}
           </div>
         ))}
 
-        {isBusy && hasMessages && (
+        {isBusy && hasMessages && !isStreaming && (
           <div className="flex justify-start">
-            <span className="flex items-center gap-1 py-1">
-              <span className="size-1.5 animate-bounce rounded-full bg-muted" />
-              <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:0.1s]" />
-              <span className="size-1.5 animate-bounce rounded-full bg-muted [animation-delay:0.2s]" />
-            </span>
+            <ChatLottieLoader />
           </div>
         )}
 

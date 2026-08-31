@@ -27,7 +27,9 @@ export type BookAppointmentActionDraft = {
 export function buildBookAppointmentActionDraft(
   agent: AgentDetailWithRelations,
 ): BookAppointmentActionDraft {
-  const resolved = resolveBookAppointmentAction(agent.channels);
+  const resolved = resolveBookAppointmentAction(agent.channels, {
+    agentType: agent.agentType,
+  });
   const connection = agent.calendarConnection;
   let calendarProvider: BookAppointmentCalendarProvider = resolved.calendarProvider;
   if (connection?.provider === "GOOGLE") calendarProvider = "google";

@@ -30,11 +30,13 @@ export const BOOK_APPOINTMENT: ToolDefinition = {
       properties: {
         date: {
           type: "string",
-          description: "The requested date in YYYY-MM-DD format",
+          description:
+            "YYYY-MM-DD — compute from Current date and time (e.g. demain → tomorrow's date). Never ask the customer for this format.",
         },
         time: {
           type: "string",
-          description: "The requested time in HH:MM format (24-hour)",
+          description:
+            "HH:MM 24-hour — convert colloquial times (midi → 12:00, 10h matin → 10:00). Never ask the customer for 24-hour format.",
         },
         department: {
           type: "string",
@@ -93,11 +95,13 @@ export const LIST_AVAILABLE_SLOTS: ToolDefinition = {
       properties: {
         fromDate: {
           type: "string",
-          description: "Start date in YYYY-MM-DD (optional; defaults to today)",
+          description:
+            "Optional YYYY-MM-DD you compute from relative dates. For a single day like demain, set both fromDate and toDate to that day. Omit to search from today. Never ask the customer for this format.",
         },
         toDate: {
           type: "string",
-          description: "End date in YYYY-MM-DD (optional; defaults to a few days ahead)",
+          description:
+            "Optional YYYY-MM-DD you compute from relative dates. For a single day like demain, set both fromDate and toDate to that day. Omit to search a few days ahead. Never ask the customer for this format.",
         },
       },
     },

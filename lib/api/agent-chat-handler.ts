@@ -1,9 +1,12 @@
 import type { Agent, AgentChannel, SessionStatus } from "@prisma/client";
 
 import { processMessage } from "@/lib/ai/process-message";
+import type { ProcessMessageResult } from "@/lib/ai/process-message";
 import { generateDynamicSuggestedMessages } from "@/lib/ai/generate-suggested-messages";
 import { isApiDeploymentEnabled } from "@/lib/deploy/api-config";
 import type { ChatFormUi } from "@/lib/chat/form-ui";
+import { encodeChatSse } from "@/lib/chat/sse";
+import type { ChatStreamEscalation, ChatStreamEvent } from "@/lib/chat/stream-events";
 import {
   buildFormUiPayload,
   isCustomFormConfigured,
@@ -109,36 +112,217 @@ export type HandleAgentChatMessageResult =
   | HandleAgentChatMessageSuccess
   | HandleAgentChatMessageFailure;
 
-export async function handleAgentChatMessage({
-  orgId,
-  agentId,
-  sessionId: existingSessionId,
-  message,
-  deployment = "widget",
-  context,
-}: HandleAgentChatMessageInput): Promise<HandleAgentChatMessageResult> {
-  let sessionId = existingSessionId;
+type ChatReplySideEffects = {
+  formUi?: ChatFormUi;
+  suggestedMessages?: string[];
+  sessionStatus?: SessionStatus;
+  escalationPayload?: ChatStreamEscalation;
+};
 
-  if (sessionId) {
-    const session = await prisma.session.findUnique({ where: { id: sessionId } });
+async function loadWebChatAgent(agentId: string, orgId: string) {
+  return prisma.agent.findFirst({
+    where: { id: agentId, orgId },
+    include: {
+      channels: { where: { channel: "WEB_CHAT" } },
+    },
+  });
+}
+
+function buildEscalationPayload(
+  processResult: ProcessMessageResult,
+  replyContent: string,
+): ChatStreamEscalation | undefined {
+  const { escalation, customerFacingMessage, ticketId } = processResult;
+  if (!escalation?.shouldEscalate || !escalation.trigger) return undefined;
+  return {
+    escalated: true,
+    trigger: escalation.trigger,
+    message: customerFacingMessage ?? replyContent,
+    sessionStatus: "ESCALATED",
+    ...(ticketId ? { ticketId } : {}),
+  };
+}
+
+async function resolveFormUi(params: {
+  agent: Awaited<ReturnType<typeof loadWebChatAgent>>;
+  sessionId: string;
+  agentId: string;
+  userMessageCount: number;
+  formUi: ChatFormUi | undefined;
+  shouldEscalate: boolean;
+}): Promise<ChatFormUi | undefined> {
+  const { agent, sessionId, agentId, userMessageCount, shouldEscalate } = params;
+  let formUi = params.formUi;
+  if (formUi || shouldEscalate || !agent) return formUi;
+
+  const customForm = resolveCustomFormAction(agent.channels);
+  const threshold = customForm.showAfterUserMessages;
+  if (
+    !customForm.enabled ||
+    !isCustomFormConfigured(customForm) ||
+    threshold === null ||
+    userMessageCount !== threshold
+  ) {
+    return formUi;
+  }
+
+  const existingSubmission = await prisma.formSubmission.findUnique({
+    where: {
+      agentId_sessionId_formId: {
+        agentId,
+        sessionId,
+        formId: customForm.formId,
+      },
+    },
+    select: { id: true },
+  });
+  if (!existingSubmission) {
+    formUi = buildFormUiPayload(customForm) ?? undefined;
+  }
+  return formUi;
+}
+
+async function resolveSuggestedMessages(params: {
+  agent: Awaited<ReturnType<typeof loadWebChatAgent>>;
+  sessionId: string;
+  userMessageCount: number;
+  replyContent: string;
+  shouldEscalate: boolean;
+}): Promise<string[] | undefined> {
+  const { agent, sessionId, userMessageCount, replyContent, shouldEscalate } =
+    params;
+  if (shouldEscalate) return [];
+  if (!agent) return undefined;
+
+  const action = resolveSuggestedMessagesAction(agent.channels);
+  if (!action.enabled) return undefined;
+
+  let dynamicSuggestions: string[] = [];
+  if (action.dynamicEnabled) {
+    const recentMessages = await prisma.message.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: "asc" },
+      take: 20,
+      select: { role: true, content: true },
+    });
+
+    dynamicSuggestions = await generateDynamicSuggestedMessages({
+      llmModel: agent.llmModel,
+      recentMessages: recentMessages.filter(
+        (m) => m.role === "USER" || m.role === "BOT",
+      ),
+      botContent: replyContent,
+    });
+  }
+
+  return mergeSuggestedMessagesForResponse({
+    action,
+    userMessageCount,
+    dynamicSuggestions,
+  });
+}
+
+async function resolveChatReplySideEffects(params: {
+  orgId: string;
+  agentId: string;
+  sessionId: string;
+  processResult: ProcessMessageResult;
+  replyContent: string;
+  includeSuggestions: boolean;
+}): Promise<ChatReplySideEffects> {
+  const {
+    orgId,
+    agentId,
+    sessionId,
+    processResult,
+    replyContent,
+    includeSuggestions,
+  } = params;
+  const { escalation, formRequest } = processResult;
+  const shouldEscalate = Boolean(escalation?.shouldEscalate);
+  const agent = await loadWebChatAgent(agentId, orgId);
+
+  const userMessageCount = await prisma.message.count({
+    where: { sessionId, role: "USER" },
+  });
+
+  const formUi = await resolveFormUi({
+    agent,
+    sessionId,
+    agentId,
+    userMessageCount,
+    formUi: formRequest ?? undefined,
+    shouldEscalate,
+  });
+
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    select: { status: true },
+  });
+
+  const suggestedMessages = includeSuggestions
+    ? await resolveSuggestedMessages({
+        agent,
+        sessionId,
+        userMessageCount,
+        replyContent,
+        shouldEscalate,
+      })
+    : undefined;
+
+  return {
+    formUi,
+    suggestedMessages,
+    sessionStatus: session?.status,
+    escalationPayload: buildEscalationPayload(processResult, replyContent),
+  };
+}
+
+async function ensureChatSession(params: {
+  orgId: string;
+  agentId: string;
+  existingSessionId: string | null | undefined;
+}): Promise<{ ok: true; sessionId: string } | HandleAgentChatMessageFailure> {
+  const { orgId, agentId, existingSessionId } = params;
+  if (existingSessionId) {
+    const session = await prisma.session.findUnique({
+      where: { id: existingSessionId },
+    });
     if (!session || session.orgId !== orgId) {
       return {
         ok: false,
         error: { status: 404, message: "Session not found" },
       };
     }
-  } else {
-    const session = await prisma.session.create({
-      data: {
-        orgId,
-        agentId,
-        channel: "CHAT",
-        status: "ACTIVE",
-        language: "auto",
-      },
-    });
-    sessionId = session.id;
+    return { ok: true, sessionId: existingSessionId };
   }
+
+  const session = await prisma.session.create({
+    data: {
+      orgId,
+      agentId,
+      channel: "CHAT",
+      status: "ACTIVE",
+      language: "auto",
+    },
+  });
+  return { ok: true, sessionId: session.id };
+}
+
+export async function handleAgentChatMessage({
+  orgId,
+  agentId,
+  sessionId: existingSessionId,
+  message,
+  context,
+}: HandleAgentChatMessageInput): Promise<HandleAgentChatMessageResult> {
+  const sessionResult = await ensureChatSession({
+    orgId,
+    agentId,
+    existingSessionId,
+  });
+  if (!sessionResult.ok) return sessionResult;
+  const sessionId = sessionResult.sessionId;
 
   const security = await prisma.agent.findFirst({
     where: { id: agentId, orgId },
@@ -160,8 +344,7 @@ export async function handleAgentChatMessage({
     message: effectiveMessage,
   });
 
-  const { botContent, escalation, customerFacingMessage, ticketId, formRequest } =
-    processResult;
+  const { botContent, escalation, customerFacingMessage } = processResult;
   const replyContent =
     escalation?.shouldEscalate && customerFacingMessage
       ? customerFacingMessage
@@ -175,97 +358,16 @@ export async function handleAgentChatMessage({
     },
   });
 
-  const agent = await prisma.agent.findFirst({
-    where: { id: agentId, orgId },
-    include: {
-      channels: { where: { channel: "WEB_CHAT" } },
-    },
+  const side = await resolveChatReplySideEffects({
+    orgId,
+    agentId,
+    sessionId,
+    processResult,
+    replyContent,
+    includeSuggestions: true,
   });
 
-  let suggestedMessages: string[] | undefined;
-  let formUi: ChatFormUi | undefined = formRequest ?? undefined;
-
-  const userMessageCount = await prisma.message.count({
-    where: { sessionId, role: "USER" },
-  });
-
-  if (agent) {
-    const channels = agent.channels;
-    const action = resolveSuggestedMessagesAction(channels);
-
-    if (action.enabled) {
-      let dynamicSuggestions: string[] = [];
-      if (action.dynamicEnabled) {
-        const recentMessages = await prisma.message.findMany({
-          where: { sessionId },
-          orderBy: { createdAt: "asc" },
-          take: 20,
-          select: { role: true, content: true },
-        });
-
-        dynamicSuggestions = await generateDynamicSuggestedMessages({
-          llmModel: agent.llmModel,
-          recentMessages: recentMessages.filter(
-            (m) => m.role === "USER" || m.role === "BOT",
-          ),
-          botContent: replyContent,
-        });
-      }
-
-      suggestedMessages = mergeSuggestedMessagesForResponse({
-        action,
-        userMessageCount,
-        dynamicSuggestions,
-      });
-    }
-
-    if (!formUi && !escalation?.shouldEscalate) {
-      const customForm = resolveCustomFormAction(channels);
-      const threshold = customForm.showAfterUserMessages;
-      if (
-        customForm.enabled &&
-        isCustomFormConfigured(customForm) &&
-        threshold !== null &&
-        userMessageCount === threshold
-      ) {
-        const existingSubmission = await prisma.formSubmission.findUnique({
-          where: {
-            agentId_sessionId_formId: {
-              agentId,
-              sessionId,
-              formId: customForm.formId,
-            },
-          },
-          select: { id: true },
-        });
-        if (!existingSubmission) {
-          formUi = buildFormUiPayload(customForm) ?? undefined;
-        }
-      }
-    }
-  }
-
-  const session = await prisma.session.findUnique({
-    where: { id: sessionId },
-    select: { status: true },
-  });
-
-  const sessionStatus = session?.status;
-
-  const escalationPayload =
-    escalation?.shouldEscalate && escalation.trigger
-      ? {
-          escalated: true as const,
-          trigger: escalation.trigger,
-          message: customerFacingMessage ?? replyContent,
-          sessionStatus: "ESCALATED" as const,
-          ...(ticketId ? { ticketId } : {}),
-        }
-      : undefined;
-
-  if (escalationPayload) {
-    suggestedMessages = [];
-  }
+  const { formUi, suggestedMessages, sessionStatus, escalationPayload } = side;
 
   return {
     ok: true,
@@ -290,4 +392,127 @@ export async function handleAgentChatMessage({
       ...(suggestedMessages !== undefined ? { suggestedMessages } : {}),
     },
   };
+}
+
+export type CreateAgentChatSseResult =
+  | HandleAgentChatMessageFailure
+  | { ok: true; stream: ReadableStream<Uint8Array> };
+
+export async function createAgentChatSseStream({
+  orgId,
+  agentId,
+  sessionId: existingSessionId,
+  message,
+  context,
+}: HandleAgentChatMessageInput): Promise<CreateAgentChatSseResult> {
+  const sessionResult = await ensureChatSession({
+    orgId,
+    agentId,
+    existingSessionId,
+  });
+  if (!sessionResult.ok) return sessionResult;
+  const sessionId = sessionResult.sessionId;
+
+  const security = await prisma.agent.findFirst({
+    where: { id: agentId, orgId },
+    select: { piiRedactionEnabled: true },
+  });
+  const redact = security?.piiRedactionEnabled === true;
+  const storedUserContent = maybeRedactPii(message, redact);
+
+  const userMessage = await prisma.message.create({
+    data: { sessionId, role: "USER", content: storedUserContent },
+  });
+
+  const effectiveMessage = context ? `[Context: ${context}]\n${message}` : message;
+  const encoder = new TextEncoder();
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const emit = (event: ChatStreamEvent) => {
+        controller.enqueue(encoder.encode(encodeChatSse(event)));
+      };
+
+      try {
+        emit({
+          type: "meta",
+          sessionId,
+          userMessage: {
+            id: userMessage.id,
+            role: "USER",
+            content: message,
+            createdAt: userMessage.createdAt.toISOString(),
+          },
+        });
+
+        const processResult = await processMessage({
+          orgId,
+          agentId,
+          sessionId,
+          message: effectiveMessage,
+          onStreamEvent: (event) => emit(event),
+        });
+
+        const { botContent, escalation, customerFacingMessage } = processResult;
+        const replyContent =
+          escalation?.shouldEscalate && customerFacingMessage
+            ? customerFacingMessage
+            : botContent;
+
+        const botMessage = await prisma.message.create({
+          data: {
+            sessionId,
+            role: "BOT",
+            content: maybeRedactPii(replyContent, redact),
+          },
+        });
+
+        const side = await resolveChatReplySideEffects({
+          orgId,
+          agentId,
+          sessionId,
+          processResult,
+          replyContent,
+          includeSuggestions: false,
+        });
+
+        const { formUi, sessionStatus, escalationPayload } = side;
+
+        emit({
+          type: "done",
+          message: {
+            id: botMessage.id,
+            role: "BOT",
+            content: replyContent,
+            createdAt: botMessage.createdAt.toISOString(),
+            ...(formUi ? { ui: formUi } : {}),
+          },
+          ...(formUi ? { ui: formUi } : {}),
+          ...(sessionStatus ? { sessionStatus } : {}),
+          ...(escalationPayload ? { escalation: escalationPayload } : {}),
+        });
+
+        const agent = await loadWebChatAgent(agentId, orgId);
+        const userMessageCount = await prisma.message.count({
+          where: { sessionId, role: "USER" },
+        });
+        const suggestedMessages = await resolveSuggestedMessages({
+          agent,
+          sessionId,
+          userMessageCount,
+          replyContent,
+          shouldEscalate: Boolean(escalation?.shouldEscalate),
+        });
+        if (suggestedMessages !== undefined) {
+          emit({ type: "suggestions", suggestedMessages });
+        }
+      } catch {
+        emit({ type: "error", message: "Internal server error" });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return { ok: true, stream };
 }
