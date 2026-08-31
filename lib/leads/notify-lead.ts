@@ -62,7 +62,7 @@ export function formatAppointmentEmailLines(input: {
   agentName: string;
   customerName: string;
   customerEmail: string | null;
-  department: string;
+  department: string | null;
   date: string;
   time: string;
   notes: string | null;
@@ -70,10 +70,11 @@ export function formatAppointmentEmailLines(input: {
   const lines = [
     `A new appointment was booked for agent "${input.agentName}".`,
     `Customer: ${input.customerName}`,
-    `Department: ${input.department}`,
-    `Date: ${input.date}`,
-    `Time: ${input.time}`,
   ];
+  if (input.department?.trim()) {
+    lines.push(`Department: ${input.department.trim()}`);
+  }
+  lines.push(`Date: ${input.date}`, `Time: ${input.time}`);
   if (input.customerEmail?.trim()) {
     lines.push(`Email: ${input.customerEmail.trim()}`);
   }

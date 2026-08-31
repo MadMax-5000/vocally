@@ -15,10 +15,20 @@
     "productAssistant": {
       "fallbackName": "هناك",
       "welcomeMessage": "مرحبًا {firstName}! أنا مساعد منتجات Anselio. اسألني عن الميزات أو الإعداد أو الفوترة أو استكشاف الأخطاء وإصلاحها.",
+      "guestWelcomeMessage": "مرحبًا! أنا مساعد Anselio. اسألني عن المنتج أو الأسعار أو اللغات أو كيف تبدأ.",
       "agentName": "اسأل Anselio",
       "placeholder": "اسأل عن Anselio...",
       "contactSupport": "اتصل بالدعم",
-      "suggestions": {"createAgent": "كيف أنشئ أول وكيل ذكاء اصطناعي؟", "plans": "ما الخطط التي تقدمونها؟", "connectTwilio": "كيف أوصل Twilio؟", "deployWidget": "كيف أنشر أداة الدردشة؟", "knowledgeBase": "كيف تعمل قاعدة المعرفة؟"}
+      "suggestions": {
+        "createAgent": "كيف أنشئ أول وكيل ذكاء اصطناعي؟",
+        "plans": "ما الخطط التي تقدمونها؟",
+        "connectTwilio": "كيف أوصل Twilio؟",
+        "deployWidget": "كيف أنشر أداة الدردشة؟",
+        "knowledgeBase": "كيف تعمل قاعدة المعرفة؟",
+        "whatIsAnselio": "ما هو Anselio؟",
+        "languages": "ما اللغات التي تدعمونها؟",
+        "startTrial": "كيف أبدأ التجربة المجانية؟"
+      }
     },
     "home": {
       "greetings": {"morning": "صباح الخير", "afternoon": "مساء الخير", "evening": "مساء الخير"},

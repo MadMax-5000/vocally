@@ -14,7 +14,6 @@ export type CalendarSlot = {
 
 export type BookCalendarSlotInput = {
   start: Date;
-  department: string;
   customerName: string;
   customerEmail?: string | null;
   notes?: string | null;

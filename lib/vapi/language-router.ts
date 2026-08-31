@@ -229,9 +229,7 @@ export async function handleAssistantRequest(message: {
       : 15;
 
   const escalationConfig = resolveEscalationAction(agent.channels);
-  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels, {
-    agentType: agent.agentType,
-  });
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
   const calendarConnection = await loadCalendarConnection(agentId, orgId);
 
   // Voice transfer depends on Phone settings handoff number (or HANDOFF_PHONE_NUMBER),
@@ -254,7 +252,6 @@ export async function handleAssistantRequest(message: {
       bookAppointmentAction,
       calendarConnection,
     ),
-    bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 
   if (handoffActive && handoffAvailable) {

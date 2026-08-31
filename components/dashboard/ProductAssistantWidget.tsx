@@ -13,19 +13,11 @@ const ASSISTANT_AGENT_ID =
 
 const BRAND_COLOR = "#FF5A36";
 
-const AUTH_PATH_pattern = /\/sign-(in|up)/;
-
 export function ProductAssistantWidget() {
   const t = useTranslations("dashboard.productAssistant");
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const { organization } = useOrganization();
   const pathname = usePathname();
-
-  const visible = useMemo(() => {
-    if (!ASSISTANT_AGENT_ID) return false;
-    if (pathname && AUTH_PATH_pattern.test(pathname)) return false;
-    return true;
-  }, [pathname]);
 
   const context = useMemo(() => {
     if (!pathname) return undefined;
@@ -35,25 +27,33 @@ export function ProductAssistantWidget() {
   }, [pathname, organization?.name]);
 
   const welcomeMessage = useMemo(() => {
+    if (!isSignedIn) return t("guestWelcomeMessage");
     const firstName =
       user?.firstName || user?.fullName?.split(" ")[0] || t("fallbackName");
     return t("welcomeMessage", { firstName });
-  }, [t, user?.firstName, user?.fullName]);
+  }, [t, isSignedIn, user?.firstName, user?.fullName]);
 
   const suggestedMessagesAction = useMemo<ResolvedSuggestedMessagesAction>(
     () => ({
       enabled: true,
-      staticStarters: [
-        t("suggestions.createAgent"),
-        t("suggestions.plans"),
-        t("suggestions.connectTwilio"),
-        t("suggestions.deployWidget"),
-        t("suggestions.knowledgeBase"),
-      ],
+      staticStarters: isSignedIn
+        ? [
+            t("suggestions.createAgent"),
+            t("suggestions.plans"),
+            t("suggestions.connectTwilio"),
+            t("suggestions.deployWidget"),
+            t("suggestions.knowledgeBase"),
+          ]
+        : [
+            t("suggestions.whatIsAnselio"),
+            t("suggestions.plans"),
+            t("suggestions.languages"),
+            t("suggestions.startTrial"),
+          ],
       keepShowingAfterFirst: true,
       dynamicEnabled: false,
     }),
-    [t],
+    [t, isSignedIn],
   );
 
   const customButtonsAction = useMemo<ResolvedCustomButtonAction>(
@@ -71,7 +71,7 @@ export function ProductAssistantWidget() {
     [t],
   );
 
-  if (!visible) return null;
+  if (!ASSISTANT_AGENT_ID) return null;
 
   return (
     <ChatWidgetFloating
@@ -87,6 +87,7 @@ export function ProductAssistantWidget() {
       autoShowWelcomePopupMobile={false}
       welcomePopupDelaySec={5}
       voiceToTextEnabled={false}
+      launcherSize="lg"
       suggestedMessagesAction={suggestedMessagesAction}
       customButtonsAction={customButtonsAction}
       context={context}

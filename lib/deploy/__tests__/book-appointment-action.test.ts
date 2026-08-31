@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  isDepartmentAllowed,
   parseBookAppointmentActionConfig,
   resolveBookAppointmentAction,
-  resolveDepartmentMatch,
 } from "@/lib/deploy/book-appointment-action";
 
 describe("book-appointment-action", () => {
@@ -21,7 +19,6 @@ describe("book-appointment-action", () => {
     });
     expect(parsed.enabled).toBe(true);
     expect(parsed.whenToOffer).toBe("proactive");
-    expect(parsed.departments).toEqual(["sales", "support"]);
     expect(parsed.notifyEmail).toBe("team@example.com");
     expect(parsed.calendarProvider).toBe("google");
     expect(parsed.durationMinutes).toBe(45);
@@ -32,8 +29,6 @@ describe("book-appointment-action", () => {
     const resolved = resolveBookAppointmentAction([]);
     expect(resolved.enabled).toBe(false);
     expect(resolved.whenToOffer).toBe("intent_only");
-    expect(resolved.departments).toContain("support");
-    expect(resolved.departments).toContain("general");
     expect(resolved.notifyEmail).toBeNull();
     expect(resolved.calendarProvider).toBe("none");
     expect(resolved.timezone).toBe("Africa/Casablanca");
@@ -57,59 +52,6 @@ describe("book-appointment-action", () => {
       },
     ]);
     expect(resolved.enabled).toBe(true);
-    expect(resolved.departments).toEqual(["sales"]);
-    expect(isDepartmentAllowed(resolved, "sales")).toBe(true);
-    expect(isDepartmentAllowed(resolved, "billing")).toBe(false);
-  });
-
-  it("uses healthcare departments when agent type is HEALTHCARE_MEDICAL and departments were never set", () => {
-    const resolved = resolveBookAppointmentAction([], {
-      agentType: "HEALTHCARE_MEDICAL",
-    });
-    expect(resolved.departments).toContain("cardiologie");
-    expect(resolved.departments).toContain("pediatrie");
-    expect(resolved.departments).not.toContain("sales");
-    expect(resolved.departments).not.toContain("billing");
-  });
-
-  it("keeps explicitly configured departments for healthcare agents", () => {
-    const resolved = resolveBookAppointmentAction(
-      [
-        {
-          channel: "WEB_CHAT",
-          enabled: true,
-          config: {
-            actions: {
-              bookAppointment: {
-                enabled: true,
-                departments: ["sales"],
-              },
-            },
-          },
-        },
-      ],
-      { agentType: "HEALTHCARE_MEDICAL" },
-    );
-    expect(resolved.departments).toEqual(["sales"]);
-  });
-});
-
-describe("resolveDepartmentMatch", () => {
-  const action = {
-    departments: ["general", "cardiologie", "pediatrie", "gynecologie"],
-  };
-
-  it("returns the canonical name for an exact match", () => {
-    expect(resolveDepartmentMatch(action, "Cardiologie")).toBe("cardiologie");
-  });
-
-  it("maps colloquial prefixes like cardio to cardiologie", () => {
-    expect(resolveDepartmentMatch(action, "cardio")).toBe("cardiologie");
-    expect(resolveDepartmentMatch(action, "ped")).toBe("pediatrie");
-  });
-
-  it("does not match very short or unknown input", () => {
-    expect(resolveDepartmentMatch(action, "g")).toBeNull();
-    expect(resolveDepartmentMatch(action, "billing")).toBeNull();
+    expect(resolved.whenToOffer).toBe("intent_only");
   });
 });

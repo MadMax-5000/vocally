@@ -38,7 +38,6 @@ import { handleBookAppointment } from "@/lib/ai/tools/handlers";
 const baseAction: ResolvedBookAppointmentAction = {
   enabled: true,
   whenToOffer: "intent_only",
-  departments: ["sales", "support"],
   notifyEmail: null,
   calendarProvider: "none",
   timezone: "Africa/Casablanca",
@@ -56,7 +55,7 @@ describe("handleBookAppointment", () => {
       id: "appt-1",
       customerName: "Ahmed",
       customerEmail: null,
-      department: "sales",
+      department: null,
       time: "10:00",
       notes: null,
     });
@@ -67,7 +66,6 @@ describe("handleBookAppointment", () => {
       {
         date: "2026-07-10",
         time: "10:00",
-        department: "sales",
         customerName: "Ahmed",
       },
       {
@@ -80,65 +78,11 @@ describe("handleBookAppointment", () => {
     expect(mockCreate).not.toHaveBeenCalled();
   });
 
-  it("rejects invalid department", async () => {
-    const result = await handleBookAppointment(
-      {
-        date: "2026-07-10",
-        time: "10:00",
-        department: "billing",
-        customerName: "Ahmed",
-      },
-      {
-        orgId: "org-1",
-        sessionId: "sess-1",
-        bookAppointment: baseAction,
-      },
-    );
-    const parsed = JSON.parse(result);
-    expect(parsed.error).toContain("not available");
-    expect(mockCreate).not.toHaveBeenCalled();
-  });
-
-  it("maps cardio to cardiologie before creating the appointment", async () => {
-    mockCreate.mockResolvedValue({
-      id: "appt-1",
-      customerName: "Ahmed",
-      customerEmail: null,
-      department: "cardiologie",
-      time: "10:00",
-    });
-    const result = await handleBookAppointment(
-      {
-        date: "2026-07-10",
-        time: "10:00",
-        department: "cardio",
-        customerName: "Ahmed",
-      },
-      {
-        orgId: "org-1",
-        sessionId: "sess-1",
-        bookAppointment: {
-          ...baseAction,
-          departments: ["cardiologie", "general"],
-        },
-      },
-    );
-    const parsed = JSON.parse(result);
-    expect(parsed.success).toBe(true);
-    expect(parsed.department).toBe("cardiologie");
-    expect(mockCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ department: "cardiologie" }),
-      }),
-    );
-  });
-
   it("creates appointment when valid", async () => {
     const result = await handleBookAppointment(
       {
         date: "2026-07-10",
         time: "10:00",
-        department: "sales",
         customerName: "Ahmed",
       },
       {
@@ -149,7 +93,13 @@ describe("handleBookAppointment", () => {
     );
     const parsed = JSON.parse(result);
     expect(parsed.success).toBe(true);
+    expect(parsed.message).toBe("Appointment confirmed for 2026-07-10 at 10:00.");
     expect(mockCreate).toHaveBeenCalledOnce();
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ department: null }),
+      }),
+    );
     expect(mockBookExternalSlot).not.toHaveBeenCalled();
   });
 
@@ -159,7 +109,6 @@ describe("handleBookAppointment", () => {
       {
         date: "2026-07-10",
         time: "10:00",
-        department: "sales",
         customerName: "Ahmed",
         customerEmail: "ahmed@example.com",
       },
@@ -196,7 +145,6 @@ describe("handleBookAppointment", () => {
       {
         date: "2026-07-10",
         time: "10:00",
-        department: "sales",
         customerName: "Ahmed",
         customerEmail: "ahmed@example.com",
       },

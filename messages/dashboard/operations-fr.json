@@ -15,10 +15,20 @@
     "productAssistant": {
       "fallbackName": "vous",
       "welcomeMessage": "Bonjour {firstName} ! Je suis votre assistant produit Anselio. Posez-moi vos questions sur les fonctionnalités, la configuration, la facturation ou le dépannage.",
+      "guestWelcomeMessage": "Bonjour ! Je suis l’assistant Anselio. Posez-moi vos questions sur le produit, les tarifs, les langues ou comment commencer.",
       "agentName": "Demander à Anselio",
       "placeholder": "Demander à Anselio...",
       "contactSupport": "Contacter l’assistance",
-      "suggestions": {"createAgent": "Comment créer mon premier agent IA ?", "plans": "Quelles offres proposez-vous ?", "connectTwilio": "Comment connecter Twilio ?", "deployWidget": "Comment déployer le widget de chat ?", "knowledgeBase": "Comment fonctionne la base de connaissances ?"}
+      "suggestions": {
+        "createAgent": "Comment créer mon premier agent IA ?",
+        "plans": "Quelles offres proposez-vous ?",
+        "connectTwilio": "Comment connecter Twilio ?",
+        "deployWidget": "Comment déployer le widget de chat ?",
+        "knowledgeBase": "Comment fonctionne la base de connaissances ?",
+        "whatIsAnselio": "Qu’est-ce qu’Anselio ?",
+        "languages": "Quelles langues prenez-vous en charge ?",
+        "startTrial": "Comment démarrer l’essai gratuit ?"
+      }
     },
     "home": {
       "greetings": {"morning": "Bonjour", "afternoon": "Bon après-midi", "evening": "Bonsoir"},

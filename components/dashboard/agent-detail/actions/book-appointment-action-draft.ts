@@ -14,7 +14,6 @@ import {
 export type BookAppointmentActionDraft = {
   enabled: boolean;
   whenToOffer: BookAppointmentWhenToOffer;
-  departments: string[];
   notifyEmail: string;
   calendarProvider: BookAppointmentCalendarProvider;
   timezone: string;
@@ -27,9 +26,7 @@ export type BookAppointmentActionDraft = {
 export function buildBookAppointmentActionDraft(
   agent: AgentDetailWithRelations,
 ): BookAppointmentActionDraft {
-  const resolved = resolveBookAppointmentAction(agent.channels, {
-    agentType: agent.agentType,
-  });
+  const resolved = resolveBookAppointmentAction(agent.channels);
   const connection = agent.calendarConnection;
   let calendarProvider: BookAppointmentCalendarProvider = resolved.calendarProvider;
   if (connection?.provider === "GOOGLE") calendarProvider = "google";
@@ -38,7 +35,6 @@ export function buildBookAppointmentActionDraft(
   return {
     enabled: resolved.enabled,
     whenToOffer: resolved.whenToOffer,
-    departments: [...resolved.departments],
     notifyEmail: resolved.notifyEmail ?? "",
     calendarProvider,
     timezone: resolved.timezone || DEFAULT_APPOINTMENT_TIMEZONE,
@@ -71,22 +67,17 @@ export function draftsEqual(
   ) {
     return false;
   }
-  if (a.departments.length !== b.departments.length) return false;
   if (a.workingHours.days.length !== b.workingHours.days.length) return false;
   if (!a.workingHours.days.every((day, i) => day === b.workingHours.days[i])) {
     return false;
   }
-  return a.departments.every((dept, i) => dept === b.departments[i]);
+  return true;
 }
 
 export function validateBookAppointmentDraft(
   draft: BookAppointmentActionDraft,
 ): string | null {
   if (!draft.enabled) return null;
-  const valid = draft.departments.map((d) => d.trim()).filter(Boolean);
-  if (valid.length === 0) {
-    return "addDepartment";
-  }
   if (draft.calendarProvider === "google" || draft.calendarProvider === "calendly") {
     if (!isValidTimeZone(draft.timezone.trim())) {
       return "timezone";

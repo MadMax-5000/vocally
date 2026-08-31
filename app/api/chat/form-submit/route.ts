@@ -4,7 +4,10 @@ import { z } from "zod";
 import { handleFormSubmit } from "@/lib/api/form-submit-handler";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
-import { denyIfOriginNotAllowed } from "@/lib/agent-security/widget-access";
+import {
+  denyIfOriginNotAllowed,
+  isWidgetTokenRequired,
+} from "@/lib/agent-security/widget-access";
 
 const formSubmitSchema = z.object({
   agentId: z.string().min(1),
@@ -43,8 +46,10 @@ export async function POST(req: NextRequest) {
     const isOwnerPreview = !!dbOrgId && agent.orgId === dbOrgId;
 
     if (!isOwnerPreview) {
-      if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
-        return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
+      if (isWidgetTokenRequired(agent.id, isOwnerPreview)) {
+        if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
+          return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
+        }
       }
 
       if (agent.visibility !== "PUBLIC" || agent.status !== "ACTIVE") {

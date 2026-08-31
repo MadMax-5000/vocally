@@ -1,5 +1,5 @@
 /**
- * Seed script: Creates the internal "Vocally Assistant" product-help agent.
+ * Seed script: Creates the internal "Anselio Assistant" product-help agent.
  *
  * Run with:  npx tsx prisma/seed-product-assistant.ts
  *
@@ -23,7 +23,14 @@ import {
 
 const prisma = new PrismaClient();
 
-const ASSISTANT_AGENT_NAME = "Vocally Assistant";
+const ASSISTANT_AGENT_NAME = "Anselio Assistant";
+const LEGACY_ASSISTANT_NAMES = ["Vocally Assistant"];
+
+const ASSISTANT_DESCRIPTION =
+  "Product assistant that helps visitors and users with questions about Anselio — features, setup, billing, and troubleshooting.";
+
+const ASSISTANT_INSTRUCTIONS =
+  "You are the Anselio product assistant. Help visitors and users with questions about the Anselio conversational AI platform (chat, email, voice). Be concise, helpful, and accurate. Answer in the same language the visitor is using. Do not invent prices or unreleased features.";
 
 async function resolveTargetOrgId(): Promise<string> {
   const withAgents = await prisma.organization.findFirst({
@@ -46,11 +53,11 @@ async function resolveTargetOrgId(): Promise<string> {
 }
 
 const WIDGET_CONFIG = {
-  displayName: "Ask Vocally",
+  displayName: "Ask Anselio",
   appearance: "light" as const,
   primaryColor: "#FF5A36",
   bubbleColor: "#FF5A36",
-  placeholder: "Ask about Vocally...",
+  placeholder: "Ask about Anselio...",
   voiceToTextEnabled: false,
   attachmentsEnabled: false,
   autoShowWelcomePopup: true,
@@ -61,9 +68,9 @@ const WIDGET_CONFIG = {
 const SUGGESTED_MESSAGES = {
   enabled: true,
   staticStarters: [
-    "How do I create my first AI agent?",
+    "What is Anselio?",
     "What plans do you offer?",
-    "How do I connect Twilio?",
+    "How do I create my first AI agent?",
     "How do I deploy the chat widget?",
     "How does the knowledge base work?",
     "How do I set up WhatsApp?",
@@ -98,48 +105,50 @@ const CHANNEL_CONFIG = {
   },
 };
 
+const AGENT_FIELDS = {
+  agentType: AgentType.TECHNOLOGY_SOFTWARE,
+  tone: AgentTone.FRIENDLY,
+  creativity: CreativityLevel.BALANCED,
+  description: ASSISTANT_DESCRIPTION,
+  handoffEnabled: true,
+  status: AgentStatus.ACTIVE,
+  visibility: "PUBLIC" as const,
+  defaultLanguage: SupportedLanguage.ENGLISH,
+  llmModel: "openai/gpt-4.1-mini",
+  instructions: ASSISTANT_INSTRUCTIONS,
+};
+
 async function main(): Promise<void> {
   const orgId = await resolveTargetOrgId();
   console.log(`Target org: ${orgId}`);
 
-  const agent = await prisma.agent.upsert({
+  const existing = await prisma.agent.findFirst({
     where: {
-      orgId_name: {
-        orgId,
-        name: ASSISTANT_AGENT_NAME,
-      },
-    },
-    create: {
       orgId,
-      name: ASSISTANT_AGENT_NAME,
-      agentType: AgentType.TECHNOLOGY_SOFTWARE,
-      tone: AgentTone.FRIENDLY,
-      creativity: CreativityLevel.BALANCED,
-      description:
-        "Internal product assistant that helps Vocally users with questions about the platform — features, setup, billing, and troubleshooting.",
-      handoffEnabled: true,
-      status: AgentStatus.ACTIVE,
-      visibility: "PUBLIC",
-      defaultLanguage: SupportedLanguage.ENGLISH,
-      llmModel: "openai/gpt-4.1-mini",
-      instructions:
-        "You are the Vocally product assistant. Help users with questions about the Vocally CCaaS platform. Be concise, helpful, and accurate.",
+      name: { in: [ASSISTANT_AGENT_NAME, ...LEGACY_ASSISTANT_NAMES] },
     },
-    update: {
-      agentType: AgentType.TECHNOLOGY_SOFTWARE,
-      tone: AgentTone.FRIENDLY,
-      creativity: CreativityLevel.BALANCED,
-      description:
-        "Internal product assistant that helps Vocally users with questions about the platform — features, setup, billing, and troubleshooting.",
-      handoffEnabled: true,
-      status: AgentStatus.ACTIVE,
-      visibility: "PUBLIC",
-      defaultLanguage: SupportedLanguage.ENGLISH,
-      llmModel: "openai/gpt-4.1-mini",
-      instructions:
-        "You are the Vocally product assistant. Help users with questions about the Vocally CCaaS platform. Be concise, helpful, and accurate.",
-    },
+    orderBy: { createdAt: "asc" },
   });
+
+  const widgetToken = existing?.widgetToken ?? crypto.randomUUID();
+
+  const agent = existing
+    ? await prisma.agent.update({
+        where: { id: existing.id },
+        data: {
+          name: ASSISTANT_AGENT_NAME,
+          widgetToken,
+          ...AGENT_FIELDS,
+        },
+      })
+    : await prisma.agent.create({
+        data: {
+          orgId,
+          name: ASSISTANT_AGENT_NAME,
+          widgetToken,
+          ...AGENT_FIELDS,
+        },
+      });
 
   console.log(`Agent: ${agent.name} (${agent.id})`);
 

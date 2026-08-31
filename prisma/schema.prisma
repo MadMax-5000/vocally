@@ -748,7 +748,7 @@ model Appointment {
   sessionId        String?
   customerName     String
   customerEmail    String?
-  department       String
+  department       String?
   date             DateTime
   time             String
   durationMinutes  Int?

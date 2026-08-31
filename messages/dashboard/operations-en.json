@@ -27,10 +27,20 @@
     "productAssistant": {
       "fallbackName": "there",
       "welcomeMessage": "Hi {firstName}! I'm your Anselio product assistant. Ask me anything about features, setup, billing, or troubleshooting.",
+      "guestWelcomeMessage": "Hi! I'm Anselio's assistant. Ask me about the product, pricing, languages, or how to get started.",
       "agentName": "Ask Anselio",
       "placeholder": "Ask about Anselio...",
       "contactSupport": "Contact Support",
-      "suggestions": {"createAgent": "How do I create my first AI agent?", "plans": "What plans do you offer?", "connectTwilio": "How do I connect Twilio?", "deployWidget": "How do I deploy the chat widget?", "knowledgeBase": "How does the knowledge base work?"}
+      "suggestions": {
+        "createAgent": "How do I create my first AI agent?",
+        "plans": "What plans do you offer?",
+        "connectTwilio": "How do I connect Twilio?",
+        "deployWidget": "How do I deploy the chat widget?",
+        "knowledgeBase": "How does the knowledge base work?",
+        "whatIsAnselio": "What is Anselio?",
+        "languages": "Which languages do you support?",
+        "startTrial": "How do I start a free trial?"
+      }
     },
     "home": {
       "greetings": {"morning": "Good morning", "afternoon": "Good afternoon", "evening": "Good evening"},

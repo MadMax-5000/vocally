@@ -94,7 +94,7 @@ export function createGoogleCalendarClient(
         calendarId: id,
         sendUpdates: email ? "all" : "none",
         requestBody: {
-          summary: `${input.department} — ${input.customerName}`,
+          summary: input.customerName,
           description: input.notes?.trim() || undefined,
           start: {
             dateTime: input.start.toISOString(),

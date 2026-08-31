@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 
 type ChatWidgetProps = ComponentProps<typeof ChatWidget>;
 
+export type ChatWidgetLauncherSize = "md" | "lg";
+
 export type ChatWidgetFloatingProps = Omit<
   ChatWidgetProps,
   "className" | "onClear" | "onMinimize"
@@ -23,9 +25,16 @@ export type ChatWidgetFloatingProps = Omit<
   isMobile?: boolean;
   className?: string;
   context?: string;
+  /** Default `md` (56px) matches customer embeds. `lg` is the first-party site launcher. */
+  launcherSize?: ChatWidgetLauncherSize;
 };
 
 const POPUP_DISMISS_KEY = "vocally-widget-popup-dismissed";
+
+const LAUNCHER_PX: Record<ChatWidgetLauncherSize, number> = {
+  md: 56,
+  lg: 64,
+};
 
 function getStoredPopupDismissed(): boolean {
   if (typeof window === "undefined") return false;
@@ -53,6 +62,7 @@ export function ChatWidgetFloating({
   isMobile,
   className,
   context,
+  launcherSize = "md",
   ...chatWidgetProps
 }: ChatWidgetFloatingProps) {
   const [open, setOpen] = useState(false);
@@ -96,6 +106,12 @@ export function ChatWidgetFloating({
     setShowWelcomePopup(false);
   }
 
+  function handleDismissPopup() {
+    setShowWelcomePopup(false);
+    setPopupDismissed(true);
+    setStoredPopupDismissed();
+  }
+
   function handleLauncherClick() {
     if (open) {
       handleClose();
@@ -106,6 +122,7 @@ export function ChatWidgetFloating({
 
   const panelWidth = effectiveMobile ? "w-[min(100%,320px)]" : "w-[380px]";
   const panelHeight = effectiveMobile ? "h-[min(520px,70dvh)]" : "h-[540px]";
+  const bubbleSize = LAUNCHER_PX[launcherSize];
 
   useEffect(() => {
     if (contained || window.parent === window) return;
@@ -114,7 +131,6 @@ export function ChatWidgetFloating({
     const panelH = effectiveMobile
       ? Math.min(520, Math.round(window.innerHeight * 0.7))
       : 540;
-    const bubbleSize = 56;
     const gap = 12;
 
     let width: number;
@@ -139,30 +155,42 @@ export function ChatWidgetFloating({
       },
       "*",
     );
-  }, [open, showWelcomePopup, contained, effectiveMobile]);
+  }, [open, showWelcomePopup, contained, effectiveMobile, bubbleSize]);
 
   return (
     <div
       className={cn(
         contained ? "absolute" : "fixed",
-        "bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none",
+        "bottom-6 end-6 z-50 flex flex-col items-end gap-3 pointer-events-none",
         className,
       )}
     >
       {showWelcomePopup && !open ? (
-        <button
-          type="button"
-          onClick={handleOpen}
+        <div
           className={cn(
-            "pointer-events-auto rounded-xl border border-hairline bg-surface-card px-3 py-2 text-left text-sm shadow-md transition-opacity animate-in fade-in slide-in-from-bottom-2 duration-200",
+            "pointer-events-auto relative rounded-xl border border-hairline bg-surface-card shadow-md animate-in fade-in slide-in-from-bottom-2 duration-200",
             effectiveMobile ? "max-w-[260px]" : "max-w-[220px]",
           )}
         >
-          <ChatMarkdown
-            content={chatWidgetProps.welcomeMessage ?? "Hello! How can I help you today?"}
-            variant="assistant"
-          />
-        </button>
+          <button
+            type="button"
+            onClick={handleDismissPopup}
+            aria-label="Dismiss"
+            className="absolute top-1.5 end-1.5 z-10 flex size-6 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-strong hover:text-ink"
+          >
+            <AppIcon icon={XIcon} className="size-3.5" strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={handleOpen}
+            className="w-full px-3 py-2 pe-8 text-left text-sm"
+          >
+            <ChatMarkdown
+              content={chatWidgetProps.welcomeMessage ?? "Hello! How can I help you today?"}
+              variant="assistant"
+            />
+          </button>
+        </div>
       ) : null}
 
       {open ? (
@@ -186,13 +214,24 @@ export function ChatWidgetFloating({
         type="button"
         onClick={handleLauncherClick}
         style={{ backgroundColor: bubbleColor }}
-        className="pointer-events-auto flex size-14 items-center justify-center rounded-full text-white shadow-lg transition-all hover:opacity-90 active:scale-95"
+        className={cn(
+          "pointer-events-auto flex items-center justify-center rounded-full text-white shadow-lg transition-all hover:opacity-90 active:scale-95",
+          launcherSize === "lg" ? "size-16" : "size-14",
+        )}
         aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? (
-          <AppIcon icon={XIcon} className="size-5" strokeWidth={2} />
+          <AppIcon
+            icon={XIcon}
+            className={launcherSize === "lg" ? "size-7" : "size-5"}
+            strokeWidth={2}
+          />
         ) : (
-          <AppIcon icon={MessageCircle} className="size-5" strokeWidth={2} />
+          <AppIcon
+            icon={MessageCircle}
+            className={launcherSize === "lg" ? "size-7" : "size-5"}
+            strokeWidth={2}
+          />
         )}
       </button>
     </div>

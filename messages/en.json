@@ -45,10 +45,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Conversational",
-      "titleAccent": "agents",
-      "titleLine2": "for your",
-      "subtitle": "AI agents that meet customers at every stage of their journey, across chat, email, and voice, to resolve issues end to end and increase revenue.",
+      "titleLine1": "Never miss",
+      "titleLine2Prefix": "a",
+      "titleAccent": "customer",
+      "titleAfterAccent": " again.",
+      "subtitle": "An AI agent that answers your customers, handles their requests, and books appointments 24/7 — across WhatsApp, Instagram, your website, email, and phone.",
       "startFreeTrial": "Start free trial",
       "getDemo": "Get a demo"
     },

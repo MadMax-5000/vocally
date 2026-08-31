@@ -5,24 +5,6 @@ import {
   parseWebChatConfig,
 } from "@/lib/deploy/web-chat-config";
 
-export const DEFAULT_APPOINTMENT_DEPARTMENTS = [
-  "support",
-  "sales",
-  "billing",
-  "technical",
-  "general",
-] as const;
-
-export const DEFAULT_HEALTHCARE_APPOINTMENT_DEPARTMENTS = [
-  "general",
-  "cardiologie",
-  "pediatrie",
-  "gynecologie",
-  "dermatologie",
-  "radiologie",
-  "urgences",
-] as const;
-
 export const DEFAULT_APPOINTMENT_TIMEZONE = "Africa/Casablanca";
 export const DEFAULT_DURATION_MINUTES = 30;
 export const DEFAULT_SLOT_INTERVAL_MINUTES = 30;
@@ -45,7 +27,6 @@ export type WorkingHoursConfig = {
 
 export type BookAppointmentActionConfig = {
   enabled?: boolean;
-  departments?: string[];
   whenToOffer?: BookAppointmentWhenToOffer;
   notifyEmail?: string;
   calendarProvider?: BookAppointmentCalendarProvider;
@@ -59,7 +40,6 @@ export type BookAppointmentActionConfig = {
 
 export type ResolvedBookAppointmentAction = {
   enabled: boolean;
-  departments: string[];
   whenToOffer: BookAppointmentWhenToOffer;
   notifyEmail: string | null;
   calendarProvider: BookAppointmentCalendarProvider;
@@ -72,15 +52,6 @@ export type ResolvedBookAppointmentAction = {
 };
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function parseDepartments(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const items = value
-    .filter((v): v is string => typeof v === "string")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  return items.length > 0 ? Array.from(new Set(items)) : undefined;
-}
 
 export function isValidTimeZone(tz: string): boolean {
   try {
@@ -127,10 +98,6 @@ export function parseBookAppointmentActionConfig(
   if (typeof raw.enabled === "boolean") {
     result.enabled = raw.enabled;
   }
-  const departments = parseDepartments(raw.departments);
-  if (departments) {
-    result.departments = departments;
-  }
   if (raw.whenToOffer === "proactive" || raw.whenToOffer === "intent_only") {
     result.whenToOffer = raw.whenToOffer;
   }
@@ -164,20 +131,8 @@ export function parseBookAppointmentActionConfig(
   return result;
 }
 
-export type ResolveBookAppointmentOptions = {
-  agentType?: string | null;
-};
-
-function defaultDepartmentsForAgentType(agentType?: string | null): string[] {
-  if (agentType === "HEALTHCARE_MEDICAL") {
-    return [...DEFAULT_HEALTHCARE_APPOINTMENT_DEPARTMENTS];
-  }
-  return [...DEFAULT_APPOINTMENT_DEPARTMENTS];
-}
-
 export function resolveBookAppointmentAction(
   channels: Pick<AgentChannel, "channel" | "enabled" | "config">[],
-  options?: ResolveBookAppointmentOptions,
 ): ResolvedBookAppointmentAction {
   const row = getWebChatChannel(channels);
   const parsed = row ? parseWebChatConfig(row.config) : {};
@@ -185,7 +140,6 @@ export function resolveBookAppointmentAction(
 
   return {
     enabled: action.enabled ?? false,
-    departments: action.departments ?? defaultDepartmentsForAgentType(options?.agentType),
     whenToOffer: action.whenToOffer ?? "intent_only",
     notifyEmail: action.notifyEmail ?? null,
     calendarProvider: action.calendarProvider ?? "none",
@@ -196,54 +150,6 @@ export function resolveBookAppointmentAction(
     maxDaysAhead: action.maxDaysAhead ?? DEFAULT_MAX_DAYS_AHEAD,
     eventTypeUri: action.eventTypeUri ?? null,
   };
-}
-
-export function normalizeDepartment(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-export function isDepartmentAllowed(
-  action: ResolvedBookAppointmentAction,
-  department: string,
-): boolean {
-  return resolveDepartmentMatch(action, department) !== null;
-}
-
-const FUZZY_DEPARTMENT_MIN_LENGTH = 3;
-
-export function resolveDepartmentMatch(
-  action: Pick<ResolvedBookAppointmentAction, "departments">,
-  input: string,
-): string | null {
-  const normalized = normalizeDepartment(input);
-  if (!normalized) return null;
-
-  const exact = action.departments.find((d) => normalizeDepartment(d) === normalized);
-  if (exact) return normalizeDepartment(exact);
-
-  if (normalized.length < FUZZY_DEPARTMENT_MIN_LENGTH) return null;
-
-  const scored = action.departments
-    .map((d) => {
-      const nd = normalizeDepartment(d);
-      let score = 0;
-      if (nd.startsWith(normalized) || normalized.startsWith(nd)) score = 2;
-      else if (nd.includes(normalized) || normalized.includes(nd)) score = 1;
-      return { nd, score };
-    })
-    .filter((row) => row.score > 0);
-
-  if (scored.length === 0) return null;
-
-  scored.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return (
-      Math.abs(a.nd.length - normalized.length) -
-      Math.abs(b.nd.length - normalized.length)
-    );
-  });
-
-  return scored[0]?.nd ?? null;
 }
 
 export function isExternalCalendarConfigured(

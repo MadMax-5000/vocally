@@ -4,7 +4,9 @@ import { callLLM, streamLLM } from "@/lib/ai/llm";
 import type { CallLLMOptions, CallLLMResult, LLMMessage } from "@/lib/ai/llm";
 import { retrieveKnowledgeContext } from "@/lib/ai/retrieve-knowledge-context";
 import { resolveLlmModelId } from "@/lib/ai/model-registry";
+import { isProductAssistantAgent } from "@/lib/ai/product-assistant-agent";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
+import { productAssistantSystemPrompt } from "@/lib/ai/prompts/product-assistant";
 import { buildDateTimeContextSection } from "@/lib/ai/prompts/datetime-context";
 import { voiceBotSystemPromptV1 } from "@/lib/ai/prompts/voice-bot-v1";
 import {
@@ -142,9 +144,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const webChatParsed = webChatRow ? parseWebChatConfig(webChatRow.config) : {};
   const hasEscalationConfig = webChatParsed.actions?.escalations !== undefined;
   const collectLeadsAction = resolveCollectLeadsAction(agent.channels);
-  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels, {
-    agentType: agent.agentType,
-  });
+  const bookAppointmentAction = resolveBookAppointmentAction(agent.channels);
   const customFormAction = resolveCustomFormAction(agent.channels);
   const customFormActive =
     customFormAction.enabled && isCustomFormConfigured(customFormAction);
@@ -181,7 +181,6 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       customFormActive && customFormAction.allowLlmTrigger,
     includeBookAppointment: bookAppointmentAction.enabled,
     includeListAvailableSlots: listAvailableSlots,
-    bookAppointmentDepartments: bookAppointmentAction.departments,
   });
 
   let escalationPromptExtra = "";
@@ -209,8 +208,22 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
 
   const dateTimeContext = buildDateTimeContextSection(bookAppointmentAction.timezone);
 
-  const systemPrompt =
-    input.channel === "VOICE"
+  const useProductAssistantPrompt =
+    input.channel !== "VOICE" && isProductAssistantAgent(agentId);
+
+  const productAssistantExtra = [escalationPromptExtra, guardrailSection]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const systemPrompt = useProductAssistantPrompt
+    ? productAssistantSystemPrompt({
+        language: promptLanguage,
+        instructions: productAssistantExtra || undefined,
+        knowledgeContext,
+        toolDefinitions,
+        dateTimeContext,
+      })
+    : input.channel === "VOICE"
       ? voiceBotSystemPromptV1({
           agentName: agent.name,
           orgName: agent.org.name,

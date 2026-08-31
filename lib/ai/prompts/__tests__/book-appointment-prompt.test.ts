@@ -6,7 +6,6 @@ import type { ResolvedBookAppointmentAction } from "@/lib/deploy/book-appointmen
 const baseAction: ResolvedBookAppointmentAction = {
   enabled: true,
   whenToOffer: "intent_only",
-  departments: ["general", "cardiologie", "pediatrie"],
   notifyEmail: null,
   calendarProvider: "none",
   timezone: "Africa/Casablanca",
@@ -21,12 +20,12 @@ describe("buildBookAppointmentPromptSection", () => {
   it("tells the model to resolve relative dates and never ask for YYYY-MM-DD", () => {
     const section = buildBookAppointmentPromptSection(baseAction);
 
-    expect(section).toContain("Available departments: general, cardiologie, pediatrie.");
+    expect(section).toContain("Required before booking: date, time, and customer name.");
+    expect(section).toContain("Do not ask for a department, specialty, or team unless the system instructions say to.");
     expect(section).toContain("Resolve relative and colloquial dates");
     expect(section).toContain("Never ask the customer to type a date as YYYY-MM-DD");
     expect(section).toContain("one short question at a time");
-    expect(section).toContain("cardio → cardiologie");
-    expect(section).toContain('never silently switch to "general"');
+    expect(section).not.toContain("Available departments");
     expect(section).not.toContain("Ask for missing required details one or two at a time");
   });
 

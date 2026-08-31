@@ -24,7 +24,7 @@ export const BOOK_APPOINTMENT: ToolDefinition = {
   function: {
     name: "book_appointment",
     description:
-      "Book a new appointment for the customer with a specific department. Returns confirmation details.",
+      "Book a new appointment for the customer. Returns confirmation details.",
     parameters: {
       type: "object",
       properties: {
@@ -37,11 +37,6 @@ export const BOOK_APPOINTMENT: ToolDefinition = {
           type: "string",
           description:
             "HH:MM 24-hour — convert colloquial times (midi → 12:00, 10h matin → 10:00). Never ask the customer for 24-hour format.",
-        },
-        department: {
-          type: "string",
-          description: "The department or service type for the appointment",
-          enum: ["support", "sales", "billing", "technical", "general"],
         },
         customerName: {
           type: "string",
@@ -56,33 +51,10 @@ export const BOOK_APPOINTMENT: ToolDefinition = {
           description: "Optional notes or reason for the appointment",
         },
       },
-      required: ["date", "time", "department", "customerName"],
+      required: ["date", "time", "customerName"],
     },
   },
 };
-
-export function buildBookAppointmentDefinition(
-  departments: string[],
-): ToolDefinition {
-  const allowed =
-    departments.length > 0 ? departments : ["support", "sales", "general"];
-  return {
-    type: "function",
-    function: {
-      ...BOOK_APPOINTMENT.function,
-      parameters: {
-        ...BOOK_APPOINTMENT.function.parameters,
-        properties: {
-          ...BOOK_APPOINTMENT.function.parameters.properties,
-          department: {
-            ...BOOK_APPOINTMENT.function.parameters.properties.department,
-            enum: allowed,
-          },
-        },
-      },
-    },
-  };
-}
 
 export const LIST_AVAILABLE_SLOTS: ToolDefinition = {
   type: "function",

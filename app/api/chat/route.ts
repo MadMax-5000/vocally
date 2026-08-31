@@ -7,6 +7,8 @@ import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
 import {
   denyIfChatRateLimited,
   denyIfOriginNotAllowed,
+  isWidgetTokenRequired,
+  resolveWidgetChatRateLimit,
 } from "@/lib/agent-security/widget-access";
 
 const chatRequestSchema = z.object({
@@ -56,8 +58,10 @@ export async function POST(req: NextRequest) {
     const isOwnerPreview = !!dbOrgId && agent.orgId === dbOrgId;
 
     if (!isOwnerPreview) {
-      if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
-        return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
+      if (isWidgetTokenRequired(agent.id, isOwnerPreview)) {
+        if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
+          return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
+        }
       }
 
       if (agent.visibility !== "PUBLIC" || agent.status !== "ACTIVE") {
@@ -93,7 +97,7 @@ export async function POST(req: NextRequest) {
       const rateDenial = denyIfChatRateLimited(
         req.headers,
         agent.id,
-        agent.chatRateLimitPerMinute,
+        resolveWidgetChatRateLimit(agent.id, agent.chatRateLimitPerMinute),
       );
       if (rateDenial) {
         return NextResponse.json(

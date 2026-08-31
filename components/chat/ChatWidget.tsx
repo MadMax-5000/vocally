@@ -1,6 +1,6 @@
 "use client";
 import { AppIcon } from "@/components/ui/app-icon"
-import { ChevronDown, RefreshCwIcon } from "@/lib/icons/app-icons"
+import { RefreshCwIcon, XIcon } from "@/lib/icons/app-icons"
 
 import { useEffect, useRef, FormEvent, useMemo, useState } from "react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
@@ -42,7 +42,7 @@ type ChatWidgetProps = {
   initialSessionId?: string;
   /** Pass `true` or a handler to show the refresh control (dashboard preview). */
   onClear?: boolean | (() => void);
-  /** When provided, shows a minimize control in the header (floating bubble). */
+  /** When provided, shows a close control in the header (floating bubble). */
   onMinimize?: () => void;
   showPoweredBy?: boolean;
   appearance?: WebChatWidgetAppearance;
@@ -248,7 +248,7 @@ export function ChatWidget({
               <button
                 type="button"
                 onClick={onMinimize}
-                aria-label="Minimize chat"
+                aria-label="Close chat"
                 className={cn(
                   "flex size-7 items-center justify-center rounded-full border transition-colors",
                   isDark
@@ -256,7 +256,7 @@ export function ChatWidget({
                     : "border-hairline bg-surface-card text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
                 )}
               >
-                <AppIcon icon={ChevronDown} className="size-4" strokeWidth={2} />
+                <AppIcon icon={XIcon} className="size-4" strokeWidth={2} />
               </button>
             ) : null}
             {showClearButton ? (

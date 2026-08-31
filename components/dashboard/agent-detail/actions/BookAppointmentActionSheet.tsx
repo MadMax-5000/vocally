@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
 import { AppIcon } from "@/components/ui/app-icon";
-import { LoaderIcon, PlusIcon, Trash2Icon, UnplugIcon } from "@/lib/icons/app-icons";
+import { LoaderIcon, UnplugIcon } from "@/lib/icons/app-icons";
 import type { AgentDetailWithRelations } from "@/components/dashboard/agent-detail/agent-detail-types";
 import {
   listAgentAppointments,
@@ -51,7 +51,6 @@ import {
   type BookAppointmentActionDraft,
 } from "./book-appointment-action-draft";
 
-const MAX_DEPARTMENTS = 12;
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
@@ -80,7 +79,9 @@ function formatRelativeTime(iso: string, t: ReturnType<typeof useTranslations>):
 
 function formatAppointmentWhen(item: AgentAppointmentListItem): string {
   const date = item.date.slice(0, 10);
-  return `${date} ${item.time} · ${item.department}`;
+  const when = `${date} ${item.time}`;
+  if (item.department?.trim()) return `${when} · ${item.department}`;
+  return when;
 }
 
 export function BookAppointmentActionSheet({
@@ -102,7 +103,6 @@ export function BookAppointmentActionSheet({
   const [draft, setDraft] = useState<BookAppointmentActionDraft>(() =>
     buildBookAppointmentActionDraft(agent),
   );
-  const [newDepartment, setNewDepartment] = useState("");
   const [googleCalendars, setGoogleCalendars] = useState<
     { id: string; summary: string; primary: boolean }[]
   >([]);
@@ -120,7 +120,6 @@ export function BookAppointmentActionSheet({
     const next = buildBookAppointmentActionDraft(agent);
     setSavedDraft(next);
     setDraft(next);
-    setNewDepartment("");
 
     setAppointmentsLoading(true);
     void listAgentAppointments(agent.id, { limit: 20 }).then((result) => {
@@ -150,28 +149,6 @@ export function BookAppointmentActionSheet({
 
   const isDirty = !draftsEqual(draft, savedDraft);
 
-  function addDepartment() {
-    const label = newDepartment.trim().toLowerCase();
-    if (!label) return;
-    if (draft.departments.some((d) => d.toLowerCase() === label)) {
-      toast.error(t("sheet.bookAppointment.departmentExists"));
-      return;
-    }
-    if (draft.departments.length >= MAX_DEPARTMENTS) {
-      toast.error(t("sheet.bookAppointment.maximumDepartments", { count: MAX_DEPARTMENTS }));
-      return;
-    }
-    setDraft((d) => ({ ...d, departments: [...d.departments, label] }));
-    setNewDepartment("");
-  }
-
-  function removeDepartment(index: number) {
-    setDraft((d) => ({
-      ...d,
-      departments: d.departments.filter((_, i) => i !== index),
-    }));
-  }
-
   function toggleWeekday(day: number) {
     setDraft((d) => {
       const has = d.workingHours.days.includes(day);
@@ -193,9 +170,6 @@ export function BookAppointmentActionSheet({
       const result = await updateBookAppointmentActionSettings(agent.id, {
         enabled: draft.enabled,
         whenToOffer: draft.whenToOffer,
-        departments: draft.enabled
-          ? draft.departments.map((d) => d.trim().toLowerCase()).filter(Boolean)
-          : draft.departments,
         notifyEmail: draft.notifyEmail,
         calendarProvider: draft.calendarProvider,
         timezone: draft.timezone.trim(),
@@ -547,61 +521,6 @@ export function BookAppointmentActionSheet({
                 </label>
               ))}
             </RadioGroup>
-          </ActionSheetSection>
-
-          <ActionSheetSection
-            title={t("sheet.bookAppointment.departments")}
-            description={t("sheet.bookAppointment.departmentsDescription")}
-          >
-            {draft.departments.length === 0 ? (
-              <p className="text-body-sm text-muted-soft">{t("sheet.bookAppointment.noDepartments")}</p>
-            ) : (
-              <ul className="mb-3 flex flex-col gap-2">
-                {draft.departments.map((dept, index) => (
-                  <li
-                    key={`${dept}-${index}`}
-                    className="flex items-center justify-between gap-2 rounded-md border border-hairline bg-surface-card px-3 py-2"
-                  >
-                    <span className="text-body-sm text-ink">{dept}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 shrink-0 p-0 text-muted hover:text-ink"
-                      onClick={() => removeDepartment(index)}
-                      aria-label={t("removeItem", { item: dept })}
-                    >
-                      <AppIcon icon={Trash2Icon} className="h-4 w-4" aria-hidden />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="flex gap-2">
-              <Input
-                placeholder={t("sheet.bookAppointment.departmentPlaceholder")}
-                value={newDepartment}
-                onChange={(e) => setNewDepartment(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addDepartment();
-                  }
-                }}
-                className={actionSheetInputClass}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="shrink-0 gap-1 border-hairline"
-                onClick={addDepartment}
-                disabled={draft.departments.length >= MAX_DEPARTMENTS}
-              >
-                <AppIcon icon={PlusIcon} className="h-4 w-4" aria-hidden />
-                {t("sheet.bookAppointment.addDepartment")}
-              </Button>
-            </div>
           </ActionSheetSection>
 
           <ActionSheetField

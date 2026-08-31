@@ -1,4 +1,8 @@
 import {
+  isProductAssistantAgent,
+  PRODUCT_ASSISTANT_DEFAULT_RATE_LIMIT,
+} from "@/lib/ai/product-assistant-agent";
+import {
   ORIGIN_NOT_ALLOWED_ERROR,
   RATE_LIMIT_EXCEEDED_ERROR,
 } from "./constants";
@@ -9,6 +13,24 @@ export type WidgetAccessDenial = {
   status: 403 | 429;
   error: string;
 };
+
+export function isWidgetTokenRequired(
+  agentId: string,
+  isOwnerPreview: boolean,
+): boolean {
+  if (isOwnerPreview) return false;
+  return !isProductAssistantAgent(agentId);
+}
+
+export function resolveWidgetChatRateLimit(
+  agentId: string,
+  configured: number | null | undefined,
+): number | null | undefined {
+  if (isProductAssistantAgent(agentId) && (configured == null || configured <= 0)) {
+    return PRODUCT_ASSISTANT_DEFAULT_RATE_LIMIT;
+  }
+  return configured;
+}
 
 export function denyIfOriginNotAllowed(
   headers: Headers,

@@ -1115,10 +1115,6 @@ const hhMm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const updateBookAppointmentActionSettingsSchema = z.object({
   enabled: z.boolean().optional(),
   whenToOffer: z.enum(["proactive", "intent_only"]).optional(),
-  departments: z
-    .array(z.string().trim().min(1).max(80))
-    .max(12)
-    .optional(),
   notifyEmail: z.union([z.string().email().max(320), z.literal("")]).optional(),
   calendarProvider: z.enum(["none", "google", "calendly"]).optional(),
   timezone: z.string().trim().min(1).max(80).optional(),
@@ -1178,12 +1174,6 @@ export async function updateBookAppointmentActionSettings(
     }
     if (incoming.whenToOffer !== undefined) {
       nextAction.whenToOffer = incoming.whenToOffer as BookAppointmentWhenToOffer;
-    }
-    if (incoming.departments !== undefined) {
-      const normalized = incoming.departments
-        .map((d) => d.trim().toLowerCase())
-        .filter(Boolean);
-      nextAction.departments = Array.from(new Set(normalized));
     }
     if (incoming.notifyEmail !== undefined) {
       const trimmed = incoming.notifyEmail.trim();
@@ -1276,7 +1266,7 @@ export type AgentAppointmentListItem = {
   id: string;
   customerName: string;
   customerEmail: string | null;
-  department: string;
+  department: string | null;
   date: string;
   time: string;
   status: string;

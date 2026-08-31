@@ -5,7 +5,6 @@ import { usePathname } from "@/i18n/routing";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
-import { ProductAssistantWidget } from "@/components/dashboard/ProductAssistantWidget";
 
 /**
  * Fullscreen routes under /dashboard (no sidebar/topbar) must be listed here.
@@ -34,7 +33,6 @@ export function DashboardRouteLayout({
     return (
       <div className="min-h-dvh bg-surface-card">
         {children}
-        <ProductAssistantWidget />
       </div>
     );
   }
@@ -48,7 +46,6 @@ export function DashboardRouteLayout({
           {children}
         </main>
       </div>
-      <ProductAssistantWidget />
     </SidebarProvider>
   );
 }

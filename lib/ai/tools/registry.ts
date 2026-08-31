@@ -1,6 +1,6 @@
 import {
   ALL_TOOL_DEFINITIONS,
-  buildBookAppointmentDefinition,
+  BOOK_APPOINTMENT,
   CHECK_ORDER_STATUS,
   CREATE_TICKET,
   LIST_AVAILABLE_SLOTS,
@@ -20,7 +20,6 @@ import {
 import { handleListAvailableSlots } from "./handlers/list-available-slots";
 import { handleSaveLead } from "./handlers/save-lead";
 import { handleShowCustomForm } from "./handlers/show-custom-form";
-import { DEFAULT_APPOINTMENT_DEPARTMENTS } from "@/lib/deploy/book-appointment-action";
 
 type ToolEntry = {
   definition: ToolDefinition;
@@ -33,7 +32,7 @@ const registry: Record<string, ToolEntry> = {
     handler: handleCheckOrderStatus,
   },
   book_appointment: {
-    definition: buildBookAppointmentDefinition([...DEFAULT_APPOINTMENT_DEPARTMENTS]),
+    definition: BOOK_APPOINTMENT,
     handler: handleBookAppointment,
   },
   list_available_slots: {
@@ -80,7 +79,6 @@ export function getToolDefinitionsForAgent(options?: {
   includeCustomForm?: boolean;
   includeBookAppointment?: boolean;
   includeListAvailableSlots?: boolean;
-  bookAppointmentDepartments?: string[];
 }): ToolDefinition[] {
   const allowCreateTicket = options?.allowCreateTicket ?? true;
   let tools = allowCreateTicket
@@ -96,12 +94,7 @@ export function getToolDefinitionsForAgent(options?: {
   }
 
   if (options?.includeBookAppointment) {
-    const departments =
-      options.bookAppointmentDepartments &&
-      options.bookAppointmentDepartments.length > 0
-        ? options.bookAppointmentDepartments
-        : [...DEFAULT_APPOINTMENT_DEPARTMENTS];
-    tools = [...tools, buildBookAppointmentDefinition(departments)];
+    tools = [...tools, BOOK_APPOINTMENT];
     if (options.includeListAvailableSlots) {
       tools = [...tools, LIST_AVAILABLE_SLOTS];
     }

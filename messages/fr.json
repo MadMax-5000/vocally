@@ -45,10 +45,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Des",
-      "titleAccent": "agents",
-      "titleLine2": "conversationnels pour votre",
-      "subtitle": "Des agents IA qui accompagnent vos clients à chaque étape de leur parcours, sur le chat, l'email et la voix, pour résoudre les demandes de bout en bout et augmenter le chiffre d'affaires.",
+      "titleLine1": "Ne manquez plus jamais",
+      "titleLine2Prefix": "un",
+      "titleAccent": "client",
+      "titleAfterAccent": ".",
+      "subtitle": "Un agent IA qui répond à vos clients, traite leurs demandes et prend des rendez-vous 24h/24 — sur WhatsApp, Instagram, votre site, l’email et le téléphone.",
       "startFreeTrial": "Démarrer l'essai gratuit",
       "getDemo": "Obtenir une démo"
     },

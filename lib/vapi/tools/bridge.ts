@@ -59,14 +59,11 @@ export async function handleToolCalls(message: VapiToolCallsMessage) {
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
       select: {
-        agentType: true,
         channels: { select: { channel: true, enabled: true, config: true } },
       },
     });
     if (agent) {
-      const resolved = resolveBookAppointmentAction(agent.channels, {
-        agentType: agent.agentType,
-      });
+      const resolved = resolveBookAppointmentAction(agent.channels);
       if (resolved.enabled) {
         bookAppointmentContext = resolved;
       }

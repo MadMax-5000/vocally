@@ -3,7 +3,6 @@ import {
   formatAppointmentEmailLines,
   notifyLeadCaptured,
 } from "@/lib/leads/notify-lead";
-import { resolveDepartmentMatch } from "@/lib/deploy/book-appointment-action";
 import {
   bookExternalSlot,
   isExternalCalendarActive,
@@ -111,17 +110,6 @@ export async function handleBookAppointment(
     });
   }
 
-  const departmentInput = String(args.department ?? "").trim();
-  if (!departmentInput) {
-    return JSON.stringify({ error: "Department is required." });
-  }
-  const department = resolveDepartmentMatch(action, departmentInput);
-  if (!department) {
-    return JSON.stringify({
-      error: `Department "${departmentInput}" is not available. Allowed: ${action.departments.join(", ")}.`,
-    });
-  }
-
   const customerName = String(args.customerName ?? "").trim();
   if (!customerName) {
     return JSON.stringify({ error: "Customer name is required." });
@@ -183,7 +171,6 @@ export async function handleBookAppointment(
     try {
       const booked = await bookExternalSlot(action, ctx.calendarConnection, {
         start,
-        department,
         customerName,
         customerEmail,
         notes,
@@ -213,7 +200,7 @@ export async function handleBookAppointment(
       sessionId: ctx.sessionId,
       customerName,
       customerEmail,
-      department,
+      department: null,
       date: parsedDate,
       time: timeStr,
       durationMinutes: usesExternalCalendar ? action.durationMinutes : null,
@@ -254,9 +241,8 @@ export async function handleBookAppointment(
     customerName: appointment.customerName,
     date: dateStr,
     time: timeStr,
-    department: appointment.department,
     status: "confirmed",
-    message: `Appointment confirmed for ${dateStr} at ${timeStr} with ${appointment.department}.`,
+    message: `Appointment confirmed for ${dateStr} at ${timeStr}.`,
   });
 }
 
