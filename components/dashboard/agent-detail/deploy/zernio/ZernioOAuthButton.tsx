@@ -31,6 +31,15 @@ export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: 
   const channelType = platform === "instagram" ? "INSTAGRAM" : platform === "whatsapp" ? "WHATSAPP" : "MESSENGER";
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("error");
+    if (oauthError) {
+      toast.error(oauthError);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     startTransition(async () => {
       const [channelsResult, enabledResult] = await Promise.all([
         getZernioChannelsForAgent(agentId),

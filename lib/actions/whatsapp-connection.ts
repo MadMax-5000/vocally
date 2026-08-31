@@ -65,26 +65,34 @@ export async function getAgentWhatsAppSettings(agentId: string): Promise<
     });
     if (!agent) return { success: false, error: "Agent not found" };
 
-    const connection = await prisma.whatsappPhoneNumber.findFirst({
-      where: { orgId, agentId, isActive: true },
-      select: {
-        id: true,
-        twilioNumber: true,
-        createdAt: true,
-        isActive: true,
-        status: true,
-        statusMessage: true,
-        twilioSenderSid: true,
-        qualityRating: true,
-        messagingLimit: true,
-      },
-    });
+    const [connection, zernioChannel] = await Promise.all([
+      prisma.whatsappPhoneNumber.findFirst({
+        where: { orgId, agentId, isActive: true },
+        select: {
+          id: true,
+          twilioNumber: true,
+          createdAt: true,
+          isActive: true,
+          status: true,
+          statusMessage: true,
+          twilioSenderSid: true,
+          qualityRating: true,
+          messagingLimit: true,
+        },
+      }),
+      prisma.zernioChannel.findFirst({
+        where: { agentId, orgId, channelType: "WHATSAPP" },
+        select: { id: true },
+      }),
+    ]);
 
     const channelEnabled = agent.channels.some((c) => c.enabled);
-    const platformConfigured = isTwilioPlatformConfigured();
-    const connectionOnline =
+    const platformConfigured =
+      isTwilioPlatformConfigured() || Boolean(process.env.ZERNIO_API_KEY?.trim());
+    const twilioOnline =
       Boolean(connection?.isActive) &&
       (connection?.status === "ONLINE" || isLegacyWhatsappConnection(connection));
+    const connectionOnline = Boolean(zernioChannel) || twilioOnline;
 
     return {
       success: true,

@@ -18,6 +18,16 @@ export async function GET(req: NextRequest) {
   const connected = searchParams.get("connected");
   const accountId = searchParams.get("accountId");
   const username = searchParams.get("username");
+  const error = searchParams.get("error");
+
+  if (error) {
+    const msg = searchParams.get("error_message") ?? error;
+    const deploySlug = CHANNEL_REDIRECTS[channel ?? ""] ?? "whatsapp";
+    const path = agentId
+      ? `/dashboard/agents/${agentId}/deploy/${deploySlug}?error=${encodeURIComponent(msg)}`
+      : `/dashboard/agents?error=${encodeURIComponent(msg)}`;
+    return NextResponse.redirect(new URL(path, req.url));
+  }
 
   if (!agentId || !channel || !connected || !accountId) {
     return NextResponse.redirect(

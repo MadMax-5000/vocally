@@ -3,11 +3,17 @@ import type { ZernioConnectUrlResponse, ZernioSendMessageResponse } from "./type
 
 const ZERNIO_API_KEY = process.env.ZERNIO_API_KEY;
 
+export type ZernioErrorDetails = {
+  existingProfileId?: string;
+  [key: string]: unknown;
+};
+
 export class ZernioError extends Error {
   constructor(
     message: string,
     public status?: number,
     public code?: string,
+    public details?: ZernioErrorDetails,
   ) {
     super(message);
     this.name = "ZernioError";
@@ -31,11 +37,16 @@ async function zernioFetch<T>(
   });
 
   if (!res.ok) {
-    const body = await res.json().catch(() => null);
+    const body = (await res.json().catch(() => null)) as {
+      error?: string;
+      code?: string;
+      details?: ZernioErrorDetails;
+    } | null;
     throw new ZernioError(
       body?.error ?? `Zernio API error: ${res.status}`,
       res.status,
       body?.code,
+      body?.details && typeof body.details === "object" ? body.details : undefined,
     );
   }
 
@@ -75,10 +86,28 @@ export async function createZernioProfile(
   name: string,
   description?: string,
 ): Promise<ZernioProfile> {
-  return zernioFetch("/v1/profiles", {
-    method: "POST",
-    body: JSON.stringify({ name, description }),
-  });
+  const data = await zernioFetch<ZernioProfile | { profile: ZernioProfile }>(
+    "/v1/profiles",
+    {
+      method: "POST",
+      headers: { "Idempotency-Key": name },
+      body: JSON.stringify({ name, description }),
+    },
+  );
+  if ("profile" in data && data.profile && typeof data.profile._id === "string") {
+    return data.profile;
+  }
+  return data as ZernioProfile;
+}
+
+export async function listZernioProfiles(name?: string): Promise<ZernioProfile[]> {
+  const params = new URLSearchParams();
+  if (name) params.set("name", name);
+  const qs = params.toString();
+  const data = await zernioFetch<{ profiles: ZernioProfile[] }>(
+    `/v1/profiles${qs ? `?${qs}` : ""}`,
+  );
+  return data.profiles ?? [];
 }
 
 export type ZernioAccount = {
