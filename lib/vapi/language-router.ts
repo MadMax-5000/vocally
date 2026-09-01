@@ -252,6 +252,7 @@ export async function handleAssistantRequest(message: {
       bookAppointmentAction,
       calendarConnection,
     ),
+    includeSecureInput: true,
   });
 
   if (handoffActive && handoffAvailable) {

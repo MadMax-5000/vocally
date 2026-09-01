@@ -181,6 +181,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
       customFormActive && customFormAction.allowLlmTrigger,
     includeBookAppointment: bookAppointmentAction.enabled,
     includeListAvailableSlots: listAvailableSlots,
+    includeSecureInput: messageChannel === "VOICE",
   });
 
   let escalationPromptExtra = "";

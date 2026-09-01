@@ -295,6 +295,13 @@ export async function handleRequestSecureInput(
   args: Record<string, unknown>,
   ctx: ToolContext,
 ): Promise<string> {
+  if (ctx.channel && ctx.channel !== "VOICE") {
+    return JSON.stringify({
+      error:
+        "request_secure_input is only available on phone calls. Ask the customer to type the value in this chat instead. Do not mention keypad, DTMF, or press #.",
+    });
+  }
+
   const request: DtmfRequest = {
     prompt: String(args.prompt ?? ""),
     maxDigits: Number(args.maxDigits ?? 6),

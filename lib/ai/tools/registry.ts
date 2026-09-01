@@ -79,6 +79,7 @@ export function getToolDefinitionsForAgent(options?: {
   includeCustomForm?: boolean;
   includeBookAppointment?: boolean;
   includeListAvailableSlots?: boolean;
+  includeSecureInput?: boolean;
 }): ToolDefinition[] {
   const allowCreateTicket = options?.allowCreateTicket ?? true;
   let tools = allowCreateTicket
@@ -98,6 +99,10 @@ export function getToolDefinitionsForAgent(options?: {
     if (options.includeListAvailableSlots) {
       tools = [...tools, LIST_AVAILABLE_SLOTS];
     }
+  }
+
+  if (options?.includeSecureInput) {
+    tools = [...tools, REQUEST_SECURE_INPUT];
   }
 
   return tools;
