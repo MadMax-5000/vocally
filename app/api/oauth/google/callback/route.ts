@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { absoluteUrl } from "@/lib/app-url";
 import { connectGmailForAgent } from "@/lib/gmail/connect";
 import { verifyOAuthState } from "@/lib/gmail/oauth";
 import { prisma } from "@/lib/db/prisma";
@@ -20,27 +21,27 @@ export async function GET(req: NextRequest) {
     : `/${locale}/dashboard`;
 
   if (oauthError) {
-    const redirect = new URL(deployPath, req.url);
+    const redirect = absoluteUrl(deployPath, req);
     redirect.searchParams.set("error", oauthError);
     return NextResponse.redirect(redirect);
   }
 
   if (!code || !state) {
-    const redirect = new URL(deployPath, req.url);
+    const redirect = absoluteUrl(deployPath, req);
     redirect.searchParams.set("error", "missing_code");
     return NextResponse.redirect(redirect);
   }
 
   const payload = verifyOAuthState(state);
   if (!payload) {
-    const redirect = new URL(deployPath, req.url);
+    const redirect = absoluteUrl(deployPath, req);
     redirect.searchParams.set("error", "invalid_state");
     return NextResponse.redirect(redirect);
   }
 
   const orgId = await getOrgPrismaId();
   if (!orgId || orgId !== payload.orgId) {
-    const redirect = new URL(deployPath, req.url);
+    const redirect = absoluteUrl(deployPath, req);
     redirect.searchParams.set("error", "unauthorized");
     return NextResponse.redirect(redirect);
   }
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
     select: { plan: true },
   });
   if (!org || !EMAIL_CHANNEL_ENABLED[org.plan as keyof typeof EMAIL_CHANNEL_ENABLED]) {
-    const redirect = new URL(deployPath, req.url);
+    const redirect = absoluteUrl(deployPath, req);
     redirect.searchParams.set("error", "Email channel not available on your plan");
     return NextResponse.redirect(redirect);
   }
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
       code,
     });
 
-    const redirect = new URL(`/${locale}/dashboard/agents/${payload.agentId}/deploy/email`, req.url);
+    const redirect = absoluteUrl(`/${locale}/dashboard/agents/${payload.agentId}/deploy/email`, req);
     redirect.searchParams.set("connected", "1");
     return NextResponse.redirect(redirect);
   } catch (e) {
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
       agentId: payload.agentId,
       error: e instanceof Error ? e.message : "unknown",
     });
-    const redirect = new URL(`/${locale}/dashboard/agents/${payload.agentId}/deploy/email`, req.url);
+    const redirect = absoluteUrl(`/${locale}/dashboard/agents/${payload.agentId}/deploy/email`, req);
     redirect.searchParams.set(
       "error",
       e instanceof Error ? e.message : "connection_failed",

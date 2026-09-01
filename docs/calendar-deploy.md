@@ -12,8 +12,8 @@ Doctolib is not supported.
    - `https://www.googleapis.com/auth/calendar.freebusy`
    - `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
 3. OAuth client (Web application) authorized redirect URI:
-   - `https://<your-domain>/api/oauth/google-calendar/callback`
-   - `http://localhost:3000/api/oauth/google-calendar/callback` for local dev
+   - `https://anselio.com/api/oauth/google-calendar/callback` (production)
+   - `http://localhost:3000/api/oauth/google-calendar/callback` for local dev only — do not use this URI in Vercel Production
 4. Reuse `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
 
 This flow is **separate** from Gmail (`/api/oauth/google/callback`). A clinic can connect a calendar without connecting Gmail.
@@ -21,7 +21,7 @@ This flow is **separate** from Gmail (`/api/oauth/google/callback`). A clinic ca
 ## Calendly
 
 1. Create an OAuth app at [developer.calendly.com](https://developer.calendly.com/).
-2. Redirect URI: `https://<your-domain>/api/oauth/calendly/callback`
+2. Redirect URI: `https://anselio.com/api/oauth/calendly/callback` (production). Keep a localhost URI only on a Calendly development app.
 3. **Create Invitee (`POST /invitees`) requires a paid Calendly plan** (Standard or higher). Listing event types may work on a free plan; booking will fail with a clear error if the plan cannot create invitees.
 
 ## Environment variables

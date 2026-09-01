@@ -1,7 +1,7 @@
-import { BRAND_URL } from "@/lib/constants/brand";
+import { getAppOrigin } from "@/lib/app-url";
 import { z } from "zod";
 
-const FALLBACK_ORIGIN = BRAND_URL;
+export { getAppOrigin };
 
 export const e164PhoneSchema = z
   .string()
@@ -10,14 +10,6 @@ export const e164PhoneSchema = z
   .refine((v) => /^\+[1-9]\d{6,14}$/.test(v), {
     message: "Enter a valid phone number in E.164 format (e.g. +14155238886)",
   });
-
-export function getAppOrigin(): string {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (envUrl) return envUrl.replace(/\/$/, "");
-  const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) return `https://${vercel.replace(/^https?:\/\//, "")}`;
-  return FALLBACK_ORIGIN;
-}
 
 export function getSmsWebhookUrl(): string {
   return `${getAppOrigin()}/api/webhooks/twilio/sms`;

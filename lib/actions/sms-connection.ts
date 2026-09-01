@@ -7,7 +7,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
 import {
   e164PhoneSchema,
-  getAppOrigin,
   getSuggestedSmsNumber,
   getSmsWebhookUrl,
   isTwilioPlatformConfigured,

@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 
+import { resolveRedirectUri } from "@/lib/app-url";
 import { decryptToken, encryptToken } from "@/lib/crypto/token-encryption";
 import { newOAuthNonce, signOAuthState } from "@/lib/oauth/signed-state";
 
@@ -20,13 +21,10 @@ function getClientSecret(): string {
 }
 
 export function getOAuthRedirectUri(): string {
-  if (process.env.GOOGLE_OAUTH_REDIRECT_URI) {
-    return process.env.GOOGLE_OAUTH_REDIRECT_URI;
-  }
-  const base =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  return `${base.replace(/\/$/, "")}/api/oauth/google/callback`;
+  return resolveRedirectUri(
+    process.env.GOOGLE_OAUTH_REDIRECT_URI,
+    "/api/oauth/google/callback",
+  );
 }
 
 export function createOAuth2Client(refreshToken?: string) {

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { connectCalendlyForAgent } from "@/lib/calendar/connect";
 import { prisma } from "@/lib/db/prisma";
+import { absoluteUrl } from "@/lib/app-url";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import { logServerError } from "@/lib/logger";
 import { verifyOAuthState } from "@/lib/oauth/signed-state";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
 function actionsRedirect(req: NextRequest, locale: string, agentId: string) {
-  return new URL(`/${locale}/dashboard/agents/${agentId}`, req.url);
+  return absoluteUrl(`/${locale}/dashboard/agents/${agentId}`, req);
 }
 
 export async function GET(req: NextRequest) {
@@ -20,7 +21,7 @@ export async function GET(req: NextRequest) {
   const fallbackAgentId = state ? verifyOAuthState(state)?.agentId : null;
   const fallback = fallbackAgentId
     ? actionsRedirect(req, locale, fallbackAgentId)
-    : new URL(`/${locale}/dashboard`, req.url);
+    : absoluteUrl(`/${locale}/dashboard`, req);
   fallback.searchParams.set("tab", "actions");
 
   if (oauthError) {

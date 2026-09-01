@@ -1,3 +1,5 @@
+import { isLocalhostUrl } from "@/lib/app-url";
+
 const CRITICAL_VARS: { key: string; label: string }[] = [
   { key: "DATABASE_URL", label: "Prisma database connection string" },
   { key: "DIRECT_URL", label: "Prisma direct database connection" },
@@ -44,6 +46,28 @@ export function validateEnv(): void {
         `See .env.example and docs/phone-setup.md for phone channel setup.`,
     );
   }
+
+  if (process.env.VERCEL_ENV === "production") {
+    const localhostKeys = [
+      "NEXT_PUBLIC_APP_URL",
+      "GOOGLE_OAUTH_REDIRECT_URI",
+      "GOOGLE_CALENDAR_OAUTH_REDIRECT_URI",
+      "CALENDLY_OAUTH_REDIRECT_URI",
+      "META_OAUTH_REDIRECT_URI",
+    ].filter((key) => {
+      const value = process.env[key]?.trim();
+      return Boolean(value && isLocalhostUrl(value));
+    });
+
+    if (localhostKeys.length > 0) {
+      const details = localhostKeys.map((key) => `  • ${key}=${process.env[key]}`).join("\n");
+      throw new Error(
+        `Production environment points at localhost. OAuth and embeds will redirect to localhost:3000.\n${details}\n\n` +
+          `Set these to https://anselio.com (and matching callback paths) in Vercel Production, then redeploy.\n` +
+          `NEXT_PUBLIC_* changes are inlined at build time — a redeploy is required.`,
+      );
+    }
+  }
 }
 
 /**
@@ -52,7 +76,15 @@ export function validateEnv(): void {
  */
 export function assertPhoneDeployEnv(): void {
   const missing = PHONE_DEPLOY_VARS.filter((v) => !process.env[v.key]?.trim());
-  if (missing.length === 0) return;
+  if (missing.length === 0) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+    if (appUrl && isLocalhostUrl(appUrl) && process.env.VERCEL_ENV === "production") {
+      throw new Error(
+        "Phone deploy is not configured:\n  • NEXT_PUBLIC_APP_URL must be https://anselio.com in production (not localhost)\n\nSee docs/phone-setup.md.",
+      );
+    }
+    return;
+  }
 
   const details = missing.map((m) => `  • ${m.key} — ${m.label}`).join("\n");
   throw new Error(

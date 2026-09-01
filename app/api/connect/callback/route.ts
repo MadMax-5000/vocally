@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { absoluteUrl } from "@/lib/app-url";
 import { prisma } from "@/lib/db/prisma";
 import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
 
@@ -26,18 +27,18 @@ export async function GET(req: NextRequest) {
     const path = agentId
       ? `/dashboard/agents/${agentId}/deploy/${deploySlug}?error=${encodeURIComponent(msg)}`
       : `/dashboard/agents?error=${encodeURIComponent(msg)}`;
-    return NextResponse.redirect(new URL(path, req.url));
+    return NextResponse.redirect(absoluteUrl(path, req));
   }
 
   if (!agentId || !channel || !connected || !accountId) {
     return NextResponse.redirect(
-      new URL("/dashboard/agents?error=Missing OAuth parameters", req.url),
+      absoluteUrl("/dashboard/agents?error=Missing OAuth parameters", req),
     );
   }
 
   if (!SUPPORTED_PLATFORMS.includes(connected)) {
     return NextResponse.redirect(
-      new URL(`/dashboard/agents/${agentId}?error=Unsupported platform`, req.url),
+      absoluteUrl(`/dashboard/agents/${agentId}?error=Unsupported platform`, req),
     );
   }
 
@@ -47,7 +48,7 @@ export async function GET(req: NextRequest) {
   });
   if (!agent) {
     return NextResponse.redirect(
-      new URL("/dashboard/agents?error=Agent not found", req.url),
+      absoluteUrl("/dashboard/agents?error=Agent not found", req),
     );
   }
 
@@ -57,14 +58,14 @@ export async function GET(req: NextRequest) {
   });
   if (!org || !SOCIAL_CHANNELS_ENABLED[org.plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
     return NextResponse.redirect(
-      new URL(`/dashboard/agents/${agentId}?error=Social channels not available on your plan`, req.url),
+      absoluteUrl(`/dashboard/agents/${agentId}?error=Social channels not available on your plan`, req),
     );
   }
 
   const channelType = CHANNEL_REDIRECTS[channel];
   if (!channelType) {
     return NextResponse.redirect(
-      new URL(`/dashboard/agents/${agentId}?error=Invalid channel`, req.url),
+      absoluteUrl(`/dashboard/agents/${agentId}?error=Invalid channel`, req),
     );
   }
 
@@ -76,5 +77,5 @@ export async function GET(req: NextRequest) {
 
   const redirectPath = `/dashboard/agents/${agentId}/deploy/${channelType}`;
 
-  return NextResponse.redirect(new URL(redirectPath, req.url));
+  return NextResponse.redirect(absoluteUrl(redirectPath, req));
 }

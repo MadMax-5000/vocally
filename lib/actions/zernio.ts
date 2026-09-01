@@ -1,5 +1,6 @@
 "use server";
 
+import { getAppOrigin } from "@/lib/app-url";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
 import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
@@ -95,8 +96,7 @@ export async function initiateZernioOAuth(
     const channelType = PLATFORM_TO_CHANNEL[platform];
     if (!channelType) return { success: false as const, error: "Unsupported platform" };
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://anselio.com";
-    const redirectUrl = `${baseUrl}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
+    const redirectUrl = `${getAppOrigin()}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
 
     const { authUrl } = await getZernioConnectUrl(platform, profileId, redirectUrl);
     return { success: true as const, data: { authUrl } };

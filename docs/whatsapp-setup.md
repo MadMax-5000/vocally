@@ -61,6 +61,11 @@ META_APP_SECRET=
 # Public app URL (webhooks + OAuth)
 NEXT_PUBLIC_APP_URL=https://anselio.com
 
+# Meta App Dashboard (production app) — required or Embedded Signup redirects to localhost:
+# Settings → Basic → App Domains: anselio.com
+# Settings → Basic → Site URL: https://anselio.com
+# Facebook Login → Settings → Valid OAuth Redirect URIs: https://anselio.com/ (remove localhost from the production app)
+
 # Optional: dev sandbox without Meta signup
 # WHATSAPP_SANDBOX_MODE=true
 # TWILIO_WHATSAPP_NUMBER=+14155238886
@@ -139,7 +144,7 @@ ngrok http 3000
 
 | Symptom | Likely cause |
 |---|---|
-| Connect button disabled | Missing `NEXT_PUBLIC_META_*` env vars or Twilio credentials |
+| Redirected to `localhost:3000/...#_=_` after Meta signup | Production Meta app Site URL / OAuth redirect URIs still include localhost. Set Site URL to `https://anselio.com` and redeploy with `NEXT_PUBLIC_APP_URL=https://anselio.com`. |
 | Stuck on CREATING | Twilio sender registration async — wait or check Twilio Console Senders |
 | OTP required | Non-Twilio number — enter Meta SMS code on Connect tab |
 | Webhook 403 | Wrong auth token — subaccount token must match `AccountSid` in webhook body |

@@ -1,7 +1,7 @@
-import { BRAND_URL } from "@/lib/constants/brand";
+import { getAppOrigin } from "@/lib/app-url";
 import { z } from "zod";
 
-const FALLBACK_ORIGIN = BRAND_URL;
+export { getAppOrigin };
 
 /** E.164 phone number (with leading +). */
 export const e164PhoneSchema = z
@@ -27,15 +27,6 @@ export function maskPhoneForDisplay(phone: string): string {
   const display = formatWhatsappDisplay(phone);
   if (display.length <= 7) return display;
   return `${display.slice(0, 4)}···${display.slice(-3)}`;
-}
-
-/** Server-side public app origin for webhook URLs. */
-export function getAppOrigin(): string {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (envUrl) return envUrl.replace(/\/$/, "");
-  const vercel = process.env.VERCEL_URL?.trim();
-  if (vercel) return `https://${vercel.replace(/^https?:\/\//, "")}`;
-  return FALLBACK_ORIGIN;
 }
 
 export function getWhatsappWebhookUrl(): string {

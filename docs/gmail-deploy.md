@@ -29,7 +29,7 @@ TOKEN_ENCRYPTION_KEY=
 CRON_SECRET=
 ```
 
-`NEXT_PUBLIC_APP_URL` should be your public app origin (e.g. `https://app.example.com`).
+`NEXT_PUBLIC_APP_URL` should be your public app origin (e.g. `https://anselio.com`). Never set it to `http://localhost:3000` in Vercel Production — that value is baked into the client bundle at build time.
 
 ## Renewing mailbox watch
 

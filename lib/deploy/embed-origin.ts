@@ -2,20 +2,17 @@
 
 import { useMemo } from "react";
 
-import { BRAND_URL } from "@/lib/constants/brand";
+import { getAppOrigin, isLocalhostUrl } from "@/lib/app-url";
 
-const FALLBACK_ORIGIN = BRAND_URL;
-
-/** Public app origin for embed URLs and copy fields (prefers NEXT_PUBLIC_APP_URL). */
+/** Public app origin for embed URLs and copy fields. */
 export function resolveEmbedOrigin(): string {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (envUrl) {
-    return envUrl.replace(/\/$/, "");
-  }
   if (typeof window !== "undefined") {
-    return window.location.origin;
+    const origin = window.location.origin;
+    if (!isLocalhostUrl(origin)) {
+      return origin;
+    }
   }
-  return FALLBACK_ORIGIN;
+  return getAppOrigin();
 }
 
 export function useEmbedOrigin(): string {

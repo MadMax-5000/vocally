@@ -1,4 +1,4 @@
-import { getAppOrigin } from "@/lib/deploy/sms-config";
+import { getAppOrigin } from "@/lib/app-url";
 import { logServerWarning } from "@/lib/logger";
 import { normalizeE164 } from "@/lib/telephony/e164";
 
