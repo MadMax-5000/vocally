@@ -1,9 +1,8 @@
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { AgentDetailShell } from "@/components/dashboard/agent-detail/AgentDetailShell";
-import { getAIAgentById } from "@/lib/actions/agents";
-import { getTranslations } from "next-intl/server";
+import { loadDeployAgent } from "@/lib/dashboard/load-deploy-agent";
 
 export default async function AgentDetailPage({
   params,
@@ -11,19 +10,7 @@ export default async function AgentDetailPage({
   params: { agentId: string };
 }) {
   const t = await getTranslations("dashboard.agents");
-  const result = await getAIAgentById(params.agentId);
-
-  if (!result.success) {
-    if (result.code === "UNAUTHORIZED") {
-      redirect("/onboarding");
-    }
-    if (result.code === "NOT_FOUND") {
-      notFound();
-    }
-    throw new Error(result.error);
-  }
-
-  const agent = result.data;
+  const agent = await loadDeployAgent(params.agentId);
 
   return (
     <div className="flex flex-col gap-0 py-0">

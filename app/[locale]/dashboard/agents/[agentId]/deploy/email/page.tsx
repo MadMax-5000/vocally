@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { DeployEmailManage } from "@/components/dashboard/agent-detail/deploy/DeployEmailManage";
-import { getAIAgentById } from "@/lib/actions/agents";
-import { getAgentGmailSettings } from "@/lib/actions/gmail-connection";
-import { getTranslations } from "next-intl/server";
+import { emptyAgentGmailSettings, getAgentGmailSettings } from "@/lib/actions/gmail-connection";
+import { loadDeployAgent } from "@/lib/dashboard/load-deploy-agent";
 
 export default async function DeployEmailPage({
   params,
@@ -12,22 +11,15 @@ export default async function DeployEmailPage({
   params: { agentId: string };
 }) {
   const t = await getTranslations("dashboard.agents");
-  const result = await getAIAgentById(params.agentId);
-
-  if (!result.success) {
-    if (result.code === "UNAUTHORIZED") redirect("/onboarding");
-    if (result.code === "NOT_FOUND") notFound();
-    throw new Error(result.error);
-  }
-
+  const agent = await loadDeployAgent(params.agentId);
   const gmailResult = await getAgentGmailSettings(params.agentId);
-  if (!gmailResult.success) {
-    throw new Error(gmailResult.error);
-  }
 
   return (
     <Suspense fallback={<div className="px-4 py-8 text-body-sm text-muted">{t("loadingAgent")}</div>}>
-      <DeployEmailManage agent={result.data} initialGmailSettings={gmailResult.data} />
+      <DeployEmailManage
+        agent={agent}
+        initialGmailSettings={gmailResult.success ? gmailResult.data : await emptyAgentGmailSettings()}
+      />
     </Suspense>
   );
 }

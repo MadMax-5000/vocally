@@ -1,11 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { DeployStubManage } from "@/components/dashboard/agent-detail/deploy/DeployStubManage";
 import {
   getDeployCatalogEntry,
   isDeploymentComingSoon,
 } from "@/lib/constants/deploy-catalog";
-import { getAIAgentById } from "@/lib/actions/agents";
+import { loadDeployAgent } from "@/lib/dashboard/load-deploy-agent";
 
 export default async function DeployStubPage({
   params,
@@ -21,12 +21,7 @@ export default async function DeployStubPage({
     notFound();
   }
 
-  const result = await getAIAgentById(agentId);
-  if (!result.success) {
-    if (result.code === "UNAUTHORIZED") redirect("/onboarding");
-    if (result.code === "NOT_FOUND") notFound();
-    throw new Error(result.error);
-  }
+  await loadDeployAgent(agentId);
 
   if (!("iconSrc" in entry)) notFound();
 

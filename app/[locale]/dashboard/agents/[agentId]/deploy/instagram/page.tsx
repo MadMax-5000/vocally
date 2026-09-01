@@ -1,21 +1,11 @@
-import { notFound, redirect } from "next/navigation";
-
 import { DeployInstagramManage } from "@/components/dashboard/agent-detail/deploy/DeployInstagramManage";
-import { getAIAgentById } from "@/lib/actions/agents";
+import { loadDeployAgent } from "@/lib/dashboard/load-deploy-agent";
 
 export default async function DeployInstagramPage({
   params,
 }: {
   params: { agentId: string };
 }) {
-  const result = await getAIAgentById(params.agentId);
-
-  if (!result.success) {
-    if (result.code === "UNAUTHORIZED") redirect("/onboarding");
-    if (result.code === "NOT_FOUND") notFound();
-    throw new Error(result.error);
-  }
-
-  return <DeployInstagramManage agent={result.data} />;
+  const agent = await loadDeployAgent(params.agentId);
+  return <DeployInstagramManage agent={agent} />;
 }
-

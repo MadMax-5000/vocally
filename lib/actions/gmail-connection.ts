@@ -31,6 +31,14 @@ export type AgentGmailSettings = {
   emailConfig: EmailChannelConfig;
 };
 
+export async function emptyAgentGmailSettings(): Promise<AgentGmailSettings> {
+  return {
+    connection: null,
+    emailEnabled: false,
+    emailConfig: {},
+  };
+}
+
 const updateEmailSettingsSchema = z.object({
   signature: z.string().max(2000).optional(),
   replySubjectPrefix: z.string().max(20).optional(),

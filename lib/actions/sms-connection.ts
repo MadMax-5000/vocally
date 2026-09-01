@@ -33,6 +33,23 @@ export type AgentSmsSettings = {
   };
 };
 
+export async function emptyAgentSmsSettings(): Promise<AgentSmsSettings> {
+  const platformConfigured = isTwilioPlatformConfigured();
+  return {
+    platformConfigured,
+    suggestedNumber: getSuggestedSmsNumber(),
+    webhookUrl: getSmsWebhookUrl(),
+    connection: null,
+    readiness: {
+      channelEnabled: false,
+      agentActive: false,
+      agentPublic: false,
+      mappingActive: false,
+      platformConfigured,
+    },
+  };
+}
+
 const connectSchema = z.object({
   phoneNumber: e164PhoneSchema,
 });

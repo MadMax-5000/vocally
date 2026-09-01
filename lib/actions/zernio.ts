@@ -4,6 +4,7 @@ import { getAppOrigin } from "@/lib/app-url";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
 import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
+import { locales, type Locale } from "@/i18n/config";
 import { revalidatePath } from "next/cache";
 import {
   listZernioAccounts,
@@ -74,6 +75,7 @@ export async function getOrCreateZernioProfile(orgId: string): Promise<string | 
 export async function initiateZernioOAuth(
   agentId: string,
   platform: "instagram" | "facebook" | "whatsapp",
+  locale?: string,
 ) {
   try {
     const orgId = await getOrgPrismaId();
@@ -96,7 +98,11 @@ export async function initiateZernioOAuth(
     const channelType = PLATFORM_TO_CHANNEL[platform];
     if (!channelType) return { success: false as const, error: "Unsupported platform" };
 
-    const redirectUrl = `${getAppOrigin()}/api/connect/callback?agentId=${agentId}&channel=${channelType}`;
+    const params = new URLSearchParams({ agentId, channel: channelType });
+    if (locale && locales.includes(locale as Locale)) {
+      params.set("locale", locale);
+    }
+    const redirectUrl = `${getAppOrigin()}/api/connect/callback?${params.toString()}`;
 
     const { authUrl } = await getZernioConnectUrl(platform, profileId, redirectUrl);
     return { success: true as const, data: { authUrl } };

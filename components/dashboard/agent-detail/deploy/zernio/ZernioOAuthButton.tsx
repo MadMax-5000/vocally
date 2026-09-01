@@ -2,7 +2,7 @@
 
 import { useTransition, useState, useEffect } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import Link from "next/link";
@@ -22,6 +22,7 @@ type Props = {
 
 export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: Props) {
   const t = useTranslations("dashboard.deploy.channels.common");
+  const locale = useLocale();
   const [connected, setConnected] = useState(false);
   const [accountId, setAccountId] = useState("");
   const [username, setUsername] = useState("");
@@ -35,6 +36,8 @@ export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: 
     const oauthError = params.get("error");
     if (oauthError) {
       toast.error(oauthError);
+    }
+    if (oauthError || window.location.hash === "#_=_") {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -59,7 +62,7 @@ export function ZernioOAuthButton({ agentId, platform, iconSrc, channelLabel }: 
 
   function handleConnect() {
     startTransition(async () => {
-      const result = await initiateZernioOAuth(agentId, platform);
+      const result = await initiateZernioOAuth(agentId, platform, locale);
       if (!result.success) {
         toast.error(result.error);
         return;

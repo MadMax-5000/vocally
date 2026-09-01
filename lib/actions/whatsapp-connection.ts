@@ -41,6 +41,25 @@ export type AgentWhatsAppSettings = {
   };
 };
 
+export async function emptyAgentWhatsAppSettings(): Promise<AgentWhatsAppSettings> {
+  const platformConfigured =
+    isTwilioPlatformConfigured() || Boolean(process.env.ZERNIO_API_KEY?.trim());
+  return {
+    platformConfigured,
+    embeddedSignupConfigured: isWhatsappEmbeddedSignupConfigured(),
+    sandboxMode: isWhatsappSandboxMode(),
+    connectAvailable: isWhatsappConnectAvailable(),
+    connection: null,
+    readiness: {
+      channelEnabled: false,
+      agentActive: false,
+      agentPublic: false,
+      connectionOnline: false,
+      platformConfigured,
+    },
+  };
+}
+
 function revalidateWhatsAppDeploy(agentId: string) {
   revalidatePath(`/dashboard/agents/${agentId}/deploy/whatsapp`);
   revalidatePath(`/dashboard/agents/${agentId}`);

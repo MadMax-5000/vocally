@@ -37,6 +37,14 @@ export type PhoneConnectionSettings = {
   currentCount: number;
 };
 
+export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSettings> {
+  return {
+    numbers: [],
+    maxNumbers: MAX_PHONE_NUMBERS.FREE,
+    currentCount: 0,
+  };
+}
+
 export async function getPhoneConnectionSettings(
   agentId: string,
 ): Promise<{ success: true; data: PhoneConnectionSettings } | { success: false; error: string }> {

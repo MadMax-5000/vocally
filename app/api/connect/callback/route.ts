@@ -1,81 +1,100 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { absoluteUrl } from "@/lib/app-url";
-import { prisma } from "@/lib/db/prisma";
 import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
-
-const SUPPORTED_PLATFORMS = ["instagram", "facebook", "whatsapp"];
-
-const CHANNEL_REDIRECTS: Record<string, string> = {
-  INSTAGRAM: "instagram",
-  MESSENGER: "messenger",
-  WHATSAPP: "whatsapp",
-};
+import { prisma } from "@/lib/db/prisma";
+import { getRequestLocale } from "@/lib/i18n/request-locale";
+import {
+  agentDetailPath,
+  agentsListPath,
+  normalizeZernioChannel,
+  resolveCallbackLocale,
+  socialDeployPath,
+  toPrismaChannel,
+  zernioDeploySlug,
+  type ZernioSocialChannel,
+} from "@/lib/integrations/zernio/oauth-callback";
+import { logServerError } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+  const locale = resolveCallbackLocale(
+    searchParams.get("locale"),
+    getRequestLocale(req.headers),
+  );
 
   const agentId = searchParams.get("agentId");
-  const channel = searchParams.get("channel");
+  const channelParam = searchParams.get("channel");
   const connected = searchParams.get("connected");
   const accountId = searchParams.get("accountId");
   const username = searchParams.get("username");
   const error = searchParams.get("error");
+  const resolvedChannel: ZernioSocialChannel | null =
+    normalizeZernioChannel(channelParam) ?? normalizeZernioChannel(connected);
+  const deploySlug = resolvedChannel ? zernioDeploySlug(resolvedChannel) : "whatsapp";
+
+  const redirectTo = (path: string) => NextResponse.redirect(absoluteUrl(path, req));
 
   if (error) {
     const msg = searchParams.get("error_message") ?? error;
-    const deploySlug = CHANNEL_REDIRECTS[channel ?? ""] ?? "whatsapp";
     const path = agentId
-      ? `/dashboard/agents/${agentId}/deploy/${deploySlug}?error=${encodeURIComponent(msg)}`
-      : `/dashboard/agents?error=${encodeURIComponent(msg)}`;
-    return NextResponse.redirect(absoluteUrl(path, req));
+      ? socialDeployPath(locale, agentId, deploySlug, msg)
+      : agentsListPath(locale, msg);
+    return redirectTo(path);
   }
 
-  if (!agentId || !channel || !connected || !accountId) {
-    return NextResponse.redirect(
-      absoluteUrl("/dashboard/agents?error=Missing OAuth parameters", req),
-    );
+  if (!agentId || !accountId || !resolvedChannel) {
+    const path = agentId
+      ? agentDetailPath(locale, agentId, "Missing OAuth parameters")
+      : agentsListPath(locale, "Missing OAuth parameters");
+    return redirectTo(path);
   }
 
-  if (!SUPPORTED_PLATFORMS.includes(connected)) {
-    return NextResponse.redirect(
-      absoluteUrl(`/dashboard/agents/${agentId}?error=Unsupported platform`, req),
-    );
+  try {
+    const agent = await prisma.agent.findUnique({
+      where: { id: agentId },
+      select: { orgId: true },
+    });
+    if (!agent) {
+      return redirectTo(agentsListPath(locale, "Agent not found"));
+    }
+
+    const org = await prisma.organization.findUnique({
+      where: { id: agent.orgId },
+      select: { plan: true },
+    });
+    if (!org || !SOCIAL_CHANNELS_ENABLED[org.plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
+      return redirectTo(
+        agentDetailPath(locale, agentId, "Social channels not available on your plan"),
+      );
+    }
+
+    const channelType = toPrismaChannel(resolvedChannel);
+
+    await prisma.zernioChannel.upsert({
+      where: { accountId },
+      update: {
+        agentId,
+        orgId: agent.orgId,
+        channelType,
+        platformUsername: username,
+      },
+      create: {
+        accountId,
+        agentId,
+        orgId: agent.orgId,
+        channelType,
+        platformUsername: username,
+      },
+    });
+
+    return redirectTo(socialDeployPath(locale, agentId, deploySlug));
+  } catch (err) {
+    logServerError("zernio_oauth_callback_failed", {
+      agentId,
+      channel: resolvedChannel,
+      error: err instanceof Error ? err.message : "unknown",
+    });
+    return redirectTo(socialDeployPath(locale, agentId, deploySlug, "connection_failed"));
   }
-
-  const agent = await prisma.agent.findUnique({
-    where: { id: agentId },
-    select: { orgId: true },
-  });
-  if (!agent) {
-    return NextResponse.redirect(
-      absoluteUrl("/dashboard/agents?error=Agent not found", req),
-    );
-  }
-
-  const org = await prisma.organization.findUnique({
-    where: { id: agent.orgId },
-    select: { plan: true },
-  });
-  if (!org || !SOCIAL_CHANNELS_ENABLED[org.plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
-    return NextResponse.redirect(
-      absoluteUrl(`/dashboard/agents/${agentId}?error=Social channels not available on your plan`, req),
-    );
-  }
-
-  const channelType = CHANNEL_REDIRECTS[channel];
-  if (!channelType) {
-    return NextResponse.redirect(
-      absoluteUrl(`/dashboard/agents/${agentId}?error=Invalid channel`, req),
-    );
-  }
-
-  await prisma.zernioChannel.upsert({
-    where: { accountId },
-    update: { agentId, orgId: agent.orgId, channelType: channel as any, platformUsername: username },
-    create: { accountId, agentId, orgId: agent.orgId, channelType: channel as any, platformUsername: username },
-  });
-
-  const redirectPath = `/dashboard/agents/${agentId}/deploy/${channelType}`;
-
-  return NextResponse.redirect(absoluteUrl(redirectPath, req));
 }
