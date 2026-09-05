@@ -20,7 +20,7 @@ export async function LandingHero() {
           <h1 className="text-[2.5rem] leading-[1.05] tracking-[-0.03em] text-ink md:text-[3.6rem] lg:text-[4rem]">
             <span className="block font-sans font-medium">{t("titleLine1")}</span>
             <span className="block font-sans font-medium">
-              {t("titleLine2Prefix")}{" "}
+              {t("titleLine2Prefix") ? `${t("titleLine2Prefix")} ` : ""}
               <span className="font-accent text-[1.05em] font-semibold italic leading-[1.15] tracking-wide">
                 {t("titleAccent")}
               </span>

@@ -95,7 +95,7 @@ model Agent {
 
   defaultLanguage SupportedLanguage @default(ENGLISH)
   llmProvider     LlmProvider       @default(OPENAI)
-  llmModel        String            @default("openai/gpt-4.1-mini")
+  llmModel        String            @default("z-ai/glm-5.3-flash")
 
   languages     AgentLanguage[]
   channels      AgentChannel[]

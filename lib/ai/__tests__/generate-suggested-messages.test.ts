@@ -20,7 +20,7 @@ describe("generateDynamicSuggestedMessages", () => {
     });
 
     const result = await generateDynamicSuggestedMessages({
-      llmModel: "anthropic/claude-haiku-4.5",
+      llmModel: "z-ai/glm-5.3-flash",
       recentMessages: [
         { role: "USER", content: "Hi" },
         { role: "BOT", content: "Hello! How can I help?" },
@@ -42,7 +42,7 @@ describe("generateDynamicSuggestedMessages", () => {
     });
 
     const result = await generateDynamicSuggestedMessages({
-      llmModel: "anthropic/claude-haiku-4.5",
+      llmModel: "z-ai/glm-5.3-flash",
       recentMessages: [],
       botContent: "Thanks for reaching out.",
     });
@@ -62,7 +62,7 @@ describe("generateDynamicSuggestedMessages", () => {
     });
 
     const result = await generateDynamicSuggestedMessages({
-      llmModel: "anthropic/claude-haiku-4.5",
+      llmModel: "z-ai/glm-5.3-flash",
       recentMessages: [],
       botContent: "Hello",
     });

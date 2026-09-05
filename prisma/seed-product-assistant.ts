@@ -114,7 +114,7 @@ const AGENT_FIELDS = {
   status: AgentStatus.ACTIVE,
   visibility: "PUBLIC" as const,
   defaultLanguage: SupportedLanguage.ENGLISH,
-  llmModel: "openai/gpt-4.1-mini",
+  llmModel: "z-ai/glm-5.3-flash",
   instructions: ASSISTANT_INSTRUCTIONS,
 };
 

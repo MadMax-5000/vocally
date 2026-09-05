@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Plan } from "@prisma/client";
 import { DashboardTabBar } from "@/components/dashboard/DashboardTabBar";
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AgentDetailAgentTab } from "./AgentDetailAgentTab";
@@ -34,6 +35,7 @@ const IDLE_PREMOUNT_TABS: AgentDetailTabId[] = [
 
 type AgentDetailTabsProps = {
   agent: AgentDetailWithRelations;
+  plan: Plan;
   activeTab: AgentDetailTabId;
   onTabChange: (tab: AgentDetailTabId) => void;
 };
@@ -50,17 +52,19 @@ function TabPlaceholder({ label }: { label: string }) {
 function TabPanelContent({
   tabId,
   agent,
+  plan,
   label,
 }: {
   tabId: AgentDetailTabId;
   agent: AgentDetailWithRelations;
+  plan: Plan;
   label: string;
 }) {
   const tTests = useTranslations("dashboard.agentDetail.tests");
 
   switch (tabId) {
     case "agent":
-      return <AgentDetailAgentTab agent={agent} />;
+      return <AgentDetailAgentTab agent={agent} plan={plan} />;
     case "knowledge":
       return <AgentDetailKnowledgeTab agentId={agent.id} />;
     case "actions":
@@ -90,6 +94,7 @@ function TabPanelContent({
 
 export function AgentDetailTabs({
   agent,
+  plan,
   activeTab,
   onTabChange,
 }: AgentDetailTabsProps) {
@@ -146,6 +151,7 @@ export function AgentDetailTabs({
               <TabPanelContent
                 tabId={id}
                 agent={agent}
+                plan={plan}
                 label={tabConfig.find((tab) => tab.id === id)?.label ?? ""}
               />
             </div>

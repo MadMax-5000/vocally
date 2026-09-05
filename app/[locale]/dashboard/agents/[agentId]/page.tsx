@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { AgentDetailShell } from "@/components/dashboard/agent-detail/AgentDetailShell";
+import { getViewerPlan } from "@/lib/billing/get-viewer-plan";
 import { loadDeployAgent } from "@/lib/dashboard/load-deploy-agent";
 
 export default async function AgentDetailPage({
@@ -10,7 +11,10 @@ export default async function AgentDetailPage({
   params: { agentId: string };
 }) {
   const t = await getTranslations("dashboard.agents");
-  const agent = await loadDeployAgent(params.agentId);
+  const [agent, plan] = await Promise.all([
+    loadDeployAgent(params.agentId),
+    getViewerPlan(),
+  ]);
 
   return (
     <div className="flex flex-col gap-0 py-0">
@@ -21,7 +25,7 @@ export default async function AgentDetailPage({
           </div>
         }
       >
-        <AgentDetailShell agent={agent} />
+        <AgentDetailShell agent={agent} plan={plan ?? "FREE"} />
       </Suspense>
     </div>
   );

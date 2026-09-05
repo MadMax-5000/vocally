@@ -4,7 +4,7 @@ import { CheckIcon, ChevronRight } from "@/lib/icons/app-icons"
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/routing";
-import { LlmProvider, SupportedLanguage, VoiceProvider } from "@prisma/client";
+import { LlmProvider, type Plan, SupportedLanguage, VoiceProvider } from "@prisma/client";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -23,7 +23,13 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 
-import { LLM_MODELS, groupModels, resolveLlmModelId } from "@/lib/ai/model-registry";
+import {
+  DEFAULT_LLM_MODEL,
+  groupModels,
+  llmIconSrc,
+  modelsForPlan,
+  resolveLlmModelForPlan,
+} from "@/lib/ai/model-registry";
 import { VOICE_PERSONAS, getVoicePersonaDetail } from "@/lib/voice/voice-catalog";
 import { VoicePickerDialog } from "./VoicePickerDialog";
 import {
@@ -37,6 +43,7 @@ import type { AgentDetailWithRelations } from "./agent-detail-types";
 
 type AgentDetailAgentTabProps = {
   agent: AgentDetailWithRelations;
+  plan: Plan;
 };
 
 function VoiceAvatar({ voiceId, size }: { voiceId: string; size: "row" | "list" }) {
@@ -90,20 +97,7 @@ function SelectRow({
   );
 }
 
-function llmIconSrc(provider: LlmProvider): string {
-  switch (provider) {
-    case LlmProvider.OPENAI:
-      return "/svg/openai-light.svg";
-    case LlmProvider.ANTHROPIC:
-      return "/svg/claude.svg";
-    case LlmProvider.GOOGLE:
-      return "/svg/gemini.svg";
-    default:
-      return "/svg/openai-light.svg";
-  }
-}
-
-export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
+export function AgentDetailAgentTab({ agent, plan }: AgentDetailAgentTabProps) {
   const t = useTranslations("dashboard.agentDetail.agent");
   const agents = useTranslations("dashboard.agents");
   const router = useRouter();
@@ -113,7 +107,8 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
   const [llmOpen, setLlmOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
 
-  const groupedModels = useMemo(() => groupModels(LLM_MODELS), []);
+  const allowedModels = useMemo(() => modelsForPlan(plan), [plan]);
+  const groupedModels = useMemo(() => groupModels(allowedModels), [allowedModels]);
 
   const [language, setLanguage] = useState<SupportedLanguage>(
     agent.defaultLanguage ?? SupportedLanguage.ENGLISH,
@@ -139,8 +134,13 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
 
   const [llmProvider, setLlmProvider] = useState<LlmProvider>(agent.llmProvider ?? LlmProvider.OPENAI);
   const [llmModel, setLlmModel] = useState<string>(
-    resolveLlmModelId(agent.llmModel ?? "openai/gpt-4.1-mini"),
+    resolveLlmModelForPlan(agent.llmModel ?? DEFAULT_LLM_MODEL, plan),
   );
+
+  useEffect(() => {
+    setLlmProvider(agent.llmProvider ?? LlmProvider.OPENAI);
+    setLlmModel(resolveLlmModelForPlan(agent.llmModel ?? DEFAULT_LLM_MODEL, plan));
+  }, [agent.id, agent.llmModel, agent.llmProvider, plan]);
 
   const [firstMessage, setFirstMessage] = useState<string>(agent.welcomeMessage ?? "");
   const [systemPrompt, setSystemPrompt] = useState<string>(agent.instructions ?? "");
@@ -296,7 +296,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
               <SelectRow
                 leftIcon={
                   <Image
-                    src={llmIconSrc(llmProvider)}
+                    src={llmIconSrc(llmModel)}
                     alt=""
                     width={16}
                     height={16}
@@ -304,7 +304,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                   />
                 }
                 title={
-                  LLM_MODELS.find((m) => m.provider === llmProvider && m.id === llmModel)?.label ?? llmModel
+                  allowedModels.find((m) => m.id === llmModel)?.label ?? llmModel
                 }
                 onClick={() => setLlmOpen(true)}
                 disabled={isSaving}
@@ -409,7 +409,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
             {Object.entries(groupedModels).map(([group, models]) => (
               <CommandGroup key={group} heading={group}>
                 {models.map((m) => {
-                  const active = m.provider === llmProvider && m.id === llmModel;
+                  const active = m.id === llmModel;
                   return (
                     <CommandItem
                       key={`${m.provider}:${m.id}`}
@@ -423,7 +423,7 @@ export function AgentDetailAgentTab({ agent }: AgentDetailAgentTabProps) {
                     >
                       <span className="mr-2 inline-flex h-4 w-4 items-center justify-center">
                         <Image
-                          src={llmIconSrc(m.provider)}
+                          src={llmIconSrc(m.id)}
                           alt=""
                           width={14}
                           height={14}

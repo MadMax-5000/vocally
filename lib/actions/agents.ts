@@ -51,7 +51,12 @@ import {
   MAX_FORM_TITLE,
   CUSTOM_FORM_FIELD_TYPES,
 } from "@/lib/deploy/custom-form-action";
-import { isKnownLlmModelId, resolveLlmModelId } from "@/lib/ai/model-registry";
+import {
+  isKnownLlmModelId,
+  isModelAllowedForPlan,
+  providerFromModelId,
+  resolveLlmModelId,
+} from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
 import { getOrgPrismaId } from "@/lib/server/organization";
@@ -2049,15 +2054,27 @@ export async function updateAgentLlmSettings(
     if (!dbOrgId) return { success: false as const, error: "Unauthorized" };
 
     const validated = updateAgentLlmSettingsSchema.parse(input);
-    const llmModel = resolveLlmModelId(validated.llmModel);
-    if (!isKnownLlmModelId(llmModel)) {
+    if (!isKnownLlmModelId(validated.llmModel)) {
       return { success: false as const, error: "Unknown LLM model" };
+    }
+    const llmModel = resolveLlmModelId(validated.llmModel);
+
+    const org = await prisma.organization.findUnique({
+      where: { id: dbOrgId },
+      select: { plan: true },
+    });
+    if (!org) return { success: false as const, error: "Organization not found" };
+    if (!isModelAllowedForPlan(llmModel, org.plan)) {
+      return {
+        success: false as const,
+        error: "This model is available on the Pro plan. Upgrade to use it.",
+      };
     }
 
     const updated = await prisma.agent.updateMany({
       where: { id: agentId, orgId: dbOrgId },
       data: {
-        llmProvider: validated.llmProvider,
+        llmProvider: providerFromModelId(llmModel),
         llmModel,
       },
     });

@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import type { Plan } from "@prisma/client";
+
 import type { AgentDetailTabId, AgentDetailWithRelations } from "./agent-detail-types";
 import { AGENT_DETAIL_TAB_IDS, AgentDetailTabs } from "./AgentDetailTabs";
 import { AgentDetailTopbar } from "./AgentDetailTopbar";
 
 type AgentDetailShellProps = {
   agent: AgentDetailWithRelations;
+  plan: Plan;
 };
 
 function isValidTab(value: string | null): value is AgentDetailTabId {
@@ -33,7 +36,7 @@ function replaceTabInUrl(tab: AgentDetailTabId) {
   window.history.replaceState(window.history.state, "", url);
 }
 
-export function AgentDetailShell({ agent }: AgentDetailShellProps) {
+export function AgentDetailShell({ agent, plan }: AgentDetailShellProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
 
@@ -63,6 +66,7 @@ export function AgentDetailShell({ agent }: AgentDetailShellProps) {
       />
       <AgentDetailTabs
         agent={agent}
+        plan={plan}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />

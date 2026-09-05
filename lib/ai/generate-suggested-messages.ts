@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { callLLM } from "@/lib/ai/llm";
+import { resolveLlmModelId } from "@/lib/ai/model-registry";
 
 const suggestionsResponseSchema = z.object({
   suggestions: z.array(z.string().max(80)).min(1).max(4),
@@ -79,7 +80,7 @@ Use the same language as the conversation. No markdown, no explanation.`;
 
   try {
     const result = await callLLM({
-      model: input.llmModel,
+      model: resolveLlmModelId(input.llmModel),
       system,
       messages: [{ role: "user", content: transcript }],
       maxTokens: 200,

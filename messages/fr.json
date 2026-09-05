@@ -45,11 +45,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Ne manquez plus jamais",
-      "titleLine2Prefix": "un",
-      "titleAccent": "client",
+      "titleLine1": "Réservez 100× plus",
+      "titleLine2Prefix": "",
+      "titleAccent": "de rendez-vous",
       "titleAfterAccent": ".",
-      "subtitle": "Un agent IA qui répond à vos clients, traite leurs demandes et prend des rendez-vous 24h/24 — sur WhatsApp, Instagram, votre site, l’email et le téléphone.",
+      "subtitle": "Un agent IA qui répond à chaque lead, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’email et le téléphone.",
       "startFreeTrial": "Démarrer l'essai gratuit",
       "getDemo": "Obtenir une démo"
     },

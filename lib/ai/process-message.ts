@@ -3,7 +3,7 @@ import { logServerWarning } from "@/lib/logger";
 import { callLLM, streamLLM } from "@/lib/ai/llm";
 import type { CallLLMOptions, CallLLMResult, LLMMessage } from "@/lib/ai/llm";
 import { retrieveKnowledgeContext } from "@/lib/ai/retrieve-knowledge-context";
-import { resolveLlmModelId } from "@/lib/ai/model-registry";
+import { resolveLlmModelForPlan } from "@/lib/ai/model-registry";
 import { isProductAssistantAgent } from "@/lib/ai/product-assistant-agent";
 import { chatBotSystemPromptV1 } from "@/lib/ai/prompts/chat-bot-v1";
 import { productAssistantSystemPrompt } from "@/lib/ai/prompts/product-assistant";
@@ -124,7 +124,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const agent = await prisma.agent.findUnique({
     where: { id: agentId },
     include: {
-      org: { select: { name: true } },
+      org: { select: { name: true, plan: true } },
       knowledgeDocs: { select: { knowledgeDocId: true } },
       channels: { select: { channel: true, enabled: true, config: true } },
     },
@@ -283,7 +283,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
     llmMessages.push({ role: "user", content: message });
   }
 
-  const llmModel = resolveLlmModelId(agent.llmModel);
+  const llmModel = resolveLlmModelForPlan(agent.llmModel, agent.org.plan);
   const temperature = TEMPERATURE_MAP[agent.creativity] ?? 0.7;
 
   let botContent: string;

@@ -144,7 +144,7 @@ describe("SMS Service", () => {
       org: { name: "Test Org" },
       instructions: null,
       creativity: "BALANCED",
-      llmModel: "openai/gpt-4.1-mini",
+      llmModel: "z-ai/glm-5.3-flash",
       knowledgeDocs: [],
     } as any);
     vi.mocked(processMessage).mockResolvedValue({

@@ -45,11 +45,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Never miss",
-      "titleLine2Prefix": "a",
-      "titleAccent": "customer",
-      "titleAfterAccent": " again.",
-      "subtitle": "An AI agent that answers your customers, handles their requests, and books appointments 24/7 — across WhatsApp, Instagram, your website, email, and phone.",
+      "titleLine1": "Book 100× more",
+      "titleLine2Prefix": "",
+      "titleAccent": "appointments",
+      "titleAfterAccent": ".",
+      "subtitle": "An AI agent that answers every lead, books the meeting, and never sleeps — across WhatsApp, Instagram, your website, email, and phone.",
       "startFreeTrial": "Start free trial",
       "getDemo": "Get a demo"
     },
