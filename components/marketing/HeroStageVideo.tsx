@@ -1,30 +1,43 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const VIDEO_SRC = "/videos/hero-data-sources.mp4";
+const POSTER_SRC = "/images/hero-data-sources-poster.webp";
 
 export function HeroStageVideo() {
-  const shouldReduceMotion = useReducedMotion();
+  const hostRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [src, setSrc] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const host = hostRef.current;
+    if (!host || reduceMotion) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setSrc(VIDEO_SRC);
+        io.disconnect();
+      },
+      { rootMargin: "20% 0px" }
+    );
+    io.observe(host);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
-
-    if (shouldReduceMotion) {
-      video.pause();
-      return;
-    }
-
+    if (!video || !src) return;
     void video.play().catch(() => {
       // Autoplay may be blocked; ignore — muted + playsInline usually works.
     });
-  }, [shouldReduceMotion]);
+  }, [src]);
 
   return (
     <div
+      ref={hostRef}
       className="relative aspect-square w-full overflow-hidden rounded-xxl"
       style={{ backgroundColor: "#1e3a8a" }}
     >
@@ -43,12 +56,12 @@ export function HeroStageVideo() {
       <video
         ref={videoRef}
         className="absolute inset-0 z-0 h-full w-full object-cover"
-        src={VIDEO_SRC}
+        src={src}
+        poster={POSTER_SRC}
         muted
         loop
         playsInline
-        autoPlay={!shouldReduceMotion}
-        preload="metadata"
+        preload="none"
         aria-label="Product preview: data sources"
       />
     </div>

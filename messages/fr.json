@@ -32,6 +32,7 @@
   },
   "common": {
     "getStarted": "Commencer",
+    "bookDemo": "Réserver une démo",
     "signIn": "Se connecter",
     "dashboard": "Tableau de bord",
     "contactUs": "Contactez-nous.",
@@ -51,7 +52,7 @@
       "titleAfterAccent": ".",
       "subtitle": "Un agent IA qui répond à chaque lead, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’email et le téléphone.",
       "startFreeTrial": "Démarrer l'essai gratuit",
-      "getDemo": "Obtenir une démo"
+      "getDemo": "Réserver une démo"
     },
     "rotatingWords": {
       "bakery": "épicerie",

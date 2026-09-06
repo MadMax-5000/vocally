@@ -1,15 +1,23 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { BookDemoLink } from "@/components/marketing/BookDemoLink";
 import { Link } from "@/i18n/routing";
 import { DiamondOverlay, EASE_OUT, RAIL_COLOR } from "@/components/marketing/agent-lifecycle/visuals/shared";
 
-import { ChatVisual } from "./visuals/ChatVisual";
-import { EmailVisual } from "./visuals/EmailVisual";
-import { VoiceVisual } from "./visuals/VoiceVisual";
+const ChatVisual = dynamic(() =>
+  import("./visuals/ChatVisual").then((mod) => mod.ChatVisual)
+);
+const EmailVisual = dynamic(() =>
+  import("./visuals/EmailVisual").then((mod) => mod.EmailVisual)
+);
+const VoiceVisual = dynamic(() =>
+  import("./visuals/VoiceVisual").then((mod) => mod.VoiceVisual)
+);
 
 export type ChannelStepKey = "chat" | "email" | "voice";
 
@@ -31,15 +39,15 @@ const ACCORDION = {
 type Props = {
   title: string;
   cta: string;
+  createAgentCta: string;
   steps: ChannelStep[];
 };
 
-export function DeployChannelsClient({ title, cta, steps }: Props) {
+export function DeployChannelsClient({ title, cta, createAgentCta, steps }: Props) {
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
-  const inViewRef = useRef(false);
 
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
@@ -50,10 +58,6 @@ export function DeployChannelsClient({ title, cta, steps }: Props) {
       barRef.current.style.transform = `scaleY(${value})`;
     }
   }, []);
-
-  useEffect(() => {
-    inViewRef.current = inView;
-  }, [inView]);
 
   useLayoutEffect(() => {
     setBar(0);
@@ -73,28 +77,26 @@ export function DeployChannelsClient({ title, cta, steps }: Props) {
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !inView) return;
     let raf = 0;
     let last = performance.now();
 
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      if (inViewRef.current) {
-        const next = Math.min(1, progressRef.current + dt / STEP_MS);
-        if (next >= 1) {
-          setBar(0);
-          setActive((i) => (i + 1) % steps.length);
-        } else {
-          setBar(next);
-        }
+      const next = Math.min(1, progressRef.current + dt / STEP_MS);
+      if (next >= 1) {
+        setBar(0);
+        setActive((i) => (i + 1) % steps.length);
+      } else {
+        setBar(next);
       }
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [reduceMotion, setBar, steps.length]);
+  }, [inView, reduceMotion, setBar, steps.length]);
 
   const selectStep = (index: number) => {
     if (index === active) return;
@@ -126,7 +128,7 @@ export function DeployChannelsClient({ title, cta, steps }: Props) {
                 fill
                 className="object-cover"
                 sizes="(min-width: 1024px) 560px, 100vw"
-                priority={current.id === "chat"}
+                loading={current.id === "chat" ? "eager" : "lazy"}
               />
               <DiamondOverlay />
               <div
@@ -208,9 +210,12 @@ export function DeployChannelsClient({ title, cta, steps }: Props) {
             })}
           </ol>
 
-          <div className="mt-8">
-            <Link className="btn-primary" href="/sign-up">
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <BookDemoLink className="btn-primary w-full justify-center sm:w-auto">
               {cta}
+            </BookDemoLink>
+            <Link className="btn-outline w-full justify-center sm:w-auto" href="/sign-up">
+              {createAgentCta}
             </Link>
           </div>
         </div>

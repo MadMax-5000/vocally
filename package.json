@@ -17,7 +17,8 @@
     "prisma:db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "build:wordpress-plugin": "node scripts/build-wordpress-plugin.mjs",
-    "verify:llm-models": "tsx scripts/verify-llm-models.ts"
+    "verify:llm-models": "tsx scripts/verify-llm-models.ts",
+    "spike:assemblyai-sip": "tsx scripts/spike-assemblyai-sip.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

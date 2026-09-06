@@ -10,11 +10,14 @@ import {
 } from "@/lib/twilio/provision-number";
 import {
   provisionNumber,
+  provisionByocCarrierNumber,
   releaseNumber as pbxmeReleaseNumber,
   countOrgPhoneNumbers as pbxmeCountNumbers,
 } from "@/lib/telephony/provision";
+import { formatPbxmeNetworkError } from "@/lib/pbxme/client";
 import { MAX_PHONE_NUMBERS } from "@/lib/billing/plan-features";
 import { isMoroccanE164, normalizeE164 } from "@/lib/telephony/e164";
+import { ASSEMBLYAI_SIP_URI } from "@/lib/assemblyai/sip";
 
 const moroccanE164Schema = z
   .string()
@@ -31,10 +34,14 @@ export type PhoneConnectionSettings = {
     customerNumber: string | null;
     isActive: boolean;
     forwardingVerifiedAt: Date | null;
+    /** ussd = dial *21* to platform DID; sip = SIP BYOP to AssemblyAI. */
+    connectionMode: "ussd" | "sip" | "direct";
     createdAt: Date;
   }>;
   maxNumbers: number;
   currentCount: number;
+  /** SIP URI for BYOP trunk configuration. */
+  assemblyAiSipUri: string;
 };
 
 export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSettings> {
@@ -42,7 +49,17 @@ export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSet
     numbers: [],
     maxNumbers: MAX_PHONE_NUMBERS.FREE,
     currentCount: 0,
+    assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
   };
+}
+
+function resolveConnectionMode(
+  number: string,
+  customerNumber: string | null,
+): "ussd" | "sip" | "direct" {
+  if (!customerNumber) return "direct";
+  if (customerNumber === number) return "sip";
+  return "ussd";
 }
 
 export async function getPhoneConnectionSettings(
@@ -80,10 +97,12 @@ export async function getPhoneConnectionSettings(
           customerNumber: n.customerNumber,
           isActive: n.isActive,
           forwardingVerifiedAt: n.forwardingVerifiedAt,
+          connectionMode: resolveConnectionMode(n.twilioNumber, n.customerNumber),
           createdAt: n.createdAt,
         })),
         maxNumbers,
         currentCount: numbers.filter((n) => n.isActive).length,
+        assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
       },
     };
   } catch (error: unknown) {
@@ -266,7 +285,95 @@ export async function importCarrierNumber(
   }
 }
 
-// ── Moroccan Number Auto-Provisioning (DIDWW) ─────────────────────────────
+/**
+ * BYOC primary path: connect an existing Moroccan +212 business number.
+ * EN/FR → AssemblyAI SIP BYOP (default). Optional USSD if PHONE_BYOC_TRY_PBXME=1 buys a DID.
+ * Arabic → Vapi + platform DID when PBXme inventory exists.
+ */
+export async function connectCarrierByoc(
+  agentId: string,
+  carrierNumber: string,
+): Promise<
+  | {
+      success: true;
+      data: {
+        phoneNumber: string;
+        carrierNumber: string;
+        mode: "ussd" | "sip";
+        sipUri: string;
+      };
+    }
+  | { success: false; error: string }
+> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const parsed = moroccanE164Schema.safeParse(carrierNumber);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message ?? "Invalid Moroccan phone number",
+      };
+    }
+    const carrierE164 = parsed.data;
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false, error: "Agent not found" };
+
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { plan: true },
+    });
+    const plan = org?.plan ?? "FREE";
+    const maxNumbers = MAX_PHONE_NUMBERS[plan];
+
+    const currentCount = await pbxmeCountNumbers(orgId);
+    if (currentCount >= maxNumbers) {
+      return {
+        success: false,
+        error: `You've reached the maximum number of phone numbers for your ${plan} plan. Upgrade to add more.`,
+      };
+    }
+
+    const existingCarrier = await prisma.twilioPhoneNumber.findFirst({
+      where: {
+        OR: [{ customerNumber: carrierE164 }, { twilioNumber: carrierE164 }],
+        isActive: true,
+      },
+      select: { orgId: true },
+    });
+    if (existingCarrier) {
+      return {
+        success: false,
+        error:
+          existingCarrier.orgId === orgId
+            ? "This business number is already connected to an agent in your organization."
+            : "This business number is already connected to another organization.",
+      };
+    }
+
+    const result = await provisionByocCarrierNumber(orgId, agentId, carrierE164);
+
+    return {
+      success: true,
+      data: {
+        phoneNumber: result.phoneNumber,
+        carrierNumber: result.carrierNumber,
+        mode: result.mode,
+        sipUri: result.sipUri,
+      },
+    };
+  } catch (error: unknown) {
+    const formatted = formatPbxmeNetworkError(error, "Failed to connect Moroccan number");
+    return { success: false, error: formatted.message };
+  }
+}
+
+// ── Moroccan Number Auto-Provisioning (optional / legacy) ─────────────────
 
 export type MoroccanProvisionResult = {
   phoneNumber: string;
@@ -318,8 +425,8 @@ export async function getMoroccanNumber(
       data: { phoneNumber: result.phoneNumber },
     };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to provision Moroccan number";
-    return { success: false, error: message };
+    const formatted = formatPbxmeNetworkError(error, "Failed to provision Moroccan number");
+    return { success: false, error: formatted.message };
   }
 }
 

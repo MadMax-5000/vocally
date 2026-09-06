@@ -1,5 +1,6 @@
 "use server";
 
+import { maybeSyncAssemblyAiAgent } from "@/lib/assemblyai/sync-agent";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
@@ -108,6 +109,7 @@ export async function updatePhoneSettings(
       },
     });
 
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to save phone settings";

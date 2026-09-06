@@ -4,6 +4,8 @@ import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
+import { BookDemoLink } from "@/components/marketing/BookDemoLink";
+
 export function HeaderAuth() {
   const { isLoaded } = useAuth();
   const t = useTranslations("common");
@@ -22,9 +24,7 @@ export function HeaderAuth() {
         <Link href="/sign-in" className="btn-outline">
           {t("signIn")}
         </Link>
-        <Link href="/sign-up" className="btn-primary">
-          {t("getStarted")}
-        </Link>
+        <BookDemoLink className="btn-primary">{t("bookDemo")}</BookDemoLink>
       </SignedOut>
       <SignedIn>
         <Link href="/dashboard" className="btn-outline">

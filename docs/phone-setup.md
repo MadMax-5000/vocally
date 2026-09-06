@@ -1,81 +1,76 @@
 # Phone channel setup (Morocco)
 
-Inbound voice uses **PBXme** + **Vapi BYO SIP**. The platform automatically provisions Moroccan +212 numbers from PBXme and connects them to your AI agent.
+Inbound voice is **BYOC / BYOP**: the business keeps its IAM / Orange / Inwi (or VoIP integrator) number. Anselio does **not** resell Moroccan DIDs — local integrators confirm wholesale DID sales are not permitted; only technical BYOC/BYOP is.
 
-**Zero friction:** Users click "Get a Number" — the backend handles everything.
+Conversation engine by language:
 
-## How it works
+- **English / French** — AssemblyAI Voice Agent API (`sip:sip.assemblyai.com`)
+- **Arabic / Darija / mixed-with-Arabic** — Vapi cascaded path (needs a platform forward DID when inventory exists)
 
-1. Platform buys a Moroccan DID from PBXme (~$3/month)
-2. PBXme forwards calls to Vapi BYO SIP endpoint
-3. Vapi handles AI voice (STT → LLM → TTS)
-4. User gets a working Moroccan number instantly
+## How it works (primary)
+
+1. User opens Dashboard → Agent → Deploy → Phone
+2. Enters their existing Moroccan number (`+212…` or `06…`)
+3. Anselio registers the number with AssemblyAI (EN/FR) and shows SIP routing instructions
+4. Customer (or VoIPSense / carrier) routes inbound SIP for that DID to `sip:sip.assemblyai.com`
+5. Callers dial the business number → AI answers
+
+Optional USSD path: if `PHONE_BYOC_TRY_PBXME=1` and PBXme has inventory, Anselio can buy a silent forward DID and show `*21*{nationalDID}#` instead.
 
 ## Setup
 
-### 1. Create a PBXme account
-
-1. Go to https://newsip.pbxme.com/signup/
-2. Create an account (free $5 credit)
-3. Note your username and password
-
-### 2. Set environment variables
+### 1. Environment
 
 ```bash
-# PBXme credentials
-PBXME_USERNAME=your_username
-PBXME_PASSWORD=your_password
-
-# Vapi (required)
-VAPI_API_KEY=your_vapi_key
+# Public URL (HTTP tools + webhooks)
 NEXT_PUBLIC_APP_URL=https://your-public-domain
+
+# AssemblyAI (EN/FR phone pipeline) — required for BYOC
+ASSEMBLYAI_API_KEY=your_assemblyai_key
+ASSEMBLYAI_WEBHOOK_SECRET=at-least-32-characters-long-secret
+
+# Optional: attempt platform DID buy for USSD forwarding
+# PHONE_BYOC_TRY_PBXME=1
+# PBXME_USERNAME=
+# PBXME_PASSWORD=
+# PBXME_X_AUTH_TOKEN=
+
+# Vapi (required for Arabic/Darija)
+VAPI_API_KEY=your_vapi_key
 ```
 
-### 3. Push database schema
+### 2. Schema
 
 ```bash
 npx prisma db push
 npx prisma generate
 ```
 
-### 4. Test the integration
+### 3. Test
 
-1. Go to Dashboard → Agent → Deploy → Phone
-2. Click "Get a Moroccan Number"
-3. The system will:
-   - Search available Moroccan numbers on PBXme
-   - Purchase the first available one
-   - Create Vapi BYO SIP credential
-   - Forward the PBXme DID to Vapi
-   - Save to database
-4. The number appears as active (activation takes 2-5 business days)
+1. Deploy → Phone → enable channel
+2. Enter a Moroccan business number → **Connect number**
+3. Configure SIP BYOP with your carrier/integrator to `sip:sip.assemblyai.com`
+4. Place a test call to the business number
 
-## Manual SIP import
+Optional SIP spike:
 
-Users can also import their own SIP numbers:
+```bash
+npx tsx --env-file=.env.local scripts/spike-assemblyai-sip.ts +2125...
+```
 
-1. Enter the DID number, SIP server, username, and password
-2. Our code creates a BYO SIP credential in Vapi and imports the number
-3. Optionally enter carrier number for USSD forwarding
+## Carrier forwarding (USSD) — only when a forward DID exists
 
-## Carrier forwarding (for BYO numbers)
+When a platform forward DID is provisioned:
 
-Businesses keep their carrier number (`+212…`) and forward calls to the AI DID via USSD (`*21*{nationalDID}#`).
+- **Mobile:** dial `*21*{nationalDID}#` from the business SIM (cancel with `#21#`)
+- **Landline:** set unconditional forwarding in the carrier account/app
 
-**Mobile:** dial the USSD code from the business SIM.
-**Landline:** USSD often does not apply — set unconditional call forwarding in carrier account/app.
+## Supported approaches
 
-## Pricing
-
-- **PBXme numbers:** ~$3/month (local landlines, no KYC)
-- **Toll-free:** ~$11/month
-- **Mobile:** Requires KYC (ID + company registration)
-
-## Supported providers
-
-| Provider | Moroccan DIDs | Price | Notes |
-|---|---|---|---|
-| **PBXme** (recommended) | ✅ | ~$3/mo | Self-serve, no KYC for landlines |
-| **VoIPSense** | ✅ | Contact sales | Moroccan local provider |
-| **AVOXI** | ✅ | Contact sales | Online purchase |
-| Any SIP provider | — | — | Enter SIP credentials manually |
+| Approach | Status | Notes |
+|---|---|---|
+| **BYOC / BYOP (recommended)** | ✅ | Keep carrier number; SIP to AssemblyAI |
+| **USSD to platform DID** | Optional | Needs wholesale DID inventory |
+| **KataTelecom / CommPeak** | Sales | Possible source for *your* ops DID pool — not customer self-serve |
+| **VoIPSense** | BYOC only | Confirmed: DID resale not allowed in Morocco |

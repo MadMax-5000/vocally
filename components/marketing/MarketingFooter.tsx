@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
+import { BookDemoLink } from "@/components/marketing/BookDemoLink";
 import { Link } from "@/i18n/routing";
 import { BRAND_LEGAL_NAME, BRAND_NAME } from "@/lib/constants/brand";
 
@@ -49,17 +50,16 @@ export async function MarketingFooter() {
               {t("headline")}
             </h2>
             <div className="mt-8 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-              <Link
-                href="/dashboard/agents/new"
+              <BookDemoLink
                 className={`btn-primary w-full justify-center sm:w-auto ${focusRing}`}
               >
-                {t("createAgent")}
-              </Link>
+                {tHero("getDemo")}
+              </BookDemoLink>
               <Link
-                href="/contact/sales"
+                href="/sign-up"
                 className={`inline-flex h-8 w-full items-center justify-center rounded-md border border-white/35 bg-transparent px-3 py-1 text-button text-white transition-colors hover:bg-white/10 sm:w-auto ${focusRing}`}
               >
-                {tHero("getDemo")}
+                {t("createAgent")}
               </Link>
             </div>
           </div>

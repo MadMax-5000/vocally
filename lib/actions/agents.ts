@@ -59,6 +59,7 @@ import {
 } from "@/lib/ai/model-registry";
 import { prisma } from "@/lib/db/prisma";
 import { VOICE_PERSONAS } from "@/lib/voice/voice-catalog";
+import { maybeSyncAssemblyAiAgent } from "@/lib/assemblyai/sync-agent";
 import { getOrgPrismaId } from "@/lib/server/organization";
 import { MAX_AGENTS } from "@/lib/billing/plan-features";
 import {
@@ -2141,6 +2142,7 @@ export async function updateAgentLanguageSettings(
     });
 
     revalidatePath(`/dashboard/agents/${agentId}`);
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true as const };
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -2245,6 +2247,7 @@ export async function updateAgentPromptSettings(
     }
 
     revalidatePath(`/dashboard/agents/${agentId}`);
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true as const };
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -2347,6 +2350,7 @@ export async function updateAgentAdvancedSettings(
 
     revalidatePath("/dashboard/agents");
     revalidatePath(`/dashboard/agents/${agentId}`);
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true as const };
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -2643,6 +2647,7 @@ export async function attachKnowledgeDocToAgent(
     });
 
     revalidatePath(`/dashboard/agents/${agentId}`);
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true as const };
   } catch (err) {
     return { success: false as const, error: "Failed to attach document" };
@@ -2668,6 +2673,7 @@ export async function detachKnowledgeDocFromAgent(
     });
 
     revalidatePath(`/dashboard/agents/${agentId}`);
+    await maybeSyncAssemblyAiAgent(agentId);
     return { success: true as const };
   } catch (err) {
     return { success: false as const, error: "Failed to detach document" };

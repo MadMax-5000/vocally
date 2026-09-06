@@ -97,6 +97,9 @@ model Agent {
   llmProvider     LlmProvider       @default(OPENAI)
   llmModel        String            @default("z-ai/glm-5.3-flash")
 
+  /// Stored AssemblyAI Voice Agent id (EN/FR phone pipeline)
+  assemblyaiAgentId String? @unique
+
   languages     AgentLanguage[]
   channels      AgentChannel[]
   knowledgeDocs AgentKnowledgeDoc[]
@@ -494,6 +497,8 @@ model CallLog {
   session       Session      @relation(fields: [sessionId], references: [id])
   twilioCallSid String?
   vapiCallId    String?      @unique
+  assemblyaiSessionId String? @unique
+  assemblyaiCallId    String? @unique
   duration      Int?
   recordingUrl  String?
   transcript    String?
@@ -665,6 +670,9 @@ model TwilioPhoneNumber {
   sipCredentialId String?
   sipCredential   SipCredential? @relation(fields: [sipCredentialId], references: [id], onDelete: SetNull)
   vapiPhoneNumberId String?  /// Vapi phone number resource ID (for call routing)
+
+  /// True when this DID is SIP-forwarded to AssemblyAI (EN/FR pipeline)
+  assemblyaiBound Boolean @default(false)
 
   // DIDWW managed number fields
   didwwNumberId String?  /// DIDWW DID resource ID (for managed numbers)

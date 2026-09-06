@@ -20,6 +20,22 @@ const PHONE_DEPLOY_VARS: { key: string; label: string }[] = [
   { key: "PBXME_PASSWORD", label: "PBXme password" },
 ];
 
+/** Required to provision EN/FR numbers onto AssemblyAI Voice Agent SIP (buy DID path). */
+const ASSEMBLYAI_PHONE_VARS: { key: string; label: string }[] = [
+  { key: "ASSEMBLYAI_API_KEY", label: "AssemblyAI API key (EN/FR voice pipeline)" },
+  { key: "ASSEMBLYAI_WEBHOOK_SECRET", label: "AssemblyAI webhook/tool signing secret (32+ chars)" },
+  { key: "NEXT_PUBLIC_APP_URL", label: "Public app URL (AssemblyAI HTTP tools)" },
+  { key: "PBXME_USERNAME", label: "PBXme username (Moroccan number provisioning)" },
+  { key: "PBXME_PASSWORD", label: "PBXme password" },
+];
+
+/** BYOC (connect existing +212) — no wholesale DID purchase required. */
+const ASSEMBLYAI_BYOC_VARS: { key: string; label: string }[] = [
+  { key: "ASSEMBLYAI_API_KEY", label: "AssemblyAI API key (EN/FR voice pipeline)" },
+  { key: "ASSEMBLYAI_WEBHOOK_SECRET", label: "AssemblyAI webhook/tool signing secret (32+ chars)" },
+  { key: "NEXT_PUBLIC_APP_URL", label: "Public app URL (AssemblyAI HTTP tools)" },
+];
+
 let _validated = false;
 
 export function validateEnv(): void {
@@ -89,5 +105,53 @@ export function assertPhoneDeployEnv(): void {
   const details = missing.map((m) => `  • ${m.key} — ${m.label}`).join("\n");
   throw new Error(
     `Phone deploy is not configured:\n${details}\n\nSee docs/phone-setup.md.`,
+  );
+}
+
+function assertAssemblyAiSecretAndAppUrl(context: string): void {
+  const secret = process.env.ASSEMBLYAI_WEBHOOK_SECRET?.trim() ?? "";
+  if (secret.length > 0 && secret.length < 32) {
+    throw new Error(
+      `${context}:\n  • ASSEMBLYAI_WEBHOOK_SECRET must be at least 32 characters\n\nSee docs/phone-setup.md.`,
+    );
+  }
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (appUrl && isLocalhostUrl(appUrl) && process.env.VERCEL_ENV === "production") {
+    throw new Error(
+      `${context}:\n  • NEXT_PUBLIC_APP_URL must be https://anselio.com in production (not localhost)\n\nSee docs/phone-setup.md.`,
+    );
+  }
+}
+
+/**
+ * Throws if AssemblyAI EN/FR phone deploy env is incomplete (includes PBXme for DID buy).
+ */
+export function assertAssemblyAiPhoneEnv(): void {
+  const missing = ASSEMBLYAI_PHONE_VARS.filter((v) => !process.env[v.key]?.trim());
+  if (missing.length === 0) {
+    assertAssemblyAiSecretAndAppUrl("AssemblyAI phone deploy is not configured");
+    return;
+  }
+
+  const details = missing.map((m) => `  • ${m.key} — ${m.label}`).join("\n");
+  throw new Error(
+    `AssemblyAI phone deploy is not configured:\n${details}\n\nSee docs/phone-setup.md.`,
+  );
+}
+
+/**
+ * Throws if AssemblyAI BYOC (connect existing +212) env is incomplete.
+ * Does not require PBXme — Moroccan law allows BYOC/BYOP, not wholesale DID resale.
+ */
+export function assertAssemblyAiByocEnv(): void {
+  const missing = ASSEMBLYAI_BYOC_VARS.filter((v) => !process.env[v.key]?.trim());
+  if (missing.length === 0) {
+    assertAssemblyAiSecretAndAppUrl("AssemblyAI BYOC phone is not configured");
+    return;
+  }
+
+  const details = missing.map((m) => `  • ${m.key} — ${m.label}`).join("\n");
+  throw new Error(
+    `AssemblyAI BYOC phone is not configured:\n${details}\n\nSee docs/phone-setup.md.`,
   );
 }

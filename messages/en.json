@@ -32,6 +32,7 @@
   },
   "common": {
     "getStarted": "Get started",
+    "bookDemo": "Book a demo",
     "signIn": "Sign in",
     "dashboard": "Dashboard",
     "contactUs": "Contact us.",
@@ -51,7 +52,7 @@
       "titleAfterAccent": ".",
       "subtitle": "An AI agent that answers every lead, books the meeting, and never sleeps — across WhatsApp, Instagram, your website, email, and phone.",
       "startFreeTrial": "Start free trial",
-      "getDemo": "Get a demo"
+      "getDemo": "Book a demo"
     },
     "rotatingWords": {
       "bakery": "bakery",

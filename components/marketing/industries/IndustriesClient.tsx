@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -40,7 +41,6 @@ export function IndustriesClient({
   const sectionRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
-  const inViewRef = useRef(false);
 
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
@@ -52,10 +52,6 @@ export function IndustriesClient({
       barRef.current.style.transform = `scaleX(${value})`;
     }
   }, []);
-
-  useEffect(() => {
-    inViewRef.current = inView;
-  }, [inView]);
 
   useLayoutEffect(() => {
     setBar(0);
@@ -75,28 +71,26 @@ export function IndustriesClient({
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !inView) return;
     let raf = 0;
     let last = performance.now();
 
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      if (inViewRef.current) {
-        const next = Math.min(1, progressRef.current + dt / STEP_MS);
-        if (next >= 1) {
-          setBar(0);
-          setActive((i) => (i + 1) % count);
-        } else {
-          setBar(next);
-        }
+      const next = Math.min(1, progressRef.current + dt / STEP_MS);
+      if (next >= 1) {
+        setBar(0);
+        setActive((i) => (i + 1) % count);
+      } else {
+        setBar(next);
       }
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [count, reduceMotion, setBar]);
+  }, [count, inView, reduceMotion, setBar]);
 
   const select = useCallback(
     (index: number) => {
@@ -235,18 +229,17 @@ function IndustryCard({
         } as CSSProperties
       }
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={image}
-        alt=""
-        className={cn(
-          "absolute inset-0 h-full w-full object-cover",
-          isActive ? "grayscale-0" : "grayscale"
-        )}
-        style={{
-          transition: `filter ${duration}s cubic-bezier(${EASE_OUT.join(",")})`,
-        }}
-      />
+      {isActive ? (
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="(min-width: 768px) 55vw, 100vw"
+          className="object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-ink" />
+      )}
 
       <div
         className="absolute inset-0"
@@ -257,10 +250,10 @@ function IndustryCard({
         }}
       />
 
-      <div className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-[0.42]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={GRAIN_IMAGE} alt="" className="h-full w-full object-cover" />
-      </div>
+      <div
+        className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-[0.42]"
+        style={{ backgroundImage: `url(${GRAIN_IMAGE})`, backgroundSize: "cover" }}
+      />
 
       {isActive ? (
         <IndustryChat

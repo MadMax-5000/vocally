@@ -1,16 +1,27 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import { BookDemoLink } from "@/components/marketing/BookDemoLink";
 import { Link } from "@/i18n/routing";
 
-import { BuildVisual } from "./visuals/BuildVisual";
-import { DeployVisual } from "./visuals/DeployVisual";
-import { OptimizeVisual } from "./visuals/OptimizeVisual";
-import { TestVisual } from "./visuals/TestVisual";
 import { DiamondOverlay, EASE_OUT, RAIL_COLOR } from "./visuals/shared";
+
+const BuildVisual = dynamic(() =>
+  import("./visuals/BuildVisual").then((mod) => mod.BuildVisual)
+);
+const TestVisual = dynamic(() =>
+  import("./visuals/TestVisual").then((mod) => mod.TestVisual)
+);
+const DeployVisual = dynamic(() =>
+  import("./visuals/DeployVisual").then((mod) => mod.DeployVisual)
+);
+const OptimizeVisual = dynamic(() =>
+  import("./visuals/OptimizeVisual").then((mod) => mod.OptimizeVisual)
+);
 
 export type LifecycleStepKey = "build" | "test" | "deploy" | "optimize";
 
@@ -32,15 +43,15 @@ const ACCORDION = {
 type Props = {
   title: string;
   cta: string;
+  createAgentCta: string;
   steps: LifecycleStep[];
 };
 
-export function AgentLifecycleClient({ title, cta, steps }: Props) {
+export function AgentLifecycleClient({ title, cta, createAgentCta, steps }: Props) {
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const progressRef = useRef(0);
-  const inViewRef = useRef(false);
 
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
@@ -51,10 +62,6 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
       barRef.current.style.transform = `scaleY(${value})`;
     }
   }, []);
-
-  useEffect(() => {
-    inViewRef.current = inView;
-  }, [inView]);
 
   useLayoutEffect(() => {
     setBar(0);
@@ -74,28 +81,26 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
   }, []);
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !inView) return;
     let raf = 0;
     let last = performance.now();
 
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      if (inViewRef.current) {
-        const next = Math.min(1, progressRef.current + dt / STEP_MS);
-        if (next >= 1) {
-          setBar(0);
-          setActive((i) => (i + 1) % steps.length);
-        } else {
-          setBar(next);
-        }
+      const next = Math.min(1, progressRef.current + dt / STEP_MS);
+      if (next >= 1) {
+        setBar(0);
+        setActive((i) => (i + 1) % steps.length);
+      } else {
+        setBar(next);
       }
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [reduceMotion, setBar, steps.length]);
+  }, [inView, reduceMotion, setBar, steps.length]);
 
   const selectStep = (index: number) => {
     if (index === active) return;
@@ -176,9 +181,12 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
             })}
           </ol>
 
-          <div className="mt-8">
-            <Link className="btn-primary" href="/sign-up">
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <BookDemoLink className="btn-primary w-full justify-center sm:w-auto">
               {cta}
+            </BookDemoLink>
+            <Link className="btn-outline w-full justify-center sm:w-auto" href="/sign-up">
+              {createAgentCta}
             </Link>
           </div>
         </div>
@@ -199,7 +207,7 @@ export function AgentLifecycleClient({ title, cta, steps }: Props) {
                 fill
                 className="object-cover"
                 sizes="(min-width: 1024px) 560px, 100vw"
-                priority={current.id === "build"}
+                loading={current.id === "build" ? "eager" : "lazy"}
               />
               <DiamondOverlay />
               <div

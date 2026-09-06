@@ -29,8 +29,18 @@ export async function findOrCreateSession(params: {
   callSid: string;
   /** When set (Vapi path), stored on CallLog.vapiCallId and used for end-of-call lookup. */
   vapiCallId?: string | null;
+  assemblyaiSessionId?: string | null;
+  assemblyaiCallId?: string | null;
 }): Promise<{ sessionId: string; isNew: boolean }> {
-  const { orgId, agentId, callerNumber, callSid, vapiCallId } = params;
+  const {
+    orgId,
+    agentId,
+    callerNumber,
+    callSid,
+    vapiCallId,
+    assemblyaiSessionId,
+    assemblyaiCallId,
+  } = params;
 
   if (vapiCallId) {
     const byVapi = await prisma.callLog.findUnique({
@@ -39,6 +49,26 @@ export async function findOrCreateSession(params: {
     });
     if (byVapi) {
       return { sessionId: byVapi.sessionId, isNew: false };
+    }
+  }
+
+  if (assemblyaiSessionId) {
+    const byAai = await prisma.callLog.findUnique({
+      where: { assemblyaiSessionId },
+      select: { sessionId: true },
+    });
+    if (byAai) {
+      return { sessionId: byAai.sessionId, isNew: false };
+    }
+  }
+
+  if (assemblyaiCallId) {
+    const byCall = await prisma.callLog.findUnique({
+      where: { assemblyaiCallId },
+      select: { sessionId: true },
+    });
+    if (byCall) {
+      return { sessionId: byCall.sessionId, isNew: false };
     }
   }
 
@@ -51,6 +81,18 @@ export async function findOrCreateSession(params: {
       await prisma.callLog.update({
         where: { sessionId: existingCallLog.sessionId },
         data: { vapiCallId },
+      });
+    }
+    if (
+      (assemblyaiSessionId && !existingCallLog.assemblyaiSessionId) ||
+      (assemblyaiCallId && !existingCallLog.assemblyaiCallId)
+    ) {
+      await prisma.callLog.update({
+        where: { sessionId: existingCallLog.sessionId },
+        data: {
+          ...(assemblyaiSessionId ? { assemblyaiSessionId } : {}),
+          ...(assemblyaiCallId ? { assemblyaiCallId } : {}),
+        },
       });
     }
     return { sessionId: existingCallLog.sessionId, isNew: false };
@@ -73,6 +115,8 @@ export async function findOrCreateSession(params: {
       sessionId: session.id,
       twilioCallSid: callSid,
       ...(vapiCallId ? { vapiCallId } : {}),
+      ...(assemblyaiSessionId ? { assemblyaiSessionId } : {}),
+      ...(assemblyaiCallId ? { assemblyaiCallId } : {}),
     },
   });
 

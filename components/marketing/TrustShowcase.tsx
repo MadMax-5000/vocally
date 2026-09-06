@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
+import { StaggerGrid } from "@/components/marketing/ScrollReveal";
 import { AppIcon } from "@/components/ui/app-icon";
 import { PhoneCall, ShieldAlert, ShieldCheck, Sparkles } from "@/lib/icons/app-icons";
 
@@ -243,10 +244,10 @@ export async function TrustShowcase() {
         </div>
 
         {/* ── 3-up cards ── */}
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
+        <StaggerGrid className="mt-12 grid gap-4 md:grid-cols-3">
 
           <TrustCard
-            bgSrc="/images/background2.png"
+            bgSrc="/images/background2.webp"
             bgAlt="Omnichannel channels background"
             overlay={<OmnichannelOverlay />}
             eyebrow="Omnichannel agents"
@@ -254,7 +255,7 @@ export async function TrustShowcase() {
           />
 
           <TrustCard
-            bgSrc="/images/background3.png"
+            bgSrc="/images/background3.webp"
             bgAlt="Secure by default background"
             overlay={<SecureOverlay />}
             eyebrow="Secure by default"
@@ -262,14 +263,14 @@ export async function TrustShowcase() {
           />
 
           <TrustCard
-            bgSrc="/images/background4.png"
+            bgSrc="/images/background4.webp"
             bgAlt="Enterprise-grade guardrails background"
             overlay={<GuardrailsOverlay />}
             eyebrow="Enterprise-grade guardrails"
             body="AI-powered guardrails prevent misinformation and off-topic responses, maintaining professionalism and trust in every interaction."
           />
 
-        </div>
+        </StaggerGrid>
       </div>
     </section>
   );

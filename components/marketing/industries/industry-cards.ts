@@ -27,11 +27,11 @@ export type IndustryCardDef = {
 };
 
 export const INDUSTRY_CARDS: IndustryCardDef[] = [
-  { id: "retail", accent: "#1B4F9C", icon: ShoppingBag01Icon, image: "/images/retail-ecommerce.png" },
-  { id: "technology", accent: "#166534", icon: ComputerIcon, image: "/images/technology.png" },
-  { id: "travel", accent: "#C2410C", icon: Airplane01Icon, image: "/images/travel-hospitality.png" },
-  { id: "finance", accent: "#9D174D", icon: CreditCardIcon, image: "/images/financial-services.png" },
-  { id: "healthcare", accent: "#0F766E", icon: StethoscopeIcon, image: "/images/healthcare.png" },
+  { id: "retail", accent: "#1B4F9C", icon: ShoppingBag01Icon, image: "/images/retail-ecommerce.webp" },
+  { id: "technology", accent: "#166534", icon: ComputerIcon, image: "/images/technology.webp" },
+  { id: "travel", accent: "#C2410C", icon: Airplane01Icon, image: "/images/travel-hospitality.webp" },
+  { id: "finance", accent: "#9D174D", icon: CreditCardIcon, image: "/images/financial-services.webp" },
+  { id: "healthcare", accent: "#0F766E", icon: StethoscopeIcon, image: "/images/healthcare.webp" },
 ];
 
 export type IndustryCopy = {
