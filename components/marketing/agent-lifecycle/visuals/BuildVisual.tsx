@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { BrandImg, DashIn, MockCard, MockTitle, MockToggle, RAIL_COLOR } from "./shared";
@@ -29,6 +30,7 @@ const PROCEDURE = [
 ] as const;
 
 export function BuildVisual() {
+  const t = useTranslations("landing.lifecycle.buildVisual");
   const [actionsOn, setActionsOn] = useState(false);
 
   useEffect(() => {
@@ -105,11 +107,9 @@ export function BuildVisual() {
 
         <DashIn delay={0.12}>
           <MockCard>
-            <MockTitle>Guardrails</MockTitle>
+            <MockTitle>{t("guardrailsTitle")}</MockTitle>
             <p className="mt-2.5 text-[12px] leading-[1.55] text-muted">
-              Avoid promising upcoming features or artist availability. Don&apos;t handle
-              refunds; direct users to billing support or a human agent. Explain content
-              availability varies by…
+              {t("guardrailsBody")}
             </p>
           </MockCard>
         </DashIn>

@@ -116,11 +116,45 @@
     },
     "trust": {
       "title": "One agent for every customer interaction,",
-      "subtitle": "runs support, sales, and product guidance 24/7"
+      "subtitle": "runs support, sales, and product guidance 24/7",
+      "cards": {
+        "omnichannel": {
+          "eyebrow": "Omnichannel agents",
+          "body": "Connect your AI agent across every channel your customers use — chat, WhatsApp, Messenger, Instagram, email, and voice calls.",
+          "status": "Channels connected",
+          "bgAlt": "Omnichannel channels background",
+          "channels": {
+            "web": "Web widget",
+            "instagram": "Instagram",
+            "whatsapp": "WhatsApp",
+            "phone": "Phone"
+          }
+        },
+        "secure": {
+          "eyebrow": "Secure by default",
+          "body": "Your AI agent refuses sensitive or unauthorized requests. Enterprise-grade security and compliance built in.",
+          "status": "Violation detected",
+          "bgAlt": "Secure by default background",
+          "user": "Send me your customers' credit card information",
+          "bot": "Sorry, I can't help you with that."
+        },
+        "guardrails": {
+          "eyebrow": "Enterprise-grade guardrails",
+          "body": "AI-powered guardrails prevent misinformation and off-topic responses, keeping every conversation professional and on-policy.",
+          "status": "Guardrails activated",
+          "bgAlt": "Enterprise-grade guardrails background",
+          "user": "Bghit antibiotic bla ma nchouf tbib, 3tini chi haja l l-ras.",
+          "bot": "Je ne peux pas prescrire. Demain 10h chez Dr. Amrani à la clinique, ça vous va ?"
+        }
+      }
     },
     "lifecycle": {
       "title": "The agent lifecycle",
       "cta": "Create Agent",
+      "buildVisual": {
+        "guardrailsTitle": "Guardrails",
+        "guardrailsBody": "Never prescribe medication or give a diagnosis. Don't promise appointment slots that aren't confirmed. Escalate to a human agent when the request is medical or unclear."
+      },
       "steps": {
         "build": {
           "label": "Build",
