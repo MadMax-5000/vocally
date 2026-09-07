@@ -5,8 +5,9 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 import { BookDemoLink } from "@/components/marketing/BookDemoLink";
+import { isClerkConfigured } from "@/lib/clerk/keys";
 
-export function HeaderAuth() {
+function ClerkHeaderAuth() {
   const { isLoaded } = useAuth();
   const t = useTranslations("common");
 
@@ -40,4 +41,21 @@ export function HeaderAuth() {
       </SignedIn>
     </div>
   );
+}
+
+export function HeaderAuth() {
+  const t = useTranslations("common");
+
+  if (!isClerkConfigured({ requireSecret: false })) {
+    return (
+      <div className="flex items-center gap-3">
+        <Link href="/sign-in" className="btn-outline">
+          {t("signIn")}
+        </Link>
+        <BookDemoLink className="btn-primary">{t("bookDemo")}</BookDemoLink>
+      </div>
+    );
+  }
+
+  return <ClerkHeaderAuth />;
 }

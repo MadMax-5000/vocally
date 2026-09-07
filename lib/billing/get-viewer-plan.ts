@@ -3,10 +3,13 @@ import "server-only";
 import type { Plan } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
 
+import { isClerkConfigured } from "@/lib/clerk/keys";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId } from "@/lib/server/organization";
 
 export async function getViewerPlan(): Promise<Plan | null> {
+  if (!isClerkConfigured()) return null;
+
   const { orgId } = await auth();
   if (!orgId) return null;
 

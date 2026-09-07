@@ -392,7 +392,8 @@
     "signInTitle": "Welcome back",
     "signInSubtitle": "Sign in to your Anselio workspace",
     "signUpTitle": "Create your workspace",
-    "signUpSubtitle": "Get started with Anselio AI agents"
+    "signUpSubtitle": "Get started with Anselio AI agents",
+    "missingClerkKeys": "Sign-in is not configured. Add your Clerk API keys from dashboard.clerk.com to .env.local. Placeholder keys redirect localhost to clerk.example.com, which does not exist."
   },
   "onboarding": {
     "title": "Set up your workspace",

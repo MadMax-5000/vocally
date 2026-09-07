@@ -392,7 +392,8 @@
     "signInTitle": "مرحباً بعودتك",
     "signInSubtitle": "قم بتسجيل الدخول إلى مساحة Anselio الخاصة بك",
     "signUpTitle": "قم بإنشاء مساحتك",
-    "signUpSubtitle": "ابدأ مع وكلاء الذكاء الاصطناعي من Anselio"
+    "signUpSubtitle": "ابدأ مع وكلاء الذكاء الاصطناعي من Anselio",
+    "missingClerkKeys": "تسجيل الدخول غير مُعدّ. أضف مفاتيح Clerk من dashboard.clerk.com إلى ملف .env.local. المفاتيح الوهمية تعيد توجيه localhost إلى clerk.example.com الذي لا يوجد."
   },
   "onboarding": {
     "title": "قم بإعداد مساحة العمل الخاصة بك",

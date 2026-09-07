@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./load-env";
 
 import { createServer } from "http";
 import { parse } from "url";

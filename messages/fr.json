@@ -392,7 +392,8 @@
     "signInTitle": "Bon retour",
     "signInSubtitle": "Connectez-vous à votre espace Anselio",
     "signUpTitle": "Créez votre espace",
-    "signUpSubtitle": "Commencez avec les agents IA Anselio"
+    "signUpSubtitle": "Commencez avec les agents IA Anselio",
+    "missingClerkKeys": "La connexion n'est pas configurée. Ajoutez vos clés API Clerk depuis dashboard.clerk.com dans .env.local. Les clés d'exemple redirigent localhost vers clerk.example.com, un nom d'hôte inexistant."
   },
   "onboarding": {
     "title": "Configurez votre espace de travail",
