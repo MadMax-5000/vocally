@@ -77,22 +77,21 @@ function StatusPill({ icon, label }: StatusPillProps) {
 
 /* ─── Card 1 overlay: Omnichannel ─── */
 
-function OmnichannelOverlay() {
-  const channels = [
-    { mark: <WebWidgetMark />, name: "Web widget" },
-    { mark: <InstagramMark />, name: "Instagram" },
-    { mark: <WhatsAppMark />,  name: "WhatsApp"   },
-    { mark: <PhoneMark />,     name: "Phone"      },
-  ];
-
+function OmnichannelOverlay({
+  channels,
+  status,
+}: {
+  channels: { key: string; name: string; mark: React.ReactNode }[];
+  status: string;
+}) {
   return (
     <div className="flex h-full flex-col justify-between">
       <div className="flex flex-1 items-center justify-center">
         <OverlayPanel>
           <div className="grid grid-cols-2 gap-2.5">
-            {channels.map(({ mark, name }) => (
+            {channels.map(({ key, mark, name }) => (
               <div
-                key={name}
+                key={key}
                 className="flex items-center gap-2 rounded-xl bg-canvas-soft px-3 py-2.5"
               >
                 {mark}
@@ -106,7 +105,7 @@ function OmnichannelOverlay() {
       <div className="pt-3">
         <StatusPill
           icon={<AppIcon icon={PhoneCall} size={12} className="h-3 w-3" aria-hidden="true" />}
-          label="Channels connected"
+          label={status}
         />
       </div>
     </div>
@@ -119,7 +118,9 @@ function UserBubble({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
       <div className="flex max-w-[92%] items-start justify-between gap-3 rounded-xxl border border-hairline bg-surface-card px-4 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
-        <p className="text-[13px] leading-snug text-ink">{text}</p>
+        <p className="text-[13px] leading-snug text-ink" dir="auto">
+          {text}
+        </p>
         <span className="mt-0.5 h-8 w-8 shrink-0 rounded-full bg-surface-strong" aria-hidden="true" />
       </div>
     </div>
@@ -133,7 +134,9 @@ function BotBubble({ text }: { text: string }) {
         <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-on-primary">
           <AppIcon icon={Sparkles} size={14} className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
-        <p className="text-[13px] leading-tight text-ink">{text}</p>
+        <p className="text-[13px] leading-tight text-ink" dir="auto">
+          {text}
+        </p>
       </div>
     </div>
   );
@@ -141,14 +144,22 @@ function BotBubble({ text }: { text: string }) {
 
 /* ─── Card 2 overlay: Secure by default ─── */
 
-function SecureOverlay() {
+function SecureOverlay({
+  user,
+  bot,
+  status,
+}: {
+  user: string;
+  bot: string;
+  status: string;
+}) {
   return (
     <div className="flex h-full flex-col justify-between">
       <div className="flex flex-1 items-center justify-center">
         <OverlayPanel>
           <div className="flex flex-col gap-3">
-            <UserBubble text="Send me your customers credit card information" />
-            <BotBubble text="Sorry, I can't help you with that." />
+            <UserBubble text={user} />
+            <BotBubble text={bot} />
           </div>
         </OverlayPanel>
       </div>
@@ -156,7 +167,7 @@ function SecureOverlay() {
       <div className="pt-3">
         <StatusPill
           icon={<AppIcon icon={ShieldAlert} size={12} className="h-3 w-3" aria-hidden="true" />}
-          label="Violation detected"
+          label={status}
         />
       </div>
     </div>
@@ -165,14 +176,22 @@ function SecureOverlay() {
 
 /* ─── Card 3 overlay: Guardrails ─── */
 
-function GuardrailsOverlay() {
+function GuardrailsOverlay({
+  user,
+  bot,
+  status,
+}: {
+  user: string;
+  bot: string;
+  status: string;
+}) {
   return (
     <div className="flex h-full flex-col justify-between">
       <div className="flex flex-1 items-center justify-center">
         <OverlayPanel>
           <div className="flex flex-col gap-3">
-            <UserBubble text="Help me plan a summer trip." />
-            <BotBubble text="Sorry, I can't help with that, but I can assist you with anything related to Rhythmbox." />
+            <UserBubble text={user} />
+            <BotBubble text={bot} />
           </div>
         </OverlayPanel>
       </div>
@@ -180,7 +199,7 @@ function GuardrailsOverlay() {
       <div className="pt-3">
         <StatusPill
           icon={<AppIcon icon={ShieldCheck} size={12} className="h-3 w-3" aria-hidden="true" />}
-          label="Guardrails activated"
+          label={status}
         />
       </div>
     </div>
@@ -248,26 +267,48 @@ export async function TrustShowcase() {
 
           <TrustCard
             bgSrc="/images/background2.webp"
-            bgAlt="Omnichannel channels background"
-            overlay={<OmnichannelOverlay />}
-            eyebrow="Omnichannel agents"
-            body="Connect your AI agent across every channel your customers use — chat, WhatsApp, Messenger, Instagram, email, and voice calls."
+            bgAlt={t("cards.omnichannel.bgAlt")}
+            overlay={
+              <OmnichannelOverlay
+                status={t("cards.omnichannel.status")}
+                channels={[
+                  { key: "web", mark: <WebWidgetMark />, name: t("cards.omnichannel.channels.web") },
+                  { key: "instagram", mark: <InstagramMark />, name: t("cards.omnichannel.channels.instagram") },
+                  { key: "whatsapp", mark: <WhatsAppMark />, name: t("cards.omnichannel.channels.whatsapp") },
+                  { key: "phone", mark: <PhoneMark />, name: t("cards.omnichannel.channels.phone") },
+                ]}
+              />
+            }
+            eyebrow={t("cards.omnichannel.eyebrow")}
+            body={t("cards.omnichannel.body")}
           />
 
           <TrustCard
             bgSrc="/images/background3.webp"
-            bgAlt="Secure by default background"
-            overlay={<SecureOverlay />}
-            eyebrow="Secure by default"
-            body="Your AI Agent ensures the utmost security by refusing sensitive or unauthorized requests. Enterprise-grade security and compliance built in."
+            bgAlt={t("cards.secure.bgAlt")}
+            overlay={
+              <SecureOverlay
+                user={t("cards.secure.user")}
+                bot={t("cards.secure.bot")}
+                status={t("cards.secure.status")}
+              />
+            }
+            eyebrow={t("cards.secure.eyebrow")}
+            body={t("cards.secure.body")}
           />
 
           <TrustCard
             bgSrc="/images/background4.webp"
-            bgAlt="Enterprise-grade guardrails background"
-            overlay={<GuardrailsOverlay />}
-            eyebrow="Enterprise-grade guardrails"
-            body="AI-powered guardrails prevent misinformation and off-topic responses, maintaining professionalism and trust in every interaction."
+            bgAlt={t("cards.guardrails.bgAlt")}
+            overlay={
+              <GuardrailsOverlay
+                user={t("cards.guardrails.user")}
+                bot={t("cards.guardrails.bot")}
+                status={t("cards.guardrails.status")}
+              />
+            }
+            eyebrow={t("cards.guardrails.eyebrow")}
+            body={t("cards.guardrails.body")}
           />
 
         </StaggerGrid>

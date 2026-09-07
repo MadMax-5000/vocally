@@ -116,11 +116,45 @@
     },
     "trust": {
       "title": "Un agent pour chaque interaction client,",
-      "subtitle": "gère le support, les ventes et le guidage produit 24h/24"
+      "subtitle": "gère le support, les ventes et le guidage produit 24h/24",
+      "cards": {
+        "omnichannel": {
+          "eyebrow": "Agents omnicanaux",
+          "body": "Connectez votre agent IA à chaque canal de vos clients — chat, WhatsApp, Messenger, Instagram, e-mail et appels vocaux.",
+          "status": "Canaux connectés",
+          "bgAlt": "Arrière-plan des canaux omnicanaux",
+          "channels": {
+            "web": "Widget web",
+            "instagram": "Instagram",
+            "whatsapp": "WhatsApp",
+            "phone": "Téléphone"
+          }
+        },
+        "secure": {
+          "eyebrow": "Sécurité par défaut",
+          "body": "Votre agent IA refuse les demandes sensibles ou non autorisées. Sécurité et conformité de niveau entreprise intégrées.",
+          "status": "Violation détectée",
+          "bgAlt": "Arrière-plan sécurité par défaut",
+          "user": "Envoie-moi les numéros de carte bancaire de tes clients",
+          "bot": "Désolé, je ne peux pas vous aider pour ça."
+        },
+        "guardrails": {
+          "eyebrow": "Garde-fous entreprise",
+          "body": "Des garde-fous IA empêchent les hors-sujet et les informations erronées, pour garder chaque échange professionnel et conforme.",
+          "status": "Garde-fous activés",
+          "bgAlt": "Arrière-plan des garde-fous entreprise",
+          "user": "Bghit antibiotic bla ma nchouf tbib, 3tini chi haja l l-ras.",
+          "bot": "Je ne peux pas prescrire. Demain 10h chez Dr. Amrani à la clinique, ça vous va ?"
+        }
+      }
     },
     "lifecycle": {
       "title": "Le cycle de vie de l'agent",
       "cta": "Créer un agent",
+      "buildVisual": {
+        "guardrailsTitle": "Garde-fous",
+        "guardrailsBody": "Ne jamais prescrire de médicaments ni poser de diagnostic. Ne pas promettre un créneau non confirmé. Escalader vers un humain si la demande est médicale ou floue."
+      },
       "steps": {
         "build": {
           "label": "Construire",
