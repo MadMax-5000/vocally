@@ -1,10 +1,8 @@
-import {
-  Airplane01Icon,
-  ComputerIcon,
-  CreditCardIcon,
-  ShoppingBag01Icon,
-  StethoscopeIcon,
-} from "@hugeicons/core-free-icons";
+import Airplane01Icon from "@hugeicons/core-free-icons/Airplane01Icon";
+import ComputerIcon from "@hugeicons/core-free-icons/ComputerIcon";
+import CreditCardIcon from "@hugeicons/core-free-icons/CreditCardIcon";
+import ShoppingBag01Icon from "@hugeicons/core-free-icons/ShoppingBag01Icon";
+import StethoscopeIcon from "@hugeicons/core-free-icons/StethoscopeIcon";
 import type { IconSvgElement } from "@/components/ui/app-icon";
 
 export const GRAIN_IMAGE = "/images/grain.webp";

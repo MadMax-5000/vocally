@@ -17,6 +17,7 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/privacy",
   "/terms",
   "/cookies",
+  "/legal",
 ] as const;
 
 export type PublicMetadataKey =
@@ -26,7 +27,8 @@ export type PublicMetadataKey =
   | "sales"
   | "privacy"
   | "terms"
-  | "cookies";
+  | "cookies"
+  | "legal";
 
 const OG_LOCALE: Record<Locale, string> = {
   fr: "fr_FR",
@@ -42,6 +44,7 @@ const PATH_BY_KEY: Record<PublicMetadataKey, string> = {
   privacy: "/privacy",
   terms: "/terms",
   cookies: "/cookies",
+  legal: "/legal",
 };
 
 export const noIndexMetadata: Metadata = {

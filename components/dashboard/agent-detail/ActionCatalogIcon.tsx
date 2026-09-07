@@ -1,13 +1,11 @@
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  CodeIcon,
-  Cursor01Icon,
-  File01Icon,
-  Message01Icon,
-  Sun01Icon,
-  UserGroupIcon,
-} from "@hugeicons/core-free-icons";
+import CodeIcon from "@hugeicons/core-free-icons/CodeIcon";
+import Cursor01Icon from "@hugeicons/core-free-icons/Cursor01Icon";
+import File01Icon from "@hugeicons/core-free-icons/File01Icon";
+import Message01Icon from "@hugeicons/core-free-icons/Message01Icon";
+import Sun01Icon from "@hugeicons/core-free-icons/Sun01Icon";
+import UserGroupIcon from "@hugeicons/core-free-icons/UserGroupIcon";
 
 import type { ActionIconKey } from "./action-catalog";
 import { EscalationIconStack } from "./EscalationIconStack";

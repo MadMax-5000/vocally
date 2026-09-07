@@ -64,6 +64,7 @@ export const footerColumns: FooterColumn[] = [
       { id: "contactSupport", href: "/contact" },
       { id: "terms", href: "/terms" },
       { id: "cookies", href: "/cookies" },
+      { id: "legal", href: "/legal" },
     ],
   },
 ];

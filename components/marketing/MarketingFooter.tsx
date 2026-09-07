@@ -130,7 +130,7 @@ export async function MarketingFooter() {
           </div>
 
           <p className="mt-12 text-[12px] leading-relaxed text-white/40">
-            © {new Date().getFullYear()} {BRAND_LEGAL_NAME} · Operated by Madmax
+            © {new Date().getFullYear()} {BRAND_LEGAL_NAME}
           </p>
         </div>
       </div>

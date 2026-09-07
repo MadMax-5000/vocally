@@ -3,7 +3,6 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n/config';
 import { BRAND_NAME } from "@/lib/constants/brand";
-import { DeferredProductAssistantWidget } from "@/components/dashboard/DeferredProductAssistantWidget";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import type { Metadata } from "next";
@@ -49,7 +48,6 @@ export default async function LocaleLayout({
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <NextIntlClientProvider locale={locale} messages={messages} key={locale}>
         {children}
-        <DeferredProductAssistantWidget />
       </NextIntlClientProvider>
     </>
   );

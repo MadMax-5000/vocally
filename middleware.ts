@@ -23,6 +23,7 @@ const isI18nRoute = createRouteMatcher([
   '/privacy',
   '/terms',
   '/cookies',
+  '/legal',
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/onboarding'

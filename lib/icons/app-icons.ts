@@ -1,107 +1,104 @@
-export {
-  Add01Icon as PlusIcon,
-  Archive01Icon as ArchiveIcon,
-  ArrowLeft01Icon as ArrowLeftIcon,
-  ArrowUp01Icon as ArrowUpIcon,
-  ArrowUpRight01Icon as ArrowUpRightIcon,
-  BalanceScaleIcon as ScaleIcon,
-  BarChartIcon as BarChart2Icon,
-  Bell,
-  BookOpen01Icon as BookOpenIcon,
-  Braces,
-  Briefcase01Icon as BriefcaseIcon,
-  Cancel01Icon as XIcon,
-  ChartIcon as ChartIcon,
-  CheckCircle,
-  Checkmark as CheckIcon,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsUpDown,
-  ChevronUp,
-  CircleDot as CircleIcon,
-  Command,
-  Copy01Icon as CopyIcon,
-  CreditCard,
-  Crown,
-  Download01Icon as DownloadIcon,
-  Edit01Icon as PenLineIcon,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Feather,
-  FileText,
-  FilterIcon,
-  FlaskConical,
-  Folder01Icon as FolderIcon,
-  FolderOpen,
-  FolderPlus,
-  Gem,
-  Globe,
-  Hand,
-  HandHeart,
-  Handshake,
-  Image01Icon as ImageIcon,
-  Inbox,
-  InformationCircleIcon as InfoIcon,
-  JusticeScale01Icon as ScalesIcon,
-  LayoutDashboard,
-  LayoutPanelLeft,
-  LayoutTemplate,
-  Library,
-  LifeBuoy,
-  Lightbulb,
-  Lightning,
-  Link01Icon as LinkIcon,
-  Loading03Icon as LoaderIcon,
-  Lock,
-  Lock as LockIcon,
-  Logout01Icon as LogOutIcon,
-  Mail01Icon as MailIcon,
-  MessageCircle,
-  Mic,
-  MicOff,
-  Minus as MinusIcon,
-  Moon,
-  MoonStar,
-  MoreHorizontal,
-  PanelLeft,
-  PenLine,
-  Phone as PhoneIcon,
-  PhoneCall,
-  PhoneForwarded,
-  PhoneOff,
-  Play,
-  Pause,
-  Plug01Icon as PlugIcon,
-  Radio,
-  Refresh as RefreshCwIcon,
-  Rocket01Icon as RocketIcon,
-  RotateCcw,
-  Search01Icon as SearchIcon,
-  SentIcon as SendIcon,
-  Settings01Icon as SettingsIcon,
-  Share01Icon as Share2Icon,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  SlidersHorizontal,
-  Smile,
-  Sparkle,
-  Sparkles,
-  Sun,
-  Target,
-  Text as TypeIcon,
-  Tick02Icon as TickIcon,
-  Trash2 as Trash2Icon,
-  TrendingUp,
-  Unlink01Icon as UnplugIcon,
-  Upload01Icon as UploadIcon,
-  UserIcon,
-  Volume2,
-  WavingHand01Icon as HandWavingIcon,
-  Workflow,
-  Zap,
-} from "@hugeicons/core-free-icons";
-
-export { Heart as HeartStraightIcon } from "@hugeicons/core-free-icons";
+export { default as PlusIcon } from "@hugeicons/core-free-icons/Add01Icon";
+export { default as ArchiveIcon } from "@hugeicons/core-free-icons/Archive01Icon";
+export { default as ArrowLeftIcon } from "@hugeicons/core-free-icons/ArrowLeft01Icon";
+export { default as ArrowUpIcon } from "@hugeicons/core-free-icons/ArrowUp01Icon";
+export { default as ArrowUpRightIcon } from "@hugeicons/core-free-icons/ArrowUpRight01Icon";
+export { default as ScaleIcon } from "@hugeicons/core-free-icons/BalanceScaleIcon";
+export { default as BarChart2Icon } from "@hugeicons/core-free-icons/BarChartIcon";
+export { default as Bell } from "@hugeicons/core-free-icons/Notification01Icon";
+export { default as BookOpenIcon } from "@hugeicons/core-free-icons/BookOpen01Icon";
+export { default as Braces } from "@hugeicons/core-free-icons/FirstBracketIcon";
+export { default as BriefcaseIcon } from "@hugeicons/core-free-icons/Briefcase01Icon";
+export { default as XIcon } from "@hugeicons/core-free-icons/Cancel01Icon";
+export { default as ChartIcon } from "@hugeicons/core-free-icons/ChartIcon";
+export { default as CheckCircle } from "@hugeicons/core-free-icons/CheckmarkCircle01Icon";
+export { default as CheckIcon } from "@hugeicons/core-free-icons/Tick01Icon";
+export { default as ChevronDown } from "@hugeicons/core-free-icons/ArrowDown01Icon";
+export { default as ChevronLeft } from "@hugeicons/core-free-icons/ArrowLeft01Icon";
+export { default as ChevronRight } from "@hugeicons/core-free-icons/ArrowRight01Icon";
+export { default as ChevronsUpDown } from "@hugeicons/core-free-icons/ArrowUpDownIcon";
+export { default as ChevronUp } from "@hugeicons/core-free-icons/ArrowUp01Icon";
+export { default as CircleIcon } from "@hugeicons/core-free-icons/CircleIcon";
+export { default as Command } from "@hugeicons/core-free-icons/CommandIcon";
+export { default as CopyIcon } from "@hugeicons/core-free-icons/Copy01Icon";
+export { default as CreditCard } from "@hugeicons/core-free-icons/CreditCardIcon";
+export { default as Crown } from "@hugeicons/core-free-icons/CrownIcon";
+export { default as DownloadIcon } from "@hugeicons/core-free-icons/Download01Icon";
+export { default as PenLineIcon } from "@hugeicons/core-free-icons/Edit01Icon";
+export { default as ExternalLink } from "@hugeicons/core-free-icons/ArrowUpRight01Icon";
+export { default as Eye } from "@hugeicons/core-free-icons/ViewIcon";
+export { default as EyeOff } from "@hugeicons/core-free-icons/ViewOffIcon";
+export { default as Feather } from "@hugeicons/core-free-icons/FeatherIcon";
+export { default as FileText } from "@hugeicons/core-free-icons/File02Icon";
+export { default as FilterIcon } from "@hugeicons/core-free-icons/FilterIcon";
+export { default as FlaskConical } from "@hugeicons/core-free-icons/TestTubeIcon";
+export { default as FolderIcon } from "@hugeicons/core-free-icons/Folder01Icon";
+export { default as FolderOpen } from "@hugeicons/core-free-icons/FolderOpenIcon";
+export { default as FolderPlus } from "@hugeicons/core-free-icons/FolderAddIcon";
+export { default as Gem } from "@hugeicons/core-free-icons/GemIcon";
+export { default as Globe } from "@hugeicons/core-free-icons/GlobeIcon";
+export { default as Hand } from "@hugeicons/core-free-icons/WavingHand01Icon";
+export { default as HandHeart } from "@hugeicons/core-free-icons/CharityIcon";
+export { default as Handshake } from "@hugeicons/core-free-icons/Agreement01Icon";
+export { default as ImageIcon } from "@hugeicons/core-free-icons/Image01Icon";
+export { default as Inbox } from "@hugeicons/core-free-icons/InboxIcon";
+export { default as InfoIcon } from "@hugeicons/core-free-icons/InformationCircleIcon";
+export { default as ScalesIcon } from "@hugeicons/core-free-icons/JusticeScale01Icon";
+export { default as LayoutDashboard } from "@hugeicons/core-free-icons/DashboardSquare01Icon";
+export { default as LayoutPanelLeft } from "@hugeicons/core-free-icons/LayoutLeftIcon";
+export { default as LayoutTemplate } from "@hugeicons/core-free-icons/Layout01Icon";
+export { default as Library } from "@hugeicons/core-free-icons/LibraryIcon";
+export { default as LifeBuoy } from "@hugeicons/core-free-icons/LifebuoyIcon";
+export { default as Lightbulb } from "@hugeicons/core-free-icons/BulbIcon";
+export { default as Lightning } from "@hugeicons/core-free-icons/FlashIcon";
+export { default as LinkIcon } from "@hugeicons/core-free-icons/Link01Icon";
+export { default as LoaderIcon } from "@hugeicons/core-free-icons/Loading03Icon";
+export { default as Lock } from "@hugeicons/core-free-icons/LockIcon";
+export { default as LockIcon } from "@hugeicons/core-free-icons/LockIcon";
+export { default as LogOutIcon } from "@hugeicons/core-free-icons/Logout01Icon";
+export { default as MailIcon } from "@hugeicons/core-free-icons/Mail01Icon";
+export { default as MessageCircle } from "@hugeicons/core-free-icons/BubbleChatIcon";
+export { default as Mic } from "@hugeicons/core-free-icons/Mic01Icon";
+export { default as MicOff } from "@hugeicons/core-free-icons/MicOff01Icon";
+export { default as MinusIcon } from "@hugeicons/core-free-icons/MinusSignIcon";
+export { default as Moon } from "@hugeicons/core-free-icons/MoonIcon";
+export { default as MoonStar } from "@hugeicons/core-free-icons/Moon01Icon";
+export { default as MoreHorizontal } from "@hugeicons/core-free-icons/MoreHorizontalIcon";
+export { default as PanelLeft } from "@hugeicons/core-free-icons/PanelLeftIcon";
+export { default as PenLine } from "@hugeicons/core-free-icons/PenTool01Icon";
+export { default as PhoneIcon } from "@hugeicons/core-free-icons/SmartPhone01Icon";
+export { default as PhoneCall } from "@hugeicons/core-free-icons/CallingIcon";
+export { default as PhoneForwarded } from "@hugeicons/core-free-icons/CallOutgoing01Icon";
+export { default as PhoneOff } from "@hugeicons/core-free-icons/CallDisabledIcon";
+export { default as Play } from "@hugeicons/core-free-icons/PlayIcon";
+export { default as Pause } from "@hugeicons/core-free-icons/PauseIcon";
+export { default as PlugIcon } from "@hugeicons/core-free-icons/Plug01Icon";
+export { default as Radio } from "@hugeicons/core-free-icons/RadioIcon";
+export { default as RefreshCwIcon } from "@hugeicons/core-free-icons/RefreshIcon";
+export { default as RocketIcon } from "@hugeicons/core-free-icons/Rocket01Icon";
+export { default as RotateCcw } from "@hugeicons/core-free-icons/RotateLeft01Icon";
+export { default as SearchIcon } from "@hugeicons/core-free-icons/Search01Icon";
+export { default as SendIcon } from "@hugeicons/core-free-icons/SentIcon";
+export { default as SettingsIcon } from "@hugeicons/core-free-icons/Settings01Icon";
+export { default as Share2Icon } from "@hugeicons/core-free-icons/Share01Icon";
+export { default as Shield } from "@hugeicons/core-free-icons/Shield01Icon";
+export { default as ShieldAlert } from "@hugeicons/core-free-icons/Shield01Icon";
+export { default as ShieldCheck } from "@hugeicons/core-free-icons/SecurityCheckIcon";
+export { default as SlidersHorizontal } from "@hugeicons/core-free-icons/SlidersHorizontalIcon";
+export { default as Smile } from "@hugeicons/core-free-icons/SmileIcon";
+export { default as Sparkle } from "@hugeicons/core-free-icons/SparklesIcon";
+export { default as Sparkles } from "@hugeicons/core-free-icons/SparklesIcon";
+export { default as Sun } from "@hugeicons/core-free-icons/Sun01Icon";
+export { default as Target } from "@hugeicons/core-free-icons/Target01Icon";
+export { default as TypeIcon } from "@hugeicons/core-free-icons/TextIcon";
+export { default as TickIcon } from "@hugeicons/core-free-icons/Tick02Icon";
+export { default as Trash2Icon } from "@hugeicons/core-free-icons/Delete02Icon";
+export { default as TrendingUp } from "@hugeicons/core-free-icons/AnalyticsUpIcon";
+export { default as UnplugIcon } from "@hugeicons/core-free-icons/Unlink01Icon";
+export { default as UploadIcon } from "@hugeicons/core-free-icons/Upload01Icon";
+export { default as UserIcon } from "@hugeicons/core-free-icons/UserIcon";
+export { default as Volume2 } from "@hugeicons/core-free-icons/VolumeHighIcon";
+export { default as HandWavingIcon } from "@hugeicons/core-free-icons/WavingHand01Icon";
+export { default as Workflow } from "@hugeicons/core-free-icons/WorkflowCircle01Icon";
+export { default as Zap } from "@hugeicons/core-free-icons/FlashIcon";
+export { default as HeartStraightIcon } from "@hugeicons/core-free-icons/FavouriteIcon";

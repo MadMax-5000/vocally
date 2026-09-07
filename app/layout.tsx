@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { frFR, arSA, enUS } from "@clerk/localizations";
 import { Toaster } from "sonner";
+import { clerkLocalizationForLocale } from "@/lib/clerk/localization";
 import { BRAND_NAME } from "@/lib/constants/brand";
 import { getLocale } from "next-intl/server";
 import {
@@ -48,15 +48,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   const dir = locale === "ar" ? "rtl" : "ltr";
 
-  let localization = enUS;
-  if (locale === "fr") localization = frFR;
-  if (locale === "ar") localization = arSA;
-
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} ${instrumentSerif.variable} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
         <ClerkProvider
-          localization={localization}
+          localization={clerkLocalizationForLocale(locale)}
           signInFallbackRedirectUrl={`/${locale}/dashboard`}
           signUpFallbackRedirectUrl={`/${locale}/onboarding`}
         >

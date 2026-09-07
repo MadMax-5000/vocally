@@ -229,17 +229,16 @@ function IndustryCard({
         } as CSSProperties
       }
     >
-      {isActive ? (
-        <Image
-          src={image}
-          alt=""
-          fill
-          sizes="(min-width: 768px) 55vw, 100vw"
-          className="object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-ink" />
-      )}
+      <Image
+        src={image}
+        alt=""
+        fill
+        sizes="(min-width: 768px) 55vw, 100vw"
+        className={cn("object-cover", isActive ? "grayscale-0" : "grayscale")}
+        style={{
+          transition: `filter ${duration}s cubic-bezier(${EASE_OUT.join(",")})`,
+        }}
+      />
 
       <div
         className="absolute inset-0"

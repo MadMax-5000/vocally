@@ -1,5 +1,6 @@
 export const BRAND_NAME = "Anselio";
 export const BRAND_LEGAL_NAME = "Anselio";
+export const BRAND_LEGAL_ADDRESS = "Casablanca, Maroc";
 export const BRAND_DOMAIN = "anselio.com";
 export const BRAND_URL = `https://${BRAND_DOMAIN}`;
 export const DEMO_BOOKING_URL =

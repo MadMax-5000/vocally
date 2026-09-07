@@ -28,6 +28,10 @@
     "cookies": {
       "title": "Politique des cookies",
       "description": "Comment Anselio utilise les cookies et technologies similaires sur anselio.com, et les choix dont vous disposez."
+    },
+    "legal": {
+      "title": "Mentions légales",
+      "description": "Mentions légales d'Anselio : éditeur, adresse et contact de la plateforme d'IA conversationnelle."
     }
   },
   "common": {
@@ -305,7 +309,8 @@
         "contactSales": "Contacter les ventes",
         "contactSupport": "Contacter le support",
         "terms": "Conditions d'utilisation",
-        "cookies": "Politique des cookies"
+        "cookies": "Politique des cookies",
+        "legal": "Mentions légales"
       }
     }
   },
@@ -448,6 +453,12 @@
     }
   },
   "legal": {
+    "notice": {
+      "title": "Mentions légales",
+      "publisher": "Éditeur",
+      "address": "Adresse",
+      "contact": "Contact"
+    },
     "privacy": {
       "title": "Politique de confidentialité",
       "lastUpdated": "Dernière mise à jour : 7 juillet 2026",
