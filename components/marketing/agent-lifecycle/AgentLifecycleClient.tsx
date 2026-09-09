@@ -1,14 +1,14 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 
 import { BookDemoLink } from "@/components/marketing/BookDemoLink";
 import { Link } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 
-import { DiamondOverlay, EASE_OUT, RAIL_COLOR } from "./visuals/shared";
+import { EchoPill, type EchoFan } from "./EchoPill";
 
 const BuildVisual = dynamic(() =>
   import("./visuals/BuildVisual").then((mod) => mod.BuildVisual)
@@ -30,15 +30,59 @@ export type LifecycleStep = {
   number: string;
   label: string;
   body: string;
-  background: string;
 };
 
-const STEP_MS = 4000;
+type StepTheme = {
+  card: string;
+  stage: string;
+  headline: string;
+  pill: string;
+  echo: string;
+  body: string;
+  fan: EchoFan;
+};
 
-const ACCORDION = {
-  duration: 0.36,
-  ease: EASE_OUT,
-} as const;
+const THEMES: Record<LifecycleStepKey, StepTheme> = {
+  build: {
+    card: "#CDE8FF",
+    stage: "#E3F3FF",
+    headline: "#1E4FBF",
+    pill: "#2F6BFF",
+    echo: "#A8D4FF",
+    body: "#3D4A66",
+    fan: "end",
+  },
+  test: {
+    card: "#FFD8C8",
+    stage: "#FFE8DC",
+    headline: "#8B3A1A",
+    pill: "#C45C26",
+    echo: "#FFC4A8",
+    body: "#5C4A42",
+    fan: "spread",
+  },
+  deploy: {
+    card: "#F0F7A8",
+    stage: "#F7FBC8",
+    headline: "#3D5A1F",
+    pill: "#6B8F2A",
+    echo: "#DCE878",
+    body: "#4A5540",
+    fan: "spread-start",
+  },
+  optimize: {
+    card: "#FFD0EE",
+    stage: "#FFE4F6",
+    headline: "#9B1D5A",
+    pill: "#C2186A",
+    echo: "#FFB3E3",
+    body: "#5C3D4A",
+    fan: "start",
+  },
+};
+
+const STICKY_TOP = "5rem";
+const STACK_PEEK = 12;
 
 type Props = {
   title: string;
@@ -47,141 +91,52 @@ type Props = {
   steps: LifecycleStep[];
 };
 
+function StepVisual({ id }: { id: LifecycleStepKey }) {
+  if (id === "build") return <BuildVisual />;
+  if (id === "test") return <TestVisual />;
+  if (id === "deploy") return <DeployVisual />;
+  return <OptimizeVisual />;
+}
+
 export function AgentLifecycleClient({ title, cta, createAgentCta, steps }: Props) {
-  const reduceMotion = useReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
-  const barRef = useRef<HTMLSpanElement>(null);
-  const progressRef = useRef(0);
+  const reduceMotion = useReducedMotion() ?? false;
+  const sticky = !reduceMotion;
+  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
+  const [opened, setOpened] = useState<Record<string, boolean>>(() =>
+    reduceMotion ? Object.fromEntries(steps.map((step) => [step.id, true])) : {}
+  );
 
-  const [active, setActive] = useState(0);
-  const [inView, setInView] = useState(false);
-
-  const setBar = useCallback((value: number) => {
-    progressRef.current = value;
-    if (barRef.current) {
-      barRef.current.style.transform = `scaleY(${value})`;
+  useEffect(() => {
+    if (reduceMotion) {
+      setOpened(Object.fromEntries(steps.map((step) => [step.id, true])));
+      return;
     }
-  }, []);
 
-  useLayoutEffect(() => {
-    setBar(0);
-  }, [active, setBar]);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
+    const nodes = itemRefs.current.filter((node): node is HTMLLIElement => node !== null);
     const io = new IntersectionObserver(
-      ([entry]) => {
-        setInView(entry.isIntersecting);
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = (entry.target as HTMLElement).dataset.step;
+          if (!id) return;
+          setOpened((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
+        });
       },
-      { threshold: [0, 0.15, 0.4] }
+      { threshold: 0.4, rootMargin: "-8% 0px -12% 0px" }
     );
-    io.observe(el);
+
+    nodes.forEach((node) => io.observe(node));
     return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (reduceMotion || !inView) return;
-    let raf = 0;
-    let last = performance.now();
-
-    const tick = (now: number) => {
-      const dt = now - last;
-      last = now;
-      const next = Math.min(1, progressRef.current + dt / STEP_MS);
-      if (next >= 1) {
-        setBar(0);
-        setActive((i) => (i + 1) % steps.length);
-      } else {
-        setBar(next);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, reduceMotion, setBar, steps.length]);
-
-  const selectStep = (index: number) => {
-    if (index === active) return;
-    setActive(index);
-  };
-
-  const current = steps[active] ?? steps[0];
+  }, [reduceMotion, steps]);
 
   return (
-    <section
-      id="lifecycle"
-      ref={sectionRef}
-      className="bg-surface-card"
-    >
-      <div className="mx-auto grid w-full max-w-[1200px] items-stretch gap-8 px-6 py-section lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12">
-        <div className="flex flex-col">
-          <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-ink md:text-[2.5rem]">
+    <section id="lifecycle" className="bg-surface-card">
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-section">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <h2 className="text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-ink md:text-[3.25rem]">
             {title}
           </h2>
-
-          <ol className="mt-10 flex flex-col">
-            {steps.map((step, index) => {
-              const isActive = index === active;
-              return (
-                <li key={step.id}>
-                  <button
-                    type="button"
-                    onClick={() => selectStep(index)}
-                    aria-current={isActive ? "step" : undefined}
-                    className="relative w-full py-3 ps-5 text-start"
-                  >
-                    <span
-                      className="absolute start-0 top-3 bottom-3 w-[3px] overflow-hidden rounded-full bg-hairline"
-                      aria-hidden
-                    >
-                      {isActive ? (
-                        <span
-                          ref={barRef}
-                          className="absolute inset-x-0 top-0 h-full rounded-full will-change-transform"
-                          style={{
-                            backgroundColor: RAIL_COLOR,
-                            transform: reduceMotion ? "scaleY(1)" : "scaleY(0)",
-                            transformOrigin: "top",
-                          }}
-                        />
-                      ) : null}
-                    </span>
-
-                    <span
-                      className={[
-                        "block text-[15px] font-medium tracking-tight transition-colors",
-                        isActive ? "text-ink" : "text-muted-soft",
-                      ].join(" ")}
-                    >
-                      <span className="tabular-nums">{step.number}</span>{" "}
-                      {step.label}
-                    </span>
-
-                    <AnimatePresence initial={false}>
-                      {isActive ? (
-                        <motion.div
-                          key={`${step.id}-body`}
-                          initial={reduceMotion ? false : { height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={reduceMotion ? undefined : { height: 0, opacity: 0 }}
-                          transition={reduceMotion ? { duration: 0 } : ACCORDION}
-                          className="overflow-hidden"
-                        >
-                          <p className="max-w-[34ch] pt-2 pb-1 text-[13.5px] leading-[1.55] text-muted">
-                            {step.body}
-                          </p>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <BookDemoLink className="btn-primary w-full justify-center sm:w-auto">
               {cta}
             </BookDemoLink>
@@ -191,39 +146,70 @@ export function AgentLifecycleClient({ title, cta, createAgentCta, steps }: Prop
           </div>
         </div>
 
-        <div className="relative min-h-[420px] overflow-hidden rounded-xxl sm:min-h-[480px] lg:min-h-[560px]">
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={current.id}
-              className="absolute inset-0"
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={reduceMotion ? undefined : { opacity: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.4, ease: EASE_OUT }}
-            >
-              <Image
-                src={current.background}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 560px, 100vw"
-                loading={current.id === "build" ? "eager" : "lazy"}
-              />
-              <DiamondOverlay />
-              <div
-                className="relative z-10 flex h-full items-center justify-center p-5 sm:p-8 lg:p-10"
-                aria-hidden
+        <ol className="lifecycle-cards mt-10 flex list-none flex-col gap-6">
+          {steps.map((step, index) => {
+            const theme = THEMES[step.id];
+            return (
+              <li
+                key={step.id}
+                ref={(node) => {
+                  itemRefs.current[index] = node;
+                }}
+                data-step={step.id}
+                className={cn("max-md:static motion-reduce:static", sticky && "md:sticky")}
+                style={{
+                  zIndex: index + 1,
+                  ...(sticky
+                    ? { top: `calc(${STICKY_TOP} + ${index * STACK_PEEK}px)` }
+                    : undefined),
+                }}
               >
-                <div className="pointer-events-none flex w-full justify-center select-none">
-                  {current.id === "build" ? <BuildVisual /> : null}
-                  {current.id === "test" ? <TestVisual /> : null}
-                  {current.id === "deploy" ? <DeployVisual /> : null}
-                  {current.id === "optimize" ? <OptimizeVisual /> : null}
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+                <article
+                  className="grid min-h-[28rem] overflow-hidden rounded-xxl shadow-[0_8px_32px_rgba(12,10,9,0.08)] lg:grid-cols-2 lg:min-h-[38rem]"
+                  style={{ backgroundColor: theme.card }}
+                >
+                  <div className="flex flex-col items-start justify-center px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
+                    <EchoPill
+                      label={step.label}
+                      color={theme.pill}
+                      echo={theme.echo}
+                      fan={theme.fan}
+                      open={Boolean(opened[step.id])}
+                    />
+                    <h3
+                      className="mt-6 font-display text-display-lg tracking-tighter text-balance md:text-display-mega"
+                      style={{ color: theme.headline }}
+                    >
+                      {step.label}
+                    </h3>
+                    <p
+                      className="mt-4 max-w-[42ch] text-body-md leading-relaxed"
+                      style={{ color: theme.body }}
+                    >
+                      {step.body}
+                    </p>
+                  </div>
+
+                  <div className="p-3 pt-0 sm:p-4 sm:pt-0 lg:flex lg:flex-col lg:p-5 lg:ps-0 lg:py-5">
+                    <div
+                      className="relative min-h-[280px] overflow-hidden rounded-xxl sm:min-h-[340px] lg:min-h-0 lg:flex-1"
+                      style={{ backgroundColor: theme.stage }}
+                    >
+                      <div
+                        className="relative z-10 flex h-full min-h-[280px] items-center justify-center p-5 sm:min-h-[340px] sm:p-8 lg:min-h-full lg:p-10"
+                        aria-hidden
+                      >
+                        <div className="pointer-events-none flex w-full justify-center select-none">
+                          <StepVisual id={step.id} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );

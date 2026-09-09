@@ -12,7 +12,7 @@ import {
 } from "@/lib/seo/metadata";
 
 import "./globals.css";
-import { inter, instrumentSerif } from "./fonts";
+import { instrumentSerif } from "./fonts";
 
 export const metadata: Metadata = {
   metadataBase: SITE_METADATA_BASE,
@@ -49,7 +49,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${instrumentSerif.variable} antialiased`}>
+    <html lang={locale} dir={dir} className={`${instrumentSerif.variable} antialiased`}>
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/bricolage-grotesque-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="font-sans bg-canvas text-ink text-pretty">
         <ClerkProvider
           localization={clerkLocalizationForLocale(locale)}
@@ -65,7 +74,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           toastOptions={{
             style: {
               borderRadius: "16px",
-              fontFamily: "var(--font-inter)",
+              fontFamily: "var(--font-body)",
               fontSize: "14px",
             },
           }}

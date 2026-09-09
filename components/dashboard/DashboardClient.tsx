@@ -490,7 +490,7 @@ export function DashboardClient({ stats }: { stats: DashboardStats }) {
     <div className="mx-auto w-full max-w-6xl px-6 flex flex-col gap-3">
       {/* ── Greeting ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
+        <h1 className="font-display text-display-sm tracking-tight text-ink">
           {greeting}
         </h1>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-card px-3 py-[3px] text-body-sm font-medium text-ink">

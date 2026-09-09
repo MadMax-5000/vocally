@@ -1,8 +1,9 @@
 import { LandingHomeHeader } from "@/components/marketing/landing-nav/LandingHomeHeader";
 import { LandingHero } from "@/components/marketing/LandingHero";
 import { TrustShowcase } from "@/components/marketing/TrustShowcase";
+import { BoldStatsSection } from "@/components/marketing/BoldStatsSection";
+import { StackSpreadSection } from "@/components/marketing/stack-spread/StackSpreadSection";
 import { AgentLifecycle } from "@/components/marketing/agent-lifecycle/AgentLifecycle";
-import { DeployChannels } from "@/components/marketing/deploy-channels/DeployChannels";
 import { Industries } from "@/components/marketing/industries/Industries";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { ScrollReveal } from "@/components/marketing/ScrollReveal";
@@ -27,11 +28,10 @@ export default function HomePage() {
       <ScrollReveal minHeight={720}>
         <TrustShowcase />
       </ScrollReveal>
-      <ScrollReveal minHeight={640}>
-        <AgentLifecycle />
-      </ScrollReveal>
-      <ScrollReveal minHeight={680}>
-        <DeployChannels />
+      <AgentLifecycle />
+      <StackSpreadSection />
+      <ScrollReveal minHeight={480}>
+        <BoldStatsSection />
       </ScrollReveal>
       <ScrollReveal minHeight={640}>
         <Industries />

@@ -50,7 +50,7 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Book 100× more",
+      "titleLine1": "Book 100X more",
       "titleLine2Prefix": "",
       "titleAccent": "appointments",
       "titleAfterAccent": ".",
@@ -118,9 +118,40 @@
       "title": "One agent for every customer interaction,",
       "subtitle": "runs support, sales, and product guidance 24/7"
     },
+    "boldStats": {
+      "heroTitle": "Issues resolved by AI",
+      "heroDescription": "Most conversations never need a human — your agent handles them end to end.",
+      "heading": "Resolution without the wait.",
+      "imageAlt": "AI agent technology",
+      "stats": {
+        "resolution": {
+          "value": "80%+",
+          "label": "Issues resolved by AI"
+        },
+        "latency": {
+          "value": "<800ms",
+          "label": "Avg. AI reply"
+        },
+        "channels": {
+          "value": "9",
+          "label": "Channels live"
+        },
+        "alwaysOn": {
+          "value": "24/7",
+          "label": "Always on"
+        }
+      }
+    },
+    "stackSpread": {
+      "title": "Deploy once.",
+      "titleMuted": "Live",
+      "titleEnd": "everywhere.",
+      "subtitle": "WhatsApp, Instagram, email, phone, your site, Shopify — one agent on every channel your customers already use.",
+      "scrollHint": "Scroll"
+    },
     "lifecycle": {
       "title": "The agent lifecycle",
-      "cta": "Create Agent",
+      "cta": "Create an agent",
       "steps": {
         "build": {
           "label": "Build",
@@ -142,7 +173,7 @@
     },
     "deployChannels": {
       "title": "Build once and deploy everywhere.",
-      "cta": "Create Agent",
+      "cta": "Create an agent",
       "steps": {
         "chat": {
           "label": "Chat",

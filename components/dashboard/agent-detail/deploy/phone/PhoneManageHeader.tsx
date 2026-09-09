@@ -53,7 +53,7 @@ export function PhoneManageHeader({
 
         <div className="flex items-start justify-between gap-4 pb-3">
           <div className="min-w-0">
-            <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
+            <h1 className="font-display text-display-sm tracking-tight text-ink">
               {t("phone.title")}
             </h1>
             <p className="mt-0.5 text-body-sm text-muted">

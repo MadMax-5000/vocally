@@ -109,7 +109,7 @@ export function IndustriesClient({
     >
       <div className="mx-auto w-full max-w-[1200px] px-6 py-section">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-ink md:text-[2.5rem]">
+          <h2 className="text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-ink md:text-[3.25rem]">
             {title}
           </h2>
           <div className="flex shrink-0 gap-2">

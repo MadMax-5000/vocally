@@ -237,7 +237,7 @@ export async function TrustShowcase() {
 
         {/* ── Heading band ── */}
         <div className="max-w-[900px]">
-          <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-balance md:text-[2.5rem]">
+          <h2 className="text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-balance md:text-[3.25rem]">
             <span className="text-ink">{t("title")}</span>{" "}
             <span className="text-muted">{t("subtitle")}</span>
           </h2>

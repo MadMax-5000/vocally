@@ -35,14 +35,16 @@ const config: Config = {
         "popover-foreground": "var(--popover-foreground)"
       },
       fontFamily: {
-        // Nimbus Sans L isn't on Google Fonts; we use a local/system fallback.
-        display: ["Nimbus Sans L", "Helvetica", "Arial", "sans-serif"],
-        sans: ["var(--font-inter)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        // Instrument Serif italic — marketing hero accent line
+        display: ["var(--font-display)"],
+        sans: ["var(--font-body)"],
+        body: ["var(--font-body)"],
+        mono: ["var(--font-mono)"],
+        app: ["var(--font-app)"],
+        // Instrument Serif — marketing hero accent line
         accent: ["var(--font-accent)", "Georgia", "Times New Roman", "serif"]
       },
       letterSpacing: {
-        tighter: "-0.04em",
+        tighter: "-0.025em",
         tight: "-0.02em",
         normal: "0em",
         wide: "0.03em"
@@ -69,11 +71,11 @@ const config: Config = {
       },
       fontSize: {
         // Display tokens
-        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.6px", fontWeight: "400" }],
-        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "400" }],
-        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.28px", fontWeight: "400" }],
-        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.22px", fontWeight: "400" }],
-        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "0px", fontWeight: "400" }],
+        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.4px", fontWeight: "800" }],
+        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "800" }],
+        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.6px", fontWeight: "800" }],
+        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.52px", fontWeight: "800" }],
+        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "-0.4px", fontWeight: "800" }],
         // Body tokens
         "title-md": ["18px", { lineHeight: "1.35", letterSpacing: "0px", fontWeight: "500" }],
         "title-sm": ["16px", { lineHeight: "1.44", letterSpacing: "0.14px", fontWeight: "500" }],

@@ -39,7 +39,7 @@ export function DeployManageShell({
           <AppIcon icon={ArrowLeftIcon} className="size-3.5" />
           {t("common.backToDeploy")}
         </Link>
-        <h2 className="font-display text-display-sm font-normal tracking-tight text-ink">
+        <h2 className="font-display text-display-sm tracking-tight text-ink">
           {title}
         </h2>
         {description ? (

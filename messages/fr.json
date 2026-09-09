@@ -50,16 +50,16 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Réservez 100× plus",
+      "titleLine1": "Réservez 100X plus",
       "titleLine2Prefix": "",
       "titleAccent": "de rendez-vous",
       "titleAfterAccent": ".",
-      "subtitle": "Un agent IA qui répond à chaque lead, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’email et le téléphone.",
+      "subtitle": "Un agent IA qui répond à chaque prospect, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’e-mail et le téléphone.",
       "startFreeTrial": "Démarrer l'essai gratuit",
       "getDemo": "Réserver une démo"
     },
     "rotatingWords": {
-      "bakery": "épicerie",
+      "bakery": "boulangerie",
       "clinic": "clinique",
       "agency": "agence",
       "salons": "salon",
@@ -69,7 +69,7 @@
     "voiceSpheres": {
       "spheres": {
         "abstract-1": {
-          "title": "Support Arabe",
+          "title": "Support arabe",
           "description": "Voix Darija naturelle pour vos clients marocains."
         },
         "abstract-2": {
@@ -77,7 +77,7 @@
           "description": "Voix française fluide pour les appels professionnels."
         },
         "abstract-3": {
-          "title": "Agent Anglais",
+          "title": "Agent anglais",
           "description": "Voix anglaise claire pour les clients internationaux."
         },
         "abstract-4": {
@@ -85,11 +85,11 @@
           "description": "Change de langue en cours de conversation sans effort."
         },
         "abstract-5": {
-          "title": "Toujours Disponible",
+          "title": "Toujours disponible",
           "description": "Répond instantanément — jour, nuit, week-ends."
         },
         "abstract-6": {
-          "title": "Escalade Rapide",
+          "title": "Escalade rapide",
           "description": "Transfère à un humain quand nécessaire."
         }
       }
@@ -118,8 +118,39 @@
       "title": "Un agent pour chaque interaction client,",
       "subtitle": "gère le support, les ventes et le guidage produit 24h/24"
     },
+    "boldStats": {
+      "heroTitle": "Demandes résolues par l'IA",
+      "heroDescription": "La plupart des conversations n'ont pas besoin d'un humain — votre agent les traite de bout en bout.",
+      "heading": "La résolution, sans l'attente.",
+      "imageAlt": "Technologie d'agent IA",
+      "stats": {
+        "resolution": {
+          "value": "80%+",
+          "label": "Demandes résolues par l'IA"
+        },
+        "latency": {
+          "value": "<800 ms",
+          "label": "Réponse IA moyenne"
+        },
+        "channels": {
+          "value": "9",
+          "label": "Canaux actifs"
+        },
+        "alwaysOn": {
+          "value": "24h/24",
+          "label": "Toujours disponible"
+        }
+      }
+    },
+    "stackSpread": {
+      "title": "Déployez une fois.",
+      "titleMuted": "Présents",
+      "titleEnd": "partout.",
+      "subtitle": "WhatsApp, Instagram, e-mail, téléphone, votre site, Shopify — un seul agent sur chaque canal où vos clients sont déjà.",
+      "scrollHint": "Défiler"
+    },
     "lifecycle": {
-      "title": "Le cycle de vie de l'agent",
+      "title": "Le parcours de votre agent",
       "cta": "Créer un agent",
       "steps": {
         "build": {

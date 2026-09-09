@@ -2,15 +2,15 @@
 
 ElevenLabs reads like a quietly editorial print magazine that happens to be a voice-AI product. The base canvas is off-white `{colors.canvas}` (#f5f5f5) holding warm near-black ink `{colors.ink}` (#0c0a09). The system operates entirely in light mode — no dark-canvas atmospheres.
 
-Type pairs **Nimbus Sans L** (modern sans-serif at regular weight) for display with **Inter** for body, navigation, captions. The regular display weight keeps the modern silhouette without heavy bold punch.
+Type pairs **Bricolage Grotesque** (display, weight 800) with **Instrument Sans** for body, navigation, captions, and buttons. Large display sizes use tight negative letter-spacing (~-0.02em to -0.025em). In-app chrome uses an Inter-first system stack (Inter is not bundled).
 
 CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the primary, a transparent outline (`{component.button-outline}`) is the secondary. The brand trusts typography and whitespace to carry the design.
 
 **Key Characteristics:**
 - Strictly light mode. Off-white canvas, warm near-black ink. No dark canvas surfaces.
 - Single primary action: brand button at `{rounded.md}`.
-- Display runs Nimbus Sans L at regular weight — clean modern sans-serif hero voice.
-- Body runs Inter at 400 with subtle letter-spacing (+0.15-0.18px).
+- Display runs Bricolage Grotesque at weight 800 — tight tracking on large sizes.
+- Body runs Instrument Sans at 400–700 with subtle letter-spacing (+0.15-0.18px).
 - Soft geometry (`{rounded.md}` for buttons, `{rounded.xl}` for cards).
 - 96px section rhythm.
 
@@ -49,20 +49,20 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 ## Typography
 
 ### Font Family
-**Nimbus Sans L** is the display sans-serif at regular weight. **Inter** carries body, navigation, captions, and buttons. Fallback: `'Helvetica', sans-serif` for Nimbus Sans L, `sans-serif` for Inter.
+**Bricolage Grotesque** is the display sans-serif at weight 800 (`--font-display`). **Instrument Sans** carries body, navigation, captions, and buttons (`--font-body`). **JetBrains Mono** is used for `code`, `pre`, and `kbd` (`--font-mono`). In-app chrome uses `--font-app` (Inter first, not bundled; falls back to system sans). All faces are self-hosted via `@font-face` — never load fonts from a CDN.
 
 ### Hierarchy
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
 |---|---|---|---|---|---|
-| `{typography.display-mega}` | 56px | Regular | 1.05 | -1.6px | Homepage hero h1 |
-| `{typography.display-xl}` | 40px | Regular | 1.08 | -0.8px | Subsidiary heroes |
-| `{typography.display-lg}` | 30px | Regular | 1.17 | -0.28px | Section heads |
-| `{typography.display-md}` | 26px | Regular | 1.13 | -0.22px | Sub-section heads |
-| `{typography.display-sm}` | 20px | Regular | 1.2 | 0 | Card group titles |
-| `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Inter |
+| `{typography.display-mega}` | 56px | 800 | 1.05 | -1.4px | Homepage hero h1 |
+| `{typography.display-xl}` | 40px | 800 | 1.08 | -0.8px | Subsidiary heroes |
+| `{typography.display-lg}` | 30px | 800 | 1.17 | -0.6px | Section heads |
+| `{typography.display-md}` | 26px | 800 | 1.13 | -0.52px | Sub-section heads |
+| `{typography.display-sm}` | 20px | 800 | 1.2 | -0.4px | Card group titles |
+| `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Instrument Sans |
 | `{typography.title-sm}` | 16px | 500 | 1.44 | 0.14px | List labels |
-| `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Inter |
+| `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Instrument Sans |
 | `{typography.body-strong}` | 15px | 500 | 1.55 | 0.14px | Emphasized body |
 | `{typography.body-sm}` | 14px | 400 | 1.5 | 0.12px | Secondary body |
 | `{typography.caption}` | 13px | 400 | 1.5 | 0 | Captions / helper text |
@@ -71,18 +71,18 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 | `{typography.nav-link}` | 14px | 500 | 1.4 | 0 | Top-nav menu |
 
 ### Principles
-- **Display weight stays Regular.** Nimbus Sans L at a regular weight is the modern signature. Never use bold for display copy.
-- **Subtle letter-spacing on body.** Inter at +0.15-0.18px tracking — slightly looser than default Inter for a more editorial feel.
-- **Negative letter-spacing on display.** Nimbus Sans L at regular weight pulls -0.32px to -1.92px tighter on display sizes.
+- **Display weight is 800.** Bricolage Grotesque extra-bold is the brand signature for h1–h4 and wordmarks. Do not use regular/400 for display copy.
+- **Subtle letter-spacing on body.** Instrument Sans at +0.15-0.18px tracking.
+- **Negative letter-spacing on display.** About -0.02em to -0.025em (e.g. -1px at 46px, -1.4px at 58px).
 
 ### Note on Font Substitutes
-Nimbus Sans L is an open-source typeface (URW++). Common system substitutes: **Helvetica**, **Arial**, or **San Francisco** at regular weight. Use Inter directly for body.
+Brand fonts are self-hosted. Fallbacks are `system-ui, sans-serif` for display/body and `ui-monospace, monospace` for mono. Inter is named first in the app-UI stack but is not bundled.
 
 ### Utility recipes for React (Tailwind)
 
-Use these **together** for an ElevenLabs-style crisp, editorial feel. Prefer design tokens over raw `zinc-*` or arbitrary hex.
+Use these **together** for a crisp, editorial feel. Prefer design tokens over raw `zinc-*` or arbitrary hex.
 
-- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Nimbus Sans L** at regular per the hierarchy table.
+- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Bricolage Grotesque** at 800 per the hierarchy table.
 - **Body / subcopy:** `text-body` or `text-muted`, `leading-relaxed`, `text-pretty`. Keep **subtle positive** body tracking from `{typography.body-*}` — do not put `tracking-tighter` on long body paragraphs.
 - **UI / CTAs:** `tracking-wide` on short bold label text; primary actions use `{component.button-primary}` / `bg-primary` + `text-on-primary` + `rounded-md`, or the `.btn-primary` class from global CSS.
 
@@ -291,16 +291,16 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 ### Do
 - Ensure the interface remains strictly light mode at all times.
 - Reserve `{colors.primary}` (brand pill) for primary CTAs.
-- Use Nimbus Sans L at regular weight for every display headline. Always regular weight.
-- Use Inter at +0.15-0.18px tracking for body — the editorial dialect.
+- Use Bricolage Grotesque at weight 800 for every display headline and wordmark.
+- Use Instrument Sans at +0.15-0.18px tracking for body — the editorial dialect.
 - Use `{rounded.md}` for CTAs and `{rounded.pill}` for badges.
 
 ### Don't
 - **Don't introduce dark mode sections, dark canvases, or inverted dark themes.**
 - Don't introduce a saturated brand action color. Ink pill is the only CTA color.
-- Don't use bold weights for display copy. Display sits at regular weight — the clean, modern silhouette is the brand signature.
+- Don't use regular/400 weights for display copy. Display sits at 800.
 - Don't use sharp `{rounded.none}` (0px) on CTAs. Buttons should be `{rounded.md}`.
-- Don't drop body Inter to match Nimbus Sans L's weight — body stays at 400/500 for legibility.
+- Don't drop body Instrument Sans to match display weight — body stays at 400/500 for legibility.
 - Don't extract a CTA color from a third-party widget (cookie consent, OneTrust). The brand's CTA color is what appears on actual product CTAs.
 
 ## Responsive Behavior
@@ -329,12 +329,12 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 3. Variants live as separate entries.
 4. Use `{token.refs}` everywhere — never inline hex.
 5. Hover state never documented.
-6. Nimbus Sans L regular for display, Inter 400/500 for body.
+6. Bricolage Grotesque 800 for display, Instrument Sans 400–700 for body, JetBrains Mono for code.
 7. Keep decoration minimal and non-distracting.
 
 ## Known Gaps
 
-- Nimbus Sans L is open-source, but Helvetica/Arial are documented system substitutes if unavailable.
+- Brand fonts are self-hosted (SIL OFL; Roboto Apache 2.0). Inter is named in the app-UI stack but is not bundled.
 - Animation timings (orb drift, waveform pulse, hero entrance) out of scope.
 - In-product surfaces (voice library editor, agent playground) only partially captured via marketing mockups.
 - Form validation states beyond focus not visible on captured surfaces.

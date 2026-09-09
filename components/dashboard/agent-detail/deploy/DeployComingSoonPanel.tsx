@@ -33,7 +33,7 @@ export function DeployComingSoonPanel({
         {t("common.comingSoon")}
       </span>
 
-      <h3 className="font-display text-display-sm font-normal tracking-tight text-muted">
+      <h3 className="font-display text-display-sm tracking-tight text-muted">
         {title}
       </h3>
 

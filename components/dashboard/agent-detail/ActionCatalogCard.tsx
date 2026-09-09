@@ -71,7 +71,7 @@ export function ActionCatalogCard({
         ) : null}
       </div>
       <div className="flex min-w-0 flex-col gap-1.5">
-        <h3 className="font-display text-title-sm font-normal tracking-tight text-ink">
+        <h3 className="font-display text-title-sm tracking-tight text-ink">
           {t(entry.title)}
         </h3>
         <p className="text-pretty text-body-sm leading-relaxed text-muted">

@@ -20,18 +20,16 @@ export async function LandingHero() {
       >
         <HeroCopyReveal>
           <div className="flex flex-col items-start text-start">
-            <h1 className="text-[2.5rem] leading-[1.05] tracking-[-0.03em] text-ink md:text-[3.6rem] lg:text-[4rem]">
-              <span className="block font-sans font-medium">{t("titleLine1")}</span>
-              <span className="block font-sans font-medium">
+            <h1 className="text-[2.75rem] leading-[1.05] tracking-[-0.025em] text-ink md:text-[4rem] lg:text-[4.5rem]">
+              <span className="block">{t("titleLine1")}</span>
+              <span className="block">
                 {t("titleLine2Prefix") ? `${t("titleLine2Prefix")} ` : ""}
-                <span className="font-accent text-[1.05em] font-semibold italic leading-[1.15] tracking-wide">
-                  {t("titleAccent")}
-                </span>
+                {t("titleAccent")}
                 {t("titleAfterAccent")}
               </span>
             </h1>
 
-            <p className="mt-6 max-w-[48ch] text-pretty font-sans text-[0.9375rem] font-medium leading-[1.55] tracking-tight text-body md:text-[1.0625rem] md:leading-[1.5]">
+            <p className="mt-6 max-w-[48ch] text-pretty text-[0.9375rem] font-medium leading-[1.55] tracking-tight text-body md:text-[1.0625rem] md:leading-[1.5]">
               {t("subtitle")}
             </p>
 

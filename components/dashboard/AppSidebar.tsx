@@ -92,7 +92,7 @@ function SidebarBrand() {
       >
         <AnselioLogo variant="black" size="sm" />
         {isExpanded ? (
-          <span className="font-display text-title-md tracking-tight text-ink whitespace-nowrap">
+          <span className="font-display text-title-md font-extrabold tracking-tight text-ink whitespace-nowrap">
             {BRAND_NAME}
           </span>
         ) : null}

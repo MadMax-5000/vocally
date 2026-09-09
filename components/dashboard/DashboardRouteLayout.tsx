@@ -31,14 +31,14 @@ export function DashboardRouteLayout({
 
   if (isFullscreen) {
     return (
-      <div className="min-h-dvh bg-surface-card">
+      <div className="font-app min-h-dvh bg-surface-card">
         {children}
       </div>
     );
   }
 
   return (
-    <SidebarProvider defaultOpen={false} persistCookie={false}>
+    <SidebarProvider defaultOpen={false} persistCookie={false} className="font-app">
       <AppSidebar />
       <div className="flex min-h-dvh flex-1 flex-col bg-surface-card">
         {hideDashboardTopbar ? null : <DashboardTopbar />}

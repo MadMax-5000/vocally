@@ -2,7 +2,6 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/routing";
-import { ArabicFlag, EnglishFlag, FrenchFlag } from "@/utils/flags";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +12,15 @@ import { AppIcon } from "@/components/ui/app-icon";
 import { CheckIcon } from "@/lib/icons/app-icons";
 import { useTransition } from "react";
 
-const flags = {
-  fr: { icon: FrenchFlag, label: "Français" },
-  ar: { icon: ArabicFlag, label: "العربية" },
-  en: { icon: EnglishFlag, label: "English" },
-} as const;
+const LOCALES = ["fr", "en", "ar"] as const;
 
-type LocaleKey = keyof typeof flags;
+const LABELS: Record<(typeof LOCALES)[number], string> = {
+  fr: "FR",
+  en: "EN",
+  ar: "AR",
+};
+
+type LocaleKey = (typeof LOCALES)[number];
 
 export function LanguageSwitcher() {
   const locale = useLocale() as LocaleKey;
@@ -28,7 +29,7 @@ export function LanguageSwitcher() {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const CurrentFlag = flags[locale]?.icon || FrenchFlag;
+  const currentLabel = LABELS[locale] ?? LABELS.fr;
 
   function handleSwitch(newLocale: LocaleKey) {
     if (newLocale === locale) return;
@@ -41,25 +42,23 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex h-8 w-10 items-center justify-center rounded-md border border-hairline bg-surface-card transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2"
+        className="flex h-8 min-w-10 items-center justify-center rounded-md border border-hairline bg-surface-card px-2 text-caption-uppercase text-ink transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2"
         aria-label={t("language")}
         disabled={isPending}
       >
-        <CurrentFlag className="h-5 w-5 shrink-0" />
+        {currentLabel}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[140px]">
-        {Object.entries(flags).map(([key, config]) => {
+      <DropdownMenuContent align="end" className="min-w-[5.5rem]">
+        {LOCALES.map((key) => {
           const isSelected = key === locale;
-          const FlagIcon = config.icon;
           return (
             <DropdownMenuItem
               key={key}
-              onClick={() => handleSwitch(key as LocaleKey)}
+              onClick={() => handleSwitch(key)}
               className="flex cursor-pointer items-center gap-3"
             >
-              <FlagIcon className="h-5 w-5 shrink-0" />
-              <span className="flex-1 text-sm font-medium" dir={key === "ar" ? "rtl" : "ltr"}>
-                {config.label}
+              <span className="flex-1 text-caption-uppercase text-ink">
+                {LABELS[key]}
               </span>
               {isSelected && (
                 <AppIcon icon={CheckIcon} className="h-4 w-4 shrink-0 text-primary" />

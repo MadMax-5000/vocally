@@ -157,7 +157,7 @@ export function AgentDetailActionsTab({ agent }: AgentDetailActionsTabProps) {
     <>
       <div className="mx-auto flex max-w-6xl flex-col gap-3 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
+          <h1 className="font-display text-display-sm tracking-tight text-ink">
             {t("title")}
           </h1>
           <Button

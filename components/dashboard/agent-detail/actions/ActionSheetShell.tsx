@@ -58,7 +58,7 @@ export function ActionSheetShell({
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <SheetHeader className="space-y-1 border-b border-hairline px-5 pb-4 pt-5 text-left">
-          <SheetTitle className="font-display text-display-sm font-normal tracking-tight text-ink">
+          <SheetTitle className="font-display text-display-sm tracking-tight text-ink">
             {title}
           </SheetTitle>
           <SheetDescription className="text-body-sm text-muted">

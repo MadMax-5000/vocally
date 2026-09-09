@@ -111,7 +111,7 @@ export function SuccessRateChart() {
             <p className="text-[11px] font-semibold tracking-[0.96px] uppercase text-muted">
               Success rate
             </p>
-            <p className="mt-1 font-display text-[28px] font-normal leading-none tracking-tight text-ink">
+            <p className="mt-1 font-display text-[28px] font-extrabold leading-none tracking-tight text-ink">
                78.3%
             </p>
           </div>

@@ -774,7 +774,7 @@ export function AgentDetailKnowledgeTab({ agentId }: { agentId: string }) {
     <div className="mx-auto max-w-6xl flex flex-col gap-2 py-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <h1 className="font-display text-display-sm font-normal tracking-tight text-ink">
+          <h1 className="font-display text-display-sm tracking-tight text-ink">
             {t("title")}
           </h1>
           <KnowledgeIcon className="h-4 w-4 text-muted" aria-hidden />

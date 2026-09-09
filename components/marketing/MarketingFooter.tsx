@@ -46,7 +46,7 @@ export async function MarketingFooter() {
       <div className="relative overflow-hidden rounded-[32px] bg-ink">
         <section className="relative overflow-hidden">
           <div className="relative z-10 mx-auto flex max-w-[900px] flex-col items-center px-6 pb-28 pt-24 text-center md:pb-36 md:pt-32">
-            <h2 className="font-sans text-[2rem] font-semibold leading-[1.15] tracking-[-0.03em] text-balance text-white md:text-[2.5rem]">
+            <h2 className="text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-balance text-white md:text-[3.25rem]">
               {t("headline")}
             </h2>
             <div className="mt-8 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
@@ -84,7 +84,7 @@ export async function MarketingFooter() {
                 aria-label={BRAND_NAME}
               >
                 <AnselioLogo variant="white" size="md" />
-                <span className="font-sans text-[17px] font-semibold tracking-tight text-white">
+                <span className="font-display text-[17px] font-extrabold tracking-tight text-white">
                   {BRAND_NAME}
                 </span>
               </Link>

@@ -677,7 +677,7 @@ export function InboxClient({ sessions: initialSessions }: { sessions: InboxSess
             className="h-9 w-full rounded-lg border-hairline pl-8 pr-16 text-sm text-ink placeholder:text-muted-soft focus-visible:border-hairline-strong focus-visible:ring-1 focus-visible:ring-hairline-strong/10"
           />
           <div className="pointer-events-none absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
-            <kbd className="rounded border border-hairline bg-surface-strong px-1.5 py-0.5 font-sans text-[11px] leading-none text-muted">
+            <kbd className="rounded border border-hairline bg-surface-strong px-1.5 py-0.5 text-[11px] leading-none text-muted">
               ⌘K
             </kbd>
           </div>

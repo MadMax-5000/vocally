@@ -109,7 +109,7 @@ export function AgentDetailDeployTab({ agent }: Props) {
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-3 py-2">
       <div>
-        <h2 className="font-display text-display-sm font-normal tracking-tight text-ink">
+        <h2 className="font-display text-display-sm tracking-tight text-ink">
           {t("title")}
         </h2>
         <p className="mt-0.5 text-body-sm text-muted">
