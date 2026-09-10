@@ -1,7 +1,9 @@
 import { SignIn } from "@clerk/nextjs";
 import { getTranslations } from "next-intl/server";
 import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { ClerkUnconfiguredMessage } from "@/components/auth/ClerkUnconfiguredMessage";
 import { authClerkAppearance } from "@/lib/clerk/auth-appearance";
+import { isClerkConfigured } from "@/lib/clerk/keys";
 
 export default async function SignInPage({
   params: { locale },
@@ -11,12 +13,16 @@ export default async function SignInPage({
   const t = await getTranslations("auth");
   return (
     <AuthPageShell title={t("signInTitle")} subtitle={t("signInSubtitle")}>
-      <SignIn
-        appearance={authClerkAppearance}
-        fallbackRedirectUrl={`/${locale}/dashboard`}
-        signUpFallbackRedirectUrl={`/${locale}/onboarding`}
-        signUpUrl={`/${locale}/sign-up`}
-      />
+      {isClerkConfigured() ? (
+        <SignIn
+          appearance={authClerkAppearance}
+          fallbackRedirectUrl={`/${locale}/dashboard`}
+          signUpFallbackRedirectUrl={`/${locale}/onboarding`}
+          signUpUrl={`/${locale}/sign-up`}
+        />
+      ) : (
+        <ClerkUnconfiguredMessage />
+      )}
     </AuthPageShell>
   );
 }

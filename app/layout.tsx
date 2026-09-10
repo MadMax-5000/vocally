@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { isClerkConfigured } from "@/lib/clerk/keys";
 import { clerkLocalizationForLocale } from "@/lib/clerk/localization";
 import { BRAND_NAME } from "@/lib/constants/brand";
 import { getLocale } from "next-intl/server";
@@ -60,13 +61,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="font-sans bg-canvas text-ink text-pretty">
-        <ClerkProvider
-          localization={clerkLocalizationForLocale(locale)}
-          signInFallbackRedirectUrl={`/${locale}/dashboard`}
-          signUpFallbackRedirectUrl={`/${locale}/onboarding`}
-        >
-          {children}
-        </ClerkProvider>
+        {isClerkConfigured() ? (
+          <ClerkProvider
+            localization={clerkLocalizationForLocale(locale)}
+            signInFallbackRedirectUrl={`/${locale}/dashboard`}
+            signUpFallbackRedirectUrl={`/${locale}/onboarding`}
+          >
+            {children}
+          </ClerkProvider>
+        ) : (
+          children
+        )}
         <Toaster
           position="top-right"
           richColors
