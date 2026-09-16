@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 const mockAgentFindUnique = vi.fn();
 const mockOrgFindUnique = vi.fn();
 const mockZernioUpsert = vi.fn();
+const mockZernioCount = vi.fn();
 const mockLogServerError = vi.fn();
 
 vi.mock("@/lib/db/prisma", () => ({
@@ -16,6 +17,7 @@ vi.mock("@/lib/db/prisma", () => ({
     },
     zernioChannel: {
       upsert: (...args: unknown[]) => mockZernioUpsert(...args),
+      count: (...args: unknown[]) => mockZernioCount(...args),
     },
   },
 }));
@@ -43,6 +45,7 @@ describe("GET /api/connect/callback", () => {
     vi.stubEnv("NODE_ENV", "production");
     mockAgentFindUnique.mockResolvedValue({ orgId: "org-1" });
     mockOrgFindUnique.mockResolvedValue({ plan: "STARTER" });
+    mockZernioCount.mockResolvedValue(0);
     mockZernioUpsert.mockResolvedValue({ id: "ch-1" });
   });
 

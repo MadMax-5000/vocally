@@ -7,6 +7,7 @@ import {
   importSipNumber,
   releasePhoneNumber,
   countOrgPhoneNumbers,
+  ensureVapiNativeSipNumber,
 } from "@/lib/twilio/provision-number";
 import {
   provisionNumber,
@@ -15,9 +16,10 @@ import {
   countOrgPhoneNumbers as pbxmeCountNumbers,
 } from "@/lib/telephony/provision";
 import { formatPbxmeNetworkError } from "@/lib/pbxme/client";
-import { MAX_PHONE_NUMBERS } from "@/lib/billing/plan-features";
+import { phoneNumberSlotLimit } from "@/lib/billing/phone-addon";
 import { isMoroccanE164, normalizeE164 } from "@/lib/telephony/e164";
 import { ASSEMBLYAI_SIP_URI } from "@/lib/assemblyai/sip";
+import { isVapiNativeSipUri, vapiNativeSipUri } from "@/lib/telephony/vapi-sip";
 
 const moroccanE164Schema = z
   .string()
@@ -34,29 +36,35 @@ export type PhoneConnectionSettings = {
     customerNumber: string | null;
     isActive: boolean;
     forwardingVerifiedAt: Date | null;
-    /** ussd = dial *21* to platform DID; sip = SIP BYOP to AssemblyAI. */
-    connectionMode: "ussd" | "sip" | "direct";
+    /** ussd = *21* to platform DID; sip = SIP BYOP to AssemblyAI; byoSip = cartes SIP; vapiSip = native sip.vapi.ai URI. */
+    connectionMode: "ussd" | "sip" | "direct" | "byoSip" | "vapiSip";
     createdAt: Date;
   }>;
   maxNumbers: number;
   currentCount: number;
   /** SIP URI for BYOP trunk configuration. */
   assemblyAiSipUri: string;
+  /** Inbound Vapi SIP URI for GoIP / SIPTRUNK, if created. */
+  vapiSipUri: string | null;
 };
 
 export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSettings> {
   return {
     numbers: [],
-    maxNumbers: MAX_PHONE_NUMBERS.FREE,
+    maxNumbers: phoneNumberSlotLimit("FREE"),
     currentCount: 0,
     assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
+    vapiSipUri: null,
   };
 }
 
 function resolveConnectionMode(
   number: string,
   customerNumber: string | null,
-): "ussd" | "sip" | "direct" {
+  sipCredentialId: string | null,
+): "ussd" | "sip" | "direct" | "byoSip" | "vapiSip" {
+  if (isVapiNativeSipUri(number)) return "vapiSip";
+  if (sipCredentialId) return "byoSip";
   if (!customerNumber) return "direct";
   if (customerNumber === number) return "sip";
   return "ussd";
@@ -86,7 +94,7 @@ export async function getPhoneConnectionSettings(
     });
 
     const plan = org?.plan ?? "FREE";
-    const maxNumbers = MAX_PHONE_NUMBERS[plan];
+    const maxNumbers = phoneNumberSlotLimit(plan);
 
     return {
       success: true,
@@ -97,12 +105,19 @@ export async function getPhoneConnectionSettings(
           customerNumber: n.customerNumber,
           isActive: n.isActive,
           forwardingVerifiedAt: n.forwardingVerifiedAt,
-          connectionMode: resolveConnectionMode(n.twilioNumber, n.customerNumber),
+          connectionMode: resolveConnectionMode(
+            n.twilioNumber,
+            n.customerNumber,
+            n.sipCredentialId,
+          ),
           createdAt: n.createdAt,
         })),
         maxNumbers,
         currentCount: numbers.filter((n) => n.isActive).length,
         assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
+        vapiSipUri:
+          numbers.find((n) => n.isActive && isVapiNativeSipUri(n.twilioNumber))?.twilioNumber
+          ?? null,
       },
     };
   } catch (error: unknown) {
@@ -174,7 +189,7 @@ export async function importSipPhoneNumber(
       select: { plan: true },
     });
     const plan = org?.plan ?? "FREE";
-    const maxNumbers = MAX_PHONE_NUMBERS[plan];
+    const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await countOrgPhoneNumbers(orgId);
     if (currentCount >= maxNumbers) {
@@ -221,6 +236,59 @@ export async function importSipPhoneNumber(
   }
 }
 
+export type VapiSipUriResult = {
+  sipUri: string;
+};
+
+/**
+ * Creates the inbound Vapi SIP URI for GoIP / SIPTRUNK.ma (no PSTN DID).
+ */
+export async function ensureVapiSipUri(
+  agentId: string,
+): Promise<{ success: true; data: VapiSipUriResult } | { success: false; error: string }> {
+  try {
+    const orgId = await getOrgPrismaId();
+    if (!orgId) return { success: false, error: "Unauthorized" };
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false, error: "Agent not found" };
+
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { plan: true },
+    });
+    const plan = org?.plan ?? "FREE";
+    const maxNumbers = phoneNumberSlotLimit(plan);
+
+    const expectedUri = vapiNativeSipUri(agentId);
+    const existingUri = await prisma.twilioPhoneNumber.findUnique({
+      where: { twilioNumber: expectedUri },
+      select: { orgId: true, isActive: true, vapiPhoneNumberId: true },
+    });
+    const alreadyActive =
+      existingUri?.orgId === orgId && existingUri.isActive && Boolean(existingUri.vapiPhoneNumberId);
+
+    if (!alreadyActive) {
+      const currentCount = await countOrgPhoneNumbers(orgId);
+      if (currentCount >= maxNumbers) {
+        return {
+          success: false,
+          error: `You've reached the maximum number of phone numbers for your ${plan} plan. Upgrade to add more.`,
+        };
+      }
+    }
+
+    const result = await ensureVapiNativeSipNumber(orgId, agentId);
+    return { success: true, data: { sipUri: result.sipUri } };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create Vapi SIP URI";
+    return { success: false, error: message };
+  }
+}
+
 /**
  * Imports an existing carrier number that forwards to a BYO SIP DID.
  * Same as importSipPhoneNumber but also stores the carrier's business number.
@@ -246,6 +314,38 @@ export async function importCarrierNumber(
       };
     }
 
+    const parsedDid = moroccanE164Schema.safeParse(didNumber);
+    if (!parsedDid.success) {
+      return {
+        success: false,
+        error: parsedDid.error.issues[0]?.message ?? "Invalid SIM / SIP phone number",
+      };
+    }
+
+    if (!sipServer.trim() || !sipUsername.trim() || !sipPassword.trim()) {
+      return { success: false, error: "SIP server, username, and password are required" };
+    }
+
+    const agent = await prisma.agent.findFirst({
+      where: { id: agentId, orgId },
+      select: { id: true },
+    });
+    if (!agent) return { success: false, error: "Agent not found" };
+
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { plan: true },
+    });
+    const plan = org?.plan ?? "FREE";
+    const maxNumbers = phoneNumberSlotLimit(plan);
+    const currentCount = await countOrgPhoneNumbers(orgId);
+    if (currentCount >= maxNumbers) {
+      return {
+        success: false,
+        error: `You've reached the maximum number of phone numbers for your ${plan} plan. Upgrade to add more.`,
+      };
+    }
+
     const existingCarrier = await prisma.twilioPhoneNumber.findFirst({
       where: {
         customerNumber: parsedCarrier.data,
@@ -264,7 +364,7 @@ export async function importCarrierNumber(
     }
 
     const result = await importSipNumber(orgId, agentId, {
-      didNumber,
+      didNumber: parsedDid.data,
       sipServer,
       sipUsername,
       sipPassword,
@@ -329,7 +429,7 @@ export async function connectCarrierByoc(
       select: { plan: true },
     });
     const plan = org?.plan ?? "FREE";
-    const maxNumbers = MAX_PHONE_NUMBERS[plan];
+    const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await pbxmeCountNumbers(orgId);
     if (currentCount >= maxNumbers) {
@@ -408,7 +508,7 @@ export async function getMoroccanNumber(
       select: { plan: true },
     });
     const plan = org?.plan ?? "FREE";
-    const maxNumbers = MAX_PHONE_NUMBERS[plan];
+    const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await pbxmeCountNumbers(orgId);
     if (currentCount >= maxNumbers) {

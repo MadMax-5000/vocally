@@ -36,6 +36,7 @@ type AnselioLogoProps = {
   href?: string;
   className?: string;
   priority?: boolean;
+  showWordmark?: boolean;
 };
 
 export function AnselioLogo({
@@ -44,13 +45,14 @@ export function AnselioLogo({
   href,
   className,
   priority = false,
+  showWordmark = false,
 }: AnselioLogoProps) {
   const asset = LOGO_SOURCES[variant];
 
   const image = (
     <Image
       src={asset.src}
-      alt={BRAND_NAME}
+      alt={showWordmark ? "" : BRAND_NAME}
       width={asset.width}
       height={asset.height}
       priority={priority}
@@ -58,17 +60,45 @@ export function AnselioLogo({
     />
   );
 
+  const wordmark = showWordmark ? (
+    <span
+      className={cn(
+        "font-display text-[17px] font-extrabold leading-none tracking-tight whitespace-nowrap",
+        variant === "white" ? "text-white" : "text-ink",
+      )}
+    >
+      {BRAND_NAME}
+    </span>
+  ) : null;
+
+  const lockup = (
+    <>
+      {image}
+      {wordmark}
+    </>
+  );
+
   if (!href) {
+    if (showWordmark) {
+      return (
+        <span className="inline-flex shrink-0 items-center gap-2 leading-none">
+          {lockup}
+        </span>
+      );
+    }
     return image;
   }
 
   return (
     <Link
       href={href}
-      className="inline-flex shrink-0 items-center leading-none rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-      aria-label={BRAND_NAME}
+      className={cn(
+        "inline-flex shrink-0 items-center leading-none rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+        showWordmark && "gap-2",
+      )}
+      aria-label={showWordmark ? undefined : BRAND_NAME}
     >
-      {image}
+      {lockup}
     </Link>
   );
 }

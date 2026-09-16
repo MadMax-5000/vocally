@@ -39,8 +39,8 @@ export const IMPLEMENTED_DEPLOYMENT_IDS = [
   "instagram",
   "wordpress",
   "api",
-  "phone",
   "sms",
+  "phone",
 ] as const;
 
 export type ImplementedDeploymentId = (typeof IMPLEMENTED_DEPLOYMENT_IDS)[number];
@@ -117,7 +117,6 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
     title: "Phone",
     description: "Let your AI agent handle inbound phone calls.",
     iconSrc: "/svg/call.svg",
-    beta: true,
     channelType: "VOICE_CALLS",
   },
   {

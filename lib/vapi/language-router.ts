@@ -17,6 +17,7 @@ import { getHandoffPhoneNumber } from "@/server/websocket/escalate-call";
 import { logServerWarning } from "@/lib/logger";
 import { generateEmbedding } from "@/lib/ai/embeddings";
 import { similaritySearch } from "@/lib/knowledge/vector-store";
+import { vapiDialedIdentities } from "@/lib/telephony/vapi-sip";
 
 import { buildVoiceEscalationPromptSection } from "./voice-escalation-prompt";
 import { buildGuardrailPromptSection } from "@/lib/agent-security/guardrails";
@@ -127,23 +128,25 @@ async function retrieveVoiceKnowledgeContext(params: {
 export async function handleAssistantRequest(message: {
   call?: {
     id?: string;
-    phoneNumber?: { number?: string };
+    phoneNumber?: { number?: string; sipUri?: string };
     customer?: { number?: string };
   };
 }) {
   const call = message.call;
-  const twilioNumber = call?.phoneNumber?.number;
+  const dialedIdentities = call ? vapiDialedIdentities(call) : [];
+  const twilioNumber = dialedIdentities[0];
   const callerNumber = call?.customer?.number;
   const vapiCallId = call?.id;
 
   let orgId: string | null = null;
   let agentId: string | null = null;
 
-  if (twilioNumber) {
-    const resolved = await resolveVoiceNumber(twilioNumber);
+  for (const identity of dialedIdentities) {
+    const resolved = await resolveVoiceNumber(identity);
     if (resolved) {
       orgId = resolved.orgId;
       agentId = resolved.agentId;
+      break;
     }
   }
 
@@ -184,6 +187,9 @@ export async function handleAssistantRequest(message: {
   if (twilioNumber) {
     try {
       await markForwardingVerified(twilioNumber);
+      for (const identity of dialedIdentities.slice(1)) {
+        await markForwardingVerified(identity);
+      }
     } catch (err) {
       logServerWarning("[Vapi] Failed to mark forwarding verified", {
         error: err instanceof Error ? err.message : String(err),

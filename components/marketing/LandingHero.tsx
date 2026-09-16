@@ -9,6 +9,7 @@ const container = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
 
 export async function LandingHero() {
   const t = await getTranslations("landing.hero");
+  const tc = await getTranslations("common");
 
   return (
     <section className="bg-surface-card">
@@ -38,7 +39,7 @@ export async function LandingHero() {
                 {t("getDemo")}
               </BookDemoLink>
               <Link className="btn-outline w-full justify-center sm:w-auto" href="/sign-up">
-                {t("startFreeTrial")}
+                {tc("getStarted")}
               </Link>
             </div>
           </div>

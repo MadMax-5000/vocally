@@ -7,7 +7,7 @@
     },
     "pricing": {
       "title": "Pricing",
-      "description": "Anselio plans in Moroccan Dirham. Start a 14-day free trial with no credit card. Conversational AI agents for chat, email, and voice."
+      "description": "Anselio plans in Moroccan Dirham (HT). Digital SaaS plus optional Morocco telephony — no credit card required."
     },
     "contact": {
       "title": "Contact",
@@ -44,7 +44,7 @@
     "termsOfService": "Terms of Service",
     "privacyNotice": "Privacy Notice",
     "cookieNotice": "Cookie Notice",
-    "allPricesMad": "All prices in Moroccan Dirham (MAD). Includes a 14-day free trial — no credit card required.",
+    "allPricesMad": "All prices in Moroccan Dirham (MAD), excluding VAT (TVA 20%). Phone is a separate add-on.",
     "learnMore": "Learn more",
     "viewAllPlans": "View all plans"
   },
@@ -55,7 +55,6 @@
       "titleAccent": "appointments",
       "titleAfterAccent": ".",
       "subtitle": "An AI agent that answers every lead, books the meeting, and never sleeps — across WhatsApp, Instagram, your website, email, and phone.",
-      "startFreeTrial": "Start free trial",
       "getDemo": "Book a demo"
     },
     "rotatingWords": {
@@ -347,11 +346,12 @@
   },
   "pricing": {
     "title": "Simple plans for premium AI-powered customer experiences",
-    "overage": "+ {rate} DH/min after plan limit",
-    "startFreeTrial": "Start free trial",
+    "eyebrow": "Pricing",
+    "overage": "+ {rate} DH HT/min after included voice minutes",
     "contactSales": "Contact sales",
     "recommended": "Recommended",
-    "perMonth": "per month, billed monthly",
+    "perMonth": "per month HT, billed monthly",
+    "priceHtSuffix": " HT",
     "free": "Free",
     "currentPlan": "Current plan",
     "upgrade": "Upgrade",
@@ -359,63 +359,82 @@
     "currentPlanBadge": "Current plan",
     "checkout": "Checkout",
     "customPricing": "Custom pricing",
-    "customPricingHint": "Tailored to your volume and compliance needs."
+    "customPricingHint": "Tailored to your volume and compliance needs.",
+    "annualHint": "Pay annually and save 15% on digital plans.",
+    "metaFeesNote": "WhatsApp and Meta conversation fees are passed through at cost.",
+    "phoneAddon": {
+      "eyebrow": "Morocco telephony",
+      "title": "Téléphonie Maroc",
+      "blurb": "Per-number Moroccan numbers over cloud SIP. Pro ships 1 number + 300 AI minutes; extra packs and concurrent lines available on Pro and Enterprise. Lead time about one week.",
+      "monthlyLabel": "Extra number pack",
+      "packIncludes": "{minutes} AI minutes + 1 concurrent line included",
+      "extraLineLabel": "Extra concurrent line",
+      "extraAccountLabel": "Extra WhatsApp / Meta account",
+      "features": {
+        "0": "1 Moroccan number + 300 AI voice minutes",
+        "1": "1 concurrent line",
+        "2": "Keep your 05/06/07 — USSD forwarding to our DID",
+        "3": "Cloud SIP — no gateway hardware to install",
+        "4": "Inbound only, answered by your AI agent",
+        "5": "WhatsApp / Meta fees passed through at cost"
+      },
+      "eligibility": "Order on Pro and Enterprise. Morocco numbers are provisioned via sales."
+    }
   },
   "plans": {
     "free": {
       "name": "Free",
-      "description": "Try Anselio with 50 minutes of AI call handling — no credit card required.",
-      "blurb": "Get started with a 14-day free trial.",
+      "description": "Try Anselio on your website — no credit card required.",
+      "blurb": "Get started with free website chat.",
       "features": {
         "0": "1 AI agent",
-        "1": "50 call minutes / mo",
-        "2": "Chat channel only",
-        "3": "Basic analytics dashboard",
-        "4": "Knowledge base (RAG)",
-        "5": "Email support"
+        "1": "50 conversations / mo",
+        "2": "Website chat only",
+        "3": "Knowledge base (10 MB)",
+        "4": "WhatsApp and social channels",
+        "5": "Morocco telephony"
       }
     },
     "starter": {
       "name": "Starter",
-      "description": "For small businesses getting started with AI-powered customer support.",
-      "blurb": "Growing teams that need more knowledge capacity and channels.",
+      "description": "For small businesses that need AI on chat, WhatsApp, social, and email.",
+      "blurb": "Growing teams that need more channels, members, and conversations.",
       "features": {
-        "0": "Up to 3 AI agents",
-        "1": "2,000 call minutes / mo",
-        "2": "2 channels (phone + chat)",
-        "3": "Knowledge base (50MB storage)",
-        "4": "Basic analytics dashboard",
-        "5": "Email support",
-        "6": "AI Co-pilot for live agents",
-        "7": "Priority support"
+        "0": "Up to 2 AI agents",
+        "1": "Website chat + help page",
+        "2": "WhatsApp, Instagram, Messenger",
+        "3": "Email channel",
+        "4": "Knowledge base (50 MB)",
+        "5": "Inbox and lead capture",
+        "6": "2 dashboard members",
+        "7": "Morocco telephony"
       }
     },
     "pro": {
       "name": "Pro",
-      "description": "For scaling teams that need advanced routing and deeper integrations.",
-      "blurb": "Professional teams scaling their support operations.",
+      "description": "For teams that need SMS, API, and their own AI phone number.",
+      "blurb": "Production contact centers; one Moroccan number and 300 voice minutes included.",
       "features": {
-        "0": "Unlimited AI agents",
-        "1": "10,000 call minutes / mo",
-        "2": "All channels (Voice, Chat, SMS, WA)",
-        "3": "Knowledge base (250MB storage)",
-        "4": "Advanced analytics & QA scoring",
-        "5": "AI Co-pilot for live agents",
-        "6": "Priority support",
-        "7": "Custom CRM integrations"
+        "0": "Everything in Starter",
+        "1": "Up to 5 AI agents",
+        "2": "Email channel + API",
+        "3": "100 SMS segments / mo",
+        "4": "6 WhatsApp / Meta accounts",
+        "5": "1 Moroccan number + 300 AI voice minutes",
+        "6": "Advanced analytics + 500 MB knowledge base"
       }
     },
     "enterprise": {
       "name": "Enterprise",
-      "description": "Custom limits, volume discounts, and dedicated account management.",
-      "blurb": "Custom deployment for large organizations.",
+      "description": "Custom volume, compliance, and dedicated support.",
+      "blurb": "Custom contracts for larger contact centers and multi-site phone.",
       "features": {
-        "0": "Custom call volume",
-        "1": "Volume discounts on minutes",
-        "2": "Dedicated account manager",
-        "3": "Custom models & fine-tuning",
-        "4": "SLA & 99.99% uptime guarantee",
-        "5": "On-premise deployment options"
+        "0": "Unlimited AI agents",
+        "1": "Custom volume and billing",
+        "2": "Extra sites and 4+ simultaneous calls",
+        "3": "Custom roles, SSO, and audit logs",
+        "4": "Law 09-08 / DPA, SLA, and CSM",
+        "5": "Dedicated success manager"
       }
     }
   },
@@ -635,14 +654,15 @@
         "3": {
           "title": "4. Subscriptions, Billing, and Payment",
           "content": {
-            "intro": "The platform is offered on a subscription basis with the following plans: Free, Starter, Pro, and Enterprise.",
+            "intro": "The platform is offered on a subscription basis with the following plans: Free, Starter, Pro, and Enterprise. Morocco telephony is a separate add-on.",
             "list": [
-              "Subscription fees are billed monthly in advance in Moroccan Dirham (MAD) through our payment processor, LemonSqueezy.",
-              "Free Plan: Includes 50 call minutes per month with 1 AI agent and chat channel only.",
-              "Starter Plan (999.99 MAD/month): Includes up to 3 AI agents, 2,000 call minutes, and 2 channels.",
-              "Pro Plan (3,999.99 MAD/month): Includes up to 8 AI agents, 10,000 call minutes, and all channels.",
-              "Enterprise Plan: Custom pricing, limits, and features negotiated by agreement.",
-              "Usage exceeding plan limits is billed at the applicable overage rate as displayed on the pricing page.",
+              "Subscription fees are billed monthly in advance in Moroccan Dirham (MAD) excluding VAT (TVA 20%) through our payment processor, LemonSqueezy.",
+              "Free Plan: 1 AI agent, 50 conversations per month, website chat, and 10 MB knowledge base. No phone and no WhatsApp.",
+              "Starter Plan (1,000 MAD HT/month): Up to 2 AI agents, website chat and help page, WhatsApp / Instagram / Messenger, email channel, 50 MB knowledge base, inbox, 2 dashboard members, 3 WhatsApp/Meta accounts and 500 conversations per month. Meta conversation fees are passed through at cost. No phone.",
+              "Pro Plan (3,000 MAD HT/month): Everything in Starter, up to 5 AI agents, 5 dashboard members, email channel and API, 100 SMS segments, 6 WhatsApp/Meta accounts, 1 Moroccan number with 300 AI voice minutes and 2,000 conversations per month. Advanced analytics included.",
+              "Enterprise Plan: Custom pricing, limits, and features negotiated by agreement, including additional numbers and concurrent lines.",
+              "Morocco telephony (Pro and Enterprise): Pro includes 1 Moroccan number and 300 AI voice minutes. Extra number packs cost 1,500 MAD HT per month (1 number + 1 concurrent line + 300 AI minutes), extra concurrent lines 200 MAD HT per month, and extra WhatsApp/Meta accounts 100 MAD HT per month. Additional voice minutes are billed at 3.00 MAD HT per minute. Numbers are provided via SIPTRUNK.ma DIDs; the customer keeps their existing published number through forwarding.",
+              "Usage exceeding included voice minutes is billed at the overage rate displayed on the pricing page.",
               "All fees are non-refundable except as required by applicable law. Downgrading your plan will take effect at the next billing cycle.",
               "We may change our fees upon 30 days\u2019 notice. Continued use after the fee change constitutes acceptance of the new fees.",
               "Late payments may result in suspension or termination of access to the Services."
@@ -650,8 +670,8 @@
           }
         },
         "4": {
-          "title": "5. Free Trial",
-          "content": "We offer a 14-day free trial for new customers. The trial includes 50 minutes of AI call handling with no credit card required. At the end of the trial period, your account will be converted to the Free Plan unless you have subscribed to a paid plan. We reserve the right to modify or cancel free trials at any time without notice."
+          "title": "5. Free Plan",
+          "content": "We offer a free plan for you to try the Services. The free plan does not include Morocco telephony or shipment of a GSM gateway. No credit card is required. We reserve the right to modify or cancel the free plan at any time without notice."
         },
         "5": {
           "title": "6. Acceptable Use",

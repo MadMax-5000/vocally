@@ -5,6 +5,7 @@ import { PlanCtaButton } from "@/components/billing/PlanCtaButton";
 import { HeaderAuth } from "@/components/marketing/HeaderAuth";
 import { EnterprisePlanCard } from "@/components/marketing/EnterprisePlanCard";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
+import { PhoneAddonCard } from "@/components/marketing/PhoneAddonCard";
 import { PlanPricingCard } from "@/components/marketing/PlanPricingCard";
 import { getViewerPlan } from "@/lib/billing/get-viewer-plan";
 import { formatPrice } from "@/lib/billing/currency";
@@ -13,7 +14,13 @@ import { variantIdForPlan } from "@/lib/billing/plan-map";
 import { type PlanCtaLabelKey, resolvePlanCta } from "@/lib/billing/plan-cta";
 import { PLAN_PRICES } from "@/lib/billing/plan-features";
 import { planFromMetaKey } from "@/lib/billing/plan-rank";
-import { getOverageRate } from "@/lib/billing/overage";
+import {
+  PHONE_EXTRA_CONCURRENT_LINE_MONTHLY_MAD_CENTS,
+  PHONE_EXTRA_SOCIAL_ACCOUNT_MONTHLY_MAD_CENTS,
+  PHONE_OVERAGE_MAD,
+  PHONE_PACK_INCLUDED_MINUTES,
+  PHONE_PACK_MONTHLY_MAD_CENTS,
+} from "@/lib/billing/phone-addon";
 import { localizedPageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata({
@@ -33,7 +40,6 @@ function buildCtaLabels(
   tc: Awaited<ReturnType<typeof getTranslations<"common">>>
 ): Record<PlanCtaLabelKey, string> {
   return {
-    startFreeTrial: t("startFreeTrial"),
     getStarted: tc("getStarted"),
     upgrade: t("upgrade"),
     currentPlan: t("currentPlan"),
@@ -63,11 +69,12 @@ export default async function PricingPage() {
     price: PLAN_PRICES[planKey],
   }));
 
-  function overageDisplay(planKey: string): string | null {
-    const rate = getOverageRate(planKey);
-    if (rate === 0) return null;
-    return t("overage", { rate });
-  }
+  const phoneAddonFeatures = [0, 1, 2, 3, 4, 5].map((i) => t(`phoneAddon.features.${i}`));
+  const phoneAddonCta = {
+    kind: "link" as const,
+    href: "/contact/sales",
+    labelKey: "contactSales" as const,
+  };
 
   const enterpriseCta = resolvePlanCta({
     targetPlan: "ENTERPRISE",
@@ -84,12 +91,15 @@ export default async function PricingPage() {
       </MarketingHeader>
 
       <div className={[container, "py-section"].join(" ")}>
-        <p className="text-caption-uppercase text-muted">Pricing</p>
+        <p className="text-caption-uppercase text-muted">{t("eyebrow")}</p>
         <h1 className="mt-4 font-display text-display-xl tracking-tighter text-balance text-ink md:text-display-mega">
           {t("title")}
         </h1>
         <p className="mt-6 max-w-[62ch] text-body-md leading-relaxed text-body text-pretty rtl:text-start ltr:text-left">
           {tc("allPricesMad")}
+        </p>
+        <p className="mt-3 max-w-[62ch] text-body-sm leading-relaxed text-muted text-pretty">
+          {t("annualHint")}
         </p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -101,7 +111,12 @@ export default async function PricingPage() {
             const isFree = plan.key === "free";
             const isCurrentPlan = currentPlan === targetPlan;
             const rawPrice = plan.price !== null ? plan.price.madCents : null;
-            const showPrice = isFree ? t("free") : rawPrice !== null ? formatPrice(rawPrice) : null;
+            const formatted = rawPrice !== null ? formatPrice(rawPrice) : null;
+            const showPrice = isFree
+              ? t("free")
+              : formatted !== null
+                ? formatted
+                : null;
             const cta = resolvePlanCta({
               targetPlan,
               currentPlan,
@@ -123,13 +138,14 @@ export default async function PricingPage() {
                 currentPlanBadgeLabel={t("currentPlanBadge")}
                 perMonthLabel={t("perMonth")}
                 features={plan.features}
-                overageText={overageDisplay(plan.key)}
               >
                 <PlanCtaButton cta={cta} labels={ctaLabels} variant={isPro ? "pro" : "default"} />
               </PlanPricingCard>
             );
           })}
         </div>
+
+        <p className="mt-6 max-w-[62ch] text-caption leading-relaxed text-muted">{t("metaFeesNote")}</p>
 
         <EnterprisePlanCard
           className="mt-12"
@@ -141,6 +157,27 @@ export default async function PricingPage() {
           isCurrentPlan={currentPlan === "ENTERPRISE"}
           currentPlanBadgeLabel={t("currentPlanBadge")}
           cta={enterpriseCta}
+          ctaLabels={ctaLabels}
+        />
+
+        <PhoneAddonCard
+          eyebrow={t("phoneAddon.eyebrow")}
+          title={t("phoneAddon.title")}
+          blurb={t("phoneAddon.blurb")}
+          monthlyLabel={t("phoneAddon.monthlyLabel")}
+          packPrice={formatPrice(PHONE_PACK_MONTHLY_MAD_CENTS)}
+          packIncludes={t("phoneAddon.packIncludes", {
+            minutes: PHONE_PACK_INCLUDED_MINUTES,
+          })}
+          perMonthLabel={t("perMonth")}
+          extraLineLabel={t("phoneAddon.extraLineLabel")}
+          extraLinePrice={formatPrice(PHONE_EXTRA_CONCURRENT_LINE_MONTHLY_MAD_CENTS)}
+          extraAccountLabel={t("phoneAddon.extraAccountLabel")}
+          extraAccountPrice={formatPrice(PHONE_EXTRA_SOCIAL_ACCOUNT_MONTHLY_MAD_CENTS)}
+          overageText={t("overage", { rate: PHONE_OVERAGE_MAD.toFixed(2) })}
+          features={phoneAddonFeatures}
+          eligibility={t("phoneAddon.eligibility")}
+          cta={phoneAddonCta}
           ctaLabels={ctaLabels}
         />
       </div>

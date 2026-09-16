@@ -5,7 +5,14 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { PlanCtaInlineButton } from "@/components/billing/PlanCtaButton";
+import { Link } from "@/i18n/routing";
+import { formatPrice } from "@/lib/billing/currency";
 import { type PaidPlan, type PlanCtaLabelKey, resolvePlanCta } from "@/lib/billing/plan-cta";
+import {
+  PHONE_OVERAGE_MAD,
+  PHONE_PACK_MONTHLY_MAD_CENTS,
+  isPhoneAddonEligible,
+} from "@/lib/billing/phone-addon";
 
 export type BillingPlan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
 
@@ -24,7 +31,6 @@ export function BillingView({
   const [loading, setLoading] = useState<PaidPlan | null>(null);
 
   const ctaLabels: Record<PlanCtaLabelKey, string> = {
-    startFreeTrial: t("cta.startFreeTrial"),
     getStarted: t("cta.getStarted"),
     upgrade: t("cta.upgrade"),
     currentPlan: t("cta.currentPlan"),
@@ -114,6 +120,24 @@ export function BillingView({
           })}
         </ul>
       </section>
+
+      {isPhoneAddonEligible(initialPlan) && (
+        <section className="rounded-xl border border-hairline bg-surface-card p-4">
+          <h2 className="font-display text-display-sm tracking-tighter text-ink">{t("phoneAddon.title")}</h2>
+          <p className="mt-2 max-w-[60ch] text-body-sm leading-relaxed text-body text-pretty">
+            {t("phoneAddon.description", {
+              monthly: formatPrice(PHONE_PACK_MONTHLY_MAD_CENTS),
+              overage: PHONE_OVERAGE_MAD.toFixed(1),
+            })}
+          </p>
+          <Link
+            href="/contact/sales"
+            className="mt-3 inline-flex rounded-md bg-ink px-4 py-2.5 text-button tracking-wide text-on-primary hover:bg-body-strong"
+          >
+            {t("phoneAddon.cta")}
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

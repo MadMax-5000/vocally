@@ -6,7 +6,9 @@ function normId(id: string | number | null | undefined): string | null {
   return s.length ? s : null;
 }
 
-/** Maps Lemon variant id (from env) to internal billing plan. */
+/** Maps Lemon variant id (from env) to internal billing plan.
+ * STARTER = Starter (1,000 MAD HT), PRO = Pro (3,000 MAD HT).
+ * Telephony is not a Lemon variant. */
 export function planFromVariantId(
   variantId: string | number | null | undefined
 ): Plan | null {

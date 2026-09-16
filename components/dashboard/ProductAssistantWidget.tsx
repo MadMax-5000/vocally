@@ -48,7 +48,6 @@ export function ProductAssistantWidget() {
             t("suggestions.whatIsAnselio"),
             t("suggestions.plans"),
             t("suggestions.languages"),
-            t("suggestions.startTrial"),
           ],
       keepShowingAfterFirst: true,
       dynamicEnabled: false,

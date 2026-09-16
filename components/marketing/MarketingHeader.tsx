@@ -27,7 +27,7 @@ export function MarketingHeader({
       <div className={container}>
         <div className="flex items-center gap-4 py-2.5">
           <div className="flex h-full shrink-0 items-center">
-            <AnselioLogo variant="black" size="md" href="/" priority />
+            <AnselioLogo variant="black" size="md" href="/" priority showWordmark />
           </div>
           {center ? (
             <div className="hidden h-full flex-1 items-center justify-center lg:flex">

@@ -26,8 +26,7 @@
         "deployWidget": "Comment déployer le widget de chat ?",
         "knowledgeBase": "Comment fonctionne la base de connaissances ?",
         "whatIsAnselio": "Qu’est-ce qu’Anselio ?",
-        "languages": "Quelles langues prenez-vous en charge ?",
-        "startTrial": "Comment démarrer l’essai gratuit ?"
+        "languages": "Quelles langues prenez-vous en charge ?"
       }
     },
     "home": {
@@ -87,18 +86,22 @@
         "ENTERPRISE": "Entreprise"
       },
       "descriptions": {
-        "STARTER": "Pour les petites équipes qui débutent avec le support IA.",
-        "PRO": "Pour les équipes en croissance avec un volume plus élevé et des fonctionnalités avancées.",
+        "STARTER": "Chat, WhatsApp, réseaux sociaux et e-mail pour les petites équipes. Pas de téléphone.",
+        "PRO": "E-mail, SMS, API, analytiques avancées, et 1 numéro marocain + 300 minutes de voix IA.",
         "ENTERPRISE": "Limites personnalisées, SLA et support dédié."
       },
       "cta": {
-        "startFreeTrial": "Essai gratuit",
         "getStarted": "Commencer",
         "upgrade": "Mettre à niveau",
         "currentPlan": "Offre actuelle",
         "contactSales": "Contacter les ventes",
         "checkout": "Payer",
         "redirecting": "Redirection…"
+      },
+      "phoneAddon": {
+        "title": "Téléphonie Maroc",
+        "description": "Pro inclut 1 numéro marocain et 300 minutes de voix IA. Packs numéros supplémentaires {monthly} HT / mois (1 numéro + 300 minutes IA). Minutes extra {overage} DH HT. Contactez les ventes pour ajouter numéros, lignes ou comptes WhatsApp / Meta.",
+        "cta": "Contacter les ventes"
       }
     },
     "live": {

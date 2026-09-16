@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { cn } from "@/lib/utils";
 
 export type BoldStat = {
@@ -33,14 +31,12 @@ export function BoldStats({
     <section className="bg-surface-card py-section">
       <div className="mx-auto w-full max-w-[1200px] px-6">
         <div className="relative overflow-hidden rounded-xxl">
-          <Image
+          <img
             src={imageSrc}
             alt={imageAlt}
-            fill
-            className="object-cover object-[center_40%]"
-            sizes="(min-width: 1200px) 1200px, 100vw"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-surface-card/40" aria-hidden />
+          <div className="absolute inset-0 bg-white/20" aria-hidden />
           <div className="relative z-10 px-6 py-10 sm:px-10 md:px-12 md:py-14">
             <h2 className="max-w-[18ch] text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-ink text-balance md:text-[3.25rem]">
               {heading}
@@ -50,8 +46,7 @@ export function BoldStats({
                 <div
                   key={stat.label}
                   className={cn(
-                    "flex flex-col gap-3 px-5 py-5 md:px-8 md:py-2",
-                    index === 0 && "ps-0",
+                    "flex flex-col items-center gap-3 px-5 py-5 text-center md:px-8 md:py-2",
                     index > 0 && "md:border-s md:border-ink/10",
                     index % 2 === 1 && "border-s border-ink/10",
                   )}
@@ -59,7 +54,7 @@ export function BoldStats({
                   <p className="text-5xl font-medium tracking-tighter text-ink md:text-6xl">
                     {stat.value}
                   </p>
-                  <p className="max-w-[12rem] text-xs font-semibold uppercase leading-snug tracking-widest text-muted">
+                  <p className="text-xs font-semibold uppercase leading-snug tracking-widest text-muted">
                     {stat.label}
                   </p>
                 </div>

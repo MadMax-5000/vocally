@@ -7,7 +7,7 @@
     },
     "pricing": {
       "title": "Tarifs",
-      "description": "Les offres Anselio en dirham marocain. Essai gratuit de 14 jours, sans carte bancaire. Agents conversationnels pour le chat, l'e-mail et la voix."
+      "description": "Les offres Anselio en dirham marocain (HT). SaaS digital et téléphonie Maroc en option — sans carte bancaire."
     },
     "contact": {
       "title": "Contact",
@@ -44,7 +44,7 @@
     "termsOfService": "Conditions d'utilisation",
     "privacyNotice": "Politique de confidentialité",
     "cookieNotice": "Politique des cookies",
-    "allPricesMad": "Tous les prix sont en Dirham Marocain (MAD). Comprend un essai gratuit de 14 jours — sans carte de crédit.",
+    "allPricesMad": "Tous les prix sont en dirham marocain (MAD), hors taxes (TVA 20 %). Le téléphone est un add-on séparé.",
     "learnMore": "En savoir plus",
     "viewAllPlans": "Voir tous les plans"
   },
@@ -55,7 +55,6 @@
       "titleAccent": "de rendez-vous",
       "titleAfterAccent": ".",
       "subtitle": "Un agent IA qui répond à chaque prospect, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’e-mail et le téléphone.",
-      "startFreeTrial": "Démarrer l'essai gratuit",
       "getDemo": "Réserver une démo"
     },
     "rotatingWords": {
@@ -347,11 +346,12 @@
   },
   "pricing": {
     "title": "Des plans simples pour des expériences client premium basées sur l'IA",
-    "overage": "+ {rate} DH/min après la limite du plan",
-    "startFreeTrial": "Commencer l'essai gratuit",
+    "eyebrow": "Tarifs",
+    "overage": "+ {rate} DH HT/min après les minutes voix incluses",
     "contactSales": "Contacter les ventes",
     "recommended": "Recommandé",
-    "perMonth": "par mois, facturé mensuellement",
+    "perMonth": "par mois HT, facturé mensuellement",
+    "priceHtSuffix": " HT",
     "free": "Gratuit",
     "currentPlan": "Plan actuel",
     "upgrade": "Mettre à niveau",
@@ -359,63 +359,82 @@
     "currentPlanBadge": "Plan actuel",
     "checkout": "Paiement",
     "customPricing": "Tarification sur mesure",
-    "customPricingHint": "Adaptée à votre volume et à vos exigences de conformité."
+    "customPricingHint": "Adaptée à votre volume et à vos exigences de conformité.",
+    "annualHint": "Payez à l'année et économisez 15 % sur les plans digitaux.",
+    "metaFeesNote": "Les frais de conversation WhatsApp et Meta sont refacturés au coût réel.",
+    "phoneAddon": {
+      "eyebrow": "Téléphonie Maroc",
+      "title": "Téléphonie Maroc",
+      "blurb": "Numéros marocains par numéro sur SIP cloud. Pro inclut 1 numéro + 300 minutes IA ; packs supplémentaires et lignes simultanées sur Pro et Entreprise. Délai d'environ une semaine.",
+      "monthlyLabel": "Pack numéro supplémentaire",
+      "packIncludes": "{minutes} minutes IA + 1 ligne simultanée incluses",
+      "extraLineLabel": "Ligne simultanée supplémentaire",
+      "extraAccountLabel": "Compte WhatsApp / Meta supplémentaire",
+      "features": {
+        "0": "1 numéro marocain + 300 minutes de voix IA",
+        "1": "1 ligne simultanée",
+        "2": "Gardez vos 05/06/07 — renvoi USSD vers notre DID",
+        "3": "SIP cloud — aucun équipement à installer",
+        "4": "Entrant uniquement, répondu par votre agent IA",
+        "5": "Frais WhatsApp / Meta refacturés au coût"
+      },
+      "eligibility": "Sur commande pour Pro et Entreprise. Les numéros marocains sont fournis via les ventes."
+    }
   },
   "plans": {
     "free": {
       "name": "Gratuit",
-      "description": "Essayez Anselio avec 50 minutes d'IA vocale — sans carte de crédit.",
-      "blurb": "Commencez avec un essai gratuit de 14 jours.",
+      "description": "Essayez Anselio sur votre site — sans carte de crédit.",
+      "blurb": "Commencez avec le chat site web gratuit.",
       "features": {
         "0": "1 agent IA",
-        "1": "50 minutes d'appels / mois",
-        "2": "Canal de chat uniquement",
-        "3": "Tableau de bord analytique basique",
-        "4": "Base de connaissances (RAG)",
-        "5": "Support par email"
+        "1": "50 conversations / mois",
+        "2": "Chat site web uniquement",
+        "3": "Base de connaissances (10 Mo)",
+        "4": "WhatsApp et réseaux sociaux",
+        "5": "Téléphonie Maroc"
       }
     },
     "starter": {
       "name": "Starter",
-      "description": "Pour les petites entreprises qui se lancent dans le support client par IA.",
-      "blurb": "Équipes en croissance nécessitant plus de capacité et de canaux.",
+      "description": "Pour les petites entreprises qui ont besoin d'IA sur le chat, WhatsApp, les réseaux sociaux et l'e-mail.",
+      "blurb": "Équipes en croissance qui ont besoin de plus de canaux, de membres et de conversations.",
       "features": {
-        "0": "Jusqu'à 3 agents IA",
-        "1": "2 000 minutes d'appels / mois",
-        "2": "2 canaux (téléphone + chat)",
-        "3": "Base de connaissances (50 Mo)",
-        "4": "Tableau de bord analytique basique",
-        "5": "Support par email",
-        "6": "Co-pilote IA pour agents humains",
-        "7": "Support prioritaire"
+        "0": "Jusqu'à 2 agents IA",
+        "1": "Chat site web + page d'aide",
+        "2": "WhatsApp, Instagram, Messenger",
+        "3": "Canal e-mail",
+        "4": "Base de connaissances (50 Mo)",
+        "5": "Boîte de réception et capture de leads",
+        "6": "2 membres du tableau de bord",
+        "7": "Téléphonie Maroc"
       }
     },
     "pro": {
       "name": "Pro",
-      "description": "Pour les équipes en croissance qui ont besoin de routage avancé et d'intégrations.",
-      "blurb": "Équipes professionnelles qui développent leurs opérations de support.",
+      "description": "Pour les équipes qui ont besoin de SMS, d'API et de leur propre numéro téléphonique IA.",
+      "blurb": "Centres de contact en production ; un numéro marocain et 300 minutes de voix inclus.",
       "features": {
-        "0": "Agents IA illimités",
-        "1": "10 000 minutes d'appels / mois",
-        "2": "Tous les canaux (Voix, Chat, SMS, WA)",
-        "3": "Base de connaissances (250 Mo)",
-        "4": "Analytiques avancées & score QA",
-        "5": "Co-pilote IA pour agents humains",
-        "6": "Support prioritaire",
-        "7": "Intégrations CRM personnalisées"
+        "0": "Tout Starter inclus",
+        "1": "Jusqu'à 5 agents IA",
+        "2": "Canal e-mail + API",
+        "3": "100 segments SMS / mois",
+        "4": "6 comptes WhatsApp / Meta",
+        "5": "1 numéro marocain + 300 minutes de voix IA",
+        "6": "Analytiques avancées + base de connaissances (500 Mo)"
       }
     },
     "enterprise": {
       "name": "Entreprise",
-      "description": "Limites personnalisées, remises sur volume et gestionnaire de compte dédié.",
-      "blurb": "Déploiement sur mesure pour les grandes organisations.",
+      "description": "Volume, conformité et support dédié sur mesure.",
+      "blurb": "Contrats sur mesure pour les grands centres de contact et la téléphonie multi-sites.",
       "features": {
-        "0": "Volume d'appels personnalisé",
-        "1": "Remises sur volume de minutes",
-        "2": "Gestionnaire de compte dédié",
-        "3": "Modèles personnalisés & fine-tuning",
-        "4": "SLA & garantie de disponibilité 99,99%",
-        "5": "Options de déploiement sur site"
+        "0": "Agents IA illimités",
+        "1": "Volume et facturation sur mesure",
+        "2": "Sites supplémentaires et 4+ appels simultanés",
+        "3": "Rôles personnalisés, SSO et journaux d'audit",
+        "4": "Loi 09-08 / DPA, SLA et CSM",
+        "5": "Customer success dédié"
       }
     }
   },
@@ -635,14 +654,15 @@
         "3": {
           "title": "4. Abonnements, facturation et paiement",
           "content": {
-            "intro": "La plateforme est propos\u00e9e sur la base d\u2019un abonnement avec les plans suivants\u00a0: Gratuit, Starter, Pro et Entreprise.",
+            "intro": "La plateforme est propos\u00e9e sur la base d\u2019un abonnement avec les plans suivants\u00a0: Gratuit, Starter, Pro et Entreprise. La t\u00e9l\u00e9phonie Maroc est un add-on s\u00e9par\u00e9.",
             "list": [
-              "Les frais d\u2019abonnement sont factur\u00e9s mensuellement d\u2019avance en Dirham Marocain (MAD) via LemonSqueezy.",
-              "Plan Gratuit\u00a0: 50 minutes d\u2019appels par mois avec 1 agent IA et canal chat uniquement.",
-              "Plan Starter (999,99 MAD/mois)\u00a0: jusqu\u2019\u00e0 3 agents IA, 2 000 minutes d\u2019appels et 2 canaux.",
-              "Plan Pro (3 999,99 MAD/mois)\u00a0: jusqu\u2019\u00e0 8 agents IA, 10 000 minutes d\u2019appels et tous les canaux.",
-              "Plan Entreprise\u00a0: tarifs, limites et fonctionnalit\u00e9s personnalis\u00e9s.",
-              "Le d\u00e9passement des limites du plan est factur\u00e9 au tarif de d\u00e9passement applicable.",
+              "Les frais d\u2019abonnement sont factur\u00e9s mensuellement d\u2019avance en dirham marocain (MAD) hors taxes (TVA 20 %) via LemonSqueezy.",
+              "Plan Gratuit\u00a0: 1 agent IA, 50 conversations par mois, chat site web et 10 Mo de base de connaissances. Pas de t\u00e9l\u00e9phone ni de WhatsApp.",
+              "Plan Starter (1\u00a0000 MAD HT/mois)\u00a0: jusqu\u2019\u00e0 2 agents IA, chat et page d\u2019aide, WhatsApp / Instagram / Messenger, canal e-mail, 50 Mo de base de connaissances, bo\u00eete de r\u00e9ception, 2 membres, 3 comptes WhatsApp/Meta et 500 conversations par mois. Les frais Meta sont refactur\u00e9s au co\u00fbt. Pas de t\u00e9l\u00e9phone.",
+              "Plan Pro (3\u00a0000 MAD HT/mois)\u00a0: tout Starter, jusqu\u2019\u00e0 5 agents IA, 5 membres, canal e-mail et API, 100 segments SMS, 6 comptes WhatsApp/Meta, 1 num\u00e9ro marocain avec 300 minutes de voix IA et 2\u00a0000 conversations par mois. Analytiques avanc\u00e9es incluses.",
+              "Plan Entreprise\u00a0: tarifs, limites et fonctionnalit\u00e9s personnalis\u00e9s, y compris des num\u00e9ros et lignes simultan\u00e9es suppl\u00e9mentaires.",
+              "T\u00e9l\u00e9phonie Maroc (Pro et Entreprise)\u00a0: Pro inclut 1 num\u00e9ro marocain et 300 minutes de voix IA. Les packs num\u00e9ros suppl\u00e9mentaires co\u00fbtent 1\u00a0500 MAD HT/mois (1 num\u00e9ro + 1 ligne simultan\u00e9e + 300 minutes IA), les lignes simultan\u00e9es suppl\u00e9mentaires 200 MAD HT/mois et les comptes WhatsApp/Meta suppl\u00e9mentaires 100 MAD HT/mois. Les minutes voix suppl\u00e9mentaires sont factur\u00e9es 3,00 MAD HT/min. Les num\u00e9ros sont fournis via des DID SIPTRUNK.ma\u00a0; le client conserve son num\u00e9ro public existant via un renvoi.",
+              "Le d\u00e9passement des minutes voix incluses est factur\u00e9 au tarif affich\u00e9 sur la page tarifs.",
               "Tous les frais sont non remboursables sauf si requis par la loi. Le passage \u00e0 un plan inf\u00e9rieur prend effet au prochain cycle de facturation.",
               "Nous pouvons modifier nos frais moyennant un pr\u00e9avis de 30 jours.",
               "Les retards de paiement peuvent entra\u00eener la suspension ou la r\u00e9siliation de l\u2019acc\u00e8s aux Services."
@@ -650,8 +670,8 @@
           }
         },
         "4": {
-          "title": "5. Essai gratuit",
-          "content": "Nous offrons un essai gratuit de 14 jours aux nouveaux clients. L\u2019essai comprend 50 minutes de traitement d\u2019appels IA sans carte de cr\u00e9dit requise. \u00c0 la fin de la p\u00e9riode d\u2019essai, votre compte sera converti au plan Gratuit sauf si vous avez souscrit \u00e0 un plan payant. Nous nous r\u00e9servons le droit de modifier ou d\u2019annuler les essais gratuits \u00e0 tout moment sans pr\u00e9avis."
+          "title": "5. Plan gratuit",
+          "content": "Nous proposons un plan gratuit nous permettant de vous faire d\u00e9couvrir nos Services. Le plan gratuit n\u2019inclut pas la t\u00e9l\u00e9phonie Maroc ni l\u2019exp\u00e9dition d\u2019un gateway GSM. Aucune carte de cr\u00e9dit n\u2019est requise. Nous nous r\u00e9servons le droit de modifier ou d\u2019annuler le plan gratuit \u00e0 tout moment sans pr\u00e9avis."
         },
         "5": {
           "title": "6. Utilisation acceptable",

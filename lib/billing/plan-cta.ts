@@ -5,7 +5,6 @@ import { comparePlans } from "./plan-rank";
 export type PaidPlan = "STARTER" | "PRO" | "ENTERPRISE";
 
 export type PlanCtaLabelKey =
-  | "startFreeTrial"
   | "getStarted"
   | "upgrade"
   | "currentPlan"
@@ -20,7 +19,6 @@ export type PlanCta =
   | { kind: "mailto"; email: string; labelKey: PlanCtaLabelKey };
 
 function defaultLabelForPlan(targetPlan: Plan): PlanCtaLabelKey {
-  if (targetPlan === "FREE") return "startFreeTrial";
   if (targetPlan === "ENTERPRISE") return "contactSales";
   return "getStarted";
 }

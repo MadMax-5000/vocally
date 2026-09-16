@@ -38,8 +38,7 @@
         "deployWidget": "How do I deploy the chat widget?",
         "knowledgeBase": "How does the knowledge base work?",
         "whatIsAnselio": "What is Anselio?",
-        "languages": "Which languages do you support?",
-        "startTrial": "How do I start a free trial?"
+        "languages": "Which languages do you support?"
       }
     },
     "home": {
@@ -99,18 +98,22 @@
         "ENTERPRISE": "Enterprise"
       },
       "descriptions": {
-        "STARTER": "For small teams getting started with AI support.",
-        "PRO": "For growing teams with higher volume and advanced features.",
+        "STARTER": "Chat, WhatsApp, social, and email AI for small teams. No phone.",
+        "PRO": "Email, SMS, API, advanced analytics, and 1 Moroccan number + 300 AI voice minutes.",
         "ENTERPRISE": "Custom limits, SLAs, and dedicated support."
       },
       "cta": {
-        "startFreeTrial": "Start free trial",
         "getStarted": "Get started",
         "upgrade": "Upgrade",
         "currentPlan": "Current plan",
         "contactSales": "Contact sales",
         "checkout": "Checkout",
         "redirecting": "Redirecting…"
+      },
+      "phoneAddon": {
+        "title": "Morocco telephony",
+        "description": "Pro includes 1 Moroccan number and 300 AI voice minutes. Extra number packs {monthly} HT / month (1 number + 300 AI minutes). Extra minutes {overage} DH HT. Contact sales to add numbers, lines, or WhatsApp / Meta accounts.",
+        "cta": "Contact sales"
       }
     },
     "live": {

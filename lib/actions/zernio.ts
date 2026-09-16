@@ -3,7 +3,7 @@
 import { getAppOrigin } from "@/lib/app-url";
 import { prisma } from "@/lib/db/prisma";
 import { getOrgPrismaId, getOrgPlan } from "@/lib/server/organization";
-import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
+import { MAX_SOCIAL_ACCOUNTS } from "@/lib/billing/plan-features";
 import { locales, type Locale } from "@/i18n/config";
 import { revalidatePath } from "next/cache";
 import {
@@ -88,8 +88,19 @@ export async function initiateZernioOAuth(
     if (!agent) return { success: false as const, error: "Agent not found" };
 
     const plan = await getOrgPlan();
-    if (!plan || !SOCIAL_CHANNELS_ENABLED[plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
+    const maxAccounts = plan
+      ? MAX_SOCIAL_ACCOUNTS[plan as keyof typeof MAX_SOCIAL_ACCOUNTS] ?? 0
+      : 0;
+    if (maxAccounts <= 0) {
       return { success: false as const, error: "Social channels are not available on your plan. Upgrade to continue." };
+    }
+
+    const connected = await prisma.zernioChannel.count({ where: { orgId } });
+    if (connected >= maxAccounts) {
+      return {
+        success: false as const,
+        error: `You have reached the ${maxAccounts} WhatsApp / Meta accounts included on your plan. Contact sales to add more (100 MAD HT / account / month).`,
+      };
     }
 
     const profileId = await getOrCreateZernioProfile(orgId);
@@ -180,7 +191,7 @@ export async function checkSocialChannelsEnabled(): Promise<{ enabled: boolean; 
   const plan = await getOrgPlan();
   if (!plan) return { enabled: false, plan: null };
   return {
-    enabled: SOCIAL_CHANNELS_ENABLED[plan as keyof typeof SOCIAL_CHANNELS_ENABLED] ?? false,
+    enabled: (MAX_SOCIAL_ACCOUNTS[plan as keyof typeof MAX_SOCIAL_ACCOUNTS] ?? 0) > 0,
     plan,
   };
 }

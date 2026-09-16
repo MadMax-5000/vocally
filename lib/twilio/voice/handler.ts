@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db/prisma";
 import { processMessage } from "@/lib/ai/process-message";
+import { monthlyCallMinuteCap } from "@/lib/billing/phone-addon";
 import { MAX_CALL_MINUTES } from "@/lib/billing/plan-features";
 import { normalizeE164 } from "@/lib/telephony/e164";
 import { prependRecordingConsent } from "@/lib/agent-security/consent";
+import { parseVapiNativeSipAgentId } from "@/lib/telephony/vapi-sip";
 
 export type ResolvedVoiceNumber = {
   orgId: string;
@@ -12,14 +14,29 @@ export type ResolvedVoiceNumber = {
 export async function resolveVoiceNumber(
   twilioNumber: string,
 ): Promise<ResolvedVoiceNumber | null> {
-  const e164 = normalizeE164(twilioNumber);
-  const mapping = await prisma.twilioPhoneNumber.findUnique({
-    where: { twilioNumber: e164 },
-    include: { org: { select: { id: true } } },
-  });
+  const candidates = Array.from(
+    new Set([normalizeE164(twilioNumber), twilioNumber.trim()].filter(Boolean)),
+  );
 
-  if (!mapping || !mapping.isActive) return null;
-  return { orgId: mapping.org.id, agentId: mapping.agentId };
+  for (const candidate of candidates) {
+    const mapping = await prisma.twilioPhoneNumber.findUnique({
+      where: { twilioNumber: candidate },
+      include: { org: { select: { id: true } } },
+    });
+    if (mapping?.isActive) {
+      return { orgId: mapping.org.id, agentId: mapping.agentId };
+    }
+  }
+
+  const encodedAgentId = parseVapiNativeSipAgentId(twilioNumber);
+  if (!encodedAgentId) return null;
+
+  const agent = await prisma.agent.findUnique({
+    where: { id: encodedAgentId },
+    select: { id: true, orgId: true },
+  });
+  if (!agent) return null;
+  return { orgId: agent.orgId, agentId: agent.id };
 }
 
 export async function findOrCreateSession(params: {
@@ -222,7 +239,8 @@ export async function getMonthlyCallMinutes(orgId: string): Promise<{ used: numb
     select: { plan: true },
   });
   const plan = org?.plan ?? "FREE";
-  const max = MAX_CALL_MINUTES[plan as keyof typeof MAX_CALL_MINUTES] ?? 0;
+  const digitalMax = MAX_CALL_MINUTES[plan as keyof typeof MAX_CALL_MINUTES] ?? 0;
+  const max = monthlyCallMinuteCap(plan, digitalMax);
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { absoluteUrl } from "@/lib/app-url";
-import { SOCIAL_CHANNELS_ENABLED } from "@/lib/billing/plan-features";
+import { MAX_SOCIAL_ACCOUNTS } from "@/lib/billing/plan-features";
 import { prisma } from "@/lib/db/prisma";
 import { getRequestLocale } from "@/lib/i18n/request-locale";
 import {
@@ -63,9 +63,23 @@ export async function GET(req: NextRequest) {
       where: { id: agent.orgId },
       select: { plan: true },
     });
-    if (!org || !SOCIAL_CHANNELS_ENABLED[org.plan as keyof typeof SOCIAL_CHANNELS_ENABLED]) {
+    const plan = org?.plan ?? "FREE";
+    const maxAccounts =
+      MAX_SOCIAL_ACCOUNTS[plan as keyof typeof MAX_SOCIAL_ACCOUNTS] ?? 0;
+    if (maxAccounts <= 0) {
       return redirectTo(
         agentDetailPath(locale, agentId, "Social channels not available on your plan"),
+      );
+    }
+
+    const connected = await prisma.zernioChannel.count({ where: { orgId: agent.orgId } });
+    if (connected >= maxAccounts) {
+      return redirectTo(
+        agentDetailPath(
+          locale,
+          agentId,
+          `Account limit reached (${maxAccounts} on your plan). Contact sales to add more.`,
+        ),
       );
     }
 

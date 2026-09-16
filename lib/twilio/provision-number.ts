@@ -2,8 +2,10 @@ import { prisma } from "@/lib/db/prisma";
 import { normalizeE164 } from "@/lib/telephony/e164";
 import {
   createByoSipCredential,
+  createNativeSipPhoneNumber,
   importByoPhoneNumber,
   deleteByoPhoneNumber,
+  vapiNativeSipUri,
 } from "@/lib/telephony/vapi-sip";
 
 export type ImportSipNumberOptions = {
@@ -131,6 +133,70 @@ export async function importSipNumber(
 }
 
 /**
+ * Creates (or reuses) an inbound-only Vapi SIP URI for this agent.
+ * GoIP / SIPTRUNK originate to sip:anselio-{agentId}@sip.vapi.ai.
+ */
+export async function ensureVapiNativeSipNumber(
+  orgId: string,
+  agentId: string,
+): Promise<{ sipUri: string; vapiPhoneNumberId: string }> {
+  const sipUri = vapiNativeSipUri(agentId);
+
+  const existing = await prisma.twilioPhoneNumber.findUnique({
+    where: { twilioNumber: sipUri },
+    select: {
+      orgId: true,
+      agentId: true,
+      isActive: true,
+      vapiPhoneNumberId: true,
+    },
+  });
+
+  if (existing && existing.orgId !== orgId) {
+    throw new Error("This SIP URI is already registered to another organization.");
+  }
+
+  if (existing?.isActive && existing.vapiPhoneNumberId) {
+    if (existing.agentId && existing.agentId !== agentId) {
+      throw new Error("This SIP URI is already mapped to another agent.");
+    }
+    if (existing.agentId !== agentId) {
+      await prisma.twilioPhoneNumber.update({
+        where: { twilioNumber: sipUri },
+        data: { agentId },
+      });
+    }
+    return { sipUri, vapiPhoneNumberId: existing.vapiPhoneNumberId };
+  }
+
+  const vapiPhoneNumberId = await createNativeSipPhoneNumber(
+    sipUri,
+    `anselio-${agentId.slice(0, 8)}`,
+  );
+
+  await prisma.twilioPhoneNumber.upsert({
+    where: { twilioNumber: sipUri },
+    create: {
+      orgId,
+      agentId,
+      twilioNumber: sipUri,
+      isActive: true,
+      vapiPhoneNumberId,
+    },
+    update: {
+      orgId,
+      agentId,
+      isActive: true,
+      vapiPhoneNumberId,
+      sipCredentialId: null,
+      customerNumber: null,
+    },
+  });
+
+  return { sipUri, vapiPhoneNumberId };
+}
+
+/**
  * Releases a provisioned phone number.
  * Deactivates the mapping in DB and removes from Vapi.
  */
@@ -220,7 +286,6 @@ export async function markForwardingVerified(didE164: string): Promise<void> {
     where: {
       twilioNumber: e164,
       isActive: true,
-      customerNumber: { not: null },
       forwardingVerifiedAt: null,
     },
     data: { forwardingVerifiedAt: new Date() },
