@@ -2,7 +2,12 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { summarizeSession } from "@/lib/ai/summarize-session";
 import { logServerWarning } from "@/lib/logger";
-import { maybeRedactPii } from "@/lib/agent-security/pii";
+import { PhoneLineState } from "@prisma/client";
+import { isFailureReason, recordLineHealth } from "@/lib/phone/health-check";
+import {
+  maybeRedactPii,
+  maskKeypadEntries,
+} from "@/lib/agent-security/pii";
 
 type EndOfCallReportMessage = {
   call?: { id?: string };
@@ -37,7 +42,7 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
     where: { id: sessionId },
     select: {
       agent: {
-        select: { saveRecordings: true, piiRedactionEnabled: true },
+        select: { id: true, saveRecordings: true, piiRedactionEnabled: true },
       },
     },
   });
@@ -45,7 +50,10 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
   const redact = session?.agent?.piiRedactionEnabled === true;
 
   const endedReason = message.endedReason;
-  const transcript = maybeRedactPii(artifact?.transcript || "", redact);
+  // Always mask caller keypad entries (PINs/card codes) before persisting.
+  const transcript = maskKeypadEntries(
+    maybeRedactPii(artifact?.transcript || "", redact),
+  );
   const durationSeconds = message.durationSeconds || 0;
   const cost = message.cost || 0;
   const messages = artifact?.messages || [];
@@ -73,7 +81,7 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
           data: {
             sessionId,
             role: 'BOT',
-            content: maybeRedactPii(msg.message, redact),
+            content: maskKeypadEntries(maybeRedactPii(msg.message, redact)),
           }
         });
       }
@@ -106,6 +114,24 @@ export async function handleEndOfCallReport(message: EndOfCallReportMessage) {
       error: e instanceof Error ? e.message : String(e),
     });
   }
+
+  // Record line health (near-real-time founder alert)
+  try {
+    if (endedReason) {
+      const state: PhoneLineState = isFailureReason(endedReason) ? "FAILING" : "HEALTHY";
+      await recordLineHealth({
+        orgId: callLog.orgId,
+        agentId: session?.agent?.id ?? null,
+        state,
+        reason: state === "FAILING" ? endedReason : undefined,
+      });
+    }
+  } catch (err) {
+    // Non-critical — health check cron also covers this
+    logServerWarning(`[Vapi Observability] health-record failed ${vapiCallId}`, {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
 }
 
 type VapiEventMessage = {
@@ -126,6 +152,27 @@ export async function logVapiEvent(message: VapiEventMessage) {
       // Handled by end-of-call-report
     } else if (message.status === "failed") {
       logServerWarning(`[Vapi Observability] Call failed: ${callId}`, { callId, status: message.status });
+
+      // Near-real-time health update on provider failure
+      try {
+        const failedCall = await prisma.callLog.findUnique({
+          where: { vapiCallId: callId },
+          select: {
+            orgId: true,
+            session: { select: { agentId: true } },
+          },
+        });
+        if (failedCall) {
+          await recordLineHealth({
+            orgId: failedCall.orgId,
+            agentId: failedCall.session?.agentId ?? null,
+            state: "FAILING",
+            reason: "status-update:failed",
+          });
+        }
+      } catch {
+        // non-critical
+      }
     }
   } else if (message.type === "transcript") {
     // We could parse partial transcripts or detect language changes here

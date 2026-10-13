@@ -219,8 +219,6 @@ export const SHOW_CUSTOM_FORM: ToolDefinition = {
 };
 
 export const ALL_TOOL_DEFINITIONS: ToolDefinition[] = [
-  CHECK_ORDER_STATUS,
   CREATE_TICKET,
-  LOOKUP_ACCOUNT,
 ];
 

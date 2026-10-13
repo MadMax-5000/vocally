@@ -2,6 +2,7 @@ const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE_RE = /(?<!\w)(?:\+?\d[\d\s().-]{7,}\d)(?!\w)/g;
 const CARD_RE = /(?<!\d)(?:\d[ -]*?){13,19}(?!\d)/g;
 const CIN_RE = /\b[A-Z]{1,2}\d{5,8}\b/gi;
+const KEYPAD_ENTRY_RE = /User(?:'s| is) Keypad Entry:\s*\S*/gi;
 
 export function redactPii(text: string): string {
   return text
@@ -13,4 +14,8 @@ export function redactPii(text: string): string {
 
 export function maybeRedactPii(text: string, enabled: boolean): string {
   return enabled ? redactPii(text) : text;
+}
+
+export function maskKeypadEntries(text: string): string {
+  return text.replace(KEYPAD_ENTRY_RE, "User's Keypad Entry: [redacted]");
 }

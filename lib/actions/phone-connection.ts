@@ -20,6 +20,11 @@ import { phoneNumberSlotLimit } from "@/lib/billing/phone-addon";
 import { isMoroccanE164, normalizeE164 } from "@/lib/telephony/e164";
 import { ASSEMBLYAI_SIP_URI } from "@/lib/assemblyai/sip";
 import { isVapiNativeSipUri, vapiNativeSipUri } from "@/lib/telephony/vapi-sip";
+import { getMonthlyCallMinutes } from "@/lib/twilio/voice/handler";
+import {
+  getPhoneDeployDiagnostics,
+  type PhoneDeployDiagnostics,
+} from "@/lib/phone/diagnostics";
 
 const moroccanE164Schema = z
   .string()
@@ -39,13 +44,22 @@ export type PhoneConnectionSettings = {
     /** ussd = *21* to platform DID; sip = SIP BYOP to AssemblyAI; byoSip = cartes SIP; vapiSip = native sip.vapi.ai URI. */
     connectionMode: "ussd" | "sip" | "direct" | "byoSip" | "vapiSip";
     createdAt: Date;
+    health: {
+      state: string;
+      failureReason: string | null;
+      lastHealthyAt: Date | null;
+      lastFailureAt: Date | null;
+    } | null;
   }>;
   maxNumbers: number;
   currentCount: number;
-  /** SIP URI for BYOP trunk configuration. */
+  /** SIP URI for BYO SIP trunk configuration. */
   assemblyAiSipUri: string;
   /** Inbound Vapi SIP URI for GoIP / SIPTRUNK, if created. */
   vapiSipUri: string | null;
+  monthlyUsage: { used: number; max: number };
+  /** Presence-only go/no-go readiness, computed at load (no outbound calls). */
+  diagnostics: PhoneDeployDiagnostics;
 };
 
 export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSettings> {
@@ -55,6 +69,13 @@ export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSet
     currentCount: 0,
     assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
     vapiSipUri: null,
+    monthlyUsage: { used: 0, max: 0 },
+    diagnostics: {
+      ok: false,
+      items: [],
+      summaryKey: "notReadyTitle",
+      summaryDetailKey: "notReadyDescription",
+    },
   };
 }
 
@@ -90,11 +111,14 @@ export async function getPhoneConnectionSettings(
 
     const numbers = await prisma.twilioPhoneNumber.findMany({
       where: { orgId, agentId },
+      include: { health: true },
       orderBy: { createdAt: "desc" },
     });
 
     const plan = org?.plan ?? "FREE";
     const maxNumbers = phoneNumberSlotLimit(plan);
+
+    const monthlyUsage = await getMonthlyCallMinutes(orgId);
 
     return {
       success: true,
@@ -111,6 +135,14 @@ export async function getPhoneConnectionSettings(
             n.sipCredentialId,
           ),
           createdAt: n.createdAt,
+          health: n.health
+            ? {
+                state: n.health.state,
+                failureReason: n.health.failureReason,
+                lastHealthyAt: n.health.lastHealthyAt,
+                lastFailureAt: n.health.lastFailureAt,
+              }
+            : null,
         })),
         maxNumbers,
         currentCount: numbers.filter((n) => n.isActive).length,
@@ -118,10 +150,10 @@ export async function getPhoneConnectionSettings(
         vapiSipUri:
           numbers.find((n) => n.isActive && isVapiNativeSipUri(n.twilioNumber))?.twilioNumber
           ?? null,
+        monthlyUsage,
       },
     };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to load phone settings";
     return { success: false, error: message };
   }
 }

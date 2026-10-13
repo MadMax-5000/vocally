@@ -143,11 +143,18 @@ async function updateDatabase(
   const shouldSetStatus =
     current.status !== "ESCALATED" && current.status !== "CLAIMED";
 
-  const duration = current.startedAt
+  const fallbackDuration = current.startedAt
     ? Math.floor(
         (Date.now() - current.startedAt.getTime()) / 1000,
       )
     : 0;
+
+  // Only fill duration when the provider did not (Vapi / AssemblyAI already
+  // write the exact billed seconds) — overwriting it would mis-bill minutes.
+  const existingCallLog = await prisma.callLog.findUnique({
+    where: { sessionId },
+    select: { duration: true },
+  });
 
   await prisma.session.update({
     where: { id: sessionId },
@@ -167,7 +174,7 @@ async function updateDatabase(
     data: {
       qaScore: result.qaScore,
       transcript,
-      duration,
+      duration: existingCallLog?.duration ?? fallbackDuration,
     },
   });
 }

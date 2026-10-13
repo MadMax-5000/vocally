@@ -80,11 +80,19 @@ export function getToolDefinitionsForAgent(options?: {
   includeBookAppointment?: boolean;
   includeListAvailableSlots?: boolean;
   includeSecureInput?: boolean;
+  /** Enable mock order/account tools (for demo only). */
+  includeMockTooling?: boolean;
 }): ToolDefinition[] {
   const allowCreateTicket = options?.allowCreateTicket ?? true;
+  const includeMockTooling = options?.includeMockTooling ?? false;
+
   let tools = allowCreateTicket
     ? [...ALL_TOOL_DEFINITIONS]
     : ALL_TOOL_DEFINITIONS.filter((t) => t.function.name !== "create_ticket");
+
+  if (includeMockTooling) {
+    tools = [...tools, CHECK_ORDER_STATUS, LOOKUP_ACCOUNT];
+  }
 
   if (options?.includeCollectLeads) {
     tools = [...tools, SAVE_LEAD];

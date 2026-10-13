@@ -135,7 +135,15 @@
           "provisionSuccess": "Numéro provisionné !",
           "provisionSuccessDescription": "Votre nouveau numéro marocain est actif. Les appels vers ce numéro seront répondus par votre agent IA.",
           "freePlanTitle": "La téléphonie Maroc est incluse dans Pro",
-          "freePlanDescription": "Passez à Pro ou Entreprise pour 1 numéro marocain avec 300 minutes de voix IA. Packs numéros, lignes et comptes Meta supplémentaires via les ventes — les numéros sont fournis sur SIPTRUNK.ma."
+          "freePlanDescription": "Passez à Pro ou Entreprise pour 1 numéro marocain avec 300 minutes de voix IA. Packs numéros, lignes et comptes Meta supplémentaires via les ventes — les numéros sont fournis sur SIPTRUNK.ma.",
+          "monthlyMinutes": "Minutes de voix IA du mois",
+          "monthlyMinutesDescription": "Minutes utilisées ce mois-ci sur tous les appels entrants de cette ligne.",
+          "minutesUsed": "{used} sur {max} minutes utilisées",
+          "minutesRemaining": "{remaining} minutes restantes",
+          "minutesNearLimit": "les appels s'interrompent lorsque la limite est atteinte",
+          "lineHealthy": "Ligne opérationnelle — les appels aboutissent à l'IA.",
+          "lineStale": "Aucun appel entrant récemment — vérifiez la SIM, le trunk ou le renvoi.",
+          "lineFailing": "Problème détecté sur la ligne — Anselio en informe votre contact support."
         }
       }
     }

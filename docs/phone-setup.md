@@ -179,6 +179,26 @@ npx prisma db push
 npx prisma generate
 ```
 
+## Pre-flight: Vapi provider credits
+
+Vapi routes calls through provider accounts configured in the Vapi Dashboard
+(OpenAI, ElevenLabs, Gladia, Deepgram). Before going live:
+
+1. **VAPI_API_KEY** — verify it exists in your `.env.local` and is active. The
+   assistant-request handler returns `null` if missing.
+2. **OpenAI Realtime (EN/FR)** — confirm the OpenAI account linked to Vapi has
+   credits. The realtime model (`gpt-4o-realtime`) will reject calls when the
+   balance is zero.
+3. **ElevenLabs (AR/Darija TTS)** — the cascaded path uses an ElevenLabs voice
+   ("Sarah"). Confirm the ElevenLabs subscription is active in Vapi's provider
+   keys panel.
+4. **Gladia (AR/Darija STT)** — required only for the cascaded path. Confirm
+   Gladia credits or billing is active in Vapi.
+
+If any provider is exhausted, calls to that language path will fail silently
+(the caller hears silence or a hang). Monitor Vapi Dashboard → Logs for
+`402` / `429` provider errors.
+
 ## What not to do
 
 - Do not enable `PHONE_BYOC_TRY_PBXME` for customer self-serve DID buy.

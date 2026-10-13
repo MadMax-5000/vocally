@@ -9,6 +9,7 @@ import {
 } from "@/lib/deploy/escalation-action";
 import { prisma } from "@/lib/db/prisma";
 import { logServerWarning } from "@/lib/logger";
+import { maskKeypadEntries } from "@/lib/agent-security/pii";
 
 import { getVapiControlUrl } from "./transfer-call";
 import { performVoiceEscalation } from "./voice-escalation";
@@ -56,11 +57,13 @@ export async function handleVapiTranscriptEscalation(
   if (!callLog?.session.agentId) return;
   if (!ESCALATABLE_STATUSES.has(callLog.session.status)) return;
 
+  const finalTranscript = maskKeypadEntries(transcript);
+
   await prisma.message.create({
     data: {
       sessionId: callLog.sessionId,
       role: "USER",
-      content: transcript,
+      content: finalTranscript,
     },
   });
 
@@ -91,7 +94,7 @@ export async function handleVapiTranscriptEscalation(
   const botContent = lastBot?.content ?? "";
 
   const decision = evaluateEscalation({
-    userMessage: transcript,
+    userMessage: finalTranscript,
     botContent,
     llmFailed: false,
     previousBotMessages,
@@ -111,7 +114,7 @@ export async function handleVapiTranscriptEscalation(
     orgId: callLog.orgId,
     agentId: callLog.session.agentId,
     controlUrl,
-    userMessage: transcript,
+    userMessage: finalTranscript,
     decision,
   });
 }

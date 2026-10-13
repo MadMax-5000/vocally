@@ -61,6 +61,15 @@ export function PhoneNumbersTab({
   const activeNumbers = settings.numbers.filter((n) => n.isActive);
   const hasNumbers = activeNumbers.length > 0;
 
+  const usage = settings.monthlyUsage;
+  const usageUnlimited = usage.max === Infinity;
+  const usagePct = usageUnlimited
+    ? 0
+    : usage.max > 0
+      ? Math.min(100, Math.round((usage.used / usage.max) * 100))
+      : 0;
+  const usageNearLimit = !usageUnlimited && usage.max > 0 && usage.used >= usage.max * 0.9;
+
   const handleDisconnect = useCallback(async (phoneNumber: string) => {
     setIsDisconnecting(phoneNumber);
 
@@ -201,6 +210,36 @@ export function PhoneNumbersTab({
 
   return (
     <div className="space-y-4">
+      {(usage.max > 0 || usageUnlimited) && (
+        <section className="rounded-xl border border-hairline bg-surface-card p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="text-title-sm font-medium text-ink">{t("monthlyMinutes")}</h2>
+              <p className="mt-1 text-caption leading-relaxed text-muted">
+                {t("monthlyMinutesDescription")}
+              </p>
+            </div>
+            <span className="shrink-0 font-mono text-body-sm font-medium text-ink">
+              {usageUnlimited ? t("unlimited") : t("minutesUsed", { used: usage.used, max: usage.max })}
+            </span>
+          </div>
+          {!usageUnlimited && (
+            <>
+              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-canvas-soft">
+                <div
+                  className={`h-full rounded-full ${usagePct >= 90 ? "bg-amber-500" : "bg-emerald-500"}`}
+                  style={{ width: `${usagePct}%` }}
+                />
+              </div>
+              <p className="mt-2 text-caption text-muted-soft">
+                {t("minutesRemaining", { remaining: Math.max(0, usage.max - usage.used) })}
+                {usageNearLimit ? ` — ${t("minutesNearLimit")}` : ""}
+              </p>
+            </>
+          )}
+        </section>
+      )}
+
       {hasNumbers && (
         <section className="rounded-xl border border-hairline bg-surface-card p-4">
           <h2 className="text-title-sm font-medium text-ink">{t("yourNumbers")}</h2>
@@ -277,6 +316,32 @@ export function PhoneNumbersTab({
                             ? ` · ${num.forwardingVerifiedAt ? t("vapiSipActive") : t("vapiSipPending")}`
                             : ""}
                         </p>
+                        {num.forwardingVerifiedAt && num.health && num.health.state !== "UNKNOWN" && (
+                          <p
+                            className={`text-caption font-medium ${
+                              num.health.state === "FAILING"
+                                ? "text-red-700"
+                                : num.health.state === "STALE"
+                                  ? "text-amber-700"
+                                  : "text-emerald-700"
+                            }`}
+                          >
+                            <span
+                              className={`mr-1.5 inline-block size-1.5 rounded-full ${
+                                num.health.state === "FAILING"
+                                  ? "bg-red-500"
+                                  : num.health.state === "STALE"
+                                    ? "bg-amber-500"
+                                    : "bg-emerald-500"
+                              }`}
+                            />
+                            {num.health.state === "FAILING"
+                              ? t("lineFailing")
+                              : num.health.state === "STALE"
+                                ? t("lineStale")
+                                : t("lineHealthy")}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">

@@ -125,6 +125,30 @@ async function retrieveVoiceKnowledgeContext(params: {
   }
 }
 
+function buildMinutesExhaustedMessage(lang: string): string {
+  switch (lang) {
+    case "ar":
+    case "ary":
+      return "عذرًا، لقد وصلت مؤسستكم إلى الحد الشهري لدقائق المكالمات الصوتية. يرجى التواصل مع المدير لتجديد الباقة. شكرًا لاتصالكم ومع السلامة.";
+    case "fr":
+      return "Nous sommes désolés, votre organisation a atteint son quota mensuel de minutes téléphoniques. Veuillez contacter votre administrateur pour renouveler le forfait. Merci et au revoir.";
+    default:
+      return "We're sorry, your organization has reached its monthly AI voice minute limit. Please contact your administrator to renew your plan. Thank you, and goodbye.";
+  }
+}
+
+function buildMinutesNudge(used: number, max: number, lang: string): string {
+  switch (lang) {
+    case "ar":
+    case "ary":
+      return `ملاحظة للوكيل: استُهلك ${used} من أصل ${max} دقيقة صوتية هذا الشهر. إن أتيحت الفرصة بشكل طبيعي، اذكر ذلك مرة واحدة بلطف ثم واصل الخدمة بشكل عادي. لا تنهِ المكالمة بسبب ذلك.`;
+    case "fr":
+      return `Note à l'agent : ${used} minutes vocales sur ${max} déjà utilisées ce mois-ci. Si le sujet s'y prête, mentionnez-le une fois poliment, puis poursuivez la conversation normalement. Ne raccrochez pas pour cette raison.`;
+    default:
+      return `Note to agent: ${used} of ${max} monthly voice minutes have been used. If it fits naturally, mention the allowance once politely, then continue serving the caller normally. Do not end the call because of this.`;
+  }
+}
+
 export async function handleAssistantRequest(message: {
   call?: {
     id?: string;
@@ -157,16 +181,6 @@ export async function handleAssistantRequest(message: {
     return { assistant: null };
   }
 
-  const { used, max } = await getMonthlyCallMinutes(orgId);
-  if (max !== Infinity && used >= max) {
-    logServerWarning(`[Vapi] Monthly call minute limit reached for orgId: ${orgId}`, {
-      orgId,
-      used,
-      max,
-    });
-    return { assistant: null };
-  }
-
   if (!agentId) {
     agentId = await resolveActiveAgent(orgId);
   }
@@ -175,6 +189,51 @@ export async function handleAssistantRequest(message: {
     logServerWarning(`[Vapi] No active voice agent found for orgId: ${orgId}`, { orgId });
     return { assistant: null };
   }
+
+  const agent = await prisma.agent.findUnique({
+    where: { id: agentId },
+    include: {
+      org: { select: { name: true } },
+      channels: { select: { channel: true, enabled: true, config: true } },
+    },
+  });
+
+  if (!agent) {
+    return { assistant: null };
+  }
+
+  // Defensive guard: VAPI_API_KEY is in CRITICAL_VARS, but verify at request
+  // time so a revoked/missing key produces a clear log instead of silent Vapi 500s.
+  if (!process.env.VAPI_API_KEY?.trim()) {
+    logServerWarning("[Vapi] VAPI_API_KEY is missing — assistant-request rejected", { orgId, agentId });
+    return { assistant: null };
+  }
+
+  const voiceChannel = agent.channels.find((c) => c.channel === "VOICE_CALLS");
+  const voiceConfig = (voiceChannel?.config ?? {}) as VoiceChannelConfig;
+
+  const { promptLanguage, detectedLanguage, isArabicOrDarija } = mapLanguageCode(
+    voiceConfig.language,
+    agent.defaultLanguage,
+  );
+
+  const { used, max } = await getMonthlyCallMinutes(orgId);
+  const isAtCap = max !== Infinity && used >= max;
+  const isNearCap = !isAtCap && max !== Infinity && used >= Math.ceil(max * 0.8);
+
+  if (isAtCap) {
+    logServerWarning(`[Vapi] Monthly call minute limit reached for orgId: ${orgId}`, {
+      orgId,
+      used,
+      max,
+    });
+    // Spoken, then the call ends — never silent for a paying customer.
+    return { error: buildMinutesExhaustedMessage(detectedLanguage) };
+  }
+
+  const nearCapNote = isNearCap
+    ? buildMinutesNudge(used, max, detectedLanguage)
+    : "";
 
   const { sessionId } = await findOrCreateSession({
     orgId,
@@ -196,26 +255,6 @@ export async function handleAssistantRequest(message: {
       });
     }
   }
-
-  const agent = await prisma.agent.findUnique({
-    where: { id: agentId },
-    include: {
-      org: { select: { name: true } },
-      channels: { select: { channel: true, enabled: true, config: true } },
-    },
-  });
-
-  if (!agent) {
-    return { assistant: null };
-  }
-
-  const voiceChannel = agent.channels.find((c) => c.channel === "VOICE_CALLS");
-  const voiceConfig = (voiceChannel?.config ?? {}) as VoiceChannelConfig;
-
-  const { promptLanguage, detectedLanguage, isArabicOrDarija } = mapLanguageCode(
-    voiceConfig.language,
-    agent.defaultLanguage,
-  );
 
   const firstMessage = prependRecordingConsent(
     resolveGreeting(
@@ -292,7 +331,7 @@ export async function handleAssistantRequest(message: {
     escalateWhenUnsure: agent.guardrailEscalateWhenUnsure,
   });
 
-  const instructions = [agent.instructions, escalationPrompt, guardrailSection]
+  const instructions = [agent.instructions, escalationPrompt, guardrailSection, nearCapNote]
     .filter(Boolean)
     .join("\n\n");
 
@@ -375,6 +414,13 @@ export async function handleAssistantRequest(message: {
     assistant: {
       ...assistantConfig,
       recordingEnabled: agent.saveRecordings,
+      // Collect caller keypad entries for PIN/card/account input. Vapi injects
+      // them into the conversation as a "User's Keypad Entry: ..." user message.
+      keypadInputPlan: {
+        enabled: true,
+        timeoutSeconds: 5,
+        delimiters: "#",
+      },
       clientMessages: [
         "tool-calls",
         "end-of-call-report",

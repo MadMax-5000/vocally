@@ -45,6 +45,9 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
   }
 
   const tools = input.toolDefinitions ?? getAllToolDefinitions();
+  const usesSecureInput = tools.some(
+    (t) => t.function.name === "request_secure_input",
+  );
   if (tools.length > 0) {
     const toolDescriptions = tools
       .map((t) => {
@@ -83,6 +86,12 @@ export const voiceBotSystemPromptV1 = (input: VoiceBotPromptInput) => {
     "If the customer sounds frustrated or asks for something outside your capabilities, acknowledge their concern and offer to transfer to a human agent.",
     "Never ask for full credit card numbers or passwords verbally.",
   );
+
+  if (usesSecureInput) {
+    sections.push(
+      `For sensitive information such as PINs, account numbers, or payment details, never ask the caller to speak them aloud. Ask them to type the digits on their phone keypad and press #. When their keypad entry arrives as a message like "User's Keypad Entry: 1234", do NOT read the digits aloud, repeat them, or spell them out — acknowledge by type only (for example "I've received your code.") and continue.`,
+    );
+  }
 
   if (input.knowledgeContext) {
     sections.push(

@@ -680,9 +680,35 @@ model TwilioPhoneNumber {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  health PhoneLineHealth?
+
   @@index([orgId])
   @@index([twilioNumber])
   @@index([didwwNumberId])
+}
+
+/// Health state of a phone line, written by the phone-health-check cron.
+model PhoneLineHealth {
+  id             String         @id @default(cuid())
+  phoneNumberId  String         @unique
+  phoneNumber    TwilioPhoneNumber @relation(fields: [phoneNumberId], references: [id], onDelete: Cascade)
+  state          PhoneLineState @default(UNKNOWN)
+  failureReason  String?
+  lastHealthyAt  DateTime?
+  lastFailureAt  DateTime?
+  lastNotifiedAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([phoneNumberId])
+  @@index([state])
+}
+
+enum PhoneLineState {
+  UNKNOWN
+  HEALTHY
+  STALE
+  FAILING
 }
 
 model SipCredential {

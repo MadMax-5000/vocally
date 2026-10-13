@@ -136,7 +136,15 @@
           "provisionSuccess": "Number provisioned!",
           "provisionSuccessDescription": "Your new Moroccan number is active. Calls to this number will be answered by your AI agent.",
           "freePlanTitle": "Morocco telephony is included on Pro",
-          "freePlanDescription": "Upgrade to Pro or Enterprise for 1 Moroccan number with 300 AI voice minutes. Extra number packs, lines, and Meta accounts via sales — numbers are provisioned on SIPTRUNK.ma."
+          "freePlanDescription": "Upgrade to Pro or Enterprise for 1 Moroccan number with 300 AI voice minutes. Extra number packs, lines, and Meta accounts via sales — numbers are provisioned on SIPTRUNK.ma.",
+          "monthlyMinutes": "Monthly AI voice minutes",
+          "monthlyMinutesDescription": "Minutes used this month across all inbound calls on this line.",
+          "minutesUsed": "{used} of {max} minutes used",
+          "minutesRemaining": "{remaining} minutes remaining",
+          "minutesNearLimit": "calls pause once the limit is reached",
+          "lineHealthy": "Line operational — calls are reaching the AI.",
+          "lineStale": "No inbound calls recently — verify the SIM, trunk, or forwarding.",
+          "lineFailing": "Line issue detected — Anselio is notifying your support contact."
         }
       }
     }
