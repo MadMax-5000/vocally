@@ -119,6 +119,7 @@ export async function getPhoneConnectionSettings(
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const monthlyUsage = await getMonthlyCallMinutes(orgId);
+    const diagnostics = await getPhoneDeployDiagnostics(orgId, agentId);
 
     return {
       success: true,
@@ -151,9 +152,12 @@ export async function getPhoneConnectionSettings(
           numbers.find((n) => n.isActive && isVapiNativeSipUri(n.twilioNumber))?.twilioNumber
           ?? null,
         monthlyUsage,
+        diagnostics,
       },
     };
   } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to load phone settings";
     return { success: false, error: message };
   }
 }

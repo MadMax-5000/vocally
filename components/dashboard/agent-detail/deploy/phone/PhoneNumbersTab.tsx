@@ -19,6 +19,8 @@ import {
 } from "@/lib/actions/phone-connection";
 import { toMoroccanUssdDestination } from "@/lib/telephony/e164";
 
+import { PhoneDiagnosticsCard } from "./PhoneDiagnosticsCard";
+
 type PhoneNumbersTabProps = {
   agentId: string;
   phoneEnabled: boolean;
@@ -210,6 +212,8 @@ export function PhoneNumbersTab({
 
   return (
     <div className="space-y-4">
+      <PhoneDiagnosticsCard diagnostics={settings.diagnostics} />
+
       {(usage.max > 0 || usageUnlimited) && (
         <section className="rounded-xl border border-hairline bg-surface-card p-4">
           <div className="flex items-start justify-between gap-4">
