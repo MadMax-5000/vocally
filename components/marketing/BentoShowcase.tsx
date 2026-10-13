@@ -84,7 +84,7 @@ export async function BentoShowcase() {
               <div className="absolute inset-0 flex flex-col justify-center gap-3 px-8 py-10">
                 {/* User — right-aligned, glass */}
                 <div className="flex justify-end">
-                  <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-4 py-2 backdrop-blur-sm">
+                  <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-4 py-2">
                     <p className="text-[14px] font-medium leading-snug text-white">
                       Can I get a refund?
                     </p>
@@ -102,7 +102,7 @@ export async function BentoShowcase() {
 
                 {/* User — right-aligned, glass */}
                 <div className="flex justify-end">
-                  <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-4 py-2 backdrop-blur-sm">
+                  <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-4 py-2">
                     <p className="text-[14px] font-medium leading-snug text-white">
                       It&rsquo;s EL4543490
                     </p>

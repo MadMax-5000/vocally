@@ -55,6 +55,7 @@
     "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "g711": "^1.0.1",
+    "geist": "^1.7.2",
     "googleapis": "^172.0.0",
     "lucide-react": "^1.43.0",
     "mammoth": "^1.12.0",

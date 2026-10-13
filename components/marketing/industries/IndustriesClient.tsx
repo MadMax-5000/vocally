@@ -155,7 +155,7 @@ export function IndustriesClient({
         >
           <span
             ref={barRef}
-            className="block h-full w-full rounded-full origin-left will-change-transform rtl:origin-right"
+            className="block h-full w-full rounded-full origin-left rtl:origin-right"
             style={{
               backgroundColor: RAIL_COLOR,
               transform: reduceMotion ? "scaleX(1)" : "scaleX(0)",
@@ -317,8 +317,8 @@ function IndustryChat({
       <div className="flex w-full max-w-[20rem] flex-col gap-2.5">
         <motion.div
           className="ms-auto max-w-[90%]"
-          initial={reduceMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduceMotion ? 0 : 0.42, delay: reduceMotion ? 0 : 0.12, ease: EASE_OUT }}
         >
           <p
@@ -335,8 +335,8 @@ function IndustryChat({
         {showReply ? (
           <motion.div
             className="max-w-[95%]"
-            initial={reduceMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.38, ease: EASE_OUT }}
           >
             <div className="rounded-2xl bg-surface-card px-3.5 py-2.5 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">

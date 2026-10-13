@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 import "./globals.css";
-import { instrumentSerif } from "./fonts";
+import { fontVariables } from "./fonts";
 
 export default function GlobalError({
   error,
@@ -17,16 +17,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en" className={`${instrumentSerif.variable} antialiased`}>
-      <head>
-        <link
-          rel="preload"
-          href="/fonts/bricolage-grotesque-var.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
+    <html lang="en" className={`${fontVariables} antialiased`}>
       <body className="font-sans bg-canvas text-ink text-pretty">
         <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
           <h1 className="text-display-sm font-display tracking-tight text-ink">

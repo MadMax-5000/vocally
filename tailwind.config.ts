@@ -35,11 +35,14 @@ const config: Config = {
         "popover-foreground": "var(--popover-foreground)"
       },
       fontFamily: {
-        display: ["var(--font-display)"],
-        sans: ["var(--font-body)"],
-        body: ["var(--font-body)"],
+        // Geist — main font (default, headings, nav, titles)
+        display: ["var(--font-sans)"],
+        sans: ["var(--font-sans)"],
+        body: ["var(--font-inter)"],
         mono: ["var(--font-mono)"],
         app: ["var(--font-app)"],
+        // Inter — paragraphs, UI components, and buttons
+        inter: ["var(--font-inter)"],
         // Instrument Serif — marketing hero accent line
         accent: ["var(--font-accent)", "Georgia", "Times New Roman", "serif"]
       },

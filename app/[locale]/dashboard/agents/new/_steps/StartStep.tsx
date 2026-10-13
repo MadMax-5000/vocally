@@ -67,7 +67,7 @@ export function StartStep({ onScratch, onSound }: StartStepProps) {
             <div className="absolute inset-0 flex flex-col justify-center gap-3 px-8 py-10">
               {/* User — right-aligned, glass */}
               <div className="flex justify-end">
-                <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-3 py-1 backdrop-blur-sm">
+                <div className="max-w-[60%] rounded-[18px] rounded-tr-sm border border-white/30 bg-white/15 px-3 py-1">
                   <p className="text-[12px] font-medium leading-snug text-white">
                     {t("startQuestion")}
                   </p>

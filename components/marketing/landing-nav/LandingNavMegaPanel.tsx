@@ -142,7 +142,7 @@ function ResourcesContent() {
             <span className="relative font-display text-[18px] tracking-tight text-on-primary">
               anselio
             </span>
-            <span className="relative rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-on-primary backdrop-blur-sm">
+            <span className="relative rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-on-primary">
               {t(recentUpdate.badgeKey)}
             </span>
           </div>

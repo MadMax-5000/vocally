@@ -66,7 +66,7 @@ function OverlayPanel({ children }: { children: React.ReactNode }) {
 
 function StatusPill({ icon, label }: StatusPillProps) {
   return (
-    <div className="inline-flex items-center gap-2 self-start rounded-md bg-ink/95 px-3 py-1.5 backdrop-blur-sm">
+    <div className="inline-flex items-center gap-2 self-start rounded-md bg-ink/95 px-3 py-1.5">
       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/95 text-ink">
         {icon}
       </span>

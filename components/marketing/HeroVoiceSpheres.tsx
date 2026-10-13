@@ -214,7 +214,7 @@ export function HeroVoiceSpheres() {
                       aria-label={isPlaying ? `Pause ${sphere.title}` : `Play ${sphere.title}`}
                       aria-pressed={isPlaying}
                       onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                      className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card/90 text-ink shadow-[0_2px_14px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
+                      className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-card text-ink shadow-[0_2px_14px_rgba(0,0,0,0.18)] transition-colors hover:bg-surface-strong"
                     >
                       {isPlaying
                         ? <AppIcon icon={Pause}  className="h-5 w-5 fill-current" />
@@ -243,9 +243,9 @@ export function HeroVoiceSpheres() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8,  filter: shouldReduceMotion ? "blur(0px)" : "blur(4px)" }}
-              animate={{ opacity: 1, y: 0,                            filter: "blur(0px)" }}
-              exit={{    opacity: 0, y: shouldReduceMotion ? 0 : -8, filter: shouldReduceMotion ? "blur(0px)" : "blur(4px)" }}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{    opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
               transition={{ duration: shouldReduceMotion ? 0.1 : 0.25, ease: "easeOut" }}
             >
               <p className="font-display text-title-sm text-ink">

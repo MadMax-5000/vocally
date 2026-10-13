@@ -47,7 +47,6 @@ export function ScrollReveal({
   }, [lazy, visible]);
 
   const y = intensity === "light" ? 16 : 28;
-  const blur = intensity === "light" ? "4px" : "6px";
 
   return (
     <div
@@ -60,8 +59,8 @@ export function ScrollReveal({
           children
         ) : (
           <motion.div
-            initial={{ opacity: 0, y, filter: `blur(${blur})` }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
               duration: intensity === "light" ? 0.5 : 0.65,
               ease: EASE,
@@ -77,8 +76,8 @@ export function ScrollReveal({
 }
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 22, filter: "blur(5px)" },
-  show: { opacity: 1, y: 0, filter: "blur(0px)" },
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0 },
 };
 
 export function StaggerGrid({

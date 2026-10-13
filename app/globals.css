@@ -75,11 +75,20 @@
     --sidebar-width: 220px;
     --sidebar-width-icon: 48px;
 
-    --font-display: "Bricolage Grotesque", system-ui, sans-serif;
-    --font-body: "Instrument Sans", system-ui, sans-serif;
+    /* Geist is the main font: headings, nav, labels, page chrome. */
+    --font-display: var(--font-geist-sans), Geist, system-ui, sans-serif;
+    --font-sans: var(--font-geist-sans), Geist, ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* Inter — paragraphs, UI components, and buttons. */
+    --font-body: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+    /* `--font-inter` is injected by next/font on <html>. */
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
-    --font-app:
-      "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    /* OpenType presets. Geist: standard ligatures + kerning.
+       Inter: geometric character variants (cv02 open 4, cv03 open 6,
+       cv04 open 9, cv11 single-story a). */
+    --font-features-geist: "calt" 1, "liga" 1, "kern" 1;
+    --font-features-inter: "cv02" 1, "cv03" 1, "cv04" 1, "cv11" 1;
+    --font-app: var(--font-inter), "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", "Noto Sans", "Noto Sans CJK SC", "Noto Sans CJK TC",
       "Noto Sans CJK JP", "Noto Sans CJK KR", "Noto Sans Arabic",
       "Noto Sans Devanagari", "Noto Sans Thai", sans-serif,
@@ -127,9 +136,22 @@
   html,
   body {
     height: 100%;
+    /* Crispness: keep subpixel AA on Windows, grayscale on macOS. */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+    /* Favor legibility (kerning + ligatures) over geometric precision,
+       which suspends hinting and blurs glyphs on Windows. */
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures contextual;
+    /* Never let the browser fake weights/small-caps — synthetics look cheap.
+       Style synthesis stays on only because Geist ships no italic face and we
+       don't want <em> to render upright. Both fonts are variable (real
+       100–900), so faux bold never triggers regardless. */
+    font-synthesis: style;
+    /* Let variable fonts pick the right optical size. */
+    font-optical-sizing: auto;
   }
 
   /* Global scrollbar styling (Firefox + Chromium/Safari) */
@@ -160,18 +182,18 @@
   body {
     background: theme(colors.canvas);
     color: theme(colors.ink);
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
+    font-feature-settings: var(--font-features-geist);
     font-size: theme(fontSize.body-md[0]);
     line-height: theme(fontSize.body-md[1].lineHeight);
     letter-spacing: theme(fontSize.body-md[1].letterSpacing);
-    text-rendering: geometricPrecision;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-weight: 800;
     letter-spacing: -0.02em;
     text-rendering: optimizeLegibility;
@@ -226,11 +248,54 @@
   html {
     @apply font-sans;
   }
+
+  /* Geist — main font (headings, nav, labels, page chrome) */
+  .font-sans,
+  .font-display {
+    font-feature-settings: var(--font-features-geist);
+  }
+
+  /* Inter — paragraphs, lists, and long-form copy */
+  p,
+  .prose p,
+  li,
+  dd,
+  dt,
+  blockquote,
+  figcaption {
+    font-family: var(--font-inter);
+    font-feature-settings: var(--font-features-inter);
+  }
+
+  /* Inter — form controls and buttons (all UI components) */
+  button,
+  input,
+  select,
+  textarea,
+  optgroup,
+  .font-inter,
+  .font-body {
+    font-family: var(--font-inter);
+    font-feature-settings: var(--font-features-inter);
+  }
+
+  /* Premium data UI: align digits in tables by default. */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  /* Opt-in tabular figures for metrics, timers, IDs. */
+  .tabular {
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
 }
 
 @layer components {
   .btn-primary {
     @apply inline-flex h-8 items-center justify-center rounded-md bg-primary px-3 py-1 text-button text-white transition-colors;
+    font-family: var(--font-inter);
   }
 
   .btn-primary:hover {
@@ -243,6 +308,7 @@
 
   .btn-outline {
     @apply inline-flex h-8 items-center justify-center rounded-md border border-hairline-strong bg-transparent px-3 py-1 text-button text-ink transition;
+    font-family: var(--font-inter);
   }
 
   .btn-outline:hover {
