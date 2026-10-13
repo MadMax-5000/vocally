@@ -9,6 +9,14 @@
     {
       "path": "/api/cron/gmail-renew-watch",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/phone-health-check",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/supabase-keep-alive",
+      "schedule": "30 5 * * *"
     }
   ]
 }
