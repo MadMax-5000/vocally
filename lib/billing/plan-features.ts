@@ -95,8 +95,8 @@ export const MAX_CALL_MINUTES: Record<PlanId, number> = {
 /** Public SaaS prices in MAD centimes, HT. */
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
   FREE: { madCents: 0 },
-  STARTER: { madCents: 100_000 },
-  PRO: { madCents: 300_000 },
+  STARTER: { madCents: 200_000 },
+  PRO: { madCents: 400_000 },
 };
 
 // Fallback copy when i18n is unavailable

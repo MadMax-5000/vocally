@@ -10,8 +10,8 @@ describe("productAssistantSystemPrompt", () => {
 
     expect(prompt).toContain("Anselio");
     expect(prompt).not.toContain("Vocally");
-    expect(prompt).toContain("1,000 MAD HT");
-    expect(prompt).toContain("3,000 MAD HT");
+    expect(prompt).toContain("2,000 MAD HT");
+    expect(prompt).toContain("4,000 MAD HT");
     expect(prompt).toContain("Téléphonie Maroc");
     expect(prompt).toContain("1,500 MAD HT");
     expect(prompt).not.toContain("790 MAD HT");

@@ -79,8 +79,8 @@ export const productAssistantSystemPrompt = (
       "Prices are in Moroccan Dirham (MAD) HT (excluding 20% TVA), billed monthly. Do not invent other prices. If a detail is missing, send the visitor to /pricing or sales.",
       "",
       "- **Free**: 0 MAD. 1 AI agent, 50 conversations/month, website chat, 10 MB knowledge base. No WhatsApp, no phone.",
-      "- **Starter**: 1,000 MAD HT/month. Up to 2 AI agents, website chat + help page, WhatsApp / Instagram / Messenger, email channel, 50 MB knowledge base, inbox, 2 dashboard members, 3 WhatsApp/Meta accounts and 500 conversations/month included. Meta conversation fees passed through at cost. No phone.",
-      "- **Pro**: 3,000 MAD HT/month. Everything in Starter, up to 5 AI agents, 5 members, email channel + API, 100 SMS segments/month, advanced analytics, 6 WhatsApp/Meta accounts, 1 Moroccan number + 300 AI voice minutes and 2,000 conversations/month included. Extra WhatsApp/Meta accounts 100 MAD HT/month each.",
+      "- **Starter**: 2,000 MAD HT/month. Up to 2 AI agents, website chat + help page, WhatsApp / Instagram / Messenger, email channel, 50 MB knowledge base, inbox, 2 dashboard members, 3 WhatsApp/Meta accounts and 500 conversations/month included. Meta conversation fees passed through at cost. No phone.",
+      "- **Pro**: 4,000 MAD HT/month. Everything in Starter, up to 5 AI agents, 5 members, email channel + API, 100 SMS segments/month, advanced analytics, 6 WhatsApp/Meta accounts, 1 Moroccan number + 300 AI voice minutes and 2,000 conversations/month included. Extra WhatsApp/Meta accounts 100 MAD HT/month each.",
       "- **Enterprise**: Custom pricing. Unlimited agents, numbers, and concurrent lines, SSO, audit logs, Law 09-08 / DPA, SLA, CSM. Direct visitors to /contact/sales or " +
         BRAND_EMAILS.sales +
         ".",

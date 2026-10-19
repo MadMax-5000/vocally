@@ -25,8 +25,8 @@ import {
 describe("Anselio Morocco pricing", () => {
   it("prices digital SaaS in MAD HT centimes without .99", () => {
     expect(PLAN_PRICES.FREE.madCents).toBe(0);
-    expect(PLAN_PRICES.STARTER.madCents).toBe(100_000);
-    expect(PLAN_PRICES.PRO.madCents).toBe(300_000);
+    expect(PLAN_PRICES.STARTER.madCents).toBe(200_000);
+    expect(PLAN_PRICES.PRO.madCents).toBe(400_000);
   });
 
   it("includes phone number and voice minutes on Pro only", () => {

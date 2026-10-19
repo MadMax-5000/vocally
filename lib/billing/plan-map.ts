@@ -7,7 +7,7 @@ function normId(id: string | number | null | undefined): string | null {
 }
 
 /** Maps Lemon variant id (from env) to internal billing plan.
- * STARTER = Starter (1,000 MAD HT), PRO = Pro (3,000 MAD HT).
+ * STARTER = Starter (2,000 MAD HT), PRO = Pro (4,000 MAD HT).
  * Telephony is not a Lemon variant. */
 export function planFromVariantId(
   variantId: string | number | null | undefined
