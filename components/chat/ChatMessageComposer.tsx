@@ -1,5 +1,6 @@
 "use client";
 import { AppIcon } from "@/components/ui/app-icon"
+import { LoadingState } from "@/components/ui/loading-state"
 import { ArrowUpIcon, Mic, XIcon } from "@/lib/icons/app-icons"
 
 import { FormEvent } from "react";
@@ -43,16 +44,6 @@ function formatDuration(ms: number): string {
   const mins = Math.floor(secs / 60);
   const s = secs % 60;
   return `${mins}:${s.toString().padStart(2, "0")}`;
-}
-
-function ComposerDots({ className }: { className?: string }) {
-  return (
-    <span className={cn("flex items-center gap-0.5", className)}>
-      <span className="size-1 animate-bounce rounded-full bg-current opacity-70" />
-      <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.1s]" />
-      <span className="size-1 animate-bounce rounded-full bg-current opacity-70 [animation-delay:0.2s]" />
-    </span>
-  );
 }
 
 export function ChatMessageComposer({
@@ -135,7 +126,11 @@ export function ChatMessageComposer({
           {voice?.recordingLabel ?? formatDuration(0)}
         </span>
       ) : (
-        <ComposerDots className={isDark ? "text-[#fafaf9]" : "text-ink"} />
+        <LoadingState
+          label={null}
+          size="sm"
+          className={isDark ? "text-[#fafaf9]" : "text-ink"}
+        />
       )}
 
       <span className="min-w-0 flex-1" aria-hidden />
@@ -244,7 +239,7 @@ export function ChatMessageComposer({
           }
         >
           {isBusy ? (
-            <ComposerDots />
+            <LoadingState label={null} size="sm" />
           ) : (
             <AppIcon icon={ArrowUpIcon} className="size-4" strokeWidth={2} />
           )}

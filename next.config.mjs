@@ -23,7 +23,6 @@ const sentryOptions = {
 const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
-  transpilePackages: ["@lottiefiles/dotlottie-react"],
   experimental: {
     // Run webpack in a worker process to lower main-process memory.
     webpackBuildWorker: true,

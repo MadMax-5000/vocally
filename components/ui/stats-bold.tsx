@@ -38,7 +38,7 @@ export function BoldStats({
           />
           <div className="absolute inset-0 bg-white/20" aria-hidden />
           <div className="relative z-10 px-6 py-10 sm:px-10 md:px-12 md:py-14">
-            <h2 className="max-w-[18ch] text-[2.5rem] leading-[1.1] tracking-[-0.025em] text-ink text-balance md:text-[3.25rem]">
+            <h2 className="max-w-[18ch] text-[2.5rem] leading-[1.1] tracking-[-2.4px] text-ink text-balance md:text-[3.25rem]">
               {heading}
             </h2>
             <div className="mt-10 grid grid-cols-2 md:mt-14 md:grid-cols-4">

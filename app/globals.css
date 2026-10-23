@@ -5,6 +5,30 @@
 @tailwind utilities;
 
 @font-face {
+  font-family: "Sentient";
+  src: url("/fonts/sentient-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sentient";
+  src: url("/fonts/sentient-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sentient";
+  src: url("/fonts/sentient-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Bricolage Grotesque";
   src: url("/fonts/bricolage-grotesque-var.woff2") format("woff2");
   font-weight: 200 800;
@@ -75,8 +99,8 @@
     --sidebar-width: 220px;
     --sidebar-width-icon: 48px;
 
-    /* Geist is the main font: headings, nav, labels, page chrome. */
-    --font-display: var(--font-geist-sans), Geist, system-ui, sans-serif;
+    /* Sentient is the display face: headings and wordmarks. */
+    --font-display: "Sentient", "Sentient Placeholder", serif;
     --font-sans: var(--font-geist-sans), Geist, ui-sans-serif, system-ui, -apple-system,
       BlinkMacSystemFont, "Segoe UI", sans-serif;
     /* Inter — paragraphs, UI components, and buttons. */
@@ -193,8 +217,8 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-sans);
-    font-weight: 800;
+    font-family: var(--font-display);
+    font-weight: 400;
     letter-spacing: -0.02em;
     text-rendering: optimizeLegibility;
     text-wrap: balance;
@@ -249,10 +273,16 @@
     @apply font-sans;
   }
 
-  /* Geist — main font (headings, nav, labels, page chrome) */
-  .font-sans,
-  .font-display {
+  /* Geist — nav, labels, page chrome */
+  .font-sans {
     font-feature-settings: var(--font-features-geist);
+  }
+
+  /* Sentient — display headings */
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-feature-settings: "calt" 1, "liga" 1, "kern" 1;
   }
 
   /* Inter — paragraphs, lists, and long-form copy */
@@ -290,6 +320,26 @@
   .tabular {
     font-variant-numeric: tabular-nums slashed-zero;
   }
+
+  /* Shared subheading recipe: Inter 18/27, regular weight. */
+  .subheading {
+    font-family: var(--font-inter);
+    font-size: 18px;
+    line-height: 27px;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-feature-settings: var(--font-features-inter);
+  }
+
+  /* Hero subheading — same recipe, one step larger for the display scale. */
+  .subheading-lg {
+    font-family: var(--font-inter);
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-feature-settings: var(--font-features-inter);
+  }
 }
 
 @layer components {
@@ -314,6 +364,16 @@
   .btn-outline:hover {
     @apply border-secondary bg-secondary/20;
   }
+
+  /* Overlay/dark-surface CTA — solid white pill. */
+  .btn-white {
+    @apply inline-flex h-9 items-center justify-center rounded-full bg-white px-5 text-[15px] font-medium text-ink transition-colors;
+    font-family: var(--font-inter);
+  }
+
+  .btn-white:hover {
+    @apply bg-white/90;
+  }
 }
 
 /* Clerk auth card — force full-width centering that Tailwind classes alone cannot override */
@@ -328,5 +388,56 @@
   100% {
     opacity: 1;
     transform: scaleY(1);
+  }
+}
+
+/* Pixel-grid loading state (components/ui/loading-state.tsx) */
+@keyframes pixel-on {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.loading-state__cell {
+  animation: pixel-on var(--cell-duration, 650ms) ease-in-out
+    var(--cell-delay, 0ms) infinite;
+}
+
+.loading-state__label {
+  background-image: linear-gradient(
+    90deg,
+    var(--loader-muted, #777169) 35%,
+    var(--loader-ink, #0c0a09) 50%,
+    var(--loader-muted, #777169) 65%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 1.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-state__cell,
+  .loading-state__label {
+    animation: none;
+  }
+
+  .loading-state__label {
+    background-image: none;
+    color: var(--loader-ink, #0c0a09);
   }
 }

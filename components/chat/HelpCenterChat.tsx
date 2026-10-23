@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
-import { ChatLottieLoader } from "@/components/chat/ChatLottieLoader";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import {
   ChatMessageComposer,
@@ -12,6 +11,7 @@ import {
 } from "@/components/chat/ChatMessageComposer";
 import { HelpPageShell } from "@/components/chat/HelpPageShell";
 import { PoweredByAnselio } from "@/components/chat/PoweredByAnselio";
+import { LoadingState } from "@/components/ui/loading-state";
 import { useChat } from "@/hooks/useChat";
 import { useVoiceToText } from "@/hooks/useVoiceToText";
 import type { ResolvedWebChatHelpPageSettings } from "@/lib/deploy/web-chat-config";
@@ -297,7 +297,11 @@ export function HelpCenterChat({
                 isDark ? "bg-[#292524]" : "bg-surface-strong",
               )}
             >
-              <ChatLottieLoader />
+              <LoadingState
+                label="Thinking"
+                variant="Drive"
+                tone={isDark ? "dark" : "light"}
+              />
             </div>
           </div>
         )}

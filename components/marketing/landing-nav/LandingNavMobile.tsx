@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppIcon } from "@/components/ui/app-icon";
-import { ChevronDown, PanelLeft } from "@/lib/icons/app-icons";
+import { PanelLeft } from "@/lib/icons/app-icons";
 import { Link } from "@/i18n/routing";
 import {
   Sheet,
@@ -13,85 +13,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { BookDemoLink } from "@/components/marketing/BookDemoLink";
 import { cn } from "@/lib/utils";
 
-import {
-  industrySection,
-  plainNavLinks,
-  recentUpdate,
-  resourcesLinks,
-  solutionsSections,
-} from "./landing-nav-data";
+const navLinks = [
+  { id: "pricing", href: "/pricing", labelKey: "labels.pricing" },
+  { id: "features", href: "/#features", labelKey: "labels.features" },
+  { id: "solutions", href: "/#solutions", labelKey: "labels.solutions" },
+] as const;
 
-function AccordionSection({
-  title,
-  children,
-  defaultOpen = false,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border-b border-hairline">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between py-4 text-[15px] font-medium text-ink"
-      >
-        {title}
-        <AppIcon
-          icon={ChevronDown}
-          size={16}
-          strokeWidth={2}
-          className={cn(
-            "text-muted transition-transform duration-200 ease-out",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-      {open ? <div className="space-y-5 pb-5">{children}</div> : null}
-    </div>
-  );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-1.5 text-caption-uppercase text-muted">{children}</p>
-  );
-}
-
-function MobileNavLink({
-  href,
-  title,
-  description,
-  onClose,
-}: {
-  href: string;
-  title: string;
-  description?: string;
-  onClose: () => void;
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClose}
-      className="block rounded-lg px-2 py-2.5 transition-colors hover:bg-surface-strong"
-    >
-      <span className="block text-[14px] font-medium text-ink">{title}</span>
-      {description ? (
-        <span className="mt-0.5 block text-body-sm text-muted">{description}</span>
-      ) : null}
-    </Link>
-  );
-}
-
-export function LandingNavMobile() {
+export function LandingNavMobile({ tone = "default" }: { tone?: "default" | "overlay" }) {
   const t = useTranslations("landing.nav");
+  const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
+  const overlay = tone === "overlay";
 
   function close() {
     setOpen(false);
@@ -103,7 +38,12 @@ export function LandingNavMobile() {
         <button
           type="button"
           aria-label={t("labels.menu")}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-hairline bg-surface-card text-ink transition-colors hover:bg-surface-strong lg:hidden"
+          className={cn(
+            "inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors lg:hidden",
+            overlay
+              ? "border border-white/25 bg-white/5 text-white hover:bg-white/10"
+              : "border border-hairline bg-surface-card text-ink hover:bg-surface-strong",
+          )}
         >
           <AppIcon icon={PanelLeft} size={17} strokeWidth={1.75} />
         </button>
@@ -114,79 +54,23 @@ export function LandingNavMobile() {
           <SheetTitle>{t("labels.menu")}</SheetTitle>
         </SheetHeader>
 
-        {/* Solutions accordion */}
-        <AccordionSection title={t("labels.solutions")} defaultOpen>
-          {solutionsSections.map((section) => (
-            <div key={section.id}>
-              <SectionLabel>{t(section.labelKey)}</SectionLabel>
-              <div className="space-y-0.5">
-                {section.items.map((item) => (
-                  <MobileNavLink
-                    key={item.id}
-                    href={item.href}
-                    title={t(item.titleKey)}
-                    description={t(item.descriptionKey)}
-                    onClose={close}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          <div>
-            <SectionLabel>{t(industrySection.labelKey)}</SectionLabel>
-            <div className="space-y-0.5">
-              {industrySection.items.map((item) => (
-                <MobileNavLink
-                  key={item.id}
-                  href={item.href}
-                  title={t(item.titleKey)}
-                  description={t(item.descriptionKey)}
-                  onClose={close}
-                />
-              ))}
-            </div>
-          </div>
-        </AccordionSection>
-
-        {/* Resources accordion */}
-        <AccordionSection title={t("labels.resources")}>
-          <div>
-            <SectionLabel>{t("sections.quickLinks")}</SectionLabel>
-            <div className="space-y-0.5">
-              {resourcesLinks.map((item) => (
-                <MobileNavLink
-                  key={item.id}
-                  href={item.href}
-                  title={t(item.titleKey)}
-                  description={t(item.descriptionKey)}
-                  onClose={close}
-                />
-              ))}
-            </div>
-          </div>
-          <div>
-            <SectionLabel>{t("sections.recentUpdate")}</SectionLabel>
-            <MobileNavLink
-              href={recentUpdate.href}
-              title={t(recentUpdate.titleKey)}
-              description={t(recentUpdate.descriptionKey)}
-              onClose={close}
-            />
-          </div>
-        </AccordionSection>
-
-        {/* Plain links */}
-        <div className="space-y-0.5 pt-3">
-          {plainNavLinks.map((link) => (
+        <nav aria-label="Main navigation" className="flex flex-col">
+          {navLinks.map((link) => (
             <Link
               key={link.id}
               href={link.href}
               onClick={close}
-              className="block rounded-lg px-2 py-3 text-[15px] font-medium text-ink transition-colors hover:bg-surface-strong"
+              className="border-b border-hairline py-4 text-[17px] font-medium text-ink transition-colors hover:text-body"
             >
-              {t(`labels.${link.labelKey}`)}
+              {t(link.labelKey)}
             </Link>
           ))}
+        </nav>
+
+        <div className="mt-6">
+          <BookDemoLink className="inline-flex py-2 text-[15px] font-medium text-primary transition-colors hover:text-primary-active">
+            {tc("bookDemo")}
+          </BookDemoLink>
         </div>
       </SheetContent>
     </Sheet>

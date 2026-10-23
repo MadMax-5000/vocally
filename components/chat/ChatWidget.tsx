@@ -6,7 +6,6 @@ import { useEffect, useRef, FormEvent, useMemo, useState } from "react";
 import { ChatCustomButtonsRow } from "@/components/chat/ChatCustomButtonsRow";
 import { ChatInlineForm } from "@/components/chat/ChatInlineForm";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
-import { ChatLottieLoader } from "@/components/chat/ChatLottieLoader";
 import {
   ChatMessageComposer,
   chatComposerFormatDuration,
@@ -31,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { LoadingState } from "@/components/ui/loading-state";
 
 type ChatWidgetProps = {
   agentId: string;
@@ -337,7 +337,11 @@ export function ChatWidget({
 
         {isBusy && hasMessages && !isStreaming && (
           <div className="flex justify-start">
-            <ChatLottieLoader />
+            <LoadingState
+              label="Thinking"
+              variant="Drive"
+              tone={isDark ? "dark" : "light"}
+            />
           </div>
         )}
 

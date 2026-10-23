@@ -143,7 +143,7 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
     h1: ({ children, ...props }) => (
       <h1
         className={cn(
-          "mb-2 mt-3 font-display text-base font-semibold tracking-tight first:mt-0",
+          "mb-2 mt-3 font-display text-base font-medium tracking-tight first:mt-0",
           headingInk,
         )}
         {...props}
@@ -152,12 +152,12 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
       </h1>
     ),
     h2: ({ children, ...props }) => (
-      <h2 className={cn("mb-2 mt-3 text-[15px] font-semibold first:mt-0", headingInk)} {...props}>
+      <h2 className={cn("mb-2 mt-3 text-[15px] font-medium first:mt-0", headingInk)} {...props}>
         {children}
       </h2>
     ),
     h3: ({ children, ...props }) => (
-      <h3 className={cn("mb-1.5 mt-2.5 text-sm font-semibold first:mt-0", headingInk)} {...props}>
+      <h3 className={cn("mb-1.5 mt-2.5 text-sm font-medium first:mt-0", headingInk)} {...props}>
         {children}
       </h3>
     ),

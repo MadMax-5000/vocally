@@ -1,10 +1,12 @@
 import { LandingHomeHeader } from "@/components/marketing/landing-nav/LandingHomeHeader";
 import { LandingHero } from "@/components/marketing/LandingHero";
-import { TrustShowcase } from "@/components/marketing/TrustShowcase";
-import { BoldStatsSection } from "@/components/marketing/BoldStatsSection";
-import { StackSpreadSection } from "@/components/marketing/stack-spread/StackSpreadSection";
+import { ThreeWaysSection } from "@/components/marketing/three-ways/ThreeWaysSection";
 import { AgentLifecycle } from "@/components/marketing/agent-lifecycle/AgentLifecycle";
-import { Industries } from "@/components/marketing/industries/Industries";
+import { IndustryStage } from "@/components/marketing/industry-stage/IndustryStage";
+import { LandingPricingSection } from "@/components/marketing/pricing/LandingPricingSection";
+import { SecuritySection } from "@/components/marketing/security/SecuritySection";
+import { FaqSection } from "@/components/marketing/faq/FaqSection";
+import { FinalCtaSection } from "@/components/marketing/cta/FinalCtaSection";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { ScrollReveal } from "@/components/marketing/ScrollReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -25,16 +27,24 @@ export default function HomePage() {
       <JsonLd data={softwareApplicationJsonLd()} />
       <LandingHomeHeader />
       <LandingHero />
-      <ScrollReveal minHeight={720}>
-        <TrustShowcase />
+      <ScrollReveal id="solutions" minHeight={720}>
+        <ThreeWaysSection />
       </ScrollReveal>
       <AgentLifecycle />
-      <StackSpreadSection />
-      <ScrollReveal minHeight={480}>
-        <BoldStatsSection />
+      <ScrollReveal minHeight={560}>
+        <SecuritySection />
       </ScrollReveal>
-      <ScrollReveal minHeight={640}>
-        <Industries />
+      <ScrollReveal minHeight={900}>
+        <IndustryStage />
+      </ScrollReveal>
+      <ScrollReveal minHeight={860}>
+        <LandingPricingSection />
+      </ScrollReveal>
+      <ScrollReveal minHeight={560}>
+        <FaqSection />
+      </ScrollReveal>
+      <ScrollReveal minHeight={520}>
+        <FinalCtaSection />
       </ScrollReveal>
       <ScrollReveal minHeight={360} intensity="light">
         <MarketingFooter />

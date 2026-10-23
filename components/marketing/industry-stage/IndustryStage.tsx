@@ -2,14 +2,20 @@ import dynamic from "next/dynamic";
 import { getTranslations } from "next-intl/server";
 
 import { SectionPlaceholder } from "@/components/marketing/SectionPlaceholder";
-import { INDUSTRY_CARDS, type IndustryCopy } from "./industry-cards";
+import { INDUSTRY_CARDS, type IndustryCopy } from "../industries/industry-cards";
 
-const IndustriesClient = dynamic(
-  () => import("./IndustriesClient").then((mod) => mod.IndustriesClient),
-  { loading: () => <SectionPlaceholder minHeight={640} /> }
+const IndustryStageClient = dynamic(
+  () => import("./IndustryStageClient").then((mod) => mod.IndustryStageClient),
+  {
+    loading: () => (
+      <div className="bg-canvas-warm">
+        <SectionPlaceholder minHeight={900} />
+      </div>
+    ),
+  }
 );
 
-export async function Industries() {
+export async function IndustryStage() {
   const t = await getTranslations("landing.industries");
 
   const cards: IndustryCopy[] = INDUSTRY_CARDS.map((card) => ({
@@ -20,11 +26,10 @@ export async function Industries() {
   }));
 
   return (
-    <IndustriesClient
+    <IndustryStageClient
       title={t("title")}
       agentLabel={t("agentLabel")}
-      prevLabel={t("prev")}
-      nextLabel={t("next")}
+      reveal={t("reveal")}
       cards={cards}
     />
   );

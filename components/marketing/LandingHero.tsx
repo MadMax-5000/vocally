@@ -1,52 +1,65 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+
 import { Link } from "@/i18n/routing";
-
-import { BookDemoLink } from "@/components/marketing/BookDemoLink";
-import { HeroCopyReveal } from "@/components/marketing/HeroCopyReveal";
-import { HeroStageVideo } from "@/components/marketing/HeroStageVideo";
-
-const container = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
 
 export async function LandingHero() {
   const t = await getTranslations("landing.hero");
   const tc = await getTranslations("common");
 
   return (
-    <section className="bg-surface-card">
+    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#141210] md:min-h-[100dvh]">
+      {/* Full-bleed background */}
+      <Image
+        src="/images/hero-background.webp"
+        alt=""
+        fill
+        priority
+        unoptimized
+        sizes="100vw"
+        className="-z-20 object-cover object-center"
+      />
+
+      {/* Legibility scrims — top band for the nav, soft center and bottom */}
       <div
-        className={[
-          container,
-          "grid min-h-[calc(100dvh-4rem)] items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16",
-        ].join(" ")}
-      >
-        <HeroCopyReveal>
-          <div className="flex flex-col items-start text-start">
-            <h1 className="text-[2.75rem] leading-[1.05] tracking-[-0.025em] text-ink md:text-[4rem] lg:text-[4.5rem]">
-              <span className="block">{t("titleLine1")}</span>
-              <span className="block">
-                {t("titleLine2Prefix") ? `${t("titleLine2Prefix")} ` : ""}
-                {t("titleAccent")}
-                {t("titleAfterAccent")}
-              </span>
-            </h1>
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/65 via-black/15 to-black/55"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_10%,rgba(0,0,0,0.28)_100%)]"
+      />
 
-            <p className="mt-6 max-w-[48ch] text-pretty text-[0.9375rem] font-medium leading-[1.55] tracking-tight text-body md:text-[1.0625rem] md:leading-[1.5]">
-              {t("subtitle")}
-            </p>
+      <div className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-6 pb-10 pt-32 sm:pt-36">
+        <div className="flex flex-1 flex-col items-center justify-center pt-8 text-center sm:pt-12">
+          <h1 className="max-w-[1100px] text-balance font-display text-[40px] font-normal leading-[46px] tracking-[-2.4px] text-[#f5f5f5] sm:text-[60px] sm:leading-[67px] lg:text-[82px] lg:leading-[90px]">
+            <span className="block">{t("titleLine1")}</span>
+            <span className="block">
+              {t("titleLine2Prefix") ? `${t("titleLine2Prefix")} ` : ""}
+              {t("titleAccent")}
+              {t("titleAfterAccent")}
+            </span>
+          </h1>
 
-            <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-              <BookDemoLink className="btn-primary w-full justify-center sm:w-auto">
-                {t("getDemo")}
-              </BookDemoLink>
-              <Link className="btn-outline w-full justify-center sm:w-auto" href="/sign-up">
-                {tc("getStarted")}
-              </Link>
-            </div>
+          <p className="subheading-lg mt-7 max-w-[720px] text-pretty text-[#f5f5f5e0] lg:max-w-none lg:whitespace-nowrap">
+            {t("subtitle")}
+          </p>
+
+          <div className="mt-9">
+            <Link href="/sign-up" className="btn-white h-10 justify-center px-7">
+              {tc("tryFree")}
+            </Link>
           </div>
-        </HeroCopyReveal>
 
-        <div className="w-full">
-          <HeroStageVideo />
+          {/* Partner logo — rendered white over the photograph */}
+          <Image
+            src="/images/company1.svg"
+            alt=""
+            width={797}
+            height={386}
+            aria-hidden
+            className="mt-20 h-auto w-[144px] brightness-0 invert opacity-90 sm:mt-28"
+          />
         </div>
       </div>
     </section>

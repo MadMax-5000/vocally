@@ -36,6 +36,7 @@
   },
   "common": {
     "getStarted": "Commencer",
+    "tryFree": "Essayer gratuitement",
     "bookDemo": "Réserver une démo",
     "signIn": "Se connecter",
     "dashboard": "Tableau de bord",
@@ -50,11 +51,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Réservez 100X plus",
+      "titleLine1": "Conversations entrantes.",
       "titleLine2Prefix": "",
-      "titleAccent": "de rendez-vous",
-      "titleAfterAccent": ".",
-      "subtitle": "Un agent IA qui répond à chaque prospect, prend le rendez-vous et ne dort jamais — sur WhatsApp, Instagram, votre site, l’e-mail et le téléphone.",
+      "titleAccent": "Réservations sortantes.",
+      "titleAfterAccent": "",
+      "subtitle": "Des agents IA qui répondent à chaque question et prennent les rendez-vous, sur tous les canaux, 24/7.",
       "getDemo": "Réserver une démo"
     },
     "rotatingWords": {
@@ -113,9 +114,60 @@
       "headerLabel": "Agents Anselio",
       "headerTitle": "Déployez des agents IA qui offrent des expériences client premium sur tous les canaux"
     },
-    "trust": {
-      "title": "Un agent pour chaque interaction client,",
-      "subtitle": "gère le support, les ventes et le guidage produit 24h/24"
+    "threeWays": {
+      "eyebrow": "Ce que fait Anselio",
+      "title": "Trois façons dont Anselio",
+      "titleMuted": "gère votre support.",
+      "cards": {
+        "resolve": {
+          "title": "Résout en quelques secondes",
+          "body": "Anselio répond instantanément aux questions courantes de vos clients, à toute heure du jour et de la nuit.",
+          "customerName": "Sara",
+          "customerTime": "02:47",
+          "customerMessage": "Bonjour, ma commande arrive-t-elle toujours demain ? Je n’ai reçu aucune mise à jour.",
+          "agentName": "Anselio",
+          "agentTime": "02:47",
+          "agentMessage": "Oui, tout est en route. Je viens de vous envoyer le lien de suivi sur WhatsApp, livraison prévue avant 18 h demain.",
+          "status": "Résolu en 4 s"
+        },
+        "learn": {
+          "title": "Apprend de vos documents",
+          "body": "Il s’entraîne sur votre centre d’aide et vos anciens tickets — aucune configuration requise.",
+          "statuses": {
+            "learned": "Appris",
+            "syncing": "Synchronisation…"
+          },
+          "sources": {
+            "prices": {
+              "title": "Liste de prix et services",
+              "source": "Document importé"
+            },
+            "faq": {
+              "title": "Page FAQ",
+              "source": "site web"
+            },
+            "availability": {
+              "title": "Prix et disponibilités",
+              "source": "Centre d’aide"
+            },
+            "past": {
+              "title": "Conversations passées",
+              "source": "WhatsApp"
+            }
+          }
+        },
+        "escalate": {
+          "title": "Sait quand escalader",
+          "body": "Pour les sujets complexes ou sensibles, Anselio transmet à votre équipe avec tout le contexte.",
+          "agentName": "Anselio",
+          "agentTime": "02:51",
+          "agentMessage": "Cette demande nécessite une attention personnelle. Je fais intervenir un membre de l’équipe avec toute la conversation.",
+          "handoff": "Transmis à Karim avec tout le contexte",
+          "humanName": "Karim",
+          "humanTime": "02:53",
+          "humanMessage": "Bonjour Sara, Karim à l’appareil. Votre rendez-vous est confirmé jeudi à 10 h. À bientôt !"
+        }
+      }
     },
     "boldStats": {
       "heroTitle": "Demandes résolues par l'IA",
@@ -149,8 +201,10 @@
       "scrollHint": "Défiler"
     },
     "lifecycle": {
-      "title": "Le parcours de votre agent",
-      "cta": "Créer un agent",
+      "eyebrow": "Pourquoi Anselio",
+      "title": "Une seule boîte de réception.",
+      "titleMuted": "Chaque question, traitée.",
+      "cardCta": "Commencer",
       "steps": {
         "build": {
           "label": "Construire",
@@ -190,6 +244,7 @@
     },
     "industries": {
       "title": "Conçu pour votre secteur",
+      "reveal": "Du premier bonjour au dernier suivi, Anselio réunit chaque conversation au même endroit — pour que votre équipe se concentre sur la personne, et non sur des files d'attente, des onglets et des outils dispersés.",
       "agentLabel": "Agent IA",
       "prev": "Secteur précédent",
       "next": "Secteur suivant",
@@ -221,12 +276,83 @@
         }
       }
     },
+    "pricing": {
+      "eyebrow": "Tarifs",
+      "title": "Des tarifs simples.",
+      "titleMuted": "Sans surprise.",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlyBadge": "−15 %",
+      "yearlyNote": "Facturé annuellement — 15 % de réduction.",
+      "popular": "Populaire",
+      "includes": "Inclus :",
+      "perMonth": "/mois",
+      "custom": "Sur mesure",
+      "contactSales": "Contacter les ventes"
+    },
+    "security": {
+      "eyebrow": "Sécurité",
+      "title": "Une sécurité de niveau entreprise,",
+      "titleMuted": "intégrée par défaut.",
+      "subtitle": "Anselio traite les données sensibles de vos clients avec la rigueur qu'attend votre équipe sécurité.",
+      "cards": {
+        "control": {
+          "title": "Contrôle total",
+          "body": "Accès basé sur les rôles, SSO et permissions granulaires."
+        },
+        "encryption": {
+          "title": "Chiffrement de bout en bout",
+          "body": "Données chiffrées en transit et au repos avec AES-256."
+        },
+        "data": {
+          "title": "Vos données",
+          "body": "Nous n'entraînons jamais de modèles publics sur vos données — jamais."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Vous avez des questions.",
+      "titleMuted": "Nous avons les réponses.",
+      "items": {
+        "difference": {
+          "q": "En quoi Anselio diffère-t-il d'un chatbot IA classique ?",
+          "a": "Anselio est conçu pour le support client. Il répond à partir de vos propres connaissances, prend des rendez-vous, agit dans vos outils et transfère à un humain avec toute la conversation."
+        },
+        "adapt": {
+          "q": "S'adaptera-t-il vraiment à notre façon de travailler ?",
+          "a": "Oui. Vous définissez le ton, les langues, les règles et les garde-fous. Chaque conversation affine les instructions, pour un agent qui ressemble de plus en plus à votre équipe."
+        },
+        "resolve": {
+          "q": "Combien de conversations Anselio peut-il résoudre seul ?",
+          "a": "La plupart des questions courantes — commandes, horaires, tarifs, réservations, retours — sont traitées de bout en bout. Tout ce qui sort de ses garde-fous est transféré à un humain."
+        },
+        "channels": {
+          "q": "Quels canaux Anselio prend-il en charge ?",
+          "a": "Voix, chat, WhatsApp, SMS, e-mail et widget de site — un seul agent et un historique partagé sur tous les canaux."
+        },
+        "privacy": {
+          "q": "Mes données sont-elles privées ?",
+          "a": "Oui. Les données sont chiffrées en transit et au repos, l'accès est basé sur les rôles, et nous n'entraînons jamais de modèles publics sur vos données."
+        },
+        "cancel": {
+          "q": "Puis-je annuler à tout moment ?",
+          "a": "Oui. Les offres sont mensuelles, sans engagement : vous pouvez changer d'offre ou annuler depuis votre tableau de bord à tout moment."
+        }
+      }
+    },
+    "cta": {
+      "title": "Rendez leurs matinées",
+      "titleMuted": "à votre équipe.",
+      "body": "Connectez votre help desk et laissez Anselio résoudre les tickets dès aujourd'hui — sans code.",
+      "button": "Commencer gratuitement"
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
         "resources": "Ressources",
-        "customers": "Clients",
         "enterprise": "Entreprise",
+        "features": "Fonctionnalités",
         "pricing": "Tarifs",
         "menu": "Menu"
       },
@@ -294,7 +420,7 @@
       }
     },
     "footer": {
-      "headline": "Le concierge IA de chaque client.",
+      "headline": "Le service client, propulsé par l'IA.",
       "createAgent": "Créer un agent",
       "columns": {
         "product": "Produit",
@@ -325,7 +451,7 @@
         "telecom": "Télécommunications",
         "education": "Éducation",
         "fitness": "Fitness",
-        "customers": "Clients",
+        "solutions": "Solutions",
         "resourcesHub": "Centre de ressources",
         "glossary": "Glossaire",
         "guide": "Guide",

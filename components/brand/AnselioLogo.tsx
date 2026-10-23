@@ -25,6 +25,7 @@ const SIZE_CLASS = {
   sm: "size-6",
   md: "size-8",
   lg: "size-10",
+  xl: "size-12",
 } as const;
 
 export type AnselioLogoVariant = keyof typeof LOGO_SOURCES;
@@ -63,7 +64,7 @@ export function AnselioLogo({
   const wordmark = showWordmark ? (
     <span
       className={cn(
-        "font-display text-[17px] font-extrabold leading-none tracking-tight whitespace-nowrap",
+        "font-display text-[17px] font-medium leading-none tracking-tight whitespace-nowrap",
         variant === "white" ? "text-white" : "text-ink",
       )}
     >

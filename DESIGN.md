@@ -2,16 +2,16 @@
 
 ElevenLabs reads like a quietly editorial print magazine that happens to be a voice-AI product. The base canvas is off-white `{colors.canvas}` (#f5f5f5) holding warm near-black ink `{colors.ink}` (#0c0a09). The system operates entirely in light mode — no dark-canvas atmospheres.
 
-Type pairs **Bricolage Grotesque** (display, weight 800) with **Instrument Sans** for body, navigation, captions, and buttons. Large display sizes use tight negative letter-spacing (~-0.02em to -0.025em). In-app chrome uses an Inter-first system stack (Inter is not bundled).
+Type pairs **Sentient** (display, weight 400) with **Inter** for body, navigation, captions, and buttons. Large display sizes use tight negative letter-spacing (~-0.02em to -0.025em). The landing hero is a full-bleed photographic band with white type — the single approved dark-surface exception. The rest of the product remains light.
 
 CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the primary, a transparent outline (`{component.button-outline}`) is the secondary. The brand trusts typography and whitespace to carry the design.
 
 **Key Characteristics:**
-- Strictly light mode. Off-white canvas, warm near-black ink. No dark canvas surfaces.
+- Light mode by default. Off-white canvas, warm near-black ink. The landing hero is the only dark, photographic surface.
 - Single primary action: brand button at `{rounded.md}`.
-- Display runs Bricolage Grotesque at weight 800 — tight tracking on large sizes.
-- Body runs Instrument Sans at 400–700 with subtle letter-spacing (+0.15-0.18px).
-- Soft geometry (`{rounded.md}` for buttons, `{rounded.xl}` for cards).
+- Display runs Sentient at weight 400 — tight tracking on large sizes.
+- Body runs Inter at 400–500 with subtle letter-spacing (+0.15-0.18px).
+- Soft geometry (`{rounded.md}` for buttons, `{rounded.xl}` for cards; pills on dark surfaces).
 - 96px section rhythm.
 
 ## Colors
@@ -26,6 +26,8 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 ### Surface
 - **Canvas** (`{colors.canvas}` — #f5f5f5): Off-white page floor.
 - **Canvas Soft** (`{colors.canvas-soft}` — #fafafa): Lighter band for subtle alternating sections.
+- **Canvas Warm** (`{colors.canvas-warm}` — #fafbf6): Warm section floor for the redesigned landing sections.
+- **Surface Warm** (`{colors.surface-warm}` — #F4F2EC): Warm card floor for the lifecycle cards.
 - **Surface Card** (`{colors.surface-card}` — #ffffff): Pure white card.
 - **Surface Strong** (`{colors.surface-strong}` — #f0efed): Badges, voice-icon plates, and featured card backgrounds.
 
@@ -36,9 +38,11 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 
 ### Text
 - **Ink** (`{colors.ink}` — #0c0a09): Display, primary text.
+- **Warm Ink** (`{colors.warm-ink}` — #3F3E3A): Warm display text used by the “Three ways” section.
 - **Body** (`{colors.body}` — #4e4e4e): Default running-text.
 - **Body Strong** (`{colors.body-strong}` — #292524): Same as primary — emphasis.
 - **Muted** (`{colors.muted}` — #777169): Sub-titles.
+- **Warm Body** (`{colors.warm-body}` — #5F5B54): Warm captions, subheadings, and secondary copy.
 - **Muted Soft** (`{colors.muted-soft}` — #a8a29e): Disabled text.
 - **On Primary** (`{colors.on-primary}` — #ffffff): White text on primary CTAs.
 
@@ -49,20 +53,23 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 ## Typography
 
 ### Font Family
-**Bricolage Grotesque** is the display sans-serif at weight 800 (`--font-display`). **Instrument Sans** carries body, navigation, captions, and buttons (`--font-body`). **JetBrains Mono** is used for `code`, `pre`, and `kbd` (`--font-mono`). In-app chrome uses `--font-app` (Inter first, not bundled; falls back to system sans). All faces are self-hosted via `@font-face` — never load fonts from a CDN.
+**Sentient** is the display serif at weight 400 (`--font-display`). **Inter** carries body, navigation, captions, buttons, and all subheadings (`--font-body`). **JetBrains Mono** is used for `code`, `pre`, and `kbd` (`--font-mono`). In-app chrome uses `--font-app` (Inter first). All faces are self-hosted via `@font-face` in `public/fonts` — never load fonts from a CDN.
+
+The subheading recipe is fixed: Inter 18px / 27px / 400. On the dark hero it uses `#f5f5f5e0`; on light surfaces it uses `{colors.body}`.
 
 ### Hierarchy
 
 | Token | Size | Weight | Line Height | Letter Spacing | Use |
 |---|---|---|---|---|---|
-| `{typography.display-mega}` | 56px | 800 | 1.05 | -1.4px | Homepage hero h1 |
-| `{typography.display-xl}` | 40px | 800 | 1.08 | -0.8px | Subsidiary heroes |
-| `{typography.display-lg}` | 30px | 800 | 1.17 | -0.6px | Section heads |
-| `{typography.display-md}` | 26px | 800 | 1.13 | -0.52px | Sub-section heads |
-| `{typography.display-sm}` | 20px | 800 | 1.2 | -0.4px | Card group titles |
-| `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Instrument Sans |
+| `{typography.display-hero}` | 90px | 400 | 99px | -2.4px | Landing hero h1 |
+| `{typography.display-mega}` | 56px | 400 | 1.05 | -1.4px | Subsidiary heroes |
+| `{typography.display-xl}` | 40px | 400 | 1.08 | -0.8px | Page heroes |
+| `{typography.display-lg}` | 30px | 400 | 1.17 | -0.6px | Section heads |
+| `{typography.display-md}` | 26px | 400 | 1.13 | -0.52px | Sub-section heads |
+| `{typography.display-sm}` | 20px | 500 | 1.2 | -0.4px | Card group titles |
+| `{typography.title-md}` | 18px | 500 | 1.35 | 0 | Component titles — Inter |
 | `{typography.title-sm}` | 16px | 500 | 1.44 | 0.14px | List labels |
-| `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Instrument Sans |
+| `{typography.body-md}` | 15px | 400 | 1.55 | 0.14px | Default body — Inter |
 | `{typography.body-strong}` | 15px | 500 | 1.55 | 0.14px | Emphasized body |
 | `{typography.body-sm}` | 14px | 400 | 1.5 | 0.12px | Secondary body |
 | `{typography.caption}` | 13px | 400 | 1.5 | 0 | Captions / helper text |
@@ -71,18 +78,18 @@ CTAs are subtle: a warm-coral button (`{component.button-primary}`) is the prima
 | `{typography.nav-link}` | 14px | 500 | 1.4 | 0 | Top-nav menu |
 
 ### Principles
-- **Display weight is 800.** Bricolage Grotesque extra-bold is the brand signature for h1–h4 and wordmarks. Do not use regular/400 for display copy.
-- **Subtle letter-spacing on body.** Instrument Sans at +0.15-0.18px tracking.
-- **Negative letter-spacing on display.** About -0.02em to -0.025em (e.g. -1px at 46px, -1.4px at 58px).
+- **Display weight is 400.** Sentient regular is the brand signature for h1–h4 and wordmarks. Never bold the display face — hierarchy comes from size and whitespace. Use 500 only for card-level headings at 20px or below.
+- **Subtle letter-spacing on body.** Inter at +0.15-0.18px tracking.
+- **Negative letter-spacing on display.** Landing display headings (hero + section heads) use a fixed **-2.4px** regardless of size; other display tokens use about -0.02em to -0.025em (e.g. -1px at 46px, -1.4px at 58px).
 
 ### Note on Font Substitutes
-Brand fonts are self-hosted. Fallbacks are `system-ui, sans-serif` for display/body and `ui-monospace, monospace` for mono. Inter is named first in the app-UI stack but is not bundled.
+Brand fonts are self-hosted. Sentient falls back to `"Sentient Placeholder", serif`; Inter falls back to `system-ui, sans-serif`; mono falls back to `ui-monospace, monospace`.
 
 ### Utility recipes for React (Tailwind)
 
 Use these **together** for a crisp, editorial feel. Prefer design tokens over raw `zinc-*` or arbitrary hex.
 
-- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Bricolage Grotesque** at 800 per the hierarchy table.
+- **Display (hero, section heads):** `font-display` with `text-display-*` sizes, `tracking-tighter` (or the token’s built-in letter-spacing), `text-ink`, and `text-balance` on the heading. Display uses **Sentient** at 400 per the hierarchy table.
 - **Body / subcopy:** `text-body` or `text-muted`, `leading-relaxed`, `text-pretty`. Keep **subtle positive** body tracking from `{typography.body-*}` — do not put `tracking-tighter` on long body paragraphs.
 - **UI / CTAs:** `tracking-wide` on short bold label text; primary actions use `{component.button-primary}` / `bg-primary` + `text-on-primary` + `rounded-md`, or the `.btn-primary` class from global CSS.
 
@@ -176,7 +183,10 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Top Navigation
 
-**`top-nav`** — Background `{colors.canvas}`, text `{colors.ink}`, height 64px. Layout: ElevenLabs wordmark left, primary horizontal menu (Creative / Agents / Video / Pricing / Enterprise / Docs), Sign In + "Try free" primary CTA right.
+**`top-nav`** — Two variants.
+
+- **Solid** (pricing, contact, legal): background `{colors.canvas}`, text `{colors.ink}`, 64px. Logo mark only (no wordmark), center links, Sign in + Book a demo right.
+- **Overlay** (landing): transparent, absolute over the hero photograph. Large white logo mark only, white center links (Pricing / Features / Customers), a plain-text **Book a demo** link (no border, no fill), and a solid white **Try free** pill. Signed-in users see a white **Dashboard** pill plus the Clerk avatar. The language switcher is intentionally absent from the landing nav. The nav is not sticky — it scrolls away with the hero.
 
 ### Buttons
 
@@ -190,7 +200,7 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 
 ### Hero & Atmospheric
 
-**`hero-band`** — Background `{colors.canvas}`, full-width centered display headline in `{typography.display-mega}` (56px / Bold / -1.6px), subhead in `{typography.body-md}`, and two CTAs.
+**`hero-band`** — Full-bleed photographic hero (`/images/hero-background.png`) at `min-h-[100svh]`, with layered dark scrims for contrast. Centered display headline in `{typography.display-hero}` (90px / 400 / 99px / -1.8px), subhead in the hero subheading recipe (Inter 20/30/400, `#f5f5f5e0`, one line on desktop), and a single white `Try free` pill.
 
 **`audio-waveform-card`** — A waveform visualization card. Background `{colors.surface-card}`, rounded `{rounded.xl}`, padding 24px. Holds a play button + waveform glyph + voice metadata.
 
@@ -199,6 +209,12 @@ The system uses **hairline + soft drop**. Cards float above the off-white canvas
 **`feature-card`** — 2-up or 3-up grids. Background `{colors.surface-card}`, text `{colors.ink}`, rounded `{rounded.xl}`, padding 24px, 1px hairline border.
 
 **`product-card-stack`** — Stacked product preview cards. Background `{colors.surface-card}`, rounded `{rounded.xl}`, no padding (children fill the card edge-to-edge).
+
+**`ways-card`** — Three-up capability cards on a full-bleed art background (`/images/cards-background.webp`, 24px radius, 9:8 portrait). The artwork is cropped with a per-card `object-position` so one painting reads as three compositions. Each card holds a frosted-glass panel: a translucent white frame band (35% white, `backdrop-blur-md`, 1px `rgba(255,255,255,0.55)` border, 20px radius, 6px padding) wrapping a near-opaque warm-white surface (`#FCFBF8`, 15px radius, 12px padding) with a soft low-opacity shadow. Captions sit outside the artwork — title in Sentient 17px pure black, body in Inter 14/1.5 `{colors.warm-body}`. The section uses a 1476px container so the cards read a beat larger than the rest of the page. Used by the landing “Three ways Anselio runs your support” section.
+
+**`lifecycle-card`** — Sticky-stacked step card, 1040px max width. Floor `{colors.surface-warm}` (#F4F2EC), 24px radius, 12–16px inner padding. Two columns at `lg`: left is an inset 16px art panel (`/images/cards-background.webp`, per-step `object-position`) holding the step visual inside the shared frosted panel; right is the step copy — heading in Sentient 40/43, −0.8px, pure black; body in Inter 20/30/400 `{colors.warm-body}`; black 40px “Get started” button. Cards stack with `md:sticky` and a 12px peek offset. Used by the landing “One inbox. Every question, handled.” section.
+
+**`landing-section-warm`** — The standard template for the redesigned landing sections: floor `{colors.canvas-warm}` (#fafbf6), section heading in Sentient 38px mobile / 52px desktop, pure black, letter-spacing −2.4px, with an optional muted second line in `{colors.warm-body}` (#5F5B54), secondary and caption copy in `{colors.warm-body}`, 72px vertical padding, and a 1200px container (the ThreeWays section widens to 1476px for larger cards). Reuse this shell for every new section added below the hero.
 
 **`testimonial-card`** — Quote card. Background `{colors.surface-card}`, text `{colors.body}`, rounded `{rounded.xl}`, padding 32px.
 
@@ -289,18 +305,18 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 ## Do's and Don'ts
 
 ### Do
-- Ensure the interface remains strictly light mode at all times.
-- Reserve `{colors.primary}` (brand pill) for primary CTAs.
-- Use Bricolage Grotesque at weight 800 for every display headline and wordmark.
-- Use Instrument Sans at +0.15-0.18px tracking for body — the editorial dialect.
-- Use `{rounded.md}` for CTAs and `{rounded.pill}` for badges.
+- Keep the product light; the photographic landing hero is the only dark surface.
+- Reserve `{colors.primary}` (brand pill) for primary CTAs on light surfaces.
+- Use Sentient at weight 400 for every display headline and wordmark.
+- Use Inter at +0.15-0.18px tracking for body — the editorial dialect.
+- Use `{rounded.md}` for light-surface CTAs, `{rounded.pill}` for overlay CTAs and badges.
 
 ### Don't
-- **Don't introduce dark mode sections, dark canvases, or inverted dark themes.**
-- Don't introduce a saturated brand action color. Ink pill is the only CTA color.
-- Don't use regular/400 weights for display copy. Display sits at 800.
-- Don't use sharp `{rounded.none}` (0px) on CTAs. Buttons should be `{rounded.md}`.
-- Don't drop body Instrument Sans to match display weight — body stays at 400/500 for legibility.
+- **Don't introduce dark canvases outside the landing hero.**
+- Don't bold the display face — Sentient stays at 400 (500 max below 20px).
+- Don't introduce a saturated brand action color. Ink pill is the only light-surface CTA color.
+- Don't use sharp `{rounded.none}` (0px) on CTAs.
+- Don't drop body Inter weight to match display — body stays at 400/500 for legibility.
 - Don't extract a CTA color from a third-party widget (cookie consent, OneTrust). The brand's CTA color is what appears on actual product CTAs.
 
 ## Responsive Behavior
@@ -309,9 +325,9 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 
 | Name | Width | Key Changes |
 |---|---|---|
-| Mobile | < 640px | Hero h1 64→32px; feature cards 1-up; nav hamburger. |
-| Tablet | 640–1024px | Hero h1 48px; feature cards 2-up. |
-| Desktop | 1024–1280px | Full hero h1 64px; feature cards 3-up. |
+| Mobile | < 640px | Hero h1 42/48px; feature cards 1-up; nav hamburger. |
+| Tablet | 640–1024px | Hero h1 64/71px; feature cards 2-up. |
+| Desktop | 1024–1280px | Full hero h1 90/99px; feature cards 3-up. |
 | Wide | > 1280px | Content caps at 1200px. |
 
 ### Touch Targets
@@ -329,12 +345,12 @@ Pills used for tags like status, labels, recommendations, and feature highlights
 3. Variants live as separate entries.
 4. Use `{token.refs}` everywhere — never inline hex.
 5. Hover state never documented.
-6. Bricolage Grotesque 800 for display, Instrument Sans 400–700 for body, JetBrains Mono for code.
+6. Sentient 400 for display, Inter 400–500 for body, JetBrains Mono for code.
 7. Keep decoration minimal and non-distracting.
 
 ## Known Gaps
 
-- Brand fonts are self-hosted (SIL OFL; Roboto Apache 2.0). Inter is named in the app-UI stack but is not bundled.
+- Brand fonts are self-hosted (Sentient via Fontshare, Inter via next/font). Bricolage and Instrument Sans files remain in `public/fonts` but are no longer referenced.
 - Animation timings (orb drift, waveform pulse, hero entrance) out of scope.
 - In-product surfaces (voice library editor, agent playground) only partially captured via marketing mockups.
 - Form validation states beyond focus not visible on captured surfaces.

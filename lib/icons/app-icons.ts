@@ -23,6 +23,7 @@ export { default as Command } from "@hugeicons/core-free-icons/CommandIcon";
 export { default as CopyIcon } from "@hugeicons/core-free-icons/Copy01Icon";
 export { default as CreditCard } from "@hugeicons/core-free-icons/CreditCardIcon";
 export { default as Crown } from "@hugeicons/core-free-icons/CrownIcon";
+export { default as DatabaseIcon } from "@hugeicons/core-free-icons/Database01Icon";
 export { default as DownloadIcon } from "@hugeicons/core-free-icons/Download01Icon";
 export { default as PenLineIcon } from "@hugeicons/core-free-icons/Edit01Icon";
 export { default as ExternalLink } from "@hugeicons/core-free-icons/ArrowUpRight01Icon";

@@ -36,6 +36,7 @@
   },
   "common": {
     "getStarted": "Get started",
+    "tryFree": "Try free",
     "bookDemo": "Book a demo",
     "signIn": "Sign in",
     "dashboard": "Dashboard",
@@ -50,11 +51,11 @@
   },
   "landing": {
     "hero": {
-      "titleLine1": "Book 100X more",
+      "titleLine1": "Conversations in.",
       "titleLine2Prefix": "",
-      "titleAccent": "appointments",
-      "titleAfterAccent": ".",
-      "subtitle": "An AI agent that answers every lead, books the meeting, and never sleeps — across WhatsApp, Instagram, your website, email, and phone.",
+      "titleAccent": "Bookings out.",
+      "titleAfterAccent": "",
+      "subtitle": "AI agents that answer every question and book meetings, on every channel, 24/7.",
       "getDemo": "Book a demo"
     },
     "rotatingWords": {
@@ -113,9 +114,60 @@
       "headerLabel": "Anselio Agents",
       "headerTitle": "Deploy AI agents that deliver premium customer experiences across every channel"
     },
-    "trust": {
-      "title": "One agent for every customer interaction,",
-      "subtitle": "runs support, sales, and product guidance 24/7"
+    "threeWays": {
+      "eyebrow": "What Anselio does",
+      "title": "Three ways Anselio",
+      "titleMuted": "runs your support.",
+      "cards": {
+        "resolve": {
+          "title": "Resolve in seconds",
+          "body": "Anselio answers common customer questions instantly, any hour of the day.",
+          "customerName": "Sara",
+          "customerTime": "02:47",
+          "customerMessage": "Hi, is my order still arriving tomorrow? I haven’t received any update.",
+          "agentName": "Anselio",
+          "agentTime": "02:47",
+          "agentMessage": "Yes, it’s on track. I’ve just sent you the tracking link on WhatsApp, and it’s due by 6 PM tomorrow.",
+          "status": "Resolved in 4s"
+        },
+        "learn": {
+          "title": "Learn from your docs",
+          "body": "It trains on your help center and past tickets — no setup required.",
+          "statuses": {
+            "learned": "Learned",
+            "syncing": "Syncing…"
+          },
+          "sources": {
+            "prices": {
+              "title": "Price list & services",
+              "source": "Uploaded doc"
+            },
+            "faq": {
+              "title": "FAQ page",
+              "source": "website"
+            },
+            "availability": {
+              "title": "Prices & availability",
+              "source": "Help center"
+            },
+            "past": {
+              "title": "Past conversations",
+              "source": "WhatsApp"
+            }
+          }
+        },
+        "escalate": {
+          "title": "Know when to escalate",
+          "body": "For complex or sensitive issues, Anselio hands off to your team with full context.",
+          "agentName": "Anselio",
+          "agentTime": "02:51",
+          "agentMessage": "This request needs a personal touch. I’m bringing in a team member with the full conversation.",
+          "handoff": "Handed off to Karim with full context",
+          "humanName": "Karim",
+          "humanTime": "02:53",
+          "humanMessage": "Hi Sara, Karim here. Your booking is confirmed for Thursday at 10:00. See you then!"
+        }
+      }
     },
     "boldStats": {
       "heroTitle": "Issues resolved by AI",
@@ -149,8 +201,10 @@
       "scrollHint": "Scroll"
     },
     "lifecycle": {
-      "title": "The agent lifecycle",
-      "cta": "Create an agent",
+      "eyebrow": "Why Anselio",
+      "title": "One inbox.",
+      "titleMuted": "Every question, handled.",
+      "cardCta": "Get started",
       "steps": {
         "build": {
           "label": "Build",
@@ -190,6 +244,7 @@
     },
     "industries": {
       "title": "Built for your industry",
+      "reveal": "From the first hello to the final follow-up, Anselio brings every conversation into one place — so your team can focus on the person, not on juggling queues, tabs, and disconnected tools.",
       "agentLabel": "AI Agent",
       "prev": "Previous industry",
       "next": "Next industry",
@@ -221,12 +276,83 @@
         }
       }
     },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Simple pricing.",
+      "titleMuted": "No surprises.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "yearlyBadge": "−15%",
+      "yearlyNote": "Billed annually — 15% off.",
+      "popular": "Popular",
+      "includes": "Includes:",
+      "perMonth": "/mo",
+      "custom": "Custom",
+      "contactSales": "Contact sales"
+    },
+    "security": {
+      "eyebrow": "Security",
+      "title": "Enterprise-grade security,",
+      "titleMuted": "built in by default.",
+      "subtitle": "Anselio handles sensitive customer data with the rigor your security team expects.",
+      "cards": {
+        "control": {
+          "title": "Full control",
+          "body": "Role-based access, SSO, and granular permissions."
+        },
+        "encryption": {
+          "title": "End-to-end encryption",
+          "body": "Data encrypted in transit and at rest with AES-256."
+        },
+        "data": {
+          "title": "Your data",
+          "body": "We never train public models on your data — ever."
+        }
+      }
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "You have questions.",
+      "titleMuted": "We have answers.",
+      "items": {
+        "difference": {
+          "q": "How is Anselio different from a general AI chatbot?",
+          "a": "Anselio is built for customer support. It answers from your own knowledge, books appointments, takes actions in your tools, and hands off to a human with the full conversation."
+        },
+        "adapt": {
+          "q": "Will it actually adapt to how we work?",
+          "a": "Yes. You set the tone, languages, rules, and guardrails. Every conversation refines the instructions, so the agent sounds more like your team over time."
+        },
+        "resolve": {
+          "q": "How many conversations can Anselio resolve on its own?",
+          "a": "Most routine questions — orders, hours, pricing, bookings, returns — are resolved end to end. Anything outside its guardrails is escalated to a human."
+        },
+        "channels": {
+          "q": "What channels does Anselio support?",
+          "a": "Voice, chat, WhatsApp, SMS, email, and your website widget — one agent and one shared history across all of them."
+        },
+        "privacy": {
+          "q": "Is my data private?",
+          "a": "Yes. Data is encrypted in transit and at rest, access is role-based, and we never train public models on your data."
+        },
+        "cancel": {
+          "q": "Can I cancel anytime?",
+          "a": "Yes. Plans are month to month with no lock-in, so you can upgrade, downgrade, or cancel from your dashboard at any time."
+        }
+      }
+    },
+    "cta": {
+      "title": "Give your team",
+      "titleMuted": "their mornings back.",
+      "body": "Connect your help desk and let Anselio start resolving tickets today — no code required.",
+      "button": "Get started free"
+    },
     "nav": {
       "labels": {
         "solutions": "Solutions",
         "resources": "Resources",
-        "customers": "Customers",
         "enterprise": "Enterprise",
+        "features": "Features",
         "pricing": "Pricing",
         "menu": "Menu"
       },
@@ -294,7 +420,7 @@
       }
     },
     "footer": {
-      "headline": "The AI concierge for every customer.",
+      "headline": "Customer support, powered by AI.",
       "createAgent": "Create agent",
       "columns": {
         "product": "Product",
@@ -325,7 +451,7 @@
         "telecom": "Telecommunication",
         "education": "Education",
         "fitness": "Fitness",
-        "customers": "Customers",
+        "solutions": "Solutions",
         "resourcesHub": "Resources Hub",
         "glossary": "Glossary",
         "guide": "Guide",

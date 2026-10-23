@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AppIcon } from "@/components/ui/app-icon";
 import { CheckIcon } from "@/lib/icons/app-icons";
+import { cn } from "@/lib/utils";
 import { useTransition } from "react";
 
 const LOCALES = ["fr", "en", "ar"] as const;
@@ -22,7 +23,13 @@ const LABELS: Record<(typeof LOCALES)[number], string> = {
 
 type LocaleKey = (typeof LOCALES)[number];
 
-export function LanguageSwitcher() {
+type LanguageSwitcherProps = {
+  tone?: "default" | "overlay";
+  className?: string;
+};
+
+export function LanguageSwitcher({ tone = "default", className }: LanguageSwitcherProps) {
+  const overlay = tone === "overlay";
   const locale = useLocale() as LocaleKey;
   const t = useTranslations("dashboard.topbar");
   const router = useRouter();
@@ -42,7 +49,13 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex h-8 min-w-10 items-center justify-center rounded-md border border-hairline bg-surface-card px-2 text-caption-uppercase text-ink transition-colors hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hairline-strong focus-visible:ring-offset-2"
+        className={cn(
+          "flex h-9 min-w-10 items-center justify-center px-3 text-caption-uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          overlay
+            ? "rounded-full border border-white/25 bg-white/5 text-white hover:bg-white/10 focus-visible:ring-white/50 focus-visible:ring-offset-transparent"
+            : "rounded-md border border-hairline bg-surface-card text-ink hover:bg-surface-strong focus-visible:ring-hairline-strong",
+          className,
+        )}
         aria-label={t("language")}
         disabled={isPending}
       >

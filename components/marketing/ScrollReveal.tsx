@@ -6,6 +6,8 @@ import { Children, useEffect, useRef, useState, type ReactNode } from "react";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 type ScrollRevealProps = {
+  /** Optional anchor target, e.g. for in-page nav links. */
+  id?: string;
   children: ReactNode;
   className?: string;
   /** Reserved space before the section mounts, to avoid CLS. */
@@ -18,6 +20,7 @@ type ScrollRevealProps = {
 };
 
 export function ScrollReveal({
+  id,
   children,
   className,
   minHeight = 520,
@@ -51,6 +54,7 @@ export function ScrollReveal({
   return (
     <div
       ref={ref}
+      id={id}
       className={className}
       style={visible ? undefined : { minHeight }}
     >

@@ -349,7 +349,7 @@ export function KnowledgeBaseClient({
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-hairline bg-surface-card">
                         <AppIcon icon={Library} className="h-6 w-6 text-ink" aria-hidden />
                     </div>
-                    <h3 className="text-base font-semibold text-ink">{t("noDocumentsFound")}</h3>
+                    <h3 className="text-base font-medium text-ink">{t("noDocumentsFound")}</h3>
                     <p className="mt-1 max-w-sm text-body-sm text-muted">
                         {t("noDocumentsYet")}
                     </p>

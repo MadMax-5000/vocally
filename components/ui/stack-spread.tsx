@@ -398,7 +398,7 @@ function StackSpreadStage({
           }}
         >
           <h2
-            className="w-full max-w-[18ch] font-display text-[4.4vw] font-extrabold !leading-[1.08] tracking-tight max-md:text-[11vw]"
+            className="w-full max-w-[18ch] font-display text-[4.4vw] font-normal !leading-[1.08] tracking-[-2.4px] max-md:text-[11vw]"
             style={{ color: textColor }}
           >
             {title}

@@ -13,12 +13,16 @@ const config: Config = {
         // DESIGN.md tokens (names match intent)
         canvas: "#f5f5f5",
         "canvas-soft": "#fafafa",
+        "canvas-warm": "#fafbf6",
+        "surface-warm": "#F4F2EC",
         "surface-card": "#ffffff",
         "surface-strong": "#f0efed",
         hairline: "#e7e5e4",
         "hairline-soft": "#f0efed",
         "hairline-strong": "#d6d3d1",
         ink: "#0c0a09",
+        "warm-ink": "#3F3E3A",
+        "warm-body": "#5F5B54",
         body: "#4e4e4e",
         "body-strong": "#292524",
         muted: "#777169",
@@ -35,8 +39,9 @@ const config: Config = {
         "popover-foreground": "var(--popover-foreground)"
       },
       fontFamily: {
-        // Geist — main font (default, headings, nav, titles)
-        display: ["var(--font-sans)"],
+        // Sentient — display headings
+        display: ['"Sentient"', '"Sentient Placeholder"', "serif"],
+        // Geist — nav, labels, page chrome
         sans: ["var(--font-sans)"],
         body: ["var(--font-inter)"],
         mono: ["var(--font-mono)"],
@@ -73,12 +78,13 @@ const config: Config = {
         section: "72px"
       },
       fontSize: {
-        // Display tokens
-        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.4px", fontWeight: "800" }],
-        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "800" }],
-        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.6px", fontWeight: "800" }],
-        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.52px", fontWeight: "800" }],
-        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "-0.4px", fontWeight: "800" }],
+        // Display tokens — Sentient at regular weight
+        "display-hero": ["90px", { lineHeight: "99px", letterSpacing: "-1.8px", fontWeight: "400" }],
+        "display-mega": ["56px", { lineHeight: "1.05", letterSpacing: "-1.4px", fontWeight: "400" }],
+        "display-xl": ["40px", { lineHeight: "1.08", letterSpacing: "-0.8px", fontWeight: "400" }],
+        "display-lg": ["30px", { lineHeight: "1.17", letterSpacing: "-0.6px", fontWeight: "400" }],
+        "display-md": ["26px", { lineHeight: "1.13", letterSpacing: "-0.52px", fontWeight: "400" }],
+        "display-sm": ["20px", { lineHeight: "1.2", letterSpacing: "-0.4px", fontWeight: "500" }],
         // Body tokens
         "title-md": ["18px", { lineHeight: "1.35", letterSpacing: "0px", fontWeight: "500" }],
         "title-sm": ["16px", { lineHeight: "1.44", letterSpacing: "0.14px", fontWeight: "500" }],

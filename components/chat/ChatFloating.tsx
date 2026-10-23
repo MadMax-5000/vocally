@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, FormEvent, useCallback } from "react";
 import { AnselioLogo } from "@/components/brand/AnselioLogo";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
+import { LoadingState } from "@/components/ui/loading-state";
 import { useChat, type ChatMessage } from "@/hooks/useChat";
 import { useMicrophone } from "@/hooks/useMicrophone";
 import { useAudioRecorder } from "@/hooks/useAudioRecorder";
@@ -232,11 +233,7 @@ export function ChatFloating({
               className="btn-primary shrink-0 disabled:opacity-50"
             >
               {isBusy && !isStreaming ? (
-                <span className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce" />
-                  <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:0.1s]" />
-                  <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:0.2s]" />
-                </span>
+                <LoadingState label={null} size="sm" />
               ) : (
                 <svg
                   width="16"

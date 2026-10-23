@@ -1,26 +1,17 @@
-"use client";
-
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { HeaderAuth } from "@/components/marketing/HeaderAuth";
-import { LanguageSwitcher } from "@/components/marketing/LanguageSwitcher";
 
-import { LandingNavProvider } from "./LandingNavContext";
 import { LandingNavDesktop } from "./LandingNavDesktop";
-import { LandingNavMegaPanel } from "./LandingNavMegaPanel";
 import { LandingNavMobile } from "./LandingNavMobile";
 
 export function LandingHomeHeader() {
   return (
-    <LandingNavProvider>
-      <MarketingHeader
-        sticky
-        center={<LandingNavDesktop />}
-        megaMenu={<LandingNavMegaPanel />}
-      >
-        <LandingNavMobile />
-        <LanguageSwitcher />
-        <HeaderAuth />
-      </MarketingHeader>
-    </LandingNavProvider>
+    <MarketingHeader
+      tone="overlay"
+      center={<LandingNavDesktop tone="overlay" />}
+    >
+      <LandingNavMobile tone="overlay" />
+      <HeaderAuth tone="overlay" />
+    </MarketingHeader>
   );
 }
