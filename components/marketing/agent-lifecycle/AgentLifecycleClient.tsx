@@ -32,12 +32,19 @@ export type LifecycleStep = {
 const STICKY_TOP = "5rem";
 const STACK_PEEK = 12;
 
-/* One painting, four crops — keeps the cards distinct without extra assets. */
+/* One painting per step, centred. */
+const BACKGROUNDS: Record<LifecycleStepKey, string> = {
+  build: "/images/cards-background4.png",
+  test: "/images/cards-background5.png",
+  deploy: "/images/cards-background6.png",
+  optimize: "/images/cards-background7.png",
+};
+
 const CROPS: Record<LifecycleStepKey, string> = {
   build: "object-center",
-  test: "object-[30%_38%]",
-  deploy: "object-[70%_52%]",
-  optimize: "object-[48%_72%]",
+  test: "object-center",
+  deploy: "object-center",
+  optimize: "object-center",
 };
 
 /* Natural widths of the step visuals, so the glass frame hugs each one. */
@@ -103,7 +110,7 @@ export function AgentLifecycleClient({
                 {/* Left — painted stage with the step visual in a glass frame */}
                 <div className="relative flex min-h-[260px] items-center justify-center overflow-hidden rounded-[16px] p-3 sm:p-5 lg:h-full">
                   <Image
-                    src="/images/cards-background.webp"
+                    src={BACKGROUNDS[step.id]}
                     alt=""
                     aria-hidden
                     fill

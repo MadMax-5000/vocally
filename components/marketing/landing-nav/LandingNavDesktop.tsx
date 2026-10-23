@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
+export const landingNavLinks = [
   { id: "pricing", href: "/pricing", labelKey: "labels.pricing" },
   { id: "features", href: "/#features", labelKey: "labels.features" },
   { id: "solutions", href: "/#solutions", labelKey: "labels.solutions" },
@@ -17,7 +17,7 @@ export function LandingNavDesktop({ tone = "default" }: { tone?: "default" | "ov
 
   return (
     <nav aria-label="Main navigation" className="flex items-center gap-1">
-      {navLinks.map((link) => (
+      {landingNavLinks.map((link) => (
         <Link
           key={link.id}
           href={link.href}

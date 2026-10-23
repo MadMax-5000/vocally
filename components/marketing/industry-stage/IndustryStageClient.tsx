@@ -21,33 +21,19 @@ import {
 } from "react";
 
 import { EASE_OUT } from "@/components/marketing/agent-lifecycle/visuals/shared";
-import { AppIcon } from "@/components/ui/app-icon";
 import { AgentIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
-import {
-  INDUSTRY_CARDS,
-  type IndustryCopy,
-  type IndustryId,
-} from "../industries/industry-cards";
+import { type IndustryCopy } from "../industries/industry-cards";
 import { useTypewriter } from "../industries/use-typewriter";
 
 const AUTOPLAY_MS = 5000;
 const REPLY_DELAY_MS = 720;
-const REVEAL_FROM = "#B8B2A8";
+const REVEAL_FROM = "#CBC5B9";
 const REVEAL_TO = "#0c0a09";
 
-/**
- * Same cloud, five crops. The photograph is blurred into a sky, so each
- * industry gets its own patch of light without needing its own asset.
- */
-const STAGE_CROPS: Record<IndustryId, string> = {
-  retail: "object-[52%_50%]",
-  technology: "object-[32%_50%]",
-  travel: "object-[76%_50%]",
-  finance: "object-[44%_50%]",
-  healthcare: "object-[64%_50%]",
-};
+/** One shared artwork, shown in full at its natural aspect ratio. */
+const STAGE_IMAGE = "/images/cards-background8.png";
 
 const REVEAL_CLASS =
   "mx-auto max-w-[62rem] text-balance text-center font-display font-normal text-[30px] leading-[1.2] tracking-[-1.5px] text-ink sm:text-[38px] sm:leading-[1.16] lg:text-[44px] lg:leading-[1.14] lg:tracking-[-1.8px]";
@@ -71,7 +57,6 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
 
   const count = cards.length;
   const current = cards[active] ?? cards[0];
-  const currentDef = INDUSTRY_CARDS[active] ?? INDUSTRY_CARDS[0];
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -110,7 +95,7 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
     tabRefs.current[next]?.focus();
   };
 
-  if (!current || !currentDef) return null;
+  if (!current) return null;
 
   return (
     <section
@@ -119,7 +104,7 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
       aria-labelledby="industry-stage-heading"
       className="relative scroll-mt-16 overflow-hidden bg-canvas-warm"
     >
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-section">
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-[6rem] sm:py-[9rem]">
         <p className="flex items-center justify-center gap-2 text-[13px] font-medium leading-none text-warm-body">
           <span aria-hidden className="size-1 rounded-full bg-warm-body" />
           {title}
@@ -177,7 +162,7 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
             aria-labelledby={`industry-tab-${current.id}`}
             className="mx-auto mt-6 w-full max-w-[1000px] rounded-[24px] bg-surface-warm p-2.5 shadow-[0_34px_80px_-58px_rgba(35,31,24,0.55)] sm:p-3 lg:mt-8 lg:p-4"
           >
-            <div className="relative isolate h-[15rem] w-full overflow-hidden rounded-[16px] bg-[#F4EFE6] sm:h-[15rem] lg:h-[17rem]">
+            <div className="relative isolate aspect-[1672/941] w-full overflow-hidden rounded-[16px] bg-[#141210]">
               <AnimatePresence initial={false}>
                 <motion.div
                   key={current.id}
@@ -187,16 +172,16 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
                   exit={{ opacity: 0 }}
                   transition={{ duration: reduceMotion ? 0 : 0.7, ease: EASE_OUT }}
                 >
-                  {/* One blurred sky, re-cropped for every industry. */}
+                  {/* The painting itself — full image, gentle drift. */}
                   <motion.div
-                    className="absolute -inset-[16%] opacity-95"
+                    className="absolute -inset-[8%]"
                     animate={
                       reduceMotion
                         ? undefined
                         : {
-                            scale: [1.02, 1.09],
-                            x: ["-1.4%", "1.4%"],
-                            y: ["0.9%", "-0.9%"],
+                            scale: [1.02, 1.05],
+                            x: ["-0.6%", "0.6%"],
+                            y: ["0.4%", "-0.4%"],
                           }
                     }
                     transition={{
@@ -207,71 +192,40 @@ export function IndustryStageClient({ title, agentLabel, reveal, cards }: Props)
                     }}
                   >
                     <Image
-                      src="/images/hero-background.webp"
+                      src={STAGE_IMAGE}
                       alt=""
                       aria-hidden
                       fill
-                      quality={85}
+                      unoptimized
                       sizes="(min-width: 1040px) 968px, (min-width: 640px) 86vw, 100vw"
-                      className={cn("origin-top scale-[2] object-cover", STAGE_CROPS[current.id])}
-                      style={{ filter: "blur(30px) saturate(0.7) brightness(1.18)" }}
+                      className="object-cover"
                     />
                   </motion.div>
 
-                  {/* Porcelain wash turns the photograph into weather. */}
-                  <div aria-hidden className="absolute inset-0 bg-[#FFF7EA]/40" />
                   <div
                     aria-hidden
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "radial-gradient(ellipse 70% 70% at 72% 8%, rgba(255,236,208,0.42), transparent 62%)",
-                    }}
+                    className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/5 to-black/35"
                   />
                   <div
                     aria-hidden
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "radial-gradient(ellipse 60% 55% at 50% 46%, rgba(255,255,255,0.38), transparent 70%)",
-                    }}
-                  />
-                  <div
-                    aria-hidden
-                    className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#EFE6D6]/70 to-transparent"
+                    className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.25)_100%)]"
                   />
                 </motion.div>
               </AnimatePresence>
 
-              {/* Identity — a glass tag and a quiet index. */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-4 sm:p-5">
-                <span className="inline-flex min-w-0 items-center gap-2 rounded-pill border border-white/60 bg-white/45 py-1.5 pe-3.5 ps-1.5 shadow-[0_10px_30px_-22px_rgba(35,31,24,0.55)] backdrop-blur-md">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ink text-white">
-                    <AppIcon icon={currentDef.icon} size={14} strokeWidth={1.7} />
-                  </span>
-                  <span className="truncate text-[11.5px] font-medium leading-none text-warm-ink">
-                    {current.label}
-                  </span>
-                </span>
+              {/* Identity — a quiet index. */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-end gap-3 p-4 sm:p-5">
                 <span
                   dir="ltr"
-                  className="tabular mt-1 shrink-0 text-[10.5px] font-medium leading-none tracking-[0.2em] text-ink/40"
+                  className="tabular mt-1 shrink-0 text-[10.5px] font-medium leading-none tracking-[0.2em] text-white/70"
                 >
                   {String(active + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
                 </span>
               </div>
 
-              {/* Signal rings — the conversation sits at the centre of the weather. */}
-              <div aria-hidden className="pointer-events-none absolute inset-0 z-0 grid place-items-center">
-                <div className="h-[180px] w-[300px] rounded-[50%] border border-white/50 sm:h-[210px] sm:w-[440px] lg:h-[250px] lg:w-[640px]" />
-                <div className="absolute left-1/2 top-1/2 h-[120px] w-[210px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-white/60 sm:h-[140px] sm:w-[300px] lg:h-[165px] lg:w-[420px]" />
-                <div className="absolute left-1/2 top-1/2 h-[170px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-white/30 blur-3xl" />
-              </div>
-
-              {/* Editorial signature — the industry, written into the weather. */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-x-6 bottom-4 z-0 hidden font-display text-[28px] leading-none tracking-[-0.03em] text-ink/[0.10] lg:block lg:text-[30px]"
+                className="pointer-events-none absolute inset-x-6 bottom-4 z-0 hidden font-display text-[28px] leading-none tracking-[-0.03em] text-white/15 lg:block lg:text-[30px]"
               >
                 {current.label}
               </div>
@@ -306,7 +260,7 @@ function RevealHeading({ text, reduceMotion }: { text: string; reduceMotion: boo
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 0.9", "end 0.35"],
+    offset: ["center 0.55", "end 0.25"],
   });
 
   if (reduceMotion) {

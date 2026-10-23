@@ -219,11 +219,13 @@ function EscalatePanel({
 /* ─── Card shell ─── */
 
 function WaysCard({
+  image,
   panel,
   title,
   body,
   imagePosition,
 }: {
+  image: string;
   panel: React.ReactNode;
   title: string;
   body: string;
@@ -233,7 +235,7 @@ function WaysCard({
     <figure className="flex flex-col">
       <div className="relative aspect-[9/8] overflow-hidden rounded-xxl">
         <Image
-          src="/images/cards-background.webp"
+          src={image}
           alt=""
           aria-hidden
           fill
@@ -299,6 +301,7 @@ export async function ThreeWaysSection() {
       <div className={container}>
         <StaggerGrid className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           <WaysCard
+            image="/images/cards-background.png"
             imagePosition="object-center"
             title={t("cards.resolve.title")}
             body={t("cards.resolve.body")}
@@ -316,7 +319,8 @@ export async function ThreeWaysSection() {
           />
 
           <WaysCard
-            imagePosition="object-[35%_45%]"
+            image="/images/cards-background2.png"
+            imagePosition="object-center"
             title={t("cards.learn.title")}
             body={t("cards.learn.body")}
             panel={
@@ -329,7 +333,8 @@ export async function ThreeWaysSection() {
           />
 
           <WaysCard
-            imagePosition="object-[70%_55%]"
+            image="/images/cards-background3.png"
+            imagePosition="object-center"
             title={t("cards.escalate.title")}
             body={t("cards.escalate.body")}
             panel={
