@@ -34,10 +34,10 @@ const STACK_PEEK = 12;
 
 /* One painting per step, centred. */
 const BACKGROUNDS: Record<LifecycleStepKey, string> = {
-  build: "/images/cards-background4.png",
-  test: "/images/cards-background5.png",
-  deploy: "/images/cards-background6.png",
-  optimize: "/images/cards-background7.png",
+  build: "/images/cards-background4.webp",
+  test: "/images/cards-background5.webp",
+  deploy: "/images/cards-background6.webp",
+  optimize: "/images/cards-background7.webp",
 };
 
 const CROPS: Record<LifecycleStepKey, string> = {

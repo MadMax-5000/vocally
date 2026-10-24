@@ -73,7 +73,7 @@ export async function BentoShowcase() {
           <div className="flex flex-col overflow-hidden rounded-xxl border border-hairline bg-surface-card">
             <div className="relative aspect-[4/3] w-full overflow-hidden">
               <Image
-                src="/images/background1.png"
+                src="/images/background1.webp"
                 alt="Omnichannel agent conversation background"
                 fill
                 className="object-cover"

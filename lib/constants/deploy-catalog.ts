@@ -16,7 +16,7 @@ export const FEATURED_DEPLOYMENTS = [
     id: "chat-widget",
     title: "Chat widget",
     description: "Add a floating chat window to your site.",
-    heroBackground: "/images/abstract2.png",
+    heroBackground: "/images/abstract2.webp",
     previewPath: "widget" as const,
   },
   {
@@ -24,7 +24,7 @@ export const FEATURED_DEPLOYMENTS = [
     title: "Help page",
     description:
       "ChatGPT-style help page, deployed standalone or under a path on your site (/help).",
-    heroBackground: "/images/abstract6.jpeg",
+    heroBackground: "/images/abstract6.webp",
     previewPath: "help" as const,
   },
 ] as const;

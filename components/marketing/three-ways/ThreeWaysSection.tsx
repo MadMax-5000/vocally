@@ -301,7 +301,7 @@ export async function ThreeWaysSection() {
       <div className={container}>
         <StaggerGrid className="mt-12 grid gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           <WaysCard
-            image="/images/cards-background.png"
+            image="/images/cards-background.webp"
             imagePosition="object-center"
             title={t("cards.resolve.title")}
             body={t("cards.resolve.body")}
@@ -319,7 +319,7 @@ export async function ThreeWaysSection() {
           />
 
           <WaysCard
-            image="/images/cards-background2.png"
+            image="/images/cards-background2.webp"
             imagePosition="object-center"
             title={t("cards.learn.title")}
             body={t("cards.learn.body")}
@@ -333,7 +333,7 @@ export async function ThreeWaysSection() {
           />
 
           <WaysCard
-            image="/images/cards-background3.png"
+            image="/images/cards-background3.webp"
             imagePosition="object-center"
             title={t("cards.escalate.title")}
             body={t("cards.escalate.body")}

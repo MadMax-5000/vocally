@@ -56,7 +56,7 @@ export function StartStep({ onScratch, onSound }: StartStepProps) {
           {/* Chat preview */}
           <div className="relative mt-1 aspect-[6/3] w-full overflow-hidden rounded-lg">
             <Image
-              src="/images/background1.png"
+              src="/images/background1.webp"
               alt={t("conversationPreview")}
               fill
               className="object-cover"

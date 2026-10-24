@@ -33,7 +33,7 @@ const REVEAL_FROM = "#CBC5B9";
 const REVEAL_TO = "#0c0a09";
 
 /** One shared artwork, shown in full at its natural aspect ratio. */
-const STAGE_IMAGE = "/images/cards-background8.png";
+const STAGE_IMAGE = "/images/cards-background8.webp";
 
 const REVEAL_CLASS =
   "mx-auto max-w-[62rem] text-balance text-center font-display font-normal text-[30px] leading-[1.2] tracking-[-1.5px] text-ink sm:text-[38px] sm:leading-[1.16] lg:text-[44px] lg:leading-[1.14] lg:tracking-[-1.8px]";
