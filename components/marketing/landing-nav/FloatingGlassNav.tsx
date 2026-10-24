@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 
 import { landingNavLinks } from "./LandingNavDesktop";
 
-/** The pill floats in while this much of the hero is still on screen. */
-const REVEAL_OFFSET = 80;
+/** Ignore the first few pixels of trackpad jitter — anything past this shows the pill. */
+const SCROLL_THRESHOLD = 8;
 
 export function FloatingGlassNav() {
   const { isLoaded } = useAuth();
@@ -22,19 +22,13 @@ export function FloatingGlassNav() {
 
   useEffect(() => {
     const onScroll = () => {
-      const hero = document.querySelector<HTMLElement>("main > section");
-      const limit = hero
-        ? hero.offsetTop + hero.offsetHeight - REVEAL_OFFSET
-        : window.innerHeight;
-      setPassed(window.scrollY > limit);
+      setPassed(window.scrollY > SCROLL_THRESHOLD);
     };
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
