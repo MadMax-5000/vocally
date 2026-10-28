@@ -21,32 +21,36 @@ export async function generateMetadata({
   return localizedPageMetadata(locale, "home");
 }
 
-export default function HomePage() {
+export default function HomePage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   return (
     <main className="min-h-dvh overflow-x-clip bg-canvas text-ink">
-      <JsonLd data={softwareApplicationJsonLd()} />
+      <JsonLd data={softwareApplicationJsonLd(locale)} />
       <LandingHomeHeader />
       <LandingHero />
-      <ScrollReveal id="solutions" minHeight={720}>
+      <ScrollReveal id="solutions">
         <ThreeWaysSection />
       </ScrollReveal>
       <AgentLifecycle />
-      <ScrollReveal minHeight={560}>
+      <ScrollReveal>
         <SecuritySection />
       </ScrollReveal>
-      <ScrollReveal minHeight={900}>
+      <ScrollReveal>
         <IndustryStage />
       </ScrollReveal>
-      <ScrollReveal minHeight={860}>
+      <ScrollReveal>
         <LandingPricingSection />
       </ScrollReveal>
-      <ScrollReveal minHeight={560}>
+      <ScrollReveal>
         <FaqSection />
       </ScrollReveal>
-      <ScrollReveal minHeight={520}>
+      <ScrollReveal>
         <FinalCtaSection />
       </ScrollReveal>
-      <ScrollReveal minHeight={360} intensity="light">
+      <ScrollReveal intensity="light">
         <MarketingFooter />
       </ScrollReveal>
     </main>

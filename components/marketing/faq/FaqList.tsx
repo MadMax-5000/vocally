@@ -1,13 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
 export type FaqItem = { key: string; q: string; a: string };
-
-const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
 function PlusIcon({ open }: { open: boolean }) {
   return (
@@ -28,9 +25,13 @@ function PlusIcon({ open }: { open: boolean }) {
   );
 }
 
+/**
+ * Answers stay in the DOM while collapsed (a CSS grid-rows transition, not a mount guard),
+ * so a crawler that reads the page source can extract every answer even though a person
+ * only sees the question until they open it.
+ */
 export function FaqList({ items }: { items: FaqItem[] }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
-  const reduce = useReducedMotion() ?? false;
 
   return (
     <div className="mt-12 grid grid-flow-row-dense items-start gap-4 pb-6 md:grid-cols-2">
@@ -50,21 +51,17 @@ export function FaqList({ items }: { items: FaqItem[] }) {
               <PlusIcon open={open} />
             </button>
 
-            <AnimatePresence initial={false}>
-              {open ? (
-                <motion.div
-                  key="answer"
-                  id={`faq-${item.key}`}
-                  initial={reduce ? false : { height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={reduce ? undefined : { height: 0, opacity: 0 }}
-                  transition={{ duration: 0.34, ease: EASE_OUT }}
-                  className="overflow-hidden"
-                >
-                  <p className="px-6 pb-5 text-[15px] leading-[1.6] text-warm-body">{item.a}</p>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
+            <div
+              id={`faq-${item.key}`}
+              className={cn(
+                "grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+              )}
+            >
+              <div className="min-h-0">
+                <p className="px-6 pb-5 text-[15px] leading-[1.6] text-warm-body">{item.a}</p>
+              </div>
+            </div>
           </div>
         );
       })}

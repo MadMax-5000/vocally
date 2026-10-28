@@ -32,6 +32,18 @@
     "legal": {
       "title": "Legal notice",
       "description": "Legal notice for Anselio: publisher, address, and contact for the conversational AI platform."
+    },
+    "faq": {
+      "title": "FAQ — AI customer service in Morocco: languages, channels, pricing",
+      "description": "Direct answers about Anselio: how the AI agents work, which channels and languages they cover, Darija and Moroccan phone numbers, what each plan costs in MAD, and how human handoff works."
+    },
+    "compare": {
+      "title": "Compared with an IVR phone menu and international voice AI platforms",
+      "description": "How Anselio compares with a traditional IVR phone menu and with international voice AI platforms on Darija, Moroccan numbers, channels, human handoff, billing and setup."
+    },
+    "about": {
+      "title": "About Anselio — AI customer service from Casablanca",
+      "description": "Who is behind Anselio, what the platform does, which businesses it serves, how it handles personal data under Moroccan law 09-08, and how to get in touch."
     }
   },
   "common": {
@@ -466,7 +478,9 @@
         "contactSupport": "Contact Support",
         "terms": "Terms of Service",
         "cookies": "Cookie Notice",
-        "legal": "Legal notice"
+        "legal": "Legal notice",
+        "faq": "FAQ",
+        "compare": "Comparison"
       }
     }
   },
@@ -912,6 +926,194 @@
           "content": "We may update this Cookie Notice from time to time. Changes will be posted on this page with an updated revision date. If you have questions about our use of cookies, please contact us at privacy@anselio.com or by mail at Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Morocco."
         }
       }
+    }
+  },
+  "faqPage": {
+    "eyebrow": "Answers",
+    "title": "Anselio: AI customer service in Morocco, answered.",
+    "intro": "Everything buyers and support teams ask about Anselio — the product, the channels, Darija, Moroccan phone numbers, pricing and data handling — in short, self-contained answers.",
+    "groupsLabel": "Jump to an answer",
+    "groups": {
+      "understanding": "How it works",
+      "channels": "Channels, languages and numbers",
+      "pricing": "Pricing and plans",
+      "trust": "Data, compliance and handoff"
+    },
+    "items": {
+      "setup": {
+        "q": "How long does it take to launch an AI agent?",
+        "a": "Most teams are live the same day. You connect your content — documents, FAQ pages, your help centre or past conversations — choose the channels, then publish. Configuration happens in the dashboard with no code, and a test conversation runs before anything goes live."
+      },
+      "darija": {
+        "q": "Does Anselio actually speak Moroccan Darija?",
+        "a": "Yes. The agent replies in Moroccan Arabic (Darija), Modern Standard Arabic, French or English, and follows whichever language the customer uses. Darija is handled by speech recognition and language models that support the dialect; when confidence is low, the conversation is offered to a human instead of being guessed."
+      },
+      "voiceNumber": {
+        "q": "Do I need a new phone number for AI voice calls?",
+        "a": "Anselio provides Moroccan numbers, so customers call a local +212 number instead of paying international rates. Pro includes one number, one concurrent line and 300 AI voice minutes per month; extra number packs, concurrent lines and Enterprise volume are ordered through sales. Numbers are delivered over cloud SIP, with about one week of lead time."
+      },
+      "pricing": {
+        "q": "How much does Anselio cost?",
+        "a": "The Free plan costs {free}: one agent, 50 conversations a month, website chat only. Starter is {starter} per month for WhatsApp, Instagram, Messenger and email. Pro is {pro} per month and adds SMS, API access and one Moroccan number with 300 AI voice minutes. Prices are in Moroccan Dirham, excluding 20% VAT; annual billing takes 15% off; Enterprise is a custom contract."
+      },
+      "freePlan": {
+        "q": "Is there a free plan, and do I need a credit card?",
+        "a": "Yes, and no. The Free plan needs no credit card and includes one AI agent, 50 conversations a month, the website chat widget and 10 MB of knowledge base. It is meant for running the product on a real site; upgrade only when you need more channels or volume."
+      },
+      "humanHandoff": {
+        "q": "What happens when the AI cannot answer?",
+        "a": "The conversation is handed to a human with the full transcript, the customer's details and the agent's summary, in the live inbox. A customer can ask for a person at any point on any channel, and that request is always honoured. The agent does not keep a conversation it cannot resolve."
+      }
+    }
+  },
+  "compare": {
+    "eyebrow": "Comparison",
+    "title": "Anselio against a phone menu, and against international voice AI.",
+    "intro": "Moroccan businesses usually weigh three options: an IVR phone menu, an international voice AI platform, or a local AI agent that covers every channel. The table below sets out the criteria that actually decide the choice. It is a category comparison, not a feature checklist against one named vendor.",
+    "tableCaption": "How Anselio, a traditional IVR menu and an international voice AI platform compare",
+    "columns": {
+      "criteria": "What decides it",
+      "anselio": "Anselio",
+      "ivr": "Traditional IVR menu",
+      "global": "International voice AI platform"
+    },
+    "criteria": {
+      "darija": {
+        "label": "Moroccan Darija",
+        "anselio": "Replies in Darija, Modern Standard Arabic, French and English, in the language the customer uses",
+        "ivr": "Fixed recorded prompts, no understanding of dialect",
+        "global": "Usually Modern Standard Arabic or French; Darija support varies by vendor"
+      },
+      "number": {
+        "label": "Phone number",
+        "anselio": "Moroccan +212 number provided by Anselio; keep your carrier line with call forwarding",
+        "ivr": "Your existing carrier line",
+        "global": "Often a foreign number, or your own SIP trunk"
+      },
+      "channels": {
+        "label": "Channels",
+        "anselio": "Website chat, email, WhatsApp, Instagram, Messenger, SMS, voice and API on one agent",
+        "ivr": "Voice only",
+        "global": "Voice first; text channels are usually a separate product"
+      },
+      "handoff": {
+        "label": "Human handoff",
+        "anselio": "Live takeover in the same thread, with transcript and summary",
+        "ivr": "Transfer to a queue, without context",
+        "global": "Transfer to a phone number or an external contact centre"
+      },
+      "billing": {
+        "label": "Billing",
+        "anselio": "Monthly in MAD, excluding VAT, free plan, no lock-in",
+        "ivr": "Telecom minutes and hardware, no AI included",
+        "global": "USD or EUR, card required, annual contracts common"
+      },
+      "setup": {
+        "label": "Setup",
+        "anselio": "Self-serve dashboard, live the same day",
+        "ivr": "Telecom integrator or developer",
+        "global": "Sales call, implementation project, several weeks"
+      }
+    },
+    "fit": {
+      "title": "Where Anselio fits",
+      "body": "Businesses that take customer questions in more than one language, on more than one channel, and want a Moroccan number in the mix.",
+      "items": {
+        "0": "E-commerce and retail answering order, delivery and return questions in Darija and French",
+        "1": "Clinics, salons and schools that book appointments by chat and by phone",
+        "2": "Support teams that want one inbox and one history instead of a bot per channel"
+      }
+    },
+    "notFit": {
+      "title": "Where it does not fit",
+      "body": "Saying this plainly is more useful than a longer feature list.",
+      "items": {
+        "0": "Businesses outside Morocco that need local phone numbers: AI voice calling currently uses Moroccan numbers only",
+        "1": "Teams that need on-premise deployment or a custom-model contract, which Enterprise is scoped for case by case",
+        "2": "Voice-only contact centres looking for a pure telephony replacement with no text channels"
+      }
+    },
+    "cta": {
+      "primary": "Start free",
+      "secondary": "See pricing"
+    }
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "Anselio is an AI customer service platform built in Casablanca.",
+    "intro": "Anselio gives Moroccan businesses AI agents that answer customers in Darija, Arabic, French and English across website chat, email, WhatsApp, social messaging, SMS and inbound phone calls — and hand over to a person when a conversation needs one.",
+    "introDetail": "The product exists because the alternative was a choice between a rigid phone menu and a chatbot built for English. Anselio answers from the business's own content, acts in its tools, and keeps one conversation history across channels, so a customer who writes on WhatsApp and calls an hour later is recognised.",
+    "capabilities": {
+      "title": "What the platform does",
+      "items": {
+        "0": "Answers from your documents, FAQ pages and past conversations using retrieval-augmented generation, so replies come from your material rather than general knowledge.",
+        "1": "Takes actions: books appointments, captures leads, fills custom forms, and looks up orders and accounts through tools.",
+        "2": "Hands a conversation to a teammate with the transcript, customer details and a summary, in the live inbox.",
+        "3": "Enforces guardrails: what the agent may promise, what it must escalate, and which data it must never ask for.",
+        "4": "Scores and analyses every conversation automatically, so quality is reviewed on all traffic rather than on a sample."
+      }
+    },
+    "audience": {
+      "title": "Who it is for",
+      "items": {
+        "0": "Moroccan and North African small and mid-sized businesses",
+        "1": "E-commerce, retail and delivery teams",
+        "2": "Clinics, salons, schools and other appointment-based businesses",
+        "3": "Travel, hospitality and contact-centre teams"
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": {
+        "0": {
+          "title": "Connect your content",
+          "body": "Upload documents, point the agent at your help centre or FAQ pages, or import past conversations. Knowledge is indexed per organisation and stays scoped to it."
+        },
+        "1": {
+          "title": "Set the rules",
+          "body": "Choose tone, languages and channels, define the guardrails and the tools the agent may use, and test real scenarios before publishing."
+        },
+        "2": {
+          "title": "Publish and supervise",
+          "body": "Deploy to the website widget, WhatsApp, email or a Moroccan phone line. Supervisors follow live conversations and take over when needed."
+        }
+      }
+    },
+    "company": {
+      "title": "Company",
+      "rows": {
+        "located": {
+          "label": "Based in",
+          "value": "Casablanca, Morocco"
+        },
+        "product": {
+          "label": "Product",
+          "value": "AI customer service platform (SaaS), self-serve"
+        },
+        "languages": {
+          "label": "Languages",
+          "value": "Moroccan Arabic (Darija), Modern Standard Arabic, French and English with customers; the site is published in French, English and Arabic."
+        },
+        "site": {
+          "label": "Website",
+          "value": "anselio.com — pricing in Moroccan Dirham (MAD), excluding 20% VAT, with a free plan."
+        }
+      }
+    },
+    "compliance": {
+      "title": "Data and compliance",
+      "body": "Customer conversations are personal data. Anselio is operated from Morocco under law 09-08, with GDPR-aligned handling, encryption in transit and at rest, and role-based access in the dashboard. Customer content is never used to train public models.",
+      "items": {
+        "0": "Data protection law 09-08 practices, with a GDPR-aligned data processing agreement",
+        "1": "Encryption in transit and at rest; conversation content is never stored in public buckets",
+        "2": "Role-based access, with distinct roles for agents, supervisors and administrators",
+        "3": "A customer can ask for a human at any time, and the request is always honoured"
+      }
+    },
+    "cta": {
+      "title": "Talk to the team",
+      "body": "Questions about a rollout, Moroccan telephony or a volume contract go to a person, not a form.",
+      "primary": "Start free"
     }
   }
 }

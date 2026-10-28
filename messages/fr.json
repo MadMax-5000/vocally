@@ -32,6 +32,18 @@
     "legal": {
       "title": "Mentions légales",
       "description": "Mentions légales d'Anselio : éditeur, adresse et contact de la plateforme d'IA conversationnelle."
+    },
+    "faq": {
+      "title": "FAQ — service client IA au Maroc : langues, canaux, tarifs",
+      "description": "Réponses directes sur Anselio : fonctionnement des agents IA, canaux et langues couverts, darija et numéros marocains, prix en dirham par offre, et transfert vers un humain."
+    },
+    "compare": {
+      "title": "Face à un serveur vocal et aux plateformes vocales IA internationales",
+      "description": "Comment Anselio se compare à un menu vocal IVR classique et aux plateformes vocales IA internationales : darija, numéros marocains, canaux, transfert humain, facturation et mise en service."
+    },
+    "about": {
+      "title": "À propos d'Anselio — service client IA depuis Casablanca",
+      "description": "Qui est derrière Anselio, ce que fait la plateforme, à quelles entreprises elle s'adresse, comment les données personnelles sont traitées au titre de la loi 09-08, et comment nous joindre."
     }
   },
   "common": {
@@ -466,7 +478,9 @@
         "contactSupport": "Contacter le support",
         "terms": "Conditions d'utilisation",
         "cookies": "Politique des cookies",
-        "legal": "Mentions légales"
+        "legal": "Mentions légales",
+        "faq": "FAQ",
+        "compare": "Comparatif"
       }
     }
   },
@@ -912,6 +926,194 @@
           "content": "Nous pouvons mettre \u00e0 jour la pr\u00e9sente politique des cookies de temps \u00e0 autre. Les modifications seront publi\u00e9es sur cette page avec une date de r\u00e9vision mise \u00e0 jour. Pour toute question, contactez-nous \u00e0 privacy@anselio.com ou Anselio, 202 Boulevard Mohammed V, Casablanca 20000, Maroc."
         }
       }
+    }
+  },
+  "faqPage": {
+    "eyebrow": "Réponses",
+    "title": "Anselio : le service client IA au Maroc, sans détour.",
+    "intro": "Tout ce que les acheteurs et les équipes support demandent à propos d'Anselio — le produit, les canaux, la darija, les numéros marocains, les tarifs et le traitement des données — en réponses courtes et autonomes.",
+    "groupsLabel": "Aller à une réponse",
+    "groups": {
+      "understanding": "Fonctionnement",
+      "channels": "Canaux, langues et numéros",
+      "pricing": "Tarifs et offres",
+      "trust": "Données, conformité et transfert"
+    },
+    "items": {
+      "setup": {
+        "q": "Combien de temps faut-il pour mettre un agent IA en ligne ?",
+        "a": "La plupart des équipes sont en ligne le jour même. Vous connectez votre contenu — documents, pages FAQ, centre d'aide ou conversations passées —, vous choisissez les canaux, puis vous publiez. La configuration se fait dans le tableau de bord, sans code, et une conversation de test est lancée avant la mise en ligne."
+      },
+      "darija": {
+        "q": "Anselio parle-t-il vraiment la darija marocaine ?",
+        "a": "Oui. L'agent répond en arabe marocain (darija), en arabe standard, en français ou en anglais, et suit la langue utilisée par le client. La darija est traitée par une reconnaissance vocale et des modèles de langage qui prennent en charge le dialecte ; lorsque la confiance est faible, la conversation est proposée à un humain plutôt que devinée."
+      },
+      "voiceNumber": {
+        "q": "Faut-il un nouveau numéro de téléphone pour les appels IA ?",
+        "a": "Anselio fournit des numéros marocains : vos clients appellent un +212 local au lieu de payer un tarif international. L'offre Pro inclut un numéro, une ligne simultanée et 300 minutes vocales IA par mois ; les packs de numéros supplémentaires, les lignes simultanées et les volumes Enterprise passent par le commercial. Les numéros sont livrés en SIP cloud, avec environ une semaine de délai."
+      },
+      "pricing": {
+        "q": "Combien coûte Anselio ?",
+        "a": "L'offre Free coûte {free} : un agent, 50 conversations par mois, chat du site uniquement. Starter est à {starter} par mois pour WhatsApp, Instagram, Messenger et l'e-mail. Pro est à {pro} par mois et ajoute les SMS, l'accès API et un numéro marocain avec 300 minutes vocales IA. Les prix sont en dirham marocain, hors TVA de 20 % ; la facturation annuelle offre 15 % de réduction ; Enterprise fait l'objet d'un contrat sur mesure."
+      },
+      "freePlan": {
+        "q": "Existe-t-il une offre gratuite, et faut-il une carte bancaire ?",
+        "a": "Oui, et non. L'offre Free ne demande aucune carte bancaire et comprend un agent IA, 50 conversations par mois, le widget de chat du site et 10 Mo de base de connaissances. Elle sert à faire tourner le produit sur un vrai site ; vous ne passez à une offre supérieure que si vous avez besoin de plus de canaux ou de volume."
+      },
+      "humanHandoff": {
+        "q": "Que se passe-t-il quand l'IA ne sait pas répondre ?",
+        "a": "La conversation est transférée à un humain avec la transcription complète, les informations du client et le résumé de l'agent, dans la boîte de réception partagée. Un client peut demander un humain à tout moment, sur n'importe quel canal, et cette demande est toujours honorée. L'agent ne garde pas une conversation qu'il ne sait pas résoudre."
+      }
+    }
+  },
+  "compare": {
+    "eyebrow": "Comparatif",
+    "title": "Anselio face à un menu vocal, et face aux plateformes vocales IA internationales.",
+    "intro": "Les entreprises marocaines hésitent généralement entre trois options : un menu vocal IVR, une plateforme vocale IA internationale, ou un agent IA local qui couvre tous les canaux. Le tableau ci-dessous présente les critères qui décident réellement du choix. Il s'agit d'une comparaison par catégorie, et non d'une liste de fonctionnalités face à un fournisseur nommé.",
+    "tableCaption": "Comparaison entre Anselio, un menu vocal IVR classique et une plateforme vocale IA internationale",
+    "columns": {
+      "criteria": "Ce qui décide",
+      "anselio": "Anselio",
+      "ivr": "Menu vocal IVR classique",
+      "global": "Plateforme vocale IA internationale"
+    },
+    "criteria": {
+      "darija": {
+        "label": "Darija marocaine",
+        "anselio": "Répond en darija, arabe standard, français et anglais, dans la langue du client",
+        "ivr": "Messages enregistrés fixes, sans compréhension du dialecte",
+        "global": "Souvent arabe standard ou français ; le support de la darija dépend du fournisseur"
+      },
+      "number": {
+        "label": "Numéro de téléphone",
+        "anselio": "Numéro marocain +212 fourni par Anselio ; votre ligne opérateur reste utilisable avec un renvoi d'appel",
+        "ivr": "Votre ligne opérateur existante",
+        "global": "Souvent un numéro étranger, ou votre propre trunk SIP"
+      },
+      "channels": {
+        "label": "Canaux",
+        "anselio": "Chat du site, e-mail, WhatsApp, Instagram, Messenger, SMS, voix et API sur un seul agent",
+        "ivr": "Voix uniquement",
+        "global": "La voix d'abord ; les canaux texte sont généralement un produit séparé"
+      },
+      "handoff": {
+        "label": "Transfert à un humain",
+        "anselio": "Prise en main dans le même fil, avec transcription et résumé",
+        "ivr": "Transfert vers une file d'attente, sans contexte",
+        "global": "Transfert vers un numéro ou un centre de contact externe"
+      },
+      "billing": {
+        "label": "Facturation",
+        "anselio": "Mensuelle en dirham, hors TVA, offre gratuite, sans engagement",
+        "ivr": "Minutes télécom et matériel, sans IA incluse",
+        "global": "USD ou EUR, carte bancaire requise, contrats annuels fréquents"
+      },
+      "setup": {
+        "label": "Mise en service",
+        "anselio": "Tableau de bord en autonomie, en ligne le jour même",
+        "ivr": "Intégrateur télécom ou développeur",
+        "global": "Rendez-vous commercial, projet d'implémentation, plusieurs semaines"
+      }
+    },
+    "fit": {
+      "title": "Quand Anselio est le bon choix",
+      "body": "Les entreprises qui reçoivent des questions clients en plusieurs langues, sur plusieurs canaux, et qui veulent y intégrer un numéro marocain.",
+      "items": {
+        "0": "E-commerce et retail qui traitent les questions de commande, de livraison et de retour en darija et en français",
+        "1": "Cliniques, salons et écoles qui prennent les rendez-vous par chat et par téléphone",
+        "2": "Équipes support qui veulent une seule boîte de réception et un seul historique, plutôt qu'un bot par canal"
+      }
+    },
+    "notFit": {
+      "title": "Quand ce n'est pas le bon choix",
+      "body": "Le dire clairement est plus utile qu'une liste de fonctionnalités plus longue.",
+      "items": {
+        "0": "Les entreprises hors du Maroc qui ont besoin de numéros locaux : les appels vocaux IA utilisent aujourd'hui des numéros marocains uniquement",
+        "1": "Les équipes qui exigent un déploiement sur site ou un contrat de modèle sur mesure, que l'offre Enterprise cadre au cas par cas",
+        "2": "Les centres de contact 100 % voix qui cherchent un simple remplacement téléphonique, sans canaux texte"
+      }
+    },
+    "cta": {
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir les tarifs"
+    }
+  },
+  "about": {
+    "eyebrow": "À propos",
+    "title": "Anselio est une plateforme de service client IA conçue à Casablanca.",
+    "intro": "Anselio donne aux entreprises marocaines des agents IA qui répondent aux clients en darija, en arabe, en français et en anglais, sur le chat du site, l'e-mail, WhatsApp, les messageries sociales, les SMS et les appels entrants — et qui passent la main à un humain quand une conversation le demande.",
+    "introDetail": "Le produit existe parce que l'alternative était un choix entre un menu vocal rigide et un chatbot conçu pour l'anglais. Anselio répond à partir du contenu de l'entreprise, agit dans ses outils et conserve un historique unique entre les canaux : un client qui écrit sur WhatsApp puis appelle une heure plus tard est reconnu.",
+    "capabilities": {
+      "title": "Ce que fait la plateforme",
+      "items": {
+        "0": "Répond à partir de vos documents, de vos pages FAQ et de vos conversations passées grâce à la génération augmentée par récupération : les réponses viennent de votre contenu, pas de connaissances générales.",
+        "1": "Agit : prise de rendez-vous, capture de prospects, formulaires personnalisés, consultation de commandes et de comptes via des outils.",
+        "2": "Transfère une conversation à un collègue avec la transcription, les informations du client et un résumé, dans la boîte de réception partagée.",
+        "3": "Applique des garde-fous : ce que l'agent peut promettre, ce qu'il doit escalader et quelles données il ne doit jamais demander.",
+        "4": "Note et analyse automatiquement chaque conversation, pour que la qualité soit revue sur tout le trafic et non sur un échantillon."
+      }
+    },
+    "audience": {
+      "title": "À qui elle s'adresse",
+      "items": {
+        "0": "Les petites et moyennes entreprises marocaines et nord-africaines",
+        "1": "Les équipes e-commerce, retail et livraison",
+        "2": "Les cliniques, salons, écoles et autres activités sur rendez-vous",
+        "3": "Les équipes voyage, hôtellerie et centres de contact"
+      }
+    },
+    "howItWorks": {
+      "title": "Comment ça marche",
+      "steps": {
+        "0": {
+          "title": "Connectez votre contenu",
+          "body": "Importez des documents, pointez l'agent vers votre centre d'aide ou vos pages FAQ, ou importez des conversations passées. La base de connaissances est indexée par organisation et reste cloisonnée."
+        },
+        "1": {
+          "title": "Définissez les règles",
+          "body": "Choisissez le ton, les langues et les canaux, définissez les garde-fous et les outils autorisés, puis testez des scénarios réels avant publication."
+        },
+        "2": {
+          "title": "Publiez et supervisez",
+          "body": "Déployez sur le widget du site, WhatsApp, l'e-mail ou une ligne marocaine. Les superviseurs suivent les conversations en direct et prennent la main au besoin."
+        }
+      }
+    },
+    "company": {
+      "title": "Entreprise",
+      "rows": {
+        "located": {
+          "label": "Basée à",
+          "value": "Casablanca, Maroc"
+        },
+        "product": {
+          "label": "Produit",
+          "value": "Plateforme de service client IA (SaaS), en autonomie"
+        },
+        "languages": {
+          "label": "Langues",
+          "value": "Arabe marocain (darija), arabe standard, français et anglais avec les clients ; le site est publié en français, anglais et arabe."
+        },
+        "site": {
+          "label": "Site",
+          "value": "anselio.com — tarifs en dirham marocain (MAD), hors TVA de 20 %, avec une offre gratuite."
+        }
+      }
+    },
+    "compliance": {
+      "title": "Données et conformité",
+      "body": "Les conversations clients sont des données personnelles. Anselio est exploité depuis le Maroc dans le cadre de la loi 09-08, avec un traitement aligné sur le RGPD, un chiffrement en transit et au repos, et un accès par rôles dans le tableau de bord. Le contenu des clients n'est jamais utilisé pour entraîner des modèles publics.",
+      "items": {
+        "0": "Pratiques conformes à la loi 09-08 sur la protection des données, avec un accord de traitement aligné sur le RGPD",
+        "1": "Chiffrement en transit et au repos ; le contenu des conversations n'est jamais stocké dans des buckets publics",
+        "2": "Accès basé sur les rôles, avec des rôles distincts pour les agents, les superviseurs et les administrateurs",
+        "3": "Un client peut demander un humain à tout moment, et cette demande est toujours honorée"
+      }
+    },
+    "cta": {
+      "title": "Parler à l'équipe",
+      "body": "Les questions sur un déploiement, la téléphonie marocaine ou un contrat volume arrivent à une personne, pas à un formulaire.",
+      "primary": "Commencer gratuitement"
     }
   }
 }

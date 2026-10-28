@@ -12,6 +12,9 @@ export const OG_IMAGE_HEIGHT = 630;
 export const PUBLIC_SITEMAP_PATHS = [
   "/",
   "/pricing",
+  "/faq",
+  "/compare",
+  "/about",
   "/contact",
   "/contact/sales",
   "/privacy",
@@ -23,6 +26,9 @@ export const PUBLIC_SITEMAP_PATHS = [
 export type PublicMetadataKey =
   | "home"
   | "pricing"
+  | "faq"
+  | "compare"
+  | "about"
   | "contact"
   | "sales"
   | "privacy"
@@ -39,6 +45,9 @@ const OG_LOCALE: Record<Locale, string> = {
 const PATH_BY_KEY: Record<PublicMetadataKey, string> = {
   home: "/",
   pricing: "/pricing",
+  faq: "/faq",
+  compare: "/compare",
+  about: "/about",
   contact: "/contact",
   sales: "/contact/sales",
   privacy: "/privacy",

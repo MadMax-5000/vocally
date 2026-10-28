@@ -18,11 +18,16 @@ export const footerColumns: FooterColumn[] = [
   },
   {
     id: "resources",
-    links: [{ id: "solutions", href: "/#solutions" }],
+    links: [
+      { id: "solutions", href: "/#solutions" },
+      { id: "faq", href: "/faq" },
+      { id: "compare", href: "/compare" },
+    ],
   },
   {
     id: "company",
     links: [
+      { id: "about", href: "/about" },
       { id: "contactSales", href: "/contact/sales" },
       { id: "contactSupport", href: "/contact" },
       { id: "privacy", href: "/privacy" },
