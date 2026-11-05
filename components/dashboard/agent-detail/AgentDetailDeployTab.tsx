@@ -13,6 +13,7 @@ import {
 import { DeployIntegrationCard } from "@/components/dashboard/agent-detail/deploy/DeployIntegrationCard";
 import {
   FEATURED_DEPLOYMENTS,
+  INTEGRATION_DEPLOYMENTS,
   isDeploymentImplemented,
   partitionIntegrationDeployments,
 } from "@/lib/constants/deploy-catalog";
@@ -87,8 +88,23 @@ export function AgentDetailDeployTab({ agent }: Props) {
   function handleIntegrationToggle(id: string, enabled: boolean) {
     if (!isDeploymentImplemented(id)) return;
 
-    const previous = integrationEnabled[id];
-    setIntegrationEnabled((prev) => ({ ...prev, [id]: enabled }));
+    // Airbnb and Booking.com share one Hostaway channel, so keep their
+    // switches in sync instead of showing conflicting states.
+    const entry = INTEGRATION_DEPLOYMENTS.find((d) => d.id === id);
+    const affectedIds = entry?.channelType
+      ? INTEGRATION_DEPLOYMENTS.filter(
+          (d) => d.channelType === entry.channelType,
+        ).map((d) => d.id)
+      : [id];
+    const previous = Object.fromEntries(
+      affectedIds.map((key) => [key, integrationEnabled[key]]),
+    );
+
+    setIntegrationEnabled((prev) => {
+      const next = { ...prev };
+      for (const key of affectedIds) next[key] = enabled;
+      return next;
+    });
 
     startTransition(async () => {
       const result = await updateAgentDeployment(agent.id, {
@@ -96,7 +112,7 @@ export function AgentDetailDeployTab({ agent }: Props) {
         integrationEnabled: enabled,
       });
       if (!result.success) {
-        setIntegrationEnabled((prev) => ({ ...prev, [id]: previous }));
+        setIntegrationEnabled((prev) => ({ ...prev, ...previous }));
         toast.error(result.error ?? t("failedUpdate"));
         return;
       }

@@ -42,6 +42,7 @@ model Organization {
   agentTestRuns              AgentTestRun[]
   zernioProfileId            String?
   zernioChannels             ZernioChannel[]
+  hostawayConnections        HostawayConnection[]
 }
 
 model KnowledgeFolder {
@@ -118,6 +119,7 @@ model Agent {
   agentLeads          AgentLead[]
   formSubmissions     FormSubmission[]
   zernioChannels      ZernioChannel[]
+  hostawayConnection  HostawayConnection?
   testQuestions       AgentTestQuestion[]
   testRuns            AgentTestRun[]
   createdAt           DateTime              @default(now())
@@ -357,6 +359,7 @@ model Session {
   agentLeads      AgentLead[]
   formSubmissions FormSubmission[]
   tickets         Ticket[]
+  hostawayConversation HostawayConversation?
 
   @@index([orgId])
 }
@@ -412,6 +415,75 @@ model ZernioChannel {
   @@index([orgId])
   @@index([agentId])
   @@index([accountId])
+}
+
+/// Hostaway public API connection for one Anselio agent. Credentials and tokens are encrypted at rest.
+model HostawayConnection {
+  id                    String   @id @default(cuid())
+  orgId                 String
+  org                   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  agentId               String   @unique
+  agent                 Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  /// Hostaway account ID (client_id for the OAuth2 client-credentials grant).
+  accountId             String   @unique
+  apiKeyEnc             String
+  accessTokenEnc        String?
+  accessTokenExpiresAt  DateTime?
+
+  /// Unified webhook registered for this connection (basic-auth protected).
+  webhookId             String?
+  webhookLogin          String
+  webhookPasswordEnc    String
+  webhookRegisteredAt   DateTime?
+
+  autoReplyEnabled      Boolean  @default(true)
+  /// Property team inbox for escalations. Falls back to Anselio tickets when empty.
+  escalationEmail       String?
+
+  lastConnectedAt       DateTime @default(now())
+  lastError             String?
+  lastErrorAt           DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  conversations         HostawayConversation[]
+
+  @@index([orgId])
+}
+
+/// Maps a Hostaway conversation to the Anselio session that holds its history.
+model HostawayConversation {
+  id             String   @id @default(cuid())
+  connectionId   String
+  connection     HostawayConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  conversationId String
+  sessionId      String   @unique
+  session        Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  reservationId  String?
+  listingMapId   String?
+  guestName      String?
+  channelName    String?
+  /// Cached property details injected into the AI prompt (never door codes or Wi-Fi passwords).
+  propertyContext String? @db.Text
+
+  lastInboundAt  DateTime?
+  lastOutboundAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([connectionId, conversationId])
+  @@index([sessionId])
+}
+
+/// Dedupes Hostaway webhook retries so we never reply twice or double-charge the LLM.
+model HostawayMessageDedupe {
+  id         String   @id @default(cuid())
+  messageKey String   @unique
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model VapiCallMetadata {
@@ -523,6 +595,7 @@ enum Channel {
   EMAIL
   INSTAGRAM
   MESSENGER
+  HOSTAWAY
 }
 
 enum SessionStatus {
@@ -599,6 +672,7 @@ enum AgentChannelType {
   SLACK
   EMAIL
   SMS
+  HOSTAWAY
 }
 
 enum SupportedLanguage {

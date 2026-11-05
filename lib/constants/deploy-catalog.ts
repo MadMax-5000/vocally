@@ -37,6 +37,8 @@ export const IMPLEMENTED_DEPLOYMENT_IDS = [
   "whatsapp",
   "messenger",
   "instagram",
+  "airbnb",
+  "booking-com",
   "wordpress",
   "api",
   "sms",
@@ -90,6 +92,22 @@ export const INTEGRATION_DEPLOYMENTS: DeployCatalogEntry[] = [
       "Connect your agent to an Instagram page and let it respond to messages from your customers.",
     iconSrc: "/svg/instagram-icon.svg",
     channelType: "INSTAGRAM",
+  },
+  {
+    id: "airbnb",
+    title: "Airbnb",
+    description:
+      "Reply to Airbnb guest messages automatically. Requires Airbnb connected in Hostaway.",
+    iconSrc: "/svg/airbnb.svg",
+    channelType: "HOSTAWAY",
+  },
+  {
+    id: "booking-com",
+    title: "Booking.com",
+    description:
+      "Reply to Booking.com guest messages automatically. Requires Booking.com connected in Hostaway.",
+    iconSrc: "/svg/booking-com.svg",
+    channelType: "HOSTAWAY",
   },
   {
     id: "wordpress",

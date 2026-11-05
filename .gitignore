@@ -23,3 +23,12 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+
+# firmware credentials (never commit)
+firmware/campus-connect/secrets.h
+.chrome-preview/
+.cursor/
+.shot.mjs
+preview-*.png
+firmware/
+wifi/

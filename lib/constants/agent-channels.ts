@@ -45,4 +45,9 @@ export const CHANNEL_META: {
     label: "SMS",
     iconSrc: "/svg/send.svg",
   },
+  {
+    value: "HOSTAWAY",
+    label: "Airbnb & Booking.com",
+    iconSrc: "/svg/hostaway.svg",
+  },
 ];

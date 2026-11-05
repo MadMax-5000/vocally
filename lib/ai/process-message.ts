@@ -47,6 +47,8 @@ export type ProcessMessageInput = {
   sessionId: string;
   message: string;
   channel?: Channel;
+  /** Channel-specific context (property, reservation, guest) appended to the system prompt. */
+  extraContext?: string;
   onStreamEvent?: (event: ProcessStreamEvent) => void;
 };
 
@@ -202,6 +204,7 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const instructionsWithEscalation = [
     agent.instructions,
     escalationPromptExtra,
+    input.extraContext,
     guardrailSection,
   ]
     .filter(Boolean)
@@ -212,7 +215,11 @@ export async function processMessage(input: ProcessMessageInput): Promise<Proces
   const useProductAssistantPrompt =
     input.channel !== "VOICE" && isProductAssistantAgent(agentId);
 
-  const productAssistantExtra = [escalationPromptExtra, guardrailSection]
+  const productAssistantExtra = [
+    escalationPromptExtra,
+    input.extraContext,
+    guardrailSection,
+  ]
     .filter(Boolean)
     .join("\n\n");
 
