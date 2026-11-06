@@ -3,11 +3,13 @@ import { LandingHero } from "@/components/marketing/LandingHero";
 import { ThreeWaysSection } from "@/components/marketing/three-ways/ThreeWaysSection";
 import { AgentLifecycle } from "@/components/marketing/agent-lifecycle/AgentLifecycle";
 import { IndustryStage } from "@/components/marketing/industry-stage/IndustryStage";
+import { ResolutionSection } from "@/components/marketing/resolution/ResolutionSection";
 import { LandingPricingSection } from "@/components/marketing/pricing/LandingPricingSection";
 import { SecuritySection } from "@/components/marketing/security/SecuritySection";
 import { FaqSection } from "@/components/marketing/faq/FaqSection";
 import { FinalCtaSection } from "@/components/marketing/cta/FinalCtaSection";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { DeferredProductAssistantWidget } from "@/components/dashboard/DeferredProductAssistantWidget";
 import { ScrollReveal } from "@/components/marketing/ScrollReveal";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { softwareApplicationJsonLd } from "@/lib/seo/json-ld";
@@ -27,32 +29,38 @@ export default function HomePage({
   params: { locale: string };
 }) {
   return (
-    <main className="min-h-dvh overflow-x-clip bg-canvas text-ink">
-      <JsonLd data={softwareApplicationJsonLd(locale)} />
-      <LandingHomeHeader />
-      <LandingHero />
-      <ScrollReveal id="solutions">
-        <ThreeWaysSection />
-      </ScrollReveal>
-      <AgentLifecycle />
-      <ScrollReveal>
-        <SecuritySection />
-      </ScrollReveal>
-      <ScrollReveal>
-        <IndustryStage />
-      </ScrollReveal>
-      <ScrollReveal>
-        <LandingPricingSection />
-      </ScrollReveal>
-      <ScrollReveal>
-        <FaqSection />
-      </ScrollReveal>
-      <ScrollReveal>
-        <FinalCtaSection />
-      </ScrollReveal>
-      <ScrollReveal intensity="light">
-        <MarketingFooter />
-      </ScrollReveal>
-    </main>
+    <>
+      <main className="min-h-dvh overflow-x-clip bg-canvas text-ink">
+        <JsonLd data={softwareApplicationJsonLd(locale)} />
+        <LandingHomeHeader />
+        <LandingHero />
+        <ScrollReveal id="solutions">
+          <ThreeWaysSection />
+        </ScrollReveal>
+        <AgentLifecycle />
+        <ScrollReveal>
+          <SecuritySection />
+        </ScrollReveal>
+        <ScrollReveal>
+          <IndustryStage />
+        </ScrollReveal>
+        <ScrollReveal>
+          <ResolutionSection locale={locale} />
+        </ScrollReveal>
+        <ScrollReveal>
+          <LandingPricingSection />
+        </ScrollReveal>
+        <ScrollReveal>
+          <FaqSection />
+        </ScrollReveal>
+        <ScrollReveal>
+          <FinalCtaSection />
+        </ScrollReveal>
+        <ScrollReveal intensity="light">
+          <MarketingFooter />
+        </ScrollReveal>
+      </main>
+      <DeferredProductAssistantWidget />
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
 import { ChatWidgetFloating } from "@/components/chat/ChatWidgetFloating";
+import { isProductAssistantAgent } from "@/lib/ai/product-assistant-agent";
 import type { PublicWidgetPageData } from "@/lib/deploy/load-widget-settings";
 import type { WidgetEmbedLayout } from "@/lib/deploy/web-chat-config";
 
@@ -24,13 +25,14 @@ export function WidgetPageClient({ data, layout = "inline" }: WidgetPageClientPr
     suggestedMessagesAction: settings.suggestedMessagesAction,
     customButtonsAction: settings.customButtonsAction,
     deployment: "widget" as const,
-    voiceToTextEnabled: settings.voiceToTextEnabled,
+    voiceToTextEnabled: settings.voiceToTextEnabled || isProductAssistantAgent(data.agentId),
     showPoweredBy: true,
   };
 
   if (layout === "floating") {
     return (
       <div className="h-dvh w-full overflow-hidden bg-transparent">
+        <style>{`html,body{background:transparent !important}`}</style>
         <ChatWidgetFloating
           {...chatProps}
           bubbleColor={settings.bubbleColor}

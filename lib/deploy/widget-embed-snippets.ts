@@ -14,7 +14,7 @@ export function buildWidgetFloatingSnippet(embedUrl: string, title: string): str
   (function() {
     var iframe = document.createElement('iframe');
     iframe.src = "${embedUrl}";
-    iframe.style.cssText = 'position:fixed;bottom:24px;right:24px;width:80px;height:80px;border:none;background:transparent;z-index:2147483647;overflow:hidden';
+    iframe.style.cssText = 'position:fixed;bottom:4px;inset-inline-end:4px;width:380px;height:128px;max-width:calc(100vw - 8px);border:none;background:transparent;z-index:2147483647;overflow:hidden';
     iframe.title = "Chat with ${title}";
     iframe.setAttribute('allow', 'microphone');
     document.getElementById('anselio-widget').appendChild(iframe);
@@ -23,6 +23,12 @@ export function buildWidgetFloatingSnippet(embedUrl: string, title: string): str
       iframe.style.width = e.data.width;
       iframe.style.height = e.data.height;
     });
+    document.addEventListener('pointerdown', function(e) {
+      if (e.target === iframe) return;
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'anselio-widget-dismiss' }, '*');
+      }
+    }, true);
   })();
 </script>`;
 }

@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/db/prisma";
-import { handleAgentChatMessage, createAgentChatSseStream } from "@/lib/api/agent-chat-handler";
-import { getOrgPrismaId } from "@/lib/server/organization";
-import { parseWebChatConfig } from "@/lib/deploy/web-chat-config";
+
+import { authorizeWebChatRequest } from "@/lib/agent-security/web-chat-access";
 import {
-  denyIfChatRateLimited,
-  denyIfOriginNotAllowed,
-  isWidgetTokenRequired,
-  resolveWidgetChatRateLimit,
-} from "@/lib/agent-security/widget-access";
+  handleAgentChatMessage,
+  createAgentChatSseStream,
+} from "@/lib/api/agent-chat-handler";
 
 const chatRequestSchema = z.object({
   agentId: z.string().min(1),
   widgetToken: z.string().min(1).optional(),
   sessionId: z.string().nullable().optional(),
+  visitorId: z.string().min(8).max(64).optional(),
   message: z.string().min(1).max(4000),
   deployment: z.enum(["widget", "help"]).optional(),
   context: z.string().max(500).optional(),
@@ -36,78 +33,27 @@ export async function POST(req: NextRequest) {
       agentId,
       widgetToken,
       sessionId: existingSessionId,
+      visitorId,
       message,
       deployment = "widget",
       context,
       stream: wantStream = false,
     } = parsed.data;
 
-    const agent = await prisma.agent.findUnique({
-      where: { id: agentId },
-      include: {
-        org: { select: { id: true, name: true } },
-        channels: { where: { channel: "WEB_CHAT" } },
-      },
+    const access = await authorizeWebChatRequest({
+      req,
+      agentId,
+      widgetToken,
+      deployment,
     });
-
-    if (!agent) {
-      return NextResponse.json({ success: false, error: "Agent not found" }, { status: 404 });
-    }
-
-    const dbOrgId = await getOrgPrismaId();
-    const isOwnerPreview = !!dbOrgId && agent.orgId === dbOrgId;
-
-    if (!isOwnerPreview) {
-      if (isWidgetTokenRequired(agent.id, isOwnerPreview)) {
-        if (!widgetToken || !agent.widgetToken || agent.widgetToken !== widgetToken) {
-          return NextResponse.json({ success: false, error: "Invalid widget token" }, { status: 401 });
-        }
-      }
-
-      if (agent.visibility !== "PUBLIC" || agent.status !== "ACTIVE") {
-        return NextResponse.json({ success: false, error: "Agent not available" }, { status: 403 });
-      }
-
-      const webChatChannel = agent.channels[0];
-      if (!webChatChannel?.enabled) {
-        return NextResponse.json(
-          { success: false, error: "Web chat is not enabled for this agent" },
-          { status: 403 },
-        );
-      }
-
-      if (deployment === "help") {
-        const config = parseWebChatConfig(webChatChannel.config);
-        if (config.helpPage?.enabled === false) {
-          return NextResponse.json(
-            { success: false, error: "Help page is not enabled for this agent" },
-            { status: 403 },
-          );
-        }
-      }
-
-      const originDenial = denyIfOriginNotAllowed(req.headers, agent.allowedHostnames);
-      if (originDenial) {
-        return NextResponse.json(
-          { success: false, error: originDenial.error },
-          { status: originDenial.status },
-        );
-      }
-
-      const rateDenial = denyIfChatRateLimited(
-        req.headers,
-        agent.id,
-        resolveWidgetChatRateLimit(agent.id, agent.chatRateLimitPerMinute),
+    if (!access.ok) {
+      return NextResponse.json(
+        { success: false, error: access.error },
+        { status: access.status },
       );
-      if (rateDenial) {
-        return NextResponse.json(
-          { success: false, error: rateDenial.error },
-          { status: rateDenial.status },
-        );
-      }
     }
 
-    const orgId = agent.org.id;
+    const { orgId } = access;
 
     if (wantStream) {
       const streamed = await createAgentChatSseStream({
@@ -115,6 +61,7 @@ export async function POST(req: NextRequest) {
         agentId,
         sessionId: existingSessionId,
         message,
+        visitorId,
         deployment,
         context,
       });
@@ -141,6 +88,7 @@ export async function POST(req: NextRequest) {
       agentId,
       sessionId: existingSessionId,
       message,
+      visitorId,
       deployment,
       context,
     });

@@ -58,9 +58,9 @@ const WIDGET_CONFIG = {
   primaryColor: "#FF5A36",
   bubbleColor: "#FF5A36",
   placeholder: "Ask about Anselio...",
-  voiceToTextEnabled: false,
+  voiceToTextEnabled: true,
   attachmentsEnabled: false,
-  autoShowWelcomePopup: true,
+  autoShowWelcomePopup: false,
   welcomePopupDelaySec: 5,
   autoShowWelcomePopupMobile: false,
 };

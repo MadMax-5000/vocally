@@ -1,5 +1,6 @@
 export { default as PlusIcon } from "@hugeicons/core-free-icons/Add01Icon";
 export { default as ArchiveIcon } from "@hugeicons/core-free-icons/Archive01Icon";
+export { default as AttachmentIcon } from "@hugeicons/core-free-icons/Attachment01Icon";
 export { default as ArrowLeftIcon } from "@hugeicons/core-free-icons/ArrowLeft01Icon";
 export { default as ArrowUpIcon } from "@hugeicons/core-free-icons/ArrowUp01Icon";
 export { default as ArrowUpRightIcon } from "@hugeicons/core-free-icons/ArrowUpRight01Icon";

@@ -5,6 +5,14 @@
 
 ---
 
+## 0. Agent Workflow — No Visual Verification Unless Asked
+
+- **Do not take screenshots, drive headless browsers, or run visual QA unless the user explicitly asks for it.**
+- Implement the change, run typecheck/lint/tests, then report what changed and let the user verify the UI themselves.
+- This is a usage-cost rule. Do not burn tokens on screenshot loops, CDP sessions, or repeated visual checks.
+
+---
+
 ## 1. Project Overview
 
 This is a **cloud-native, AI-first Contact Center as a Service (CCaaS)** platform targeting the

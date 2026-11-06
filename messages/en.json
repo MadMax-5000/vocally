@@ -322,6 +322,16 @@
         }
       }
     },
+    "resolution": {
+      "eyebrow": "Resolution, measured",
+      "title": "Resolved before",
+      "titleMuted": "your team notices.",
+      "body": "Anselio doesn't stop at replying. It checks the order, issues the refund, moves the booking and confirms it inside the same conversation, in Arabic, French or English.",
+      "bodySecondary": "The line climbs because the agent learns from every transcript. Resolutions sharpen the answers, escalations add the edge cases, so month twelve looks nothing like month one.",
+      "metricLabel": "Resolved without a human",
+      "legend": "Conversations closed end to end",
+      "chartAria": "Area chart showing the share of conversations resolved by Anselio agents climbing from 52% to 78% over the last twelve months."
+    },
     "faq": {
       "eyebrow": "FAQ",
       "title": "You have questions.",

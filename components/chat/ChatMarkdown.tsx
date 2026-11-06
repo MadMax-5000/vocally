@@ -7,8 +7,16 @@ import remarkGfm from "remark-gfm";
 
 import { cn } from "@/lib/utils";
 
-/** `user` = light text on primary (coral). `userInk` = light text on ink bubble (inbox). */
-export type ChatMarkdownVariant = "assistant" | "user" | "userInk" | "neutral";
+/**
+ * `user` = light text on primary (coral). `userInk` = light text on ink bubble (inbox).
+ * `glass` = light text on the chat dock's translucent smoked-glass card.
+ */
+export type ChatMarkdownVariant =
+  | "assistant"
+  | "user"
+  | "userInk"
+  | "neutral"
+  | "glass";
 
 type ChatMarkdownProps = {
   content: string;
@@ -38,55 +46,80 @@ function linkProps(href: string | undefined): {
 function buildComponents(variant: ChatMarkdownVariant): Components {
   const isUserPrimary = variant === "user";
   const isUserInk = variant === "userInk";
+  const isGlass = variant === "glass";
   const isUserBubble = isUserPrimary || isUserInk;
 
   const linkClass = isUserPrimary
     ? "font-medium text-on-primary underline decoration-white/50 underline-offset-2 hover:decoration-white"
     : isUserInk
       ? "font-medium text-canvas underline decoration-canvas/45 underline-offset-2 hover:decoration-canvas"
-      : variant === "neutral"
-        ? "font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary"
-        : "font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary";
+      : isGlass
+        ? "font-medium text-white underline decoration-white/45 underline-offset-2 hover:decoration-white"
+        : variant === "neutral"
+          ? "font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary"
+          : "font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:decoration-primary";
 
   const strongClass = isUserPrimary
     ? "font-semibold text-on-primary"
     : isUserInk
       ? "font-semibold text-canvas"
-      : "font-semibold text-ink";
+      : isGlass
+        ? "font-semibold text-white"
+        : "font-semibold text-ink";
 
-  const inlineCodeClass = isUserBubble
-    ? cn(
-        "rounded px-1 py-0.5 font-mono text-[12.5px] bg-white/15",
-        isUserPrimary ? "text-on-primary" : "text-canvas",
-      )
-    : "rounded px-1 py-0.5 font-mono text-[12.5px] bg-canvas-soft text-ink ring-1 ring-hairline/80";
+  const inlineCodeClass = isGlass
+    ? "rounded px-1 py-0.5 font-mono text-[12.5px] bg-white/15 text-white ring-1 ring-white/10"
+    : isUserBubble
+      ? cn(
+          "rounded px-1 py-0.5 font-mono text-[12.5px] bg-white/15",
+          isUserPrimary ? "text-on-primary" : "text-canvas",
+        )
+      : "rounded px-1 py-0.5 font-mono text-[12.5px] bg-canvas-soft text-ink ring-1 ring-hairline/80";
 
-  const blockPreClass = isUserBubble
-    ? "my-2 overflow-x-auto rounded-md border border-white/25 bg-black/15 p-3"
-    : "my-2 overflow-x-auto rounded-md border border-hairline bg-canvas-soft p-3";
+  const blockPreClass = isGlass
+    ? "my-2 overflow-x-auto rounded-md border border-white/15 bg-black/25 p-3"
+    : isUserBubble
+      ? "my-2 overflow-x-auto rounded-md border border-white/25 bg-black/15 p-3"
+      : "my-2 overflow-x-auto rounded-md border border-hairline bg-canvas-soft p-3";
 
-  const blockCodeClass = isUserBubble
-    ? cn(
-        "block w-fit min-w-full font-mono text-[13px] leading-relaxed whitespace-pre-wrap break-words",
-        isUserPrimary ? "text-on-primary" : "text-canvas",
-      )
-    : "block w-fit min-w-full font-mono text-[13px] leading-relaxed text-ink whitespace-pre-wrap break-words";
+  const blockCodeClass = isGlass
+    ? "block w-fit min-w-full font-mono text-[13px] leading-relaxed text-white/90 whitespace-pre-wrap break-words"
+    : isUserBubble
+      ? cn(
+          "block w-fit min-w-full font-mono text-[13px] leading-relaxed whitespace-pre-wrap break-words",
+          isUserPrimary ? "text-on-primary" : "text-canvas",
+        )
+      : "block w-fit min-w-full font-mono text-[13px] leading-relaxed text-ink whitespace-pre-wrap break-words";
 
-  const tableBorder = isUserBubble ? "border border-white/25" : "border border-hairline";
+  const tableBorder = isGlass
+    ? "border border-white/15"
+    : isUserBubble
+      ? "border border-white/25"
+      : "border border-hairline";
 
-  const headingInk = isUserPrimary ? "text-on-primary" : isUserInk ? "text-canvas" : "text-ink";
+  const headingInk = isUserPrimary
+    ? "text-on-primary"
+    : isUserInk
+      ? "text-canvas"
+      : isGlass
+        ? "text-white"
+        : "text-ink";
 
   const listMarkerUl = isUserPrimary
     ? "[li]:marker:text-on-primary/70"
     : isUserInk
       ? "[li]:marker:text-canvas/70"
-      : "[li]:marker:text-muted";
+      : isGlass
+        ? "[li]:marker:text-white/55"
+        : "[li]:marker:text-muted";
 
   const listMarkerOl = isUserPrimary
     ? "[li]:marker:text-on-primary/75"
     : isUserInk
       ? "[li]:marker:text-canvas/75"
-      : "[li]:marker:text-muted-soft";
+      : isGlass
+        ? "[li]:marker:text-white/60"
+        : "[li]:marker:text-muted-soft";
 
   return {
     p: ({ children, ...props }) => (
@@ -105,6 +138,7 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
           "italic opacity-95",
           isUserPrimary && "text-on-primary/95",
           isUserInk && "text-canvas/95",
+          isGlass && "text-white/95",
         )}
         {...props}
       >
@@ -164,11 +198,13 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
     blockquote: ({ children, ...props }) => (
       <blockquote
         className={
-          isUserPrimary
-            ? "my-2 border-l-2 border-white/35 pl-3 text-on-primary/90"
-            : isUserInk
-              ? "my-2 border-l-2 border-canvas/35 pl-3 text-canvas/90"
-              : "my-2 border-l-2 border-hairline-strong pl-3 text-muted"
+          isGlass
+            ? "my-2 border-l-2 border-white/25 pl-3 text-white/70"
+            : isUserPrimary
+              ? "my-2 border-l-2 border-white/35 pl-3 text-on-primary/90"
+              : isUserInk
+                ? "my-2 border-l-2 border-canvas/35 pl-3 text-canvas/90"
+                : "my-2 border-l-2 border-hairline-strong pl-3 text-muted"
         }
         {...props}
       >
@@ -177,7 +213,13 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
     ),
     hr: (props) => (
       <hr
-        className={isUserBubble ? "my-3 border-white/25" : "my-3 border-hairline"}
+        className={
+          isGlass
+            ? "my-3 border-white/15"
+            : isUserBubble
+              ? "my-3 border-white/25"
+              : "my-3 border-hairline"
+        }
         {...props}
       />
     ),
@@ -189,7 +231,10 @@ function buildComponents(variant: ChatMarkdownVariant): Components {
       </div>
     ),
     thead: ({ children, ...props }) => (
-      <thead className={isUserBubble ? "bg-white/10" : "bg-surface-strong"} {...props}>
+      <thead
+        className={isGlass || isUserBubble ? "bg-white/10" : "bg-surface-strong"}
+        {...props}
+      >
         {children}
       </thead>
     ),
@@ -256,6 +301,8 @@ function rootClassForVariant(variant: ChatMarkdownVariant): string {
       return "break-words text-sm text-canvas [&_.task-list-item]:list-none [&_ul.task-list]:list-none [&_ul.task-list]:pl-0";
     case "neutral":
       return "break-words text-[13px] text-ink [&_.task-list-item]:list-none [&_ul.task-list]:list-none [&_ul.task-list]:pl-0";
+    case "glass":
+      return "break-words text-[14px] leading-relaxed text-white/90 [&_.task-list-item]:list-none [&_ul.task-list]:list-none [&_ul.task-list]:pl-0";
     default:
       return "break-words text-sm text-ink [&_.task-list-item]:list-none [&_ul.task-list]:list-none [&_ul.task-list]:pl-0";
   }

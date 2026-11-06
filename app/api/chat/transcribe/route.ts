@@ -14,6 +14,7 @@ import {
   isWidgetTokenRequired,
   resolveWidgetChatRateLimit,
 } from "@/lib/agent-security/widget-access";
+import { isProductAssistantAgent } from "@/lib/ai/product-assistant-agent";
 
 const MAX_AUDIO_BASE64_BYTES = 5 * 1024 * 1024;
 
@@ -110,9 +111,10 @@ export async function POST(req: NextRequest) {
     }
 
     const voiceToTextEnabled =
-      deployment === "help"
+      isProductAssistantAgent(agent.id) ||
+      (deployment === "help"
         ? (getWebChatHelpPageConfig(agent.channels).voiceToTextEnabled ?? false)
-        : (getWebChatWidgetConfig(agent.channels).voiceToTextEnabled ?? false);
+        : (getWebChatWidgetConfig(agent.channels).voiceToTextEnabled ?? false));
 
     if (!voiceToTextEnabled) {
       return NextResponse.json(

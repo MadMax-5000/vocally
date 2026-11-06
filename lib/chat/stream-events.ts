@@ -41,4 +41,5 @@ export type ChatStreamEvent =
       escalation?: ChatStreamEscalation;
     }
   | { type: "suggestions"; suggestedMessages: string[] }
+  | { type: "session-title"; sessionTitle: string }
   | { type: "error"; message: string };

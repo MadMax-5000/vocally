@@ -3,6 +3,7 @@ import type { Agent, AgentChannel, SessionStatus } from "@prisma/client";
 import { processMessage } from "@/lib/ai/process-message";
 import type { ProcessMessageResult } from "@/lib/ai/process-message";
 import { generateDynamicSuggestedMessages } from "@/lib/ai/generate-suggested-messages";
+import { generateSessionTitle } from "@/lib/ai/session-title";
 import { isApiDeploymentEnabled } from "@/lib/deploy/api-config";
 import type { ChatFormUi } from "@/lib/chat/form-ui";
 import { encodeChatSse } from "@/lib/chat/sse";
@@ -69,6 +70,7 @@ type HandleAgentChatMessageInput = {
   agentId: string;
   sessionId: string | null | undefined;
   message: string;
+  visitorId?: string | null;
   deployment?: ChatDeployment;
   context?: string;
 };
@@ -93,6 +95,7 @@ type HandleAgentChatMessageSuccess = {
     ui?: ChatFormUi;
     suggestedMessages?: string[];
     sessionStatus?: SessionStatus;
+    sessionTitle?: string;
     escalation?: {
       escalated: true;
       trigger: string;
@@ -282,31 +285,52 @@ async function ensureChatSession(params: {
   orgId: string;
   agentId: string;
   existingSessionId: string | null | undefined;
-}): Promise<{ ok: true; sessionId: string } | HandleAgentChatMessageFailure> {
-  const { orgId, agentId, existingSessionId } = params;
+  visitorId?: string | null;
+}): Promise<
+  | { ok: true; sessionId: string; title: string | null }
+  | HandleAgentChatMessageFailure
+> {
+  const { orgId, agentId, existingSessionId, visitorId } = params;
   if (existingSessionId) {
     const session = await prisma.session.findUnique({
       where: { id: existingSessionId },
+      select: {
+        id: true,
+        orgId: true,
+        agentId: true,
+        visitorId: true,
+        title: true,
+      },
     });
-    if (!session || session.orgId !== orgId) {
+    if (
+      !session ||
+      session.orgId !== orgId ||
+      (session.agentId !== null && session.agentId !== agentId) ||
+      (session.visitorId !== null && session.visitorId !== visitorId)
+    ) {
       return {
         ok: false,
         error: { status: 404, message: "Session not found" },
       };
     }
-    return { ok: true, sessionId: existingSessionId };
+    return {
+      ok: true,
+      sessionId: existingSessionId,
+      title: session.title,
+    };
   }
 
   const session = await prisma.session.create({
     data: {
       orgId,
       agentId,
+      visitorId: visitorId ?? null,
       channel: "CHAT",
       status: "ACTIVE",
       language: "auto",
     },
   });
-  return { ok: true, sessionId: session.id };
+  return { ok: true, sessionId: session.id, title: null };
 }
 
 export async function handleAgentChatMessage({
@@ -314,12 +338,14 @@ export async function handleAgentChatMessage({
   agentId,
   sessionId: existingSessionId,
   message,
+  visitorId,
   context,
 }: HandleAgentChatMessageInput): Promise<HandleAgentChatMessageResult> {
   const sessionResult = await ensureChatSession({
     orgId,
     agentId,
     existingSessionId,
+    visitorId,
   });
   if (!sessionResult.ok) return sessionResult;
   const sessionId = sessionResult.sessionId;
@@ -334,6 +360,10 @@ export async function handleAgentChatMessage({
   const userMessage = await prisma.message.create({
     data: { sessionId, role: "USER", content: storedUserContent },
   });
+
+  const titlePromise = sessionResult.title
+    ? null
+    : generateSessionTitle({ message: storedUserContent });
 
   const effectiveMessage = context ? `[Context: ${context}]\n${message}` : message;
 
@@ -369,10 +399,24 @@ export async function handleAgentChatMessage({
 
   const { formUi, suggestedMessages, sessionStatus, escalationPayload } = side;
 
+  const sessionTitle = titlePromise ? await titlePromise : undefined;
+  try {
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: {
+        updatedAt: new Date(),
+        ...(sessionTitle ? { title: sessionTitle } : {}),
+      },
+    });
+  } catch {
+    // A title/timestamp write must never fail the chat response.
+  }
+
   return {
     ok: true,
     data: {
       sessionId,
+      ...(sessionTitle ? { sessionTitle } : {}),
       userMessage: {
         id: userMessage.id,
         role: "USER",
@@ -403,12 +447,14 @@ export async function createAgentChatSseStream({
   agentId,
   sessionId: existingSessionId,
   message,
+  visitorId,
   context,
 }: HandleAgentChatMessageInput): Promise<CreateAgentChatSseResult> {
   const sessionResult = await ensureChatSession({
     orgId,
     agentId,
     existingSessionId,
+    visitorId,
   });
   if (!sessionResult.ok) return sessionResult;
   const sessionId = sessionResult.sessionId;
@@ -423,6 +469,10 @@ export async function createAgentChatSseStream({
   const userMessage = await prisma.message.create({
     data: { sessionId, role: "USER", content: storedUserContent },
   });
+
+  const titlePromise = sessionResult.title
+    ? null
+    : generateSessionTitle({ message: storedUserContent });
 
   const effectiveMessage = context ? `[Context: ${context}]\n${message}` : message;
   const encoder = new TextEncoder();
@@ -477,6 +527,24 @@ export async function createAgentChatSseStream({
         });
 
         const { formUi, sessionStatus, escalationPayload } = side;
+
+        /* Resolve the title before finalizing the stream so the client never
+           shows a "thinking" state while it waits for a name. */
+        const sessionTitle = titlePromise ? await titlePromise : undefined;
+        try {
+          await prisma.session.update({
+            where: { id: sessionId },
+            data: {
+              updatedAt: new Date(),
+              ...(sessionTitle ? { title: sessionTitle } : {}),
+            },
+          });
+        } catch {
+          // A title/timestamp write must never fail the chat response.
+        }
+        if (sessionTitle) {
+          emit({ type: "session-title", sessionTitle });
+        }
 
         emit({
           type: "done",

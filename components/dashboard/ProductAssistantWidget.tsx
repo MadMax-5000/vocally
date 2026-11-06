@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useUser, useOrganization } from "@clerk/nextjs";
-import { usePathname } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import { ChatWidgetFloating } from "@/components/chat/ChatWidgetFloating";
 import type { ResolvedSuggestedMessagesAction } from "@/lib/deploy/suggested-messages-action";
@@ -82,14 +82,34 @@ export function ProductAssistantWidget() {
       appearance="light"
       placeholder={t("placeholder")}
       showPoweredBy={false}
-      autoShowWelcomePopup={true}
+      autoShowWelcomePopup={false}
       autoShowWelcomePopupMobile={false}
-      welcomePopupDelaySec={5}
-      voiceToTextEnabled={false}
+      voiceToTextEnabled={true}
       launcherSize="lg"
       suggestedMessagesAction={suggestedMessagesAction}
       customButtonsAction={customButtonsAction}
       context={context}
+      brandLogo="/images/logo-white.png"
+      historyLabels={{
+        title: t("historyTitle"),
+        newConversation: t("newConversation"),
+        empty: t("historyEmpty"),
+        loading: t("historyLoading"),
+        error: t("historyError"),
+      }}
+      privacyNote={
+        <div className="flex justify-center">
+          <p className="inline-block max-w-full text-center text-[11px] leading-tight text-warm-body">
+            {t("privacyPrefix")}
+            <Link
+              href="/privacy"
+              className="text-warm-body underline underline-offset-2 transition-colors hover:text-ink/80"
+            >
+              {t("privacyLink")}
+            </Link>
+          </p>
+        </div>
+      }
     />
   );
 }

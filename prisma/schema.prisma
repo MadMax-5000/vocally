@@ -344,6 +344,10 @@ model Session {
   customerId      String?
   agentId         String?
   agent           Agent?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  /// Random, client-generated visitor key scoped to the widget agent.
+  visitorId       String?
+  /// Short AI-generated conversation name shown in the widget history menu.
+  title           String?
   messages        Message[]
   summary         String?
   sentiment       Float?
@@ -355,6 +359,7 @@ model Session {
   startedAt       DateTime      @default(now())
   endedAt         DateTime?
   createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @default(now()) @updatedAt
   callLog         CallLog?
   agentLeads      AgentLead[]
   formSubmissions FormSubmission[]
@@ -362,6 +367,7 @@ model Session {
   hostawayConversation HostawayConversation?
 
   @@index([orgId])
+  @@index([agentId, visitorId, updatedAt])
 }
 
 model AgentLead {

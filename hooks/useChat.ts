@@ -39,11 +39,18 @@ export type UseChatOptions = {
   agentId: string;
   widgetToken?: string;
   sessionId?: string | null;
+  visitorId?: string | null;
   initialMessages?: ChatMessage[];
   initialSuggestedMessages?: string[];
   onAudioReady?: (base64: string) => void;
   deployment?: ChatDeployment;
   context?: string;
+};
+
+export type LoadConversationInput = {
+  sessionId: string;
+  messages: ChatMessage[];
+  title?: string | null;
 };
 
 function getVoiceSupportedSnapshot(): boolean {
@@ -71,6 +78,7 @@ export function useChat({
   agentId,
   widgetToken,
   sessionId: initialSessionId,
+  visitorId,
   initialMessages,
   initialSuggestedMessages,
   onAudioReady,
@@ -82,6 +90,7 @@ export function useChat({
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages ?? []);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
+  const [sessionTitle, setSessionTitle] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isProcessingVoice, setIsProcessingVoice] = useState(false);
@@ -192,14 +201,35 @@ export function useChat({
   const clearMessages = useCallback(() => {
     abortRef.current?.abort();
     abortRef.current = null;
+    sessionIdRef.current = null;
     setMessages([]);
     setSessionId(null);
+    setSessionTitle(null);
     setError(null);
     setSessionStatus(null);
     setEscalationMessage(null);
     setSuggestedMessages(initialSuggestedRef.current);
     setActiveForm(null);
     setFormSubmitted(false);
+    setFormSubmitting(false);
+    setIsLoading(false);
+    setIsStreaming(false);
+  }, []);
+
+  const loadConversation = useCallback((input: LoadConversationInput) => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    sessionIdRef.current = input.sessionId;
+    setSessionId(input.sessionId);
+    setSessionTitle(input.title ?? null);
+    setMessages(input.messages);
+    setError(null);
+    setSessionStatus(null);
+    setEscalationMessage(null);
+    setSuggestedMessages(initialSuggestedRef.current);
+    setActiveForm(null);
+    setFormSubmitted(false);
+    setFormSubmitting(false);
     setIsLoading(false);
     setIsStreaming(false);
   }, []);
@@ -267,6 +297,7 @@ export function useChat({
           body: JSON.stringify({
             agentId,
             ...(widgetToken ? { widgetToken } : {}),
+            ...(visitorId ? { visitorId } : {}),
             sessionId: sessionIdRef.current,
             message: trimmed,
             stream: true,
@@ -291,6 +322,9 @@ export function useChat({
           }
           if (json.data.sessionStatus) {
             setSessionStatus(json.data.sessionStatus);
+          }
+          if (typeof json.data.sessionTitle === "string" && json.data.sessionTitle) {
+            setSessionTitle(json.data.sessionTitle);
           }
           if (json.data.escalation?.escalated) {
             setEscalationMessage(json.data.escalation.message);
@@ -399,6 +433,9 @@ export function useChat({
               case "suggestions":
                 setSuggestedMessages(event.suggestedMessages);
                 break;
+              case "session-title":
+                setSessionTitle(event.sessionTitle);
+                break;
               case "error":
                 throw new Error(event.message);
             }
@@ -420,7 +457,16 @@ export function useChat({
         setIsStreaming(false);
       }
     },
-    [agentId, widgetToken, isLoading, isEscalated, deployment, formSubmitted, context],
+    [
+      agentId,
+      widgetToken,
+      visitorId,
+      isLoading,
+      isEscalated,
+      deployment,
+      formSubmitted,
+      context,
+    ],
   );
 
   const submitForm = useCallback(
@@ -606,6 +652,7 @@ export function useChat({
   return {
     messages,
     sessionId,
+    sessionTitle,
     suggestedMessages,
     sessionStatus,
     escalationMessage,
@@ -622,5 +669,6 @@ export function useChat({
     submitForm,
     sendVoiceMessage,
     clearMessages,
+    loadConversation,
   };
 }

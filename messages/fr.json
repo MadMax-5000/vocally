@@ -322,6 +322,16 @@
         }
       }
     },
+    "resolution": {
+      "eyebrow": "Résolution, mesurée",
+      "title": "Résolu avant que",
+      "titleMuted": "votre équipe ne le remarque.",
+      "body": "Anselio ne s'arrête pas à la réponse. Il vérifie la commande, déclenche le remboursement, décale le rendez-vous et le confirme dans la même conversation, en arabe, en français ou en anglais.",
+      "bodySecondary": "La courbe monte parce que l'agent apprend de chaque échange. Les résolutions affinent les réponses, les escalades ajoutent les cas limites : le douzième mois ne ressemble en rien au premier.",
+      "metricLabel": "Résolu sans humain",
+      "legend": "Conversations closes de bout en bout",
+      "chartAria": "Graphique en aire montrant la part des conversations résolues par les agents Anselio, passant de 52 % à 78 % sur les douze derniers mois."
+    },
     "faq": {
       "eyebrow": "FAQ",
       "title": "Vous avez des questions.",

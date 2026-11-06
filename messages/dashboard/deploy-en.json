@@ -166,14 +166,14 @@
         "imageUploadHint": "JPG, PNG, and SVG up to 1MB",
         "upload": "Upload",
         "primaryColor": "Primary color",
-        "bubbleColor": "Chat bubble button color",
+        "bubbleColor": "Chat bar color",
         "pickColor": "Pick color",
         "resetColor": "Reset color",
         "moreInformation": "More information",
         "aboutSuggestedMessages": "About suggested messages",
-        "launcherPreview": "Chat launcher preview",
+        "launcherPreview": "Chat bar preview",
         "inline": "Inline",
-        "floatingBubble": "Floating bubble",
+        "floatingBubble": "Floating bar",
         "desktop": "Desktop",
         "mobile": "Mobile"
         ,"connectionUpdates": "Connection updates instantly"
