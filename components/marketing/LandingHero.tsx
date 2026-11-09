@@ -50,16 +50,6 @@ export async function LandingHero() {
               {tc("tryFree")}
             </Link>
           </div>
-
-          {/* Partner logo — rendered white over the photograph */}
-          <Image
-            src="/images/company1.svg"
-            alt=""
-            width={797}
-            height={386}
-            aria-hidden
-            className="mt-20 h-auto w-[144px] brightness-0 invert opacity-90 sm:mt-28"
-          />
         </div>
       </div>
     </section>

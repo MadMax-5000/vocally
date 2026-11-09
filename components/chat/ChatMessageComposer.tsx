@@ -111,7 +111,7 @@ export function ChatMessageComposer({
   const shellClass = cn(
     "flex items-center gap-2 rounded-full border",
     isBar
-      ? "min-h-14 py-2 ps-5 pe-2 shadow-[0_4px_8px_rgba(12,10,9,0.08),0_12px_24px_-12px_rgba(12,10,9,0.38)] focus-within:border-hairline-strong"
+      ? "min-h-[52px] py-2 ps-5 pe-2 shadow-[0_4px_8px_rgba(12,10,9,0.08),0_12px_24px_-12px_rgba(12,10,9,0.38)] focus-within:border-hairline-strong"
       : "py-1.5 ps-3.5 pe-1.5",
     isDark ? "border-hairline-strong bg-[#292524]" : "border-hairline bg-surface-card",
   );
@@ -119,7 +119,7 @@ export function ChatMessageComposer({
   const voiceActiveBar = voiceActive ? (
     <div
       style={composerStyle}
-      className={cn(shellClass, isBar ? "min-h-14" : "min-h-10")}
+      className={cn(shellClass, isBar ? "min-h-[52px]" : "min-h-10")}
       role="status"
       aria-live="polite"
       aria-label={isRecording ? "Recording" : "Processing recording"}

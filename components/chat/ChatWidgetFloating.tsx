@@ -49,7 +49,7 @@ const LAUNCHER_MAX_WIDTH: Record<ChatWidgetLauncherSize, number> = {
   lg: 480,
 };
 
-const BAR_HEIGHT = 56;
+const BAR_HEIGHT = 52;
 const PANEL_HEIGHT = 440;
 const PANEL_HEIGHT_MOBILE = 400;
 const PANEL_GAP = 10;

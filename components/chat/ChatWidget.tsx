@@ -1057,7 +1057,7 @@ export function ChatWidget({
               disabled={!onExpand}
               aria-label="Open chat"
               aria-haspopup="dialog"
-              className="group flex h-14 w-full items-center gap-2 rounded-full border border-hairline bg-surface-card ps-5 pe-1.5 text-start shadow-[0_4px_8px_rgba(12,10,9,0.08),0_12px_24px_-12px_rgba(12,10,9,0.38)] outline-none transition-[border-color,box-shadow] duration-200 hover:border-hairline-strong focus-visible:ring-2 focus-visible:ring-ink/10 disabled:opacity-70 motion-reduce:transition-none"
+              className="group flex h-[52px] w-full items-center gap-2 rounded-full border border-hairline bg-surface-card ps-5 pe-1.5 text-start shadow-[0_4px_8px_rgba(12,10,9,0.08),0_12px_24px_-12px_rgba(12,10,9,0.38)] outline-none transition-[border-color,box-shadow] duration-200 hover:border-hairline-strong focus-visible:ring-2 focus-visible:ring-ink/10 disabled:opacity-70 motion-reduce:transition-none"
             >
               <ChatTypewriterQuestion
                 questions={launcherQuestions}
