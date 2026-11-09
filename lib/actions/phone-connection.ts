@@ -65,7 +65,7 @@ export type PhoneConnectionSettings = {
 export async function emptyPhoneConnectionSettings(): Promise<PhoneConnectionSettings> {
   return {
     numbers: [],
-    maxNumbers: phoneNumberSlotLimit("FREE"),
+    maxNumbers: phoneNumberSlotLimit("STARTER"),
     currentCount: 0,
     assemblyAiSipUri: ASSEMBLYAI_SIP_URI,
     vapiSipUri: null,
@@ -115,7 +115,7 @@ export async function getPhoneConnectionSettings(
       orderBy: { createdAt: "desc" },
     });
 
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const monthlyUsage = await getMonthlyCallMinutes(orgId);
@@ -224,7 +224,7 @@ export async function importSipPhoneNumber(
       where: { id: orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await countOrgPhoneNumbers(orgId);
@@ -296,7 +296,7 @@ export async function ensureVapiSipUri(
       where: { id: orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const expectedUri = vapiNativeSipUri(agentId);
@@ -372,7 +372,7 @@ export async function importCarrierNumber(
       where: { id: orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
     const currentCount = await countOrgPhoneNumbers(orgId);
     if (currentCount >= maxNumbers) {
@@ -464,7 +464,7 @@ export async function connectCarrierByoc(
       where: { id: orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await pbxmeCountNumbers(orgId);
@@ -543,7 +543,7 @@ export async function getMoroccanNumber(
       where: { id: orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxNumbers = phoneNumberSlotLimit(plan);
 
     const currentCount = await pbxmeCountNumbers(orgId);

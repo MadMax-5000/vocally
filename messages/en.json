@@ -48,7 +48,7 @@
   },
   "common": {
     "getStarted": "Get started",
-    "tryFree": "Try free",
+    "tryFree": "Get started",
     "bookDemo": "Book a demo",
     "signIn": "Sign in",
     "dashboard": "Dashboard",
@@ -367,7 +367,7 @@
       "title": "Give your team",
       "titleMuted": "their mornings back.",
       "body": "Connect your help desk and let Anselio start resolving tickets today — no code required.",
-      "button": "Get started free"
+      "button": "Get started"
     },
     "nav": {
       "labels": {
@@ -502,7 +502,6 @@
     "recommended": "Recommended",
     "perMonth": "per month HT, billed monthly",
     "priceHtSuffix": " HT",
-    "free": "Free",
     "currentPlan": "Current plan",
     "upgrade": "Upgrade",
     "redirecting": "Redirecting…",
@@ -532,19 +531,6 @@
     }
   },
   "plans": {
-    "free": {
-      "name": "Free",
-      "description": "Try Anselio on your website — no credit card required.",
-      "blurb": "Get started with free website chat.",
-      "features": {
-        "0": "1 AI agent",
-        "1": "50 conversations / mo",
-        "2": "Website chat only",
-        "3": "Knowledge base (10 MB)",
-        "4": "WhatsApp and social channels",
-        "5": "Morocco telephony"
-      }
-    },
     "starter": {
       "name": "Starter",
       "description": "For small businesses that need AI on chat, WhatsApp, social, and email.",
@@ -804,10 +790,9 @@
         "3": {
           "title": "4. Subscriptions, Billing, and Payment",
           "content": {
-            "intro": "The platform is offered on a subscription basis with the following plans: Free, Starter, Pro, and Enterprise. Morocco telephony is a separate add-on.",
+            "intro": "The platform is offered on a subscription basis with the following plans: Starter, Pro, and Enterprise. Morocco telephony is a separate add-on.",
             "list": [
               "Subscription fees are billed monthly in advance in Moroccan Dirham (MAD) excluding VAT (TVA 20%) through our payment processor, LemonSqueezy.",
-              "Free Plan: 1 AI agent, 50 conversations per month, website chat, and 10 MB knowledge base. No phone and no WhatsApp.",
               "Starter Plan (2,000 MAD HT/month): Up to 2 AI agents, website chat and help page, WhatsApp / Instagram / Messenger, email channel, 50 MB knowledge base, inbox, 2 dashboard members, 3 WhatsApp/Meta accounts and 500 conversations per month. Meta conversation fees are passed through at cost. No phone.",
               "Pro Plan (4,000 MAD HT/month): Everything in Starter, up to 5 AI agents, 5 dashboard members, email channel and API, 100 SMS segments, 6 WhatsApp/Meta accounts, 1 Moroccan number with 300 AI voice minutes and 2,000 conversations per month. Advanced analytics included.",
               "Enterprise Plan: Custom pricing, limits, and features negotiated by agreement, including additional numbers and concurrent lines.",
@@ -820,8 +805,8 @@
           }
         },
         "4": {
-          "title": "5. Free Plan",
-          "content": "We offer a free plan for you to try the Services. The free plan does not include Morocco telephony or shipment of a GSM gateway. No credit card is required. We reserve the right to modify or cancel the free plan at any time without notice."
+          "title": "5. Plan Changes and Cancellation",
+          "content": "You can upgrade or downgrade your plan at any time from the dashboard. Upgrades take effect immediately; downgrades and cancellations take effect at the end of the current billing cycle. Cancelling stops future renewals and does not entitle you to a refund of fees already paid, except as required by applicable law."
         },
         "5": {
           "title": "6. Acceptable Use",
@@ -964,11 +949,7 @@
       },
       "pricing": {
         "q": "How much does Anselio cost?",
-        "a": "The Free plan costs {free}: one agent, 50 conversations a month, website chat only. Starter is {starter} per month for WhatsApp, Instagram, Messenger and email. Pro is {pro} per month and adds SMS, API access and one Moroccan number with 300 AI voice minutes. Prices are in Moroccan Dirham, excluding 20% VAT; annual billing takes 15% off; Enterprise is a custom contract."
-      },
-      "freePlan": {
-        "q": "Is there a free plan, and do I need a credit card?",
-        "a": "Yes, and no. The Free plan needs no credit card and includes one AI agent, 50 conversations a month, the website chat widget and 10 MB of knowledge base. It is meant for running the product on a real site; upgrade only when you need more channels or volume."
+        "a": "Starter is {starter} per month for WhatsApp, Instagram, Messenger and email. Pro is {pro} per month and adds SMS, API access and one Moroccan number with 300 AI voice minutes. Prices are in Moroccan Dirham, excluding 20% VAT; annual billing takes 15% off; Enterprise is a custom contract."
       },
       "humanHandoff": {
         "q": "What happens when the AI cannot answer?",
@@ -1014,7 +995,7 @@
       },
       "billing": {
         "label": "Billing",
-        "anselio": "Monthly in MAD, excluding VAT, free plan, no lock-in",
+        "anselio": "Monthly in MAD, excluding VAT, no lock-in",
         "ivr": "Telecom minutes and hardware, no AI included",
         "global": "USD or EUR, card required, annual contracts common"
       },
@@ -1044,7 +1025,7 @@
       }
     },
     "cta": {
-      "primary": "Start free",
+      "primary": "Get started",
       "secondary": "See pricing"
     }
   },
@@ -1106,7 +1087,7 @@
         },
         "site": {
           "label": "Website",
-          "value": "anselio.com — pricing in Moroccan Dirham (MAD), excluding 20% VAT, with a free plan."
+          "value": "anselio.com — pricing in Moroccan Dirham (MAD), excluding 20% VAT, with monthly plans and no lock-in."
         }
       }
     },
@@ -1123,7 +1104,7 @@
     "cta": {
       "title": "Talk to the team",
       "body": "Questions about a rollout, Moroccan telephony or a volume contract go to a person, not a form.",
-      "primary": "Start free"
+      "primary": "Get started"
     }
   }
 }

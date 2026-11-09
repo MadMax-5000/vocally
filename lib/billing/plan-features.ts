@@ -11,11 +11,10 @@ export type PlanMeta = {
   features: PlanFeature[];
 };
 
-export type PlanId = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
+export type PlanId = "STARTER" | "PRO" | "ENTERPRISE";
 
 /** Number(s) included in the plan. Pro ships one Moroccan number (Téléphonie Maroc); extra packs are sales-led. */
 export const MAX_PHONE_NUMBERS: Record<PlanId, number> = {
-  FREE: 0,
   STARTER: 0,
   PRO: 1,
   ENTERPRISE: Infinity,
@@ -23,7 +22,6 @@ export const MAX_PHONE_NUMBERS: Record<PlanId, number> = {
 
 /** Maximum AI agents an org can create per plan. */
 export const MAX_AGENTS: Record<PlanId, number> = {
-  FREE: 1,
   STARTER: 2,
   PRO: 5,
   ENTERPRISE: Infinity,
@@ -31,7 +29,6 @@ export const MAX_AGENTS: Record<PlanId, number> = {
 
 /** Conversations (customer sessions) included per month; overage is billed at cost per 100. */
 export const MAX_CONVERSATIONS: Record<PlanId, number> = {
-  FREE: 50,
   STARTER: 500,
   PRO: 2_000,
   ENTERPRISE: Infinity,
@@ -39,7 +36,6 @@ export const MAX_CONVERSATIONS: Record<PlanId, number> = {
 
 /** WhatsApp / Instagram / Messenger (Zernio) accounts included. Extra accounts are 100 MAD/mo each, sales-led. */
 export const MAX_SOCIAL_ACCOUNTS: Record<PlanId, number> = {
-  FREE: 0,
   STARTER: 3,
   PRO: 6,
   ENTERPRISE: Infinity,
@@ -47,35 +43,30 @@ export const MAX_SOCIAL_ACCOUNTS: Record<PlanId, number> = {
 
 /** SMS segments included per month; overage billed at pass-through cost. */
 export const MAX_SMS_SEGMENTS: Record<PlanId, number> = {
-  FREE: 0,
   STARTER: 0,
   PRO: 100,
   ENTERPRISE: Infinity,
 };
 
 export const ANALYTICS_ENABLED: Record<PlanId, boolean> = {
-  FREE: false,
   STARTER: true,
   PRO: true,
   ENTERPRISE: true,
 };
 
 export const SMS_ENABLED: Record<PlanId, boolean> = {
-  FREE: false,
   STARTER: false,
   PRO: true,
   ENTERPRISE: true,
 };
 
 export const EMAIL_CHANNEL_ENABLED: Record<PlanId, boolean> = {
-  FREE: false,
   STARTER: true,
   PRO: true,
   ENTERPRISE: true,
 };
 
 export const QA_SCORING_ENABLED: Record<PlanId, boolean> = {
-  FREE: false,
   STARTER: false,
   PRO: true,
   ENTERPRISE: true,
@@ -86,7 +77,6 @@ export const QA_SCORING_ENABLED: Record<PlanId, boolean> = {
  * extra packs add 300 each (sales-led).
  */
 export const MAX_CALL_MINUTES: Record<PlanId, number> = {
-  FREE: 0,
   STARTER: 0,
   PRO: 300,
   ENTERPRISE: Infinity,
@@ -94,27 +84,12 @@ export const MAX_CALL_MINUTES: Record<PlanId, number> = {
 
 /** Public SaaS prices in MAD centimes, HT. */
 export const PLAN_PRICES: Record<string, { madCents: number }> = {
-  FREE: { madCents: 0 },
   STARTER: { madCents: 200_000 },
   PRO: { madCents: 400_000 },
 };
 
 // Fallback copy when i18n is unavailable
 export const PLAN_META: Record<PlanId, PlanMeta> = {
-  FREE: {
-    key: "free",
-    name: "Free",
-    description: "Try Anselio on your website — no credit card required.",
-    blurb: "Get started with free website chat.",
-    features: [
-      { text: "1 AI agent", included: true },
-      { text: "50 conversations / mo", included: true },
-      { text: "Website chat only", included: true },
-      { text: "Knowledge base (10 MB)", included: true },
-      { text: "WhatsApp and social channels", included: false },
-      { text: "Morocco telephony", included: false },
-    ],
-  },
   STARTER: {
     key: "starter",
     name: "Starter",

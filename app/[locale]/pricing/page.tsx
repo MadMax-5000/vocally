@@ -33,7 +33,7 @@ export async function generateMetadata({
 
 const container = "mx-auto w-full max-w-[1200px] px-6";
 
-const PAID_CARD_PLANS = ["FREE", "STARTER", "PRO"] as const;
+const PAID_CARD_PLANS = ["STARTER", "PRO"] as const;
 
 function buildCtaLabels(
   t: Awaited<ReturnType<typeof getTranslations<"pricing">>>,
@@ -102,21 +102,15 @@ export default async function PricingPage() {
           {t("annualHint")}
         </p>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
           {plans.map((plan) => {
             const targetPlan = planFromMetaKey(plan.key);
             if (!targetPlan) return null;
 
             const isPro = plan.key === "pro";
-            const isFree = plan.key === "free";
             const isCurrentPlan = currentPlan === targetPlan;
             const rawPrice = plan.price !== null ? plan.price.madCents : null;
-            const formatted = rawPrice !== null ? formatPrice(rawPrice) : null;
-            const showPrice = isFree
-              ? t("free")
-              : formatted !== null
-                ? formatted
-                : null;
+            const showPrice = rawPrice !== null ? formatPrice(rawPrice) : null;
             const cta = resolvePlanCta({
               targetPlan,
               currentPlan,
@@ -131,7 +125,6 @@ export default async function PricingPage() {
                 name={plan.name}
                 description={plan.description}
                 showPrice={showPrice}
-                isFree={isFree}
                 isPro={isPro}
                 isCurrentPlan={isCurrentPlan}
                 recommendedLabel={t("recommended")}

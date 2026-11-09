@@ -12,7 +12,7 @@ model Organization {
   id                         String                @id @default(cuid())
   clerkOrgId                 String                @unique
   name                       String
-  plan                       Plan                  @default(FREE)
+  plan                       Plan                  @default(STARTER)
   /// Lemon Squeezy subscription id (stringified); used for idempotent webhook updates and portal links.
   lemonSqueezySubscriptionId String?               @unique
   lemonSqueezyCustomerId     String?
@@ -587,7 +587,6 @@ model CallLog {
 }
 
 enum Plan {
-  FREE
   STARTER
   PRO
   ENTERPRISE

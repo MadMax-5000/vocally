@@ -2,7 +2,7 @@ import { LlmProvider, type Plan } from "@prisma/client"
 
 import { PLAN_RANK } from "@/lib/billing/plan-rank"
 
-export type LlmMinPlan = Extract<Plan, "FREE" | "STARTER" | "PRO">
+export type LlmMinPlan = Extract<Plan, "STARTER" | "PRO">
 
 export type LlmModelOption = {
   provider: LlmProvider
@@ -58,24 +58,24 @@ export function llmIconSrc(modelId: string): string {
 // Curated, price-capped OpenRouter catalog. IDs are `author/slug` as used by
 // https://openrouter.ai/api/v1. Verification: `npm run verify:llm-models`.
 export const LLM_MODELS: LlmModelOption[] = [
-  // Starter / FREE
-  { provider: LlmProvider.OPENAI, id: "z-ai/glm-5.3-flash", label: "GLM 5.3 Flash", group: "Z.ai", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "z-ai/glm-4.7-flash", label: "GLM 4.7 Flash", group: "Z.ai", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash", group: "DeepSeek", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "qwen/qwen3.7-flash", label: "Qwen3.7 Flash", group: "Qwen", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "qwen/qwen3.5-flash-02-23", label: "Qwen3.5 Flash", group: "Qwen", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "qwen/qwen3-30b-a3b-instruct-2507", label: "Qwen3 30B", group: "Qwen", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "openai/gpt-5-nano", label: "GPT-5 Nano", group: "OpenAI", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "openai/gpt-4.1-nano", label: "GPT-4.1 Nano", group: "OpenAI", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "openai/gpt-oss-120b", label: "gpt-oss-120b", group: "OpenAI", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "openai/gpt-oss-20b", label: "gpt-oss-20b", group: "OpenAI", minPlan: "FREE" },
-  { provider: LlmProvider.GOOGLE, id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", group: "Gemini", minPlan: "FREE" },
-  { provider: LlmProvider.GOOGLE, id: "google/gemma-3-27b-it", label: "Gemma 3 27B", group: "Gemini", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "mistralai/mistral-small-3.2-24b-instruct", label: "Mistral Small 3.2", group: "Mistral", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "mistralai/mistral-nemo", label: "Mistral Nemo", group: "Mistral", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "mistralai/ministral-8b-2512", label: "Ministral 8B", group: "Mistral", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "meta-llama/llama-4-scout", label: "Llama 4 Scout", group: "Meta", minPlan: "FREE" },
-  { provider: LlmProvider.OPENAI, id: "meta-llama/llama-3.3-70b-instruct", label: "Llama 3.3 70B", group: "Meta", minPlan: "FREE" },
+  // Starter
+  { provider: LlmProvider.OPENAI, id: "z-ai/glm-5.3-flash", label: "GLM 5.3 Flash", group: "Z.ai", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "z-ai/glm-4.7-flash", label: "GLM 4.7 Flash", group: "Z.ai", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "deepseek/deepseek-v4-flash", label: "DeepSeek V4 Flash", group: "DeepSeek", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "qwen/qwen3.7-flash", label: "Qwen3.7 Flash", group: "Qwen", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "qwen/qwen3.5-flash-02-23", label: "Qwen3.5 Flash", group: "Qwen", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "qwen/qwen3-30b-a3b-instruct-2507", label: "Qwen3 30B", group: "Qwen", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "openai/gpt-5-nano", label: "GPT-5 Nano", group: "OpenAI", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "openai/gpt-4.1-nano", label: "GPT-4.1 Nano", group: "OpenAI", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "openai/gpt-oss-120b", label: "gpt-oss-120b", group: "OpenAI", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "openai/gpt-oss-20b", label: "gpt-oss-20b", group: "OpenAI", minPlan: "STARTER" },
+  { provider: LlmProvider.GOOGLE, id: "google/gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite", group: "Gemini", minPlan: "STARTER" },
+  { provider: LlmProvider.GOOGLE, id: "google/gemma-3-27b-it", label: "Gemma 3 27B", group: "Gemini", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "mistralai/mistral-small-3.2-24b-instruct", label: "Mistral Small 3.2", group: "Mistral", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "mistralai/mistral-nemo", label: "Mistral Nemo", group: "Mistral", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "mistralai/ministral-8b-2512", label: "Ministral 8B", group: "Mistral", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "meta-llama/llama-4-scout", label: "Llama 4 Scout", group: "Meta", minPlan: "STARTER" },
+  { provider: LlmProvider.OPENAI, id: "meta-llama/llama-3.3-70b-instruct", label: "Llama 3.3 70B", group: "Meta", minPlan: "STARTER" },
 
   // Pro / ENTERPRISE
   { provider: LlmProvider.OPENAI, id: "z-ai/glm-4.7", label: "GLM 4.7", group: "Z.ai", minPlan: "PRO" },

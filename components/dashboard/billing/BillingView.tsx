@@ -14,7 +14,7 @@ import {
   isPhoneAddonEligible,
 } from "@/lib/billing/phone-addon";
 
-export type BillingPlan = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
+export type BillingPlan = "STARTER" | "PRO" | "ENTERPRISE";
 
 const PAID_PLANS: PaidPlan[] = ["STARTER", "PRO", "ENTERPRISE"];
 

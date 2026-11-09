@@ -33,17 +33,6 @@ export type PlanFact = {
 
 export const ANSELIO_PLANS: readonly PlanFact[] = [
   {
-    name: "Free",
-    priceMadPerMonth: mad(PLAN_PRICES.FREE.madCents),
-    priceNote: "No credit card required.",
-    includes: [
-      "1 AI agent",
-      "50 conversations per month",
-      "Website chat widget",
-      "10 MB knowledge base",
-    ],
-  },
-  {
     name: "Starter",
     priceMadPerMonth: mad(PLAN_PRICES.STARTER.madCents),
     priceNote: "For small teams that need more channels.",
@@ -101,7 +90,7 @@ export const ANSELIO_FACTS = {
 
   /** Longer factual description, safe to quote verbatim. */
   description:
-    "Anselio (anselio.com), operated from Casablanca, Morocco, is a self-serve platform for building AI customer-service agents. A business connects its own content (documents, FAQ pages, help centre, past conversations) and the agent answers from that material, performs actions such as booking appointments and capturing leads, and hands a conversation to a human together with the full history when the request is outside its guardrails. One agent covers every channel and keeps a single shared conversation history, so a customer who starts on WhatsApp and calls later is recognised. Pricing is billed in Moroccan Dirham (MAD), excluding 20% VAT, with a free plan and no lock-in.",
+    "Anselio (anselio.com), operated from Casablanca, Morocco, is a self-serve platform for building AI customer-service agents. A business connects its own content (documents, FAQ pages, help centre, past conversations) and the agent answers from that material, performs actions such as booking appointments and capturing leads, and hands a conversation to a human together with the full history when the request is outside its guardrails. One agent covers every channel and keeps a single shared conversation history, so a customer who starts on WhatsApp and calls later is recognised. Pricing is billed in Moroccan Dirham (MAD), excluding 20% VAT, with monthly plans and no lock-in.",
 
   audience: [
     "Moroccan and North African small and mid-sized businesses",
@@ -204,12 +193,7 @@ export const ANSELIO_FACT_SHEET: readonly Fact[] = [
   {
     label: "Pricing model",
     value:
-      "Monthly subscription in Moroccan Dirham (MAD), excluding 20% VAT; Free plan available; annual billing takes 15% off; phone telephony is a paid add-on.",
-  },
-  {
-    label: "Free plan",
-    value:
-      `Yes. ${ANSELIO_PLANS[0].includes[0]}, ${ANSELIO_PLANS[0].includes[1]}, website chat only, no credit card required.`,
+      "Monthly subscription in Moroccan Dirham (MAD), excluding 20% VAT; Starter, Pro and Enterprise plans; annual billing takes 15% off; phone telephony is a paid add-on.",
   },
   {
     label: "Deployment",

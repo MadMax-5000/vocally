@@ -761,9 +761,9 @@ export function PhoneNumbersTab({
               <AppIcon icon={PhoneIcon} className="size-4 text-amber-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-body-sm font-medium text-ink">{t("freePlanTitle")}</p>
+              <p className="text-body-sm font-medium text-ink">{t("planTitle")}</p>
               <p className="mt-0.5 text-caption text-muted">
-                {t("freePlanDescription")}
+                {t("planDescription")}
               </p>
             </div>
           </div>

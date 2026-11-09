@@ -238,7 +238,7 @@ export async function getMonthlyCallMinutes(orgId: string): Promise<{ used: numb
     where: { id: orgId },
     select: { plan: true },
   });
-  const plan = org?.plan ?? "FREE";
+  const plan = org?.plan ?? "STARTER";
   const digitalMax = MAX_CALL_MINUTES[plan as keyof typeof MAX_CALL_MINUTES] ?? 0;
   const max = monthlyCallMinuteCap(plan, digitalMax);
 

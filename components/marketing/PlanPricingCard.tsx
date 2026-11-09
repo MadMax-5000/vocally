@@ -8,7 +8,6 @@ type PlanPricingCardProps = {
   name: string;
   description: string;
   showPrice: string | null;
-  isFree: boolean;
   isPro: boolean;
   isCurrentPlan: boolean;
   recommendedLabel?: string;
@@ -24,7 +23,6 @@ export function PlanPricingCard({
   name,
   description,
   showPrice,
-  isFree,
   isPro,
   isCurrentPlan,
   recommendedLabel,
@@ -82,7 +80,7 @@ export function PlanPricingCard({
       >
         {showPrice}
       </p>
-      {!isFree && perMonthLabel && (
+      {perMonthLabel && (
         <p className={`mt-1 text-caption ${isPro ? "text-on-primary/70" : "text-muted"}`}>{perMonthLabel}</p>
       )}
 

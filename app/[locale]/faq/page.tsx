@@ -25,7 +25,7 @@ const container = "mx-auto w-full max-w-[1200px] px-6";
 const GROUPS = [
   { id: "understanding", keys: ["difference", "adapt", "resolve", "setup"] },
   { id: "channels", keys: ["channels", "darija", "voiceNumber"] },
-  { id: "pricing", keys: ["pricing", "freePlan", "cancel"] },
+  { id: "pricing", keys: ["pricing", "cancel"] },
   { id: "trust", keys: ["privacy", "humanHandoff"] },
 ] as const;
 
@@ -49,7 +49,6 @@ export default async function FaqPage({
   const page = await getTranslations("faqPage.items");
 
   const priceParams = {
-    free: formatPrice(PLAN_PRICES.FREE.madCents),
     starter: formatPrice(PLAN_PRICES.STARTER.madCents),
     pro: formatPrice(PLAN_PRICES.PRO.madCents),
   };

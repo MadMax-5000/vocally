@@ -1,14 +1,12 @@
 import type { Plan } from "@prisma/client";
 
 export const PLAN_RANK: Record<Plan, number> = {
-  FREE: 0,
   STARTER: 1,
   PRO: 2,
   ENTERPRISE: 3,
 };
 
 const META_KEY_TO_PLAN: Record<string, Plan> = {
-  free: "FREE",
   starter: "STARTER",
   pro: "PRO",
   enterprise: "ENTERPRISE",

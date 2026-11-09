@@ -87,7 +87,6 @@
       "checkoutCompleted": "Paiement terminé — votre offre sera mise à jour sous peu.",
       "checkoutFailed": "Impossible de démarrer le paiement. Veuillez réessayer.",
       "plans": {
-        "FREE": "Gratuit",
         "STARTER": "Starter",
         "PRO": "Pro",
         "ENTERPRISE": "Entreprise"

@@ -19,10 +19,9 @@ export const PHONE_EXTRA_SOCIAL_ACCOUNT_MONTHLY_MAD_CENTS = 10_000;
 export const PHONE_OVERAGE_MAD = 3;
 
 export const PHONE_ADDON_ELIGIBLE: Record<
-  "FREE" | "STARTER" | "PRO" | "ENTERPRISE",
+  "STARTER" | "PRO" | "ENTERPRISE",
   boolean
 > = {
-  FREE: false,
   STARTER: false,
   PRO: true,
   ENTERPRISE: true,

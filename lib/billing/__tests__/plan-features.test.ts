@@ -24,31 +24,25 @@ import {
 
 describe("Anselio Morocco pricing", () => {
   it("prices digital SaaS in MAD HT centimes without .99", () => {
-    expect(PLAN_PRICES.FREE.madCents).toBe(0);
     expect(PLAN_PRICES.STARTER.madCents).toBe(200_000);
     expect(PLAN_PRICES.PRO.madCents).toBe(400_000);
   });
 
   it("includes phone number and voice minutes on Pro only", () => {
-    expect(MAX_PHONE_NUMBERS.FREE).toBe(0);
     expect(MAX_PHONE_NUMBERS.STARTER).toBe(0);
     expect(MAX_PHONE_NUMBERS.PRO).toBe(1);
     expect(MAX_PHONE_NUMBERS.ENTERPRISE).toBe(Infinity);
-    expect(MAX_CALL_MINUTES.FREE).toBe(0);
     expect(MAX_CALL_MINUTES.STARTER).toBe(0);
     expect(MAX_CALL_MINUTES.PRO).toBe(300);
     expect(MAX_CALL_MINUTES.ENTERPRISE).toBe(Infinity);
   });
 
   it("caps agents, conversations, SMS, and social accounts per plan", () => {
-    expect(MAX_AGENTS.FREE).toBe(1);
     expect(MAX_AGENTS.STARTER).toBe(2);
     expect(MAX_AGENTS.PRO).toBe(5);
-    expect(MAX_CONVERSATIONS.FREE).toBe(50);
     expect(MAX_CONVERSATIONS.STARTER).toBe(500);
     expect(MAX_CONVERSATIONS.PRO).toBe(2_000);
     expect(MAX_CONVERSATIONS.ENTERPRISE).toBe(Infinity);
-    expect(MAX_SOCIAL_ACCOUNTS.FREE).toBe(0);
     expect(MAX_SOCIAL_ACCOUNTS.STARTER).toBe(3);
     expect(MAX_SOCIAL_ACCOUNTS.PRO).toBe(6);
     expect(MAX_SMS_SEGMENTS.STARTER).toBe(0);
@@ -72,7 +66,6 @@ describe("Anselio Morocco pricing", () => {
   });
 
   it("honors Pro's included pack minutes from plan MAX_CALL_MINUTES", () => {
-    expect(monthlyCallMinuteCap("FREE", 0)).toBe(0);
     expect(monthlyCallMinuteCap("STARTER", 0)).toBe(0);
     expect(monthlyCallMinuteCap("PRO", 300)).toBe(PHONE_PACK_INCLUDED_MINUTES);
     expect(monthlyCallMinuteCap("ENTERPRISE", Number.POSITIVE_INFINITY)).toBe(

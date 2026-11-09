@@ -25,7 +25,7 @@ export default async function AgentDetailPage({
           </div>
         }
       >
-        <AgentDetailShell agent={agent} plan={plan ?? "FREE"} />
+        <AgentDetailShell agent={agent} plan={plan ?? "STARTER"} />
       </Suspense>
     </div>
   );

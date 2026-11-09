@@ -65,7 +65,7 @@ model Organization {
   id          String   @id @default(cuid())
   clerkOrgId  String   @unique
   name        String
-  plan        Plan     @default(FREE)
+  plan        Plan     @default(STARTER)
   createdAt   DateTime @default(now())
   calls       Call[]
   sessions    Session[]
@@ -135,7 +135,7 @@ model CallLog {
   createdAt   DateTime @default(now())
 }
 
-enum Plan { FREE STARTER PRO ENTERPRISE }
+enum Plan { STARTER PRO ENTERPRISE }
 enum Channel { VOICE CHAT SMS WHATSAPP EMAIL }
 enum SessionStatus { ACTIVE WAITING BOT HUMAN RESOLVED ABANDONED }
 enum MessageRole { USER BOT AGENT SYSTEM }
@@ -216,7 +216,7 @@ if (!orgId) throw new Error("Unauthorized");
 
 ## 8. Billing (LemonSqueezy)
 
-- Plans: `FREE`, `STARTER`, `PRO`, `ENTERPRISE`
+- Plans: `STARTER`, `PRO`, `ENTERPRISE`
 - Webhook at `/api/webhooks/lemonsqueezy` updates `Organization.plan` in DB
 - Gate features by plan in middleware and UI — check `org.plan` before rendering premium features
 - Pricing page at `/pricing` — use LemonSqueezy checkout links

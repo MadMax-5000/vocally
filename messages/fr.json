@@ -48,7 +48,7 @@
   },
   "common": {
     "getStarted": "Commencer",
-    "tryFree": "Essayer gratuitement",
+    "tryFree": "Commencer",
     "bookDemo": "Réserver une démo",
     "signIn": "Se connecter",
     "dashboard": "Tableau de bord",
@@ -367,7 +367,7 @@
       "title": "Rendez leurs matinées",
       "titleMuted": "à votre équipe.",
       "body": "Connectez votre help desk et laissez Anselio résoudre les tickets dès aujourd'hui — sans code.",
-      "button": "Commencer gratuitement"
+      "button": "Commencer"
     },
     "nav": {
       "labels": {
@@ -502,7 +502,6 @@
     "recommended": "Recommandé",
     "perMonth": "par mois HT, facturé mensuellement",
     "priceHtSuffix": " HT",
-    "free": "Gratuit",
     "currentPlan": "Plan actuel",
     "upgrade": "Mettre à niveau",
     "redirecting": "Redirection…",
@@ -532,19 +531,6 @@
     }
   },
   "plans": {
-    "free": {
-      "name": "Gratuit",
-      "description": "Essayez Anselio sur votre site — sans carte de crédit.",
-      "blurb": "Commencez avec le chat site web gratuit.",
-      "features": {
-        "0": "1 agent IA",
-        "1": "50 conversations / mois",
-        "2": "Chat site web uniquement",
-        "3": "Base de connaissances (10 Mo)",
-        "4": "WhatsApp et réseaux sociaux",
-        "5": "Téléphonie Maroc"
-      }
-    },
     "starter": {
       "name": "Starter",
       "description": "Pour les petites entreprises qui ont besoin d'IA sur le chat, WhatsApp, les réseaux sociaux et l'e-mail.",
@@ -804,10 +790,9 @@
         "3": {
           "title": "4. Abonnements, facturation et paiement",
           "content": {
-            "intro": "La plateforme est propos\u00e9e sur la base d\u2019un abonnement avec les plans suivants\u00a0: Gratuit, Starter, Pro et Entreprise. La t\u00e9l\u00e9phonie Maroc est un add-on s\u00e9par\u00e9.",
+            "intro": "La plateforme est propos\u00e9e sur la base d\u2019un abonnement avec les plans suivants\u00a0: Starter, Pro et Entreprise. La t\u00e9l\u00e9phonie Maroc est un add-on s\u00e9par\u00e9.",
             "list": [
               "Les frais d\u2019abonnement sont factur\u00e9s mensuellement d\u2019avance en dirham marocain (MAD) hors taxes (TVA 20 %) via LemonSqueezy.",
-              "Plan Gratuit\u00a0: 1 agent IA, 50 conversations par mois, chat site web et 10 Mo de base de connaissances. Pas de t\u00e9l\u00e9phone ni de WhatsApp.",
               "Plan Starter (2\u00a0000 MAD HT/mois)\u00a0: jusqu\u2019\u00e0 2 agents IA, chat et page d\u2019aide, WhatsApp / Instagram / Messenger, canal e-mail, 50 Mo de base de connaissances, bo\u00eete de r\u00e9ception, 2 membres, 3 comptes WhatsApp/Meta et 500 conversations par mois. Les frais Meta sont refactur\u00e9s au co\u00fbt. Pas de t\u00e9l\u00e9phone.",
               "Plan Pro (4\u00a0000 MAD HT/mois)\u00a0: tout Starter, jusqu\u2019\u00e0 5 agents IA, 5 membres, canal e-mail et API, 100 segments SMS, 6 comptes WhatsApp/Meta, 1 num\u00e9ro marocain avec 300 minutes de voix IA et 2\u00a0000 conversations par mois. Analytiques avanc\u00e9es incluses.",
               "Plan Entreprise\u00a0: tarifs, limites et fonctionnalit\u00e9s personnalis\u00e9s, y compris des num\u00e9ros et lignes simultan\u00e9es suppl\u00e9mentaires.",
@@ -820,8 +805,8 @@
           }
         },
         "4": {
-          "title": "5. Plan gratuit",
-          "content": "Nous proposons un plan gratuit nous permettant de vous faire d\u00e9couvrir nos Services. Le plan gratuit n\u2019inclut pas la t\u00e9l\u00e9phonie Maroc ni l\u2019exp\u00e9dition d\u2019un gateway GSM. Aucune carte de cr\u00e9dit n\u2019est requise. Nous nous r\u00e9servons le droit de modifier ou d\u2019annuler le plan gratuit \u00e0 tout moment sans pr\u00e9avis."
+          "title": "5. Changement de plan et résiliation",
+          "content": "Vous pouvez passer à un plan supérieur ou inférieur à tout moment depuis le tableau de bord. Les mises à niveau prennent effet immédiatement ; les rétrogradations et résiliations prennent effet à la fin du cycle de facturation en cours. La résiliation met fin aux renouvellements futurs et ne donne pas droit au remboursement des frais déjà payés, sauf si la loi applicable l'exige."
         },
         "5": {
           "title": "6. Utilisation acceptable",
@@ -964,11 +949,7 @@
       },
       "pricing": {
         "q": "Combien coûte Anselio ?",
-        "a": "L'offre Free coûte {free} : un agent, 50 conversations par mois, chat du site uniquement. Starter est à {starter} par mois pour WhatsApp, Instagram, Messenger et l'e-mail. Pro est à {pro} par mois et ajoute les SMS, l'accès API et un numéro marocain avec 300 minutes vocales IA. Les prix sont en dirham marocain, hors TVA de 20 % ; la facturation annuelle offre 15 % de réduction ; Enterprise fait l'objet d'un contrat sur mesure."
-      },
-      "freePlan": {
-        "q": "Existe-t-il une offre gratuite, et faut-il une carte bancaire ?",
-        "a": "Oui, et non. L'offre Free ne demande aucune carte bancaire et comprend un agent IA, 50 conversations par mois, le widget de chat du site et 10 Mo de base de connaissances. Elle sert à faire tourner le produit sur un vrai site ; vous ne passez à une offre supérieure que si vous avez besoin de plus de canaux ou de volume."
+        "a": "Starter est à {starter} par mois pour WhatsApp, Instagram, Messenger et l'e-mail. Pro est à {pro} par mois et ajoute les SMS, l'accès API et un numéro marocain avec 300 minutes vocales IA. Les prix sont en dirham marocain, hors TVA de 20 % ; la facturation annuelle offre 15 % de réduction ; Enterprise fait l'objet d'un contrat sur mesure."
       },
       "humanHandoff": {
         "q": "Que se passe-t-il quand l'IA ne sait pas répondre ?",
@@ -1014,7 +995,7 @@
       },
       "billing": {
         "label": "Facturation",
-        "anselio": "Mensuelle en dirham, hors TVA, offre gratuite, sans engagement",
+        "anselio": "Mensuelle en dirham, hors TVA, sans engagement",
         "ivr": "Minutes télécom et matériel, sans IA incluse",
         "global": "USD ou EUR, carte bancaire requise, contrats annuels fréquents"
       },
@@ -1044,7 +1025,7 @@
       }
     },
     "cta": {
-      "primary": "Commencer gratuitement",
+      "primary": "Commencer",
       "secondary": "Voir les tarifs"
     }
   },
@@ -1106,7 +1087,7 @@
         },
         "site": {
           "label": "Site",
-          "value": "anselio.com — tarifs en dirham marocain (MAD), hors TVA de 20 %, avec une offre gratuite."
+          "value": "anselio.com — tarifs en dirham marocain (MAD), hors TVA de 20 %, avec des plans mensuels et sans engagement."
         }
       }
     },
@@ -1123,7 +1104,7 @@
     "cta": {
       "title": "Parler à l'équipe",
       "body": "Les questions sur un déploiement, la téléphonie marocaine ou un contrat volume arrivent à une personne, pas à un formulaire.",
-      "primary": "Commencer gratuitement"
+      "primary": "Commencer"
     }
   }
 }

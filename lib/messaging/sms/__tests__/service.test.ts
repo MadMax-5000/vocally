@@ -17,6 +17,10 @@ vi.mock("@/lib/db/prisma", () => ({
       findUnique: vi.fn(),
       findFirst: vi.fn(),
     },
+    smsMessageDedupe: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+    },
   },
 }));
 

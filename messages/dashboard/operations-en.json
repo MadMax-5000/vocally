@@ -99,7 +99,6 @@
       "checkoutCompleted": "Checkout completed — your plan will update shortly.",
       "checkoutFailed": "Could not start checkout. Please try again.",
       "plans": {
-        "FREE": "Free",
         "STARTER": "Starter",
         "PRO": "Pro",
         "ENTERPRISE": "Enterprise"

@@ -25,7 +25,9 @@ echo "Active: $ACTIVE (:$ACTIVE_PORT) → Deploying to $INACTIVE (:$INACTIVE_POR
 cd "$INACTIVE_DIR"
 git pull origin main
 npm install
-npx prisma db push
+# Retire the Free plan before the enum changes. No-op after the first deploy.
+npx prisma db execute --schema prisma/schema.prisma --file prisma/migrations/008_remove_free_plan.sql
+npx prisma db push --accept-data-loss
 export NODE_OPTIONS="--max-old-space-size=3072"
 npm run build
 

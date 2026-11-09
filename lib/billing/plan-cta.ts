@@ -68,9 +68,6 @@ export function resolvePlanCta({
     if (targetPlan === "ENTERPRISE") {
       return enterpriseCta(enterpriseCheckoutEnabled, context);
     }
-    if (targetPlan === "FREE") {
-      return { kind: "disabled", labelKey: "currentPlan" };
-    }
     const labelKey: PlanCtaLabelKey = context === "billing" ? "checkout" : "getStarted";
     return { kind: "checkout", plan: targetPlan as PaidPlan, labelKey };
   }
@@ -89,12 +86,7 @@ export function resolvePlanCta({
     return enterpriseCta(enterpriseCheckoutEnabled, context);
   }
 
-  const labelKey: PlanCtaLabelKey =
-    context === "billing"
-      ? "checkout"
-      : currentPlan === "FREE"
-        ? "getStarted"
-        : "upgrade";
+  const labelKey: PlanCtaLabelKey = context === "billing" ? "checkout" : "upgrade";
 
   return { kind: "checkout", plan: targetPlan as PaidPlan, labelKey };
 }

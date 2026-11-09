@@ -2,7 +2,7 @@ import { PlanMeta } from "./plan-features";
 
 export function getLocalizedPlanMeta(
   t: (key: string) => string,
-): Record<"FREE" | "STARTER" | "PRO" | "ENTERPRISE", PlanMeta> {
+): Record<"STARTER" | "PRO" | "ENTERPRISE", PlanMeta> {
   const mapFeatures = (planKey: string, count: number, maxIncluded: number) => {
     return Array.from({ length: count }).map((_, i) => ({
       text: t(`${planKey}.features.${i}`),
@@ -11,13 +11,6 @@ export function getLocalizedPlanMeta(
   };
 
   return {
-    FREE: {
-      key: "free",
-      name: t("free.name"),
-      description: t("free.description"),
-      blurb: t("free.blurb"),
-      features: mapFeatures("free", 6, 4),
-    },
     STARTER: {
       key: "starter",
       name: t("starter.name"),

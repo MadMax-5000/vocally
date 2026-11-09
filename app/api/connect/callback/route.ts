@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
       where: { id: agent.orgId },
       select: { plan: true },
     });
-    const plan = org?.plan ?? "FREE";
+    const plan = org?.plan ?? "STARTER";
     const maxAccounts =
       MAX_SOCIAL_ACCOUNTS[plan as keyof typeof MAX_SOCIAL_ACCOUNTS] ?? 0;
     if (maxAccounts <= 0) {

@@ -1,7 +1,5 @@
 import crypto from "node:crypto";
 
-import type { Plan } from "@prisma/client";
-
 import { prisma } from "@/lib/db/prisma";
 import { planFromVariantId } from "@/lib/billing/plan-map";
 
@@ -48,7 +46,7 @@ async function syncSubscriptionToOrg(clerkOrgId: string, subscriptionId: string,
     await prisma.organization.updateMany({
       where: { clerkOrgId },
       data: {
-        plan: "FREE" as Plan,
+        plan: "STARTER",
         lemonSqueezySubscriptionId: null,
         lemonSqueezyCustomerId: null,
       },

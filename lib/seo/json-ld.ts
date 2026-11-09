@@ -90,7 +90,6 @@ export function websiteJsonLd() {
 
 function planOffers(locale: string) {
   const pricedPlans = [
-    { name: "Free", cents: PLAN_PRICES.FREE.madCents },
     { name: "Starter", cents: PLAN_PRICES.STARTER.madCents },
     { name: "Pro", cents: PLAN_PRICES.PRO.madCents },
   ];
@@ -133,8 +132,8 @@ export function softwareApplicationJsonLd(locale: string = "en") {
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "MAD",
-      lowPrice: "0.00",
-      offerCount: 3,
+      lowPrice: (PLAN_PRICES.STARTER.madCents / 100).toFixed(2),
+      offerCount: 2,
       offers: planOffers(locale),
     },
   };
