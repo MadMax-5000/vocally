@@ -9,7 +9,8 @@ import type { ResolvedSuggestedMessagesAction } from "@/lib/deploy/suggested-mes
 import type { ResolvedCustomButtonAction } from "@/lib/deploy/custom-button-action";
 
 const ASSISTANT_AGENT_ID =
-  process.env.NEXT_PUBLIC_PRODUCT_ASSISTANT_AGENT_ID ?? "";
+  process.env.NEXT_PUBLIC_PRODUCT_ASSISTANT_AGENT_ID ||
+  "cmrg9bdlu0001iqpcmvxjquin";
 
 const BRAND_COLOR = "#FF5A36";
 
